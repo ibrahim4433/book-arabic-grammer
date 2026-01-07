@@ -1,36 +1,109 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700&family=Noto+Naskh+Arabic:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700&family=Noto+Naskh+Arabic:wght@400;500;700&display=swap');
 
 :root {
-    --color-primary: #00897B; /* Teal */
-    --color-secondary: #263238; /* Dark Grey */
-    --font-body: "Noto Naskh Arabic", serif;
-    --font-heading: "Noto Kufi Arabic", sans-serif;
+    /* PALETTE: The Linguistic Kitchen */
+    --color-primary: #00897B; /* Teal - The Base Ingredients */
+    --color-accent: #E64A19;  /* Burnt Orange - The Spice/Diacritics */
+    --color-text: #263238;    /* Dark Grey - Charcoal */
+    --color-bg-card: #F9F9F9; /* Off-white for cards */
+    --color-bg-note: #FFF3E0; /* Light Orange for notes */
+
+    /* TYPOGRAPHY */
+    --font-heading: 'Noto Kufi Arabic', sans-serif;
+    --font-body: 'Noto Naskh Arabic', serif;
 }
 
+/* 1. PRINT SETUP (A4) */
 @page {
     size: A4;
     margin: 20mm;
     bleed: 3mm;
     marks: crop cross;
+
+    @bottom-center {
+        content: counter(page);
+        font-family: var(--font-heading);
+        font-size: 10pt;
+        color: var(--color-primary);
+    }
 }
 
 html {
     direction: rtl;
+    lang: ar;
 }
 
 body {
     font-family: var(--font-body);
+    color: var(--color-text);
+    font-size: 14pt;
+    line-height: 1.6; /* Optimized for Tashkeel visibility */
     margin: 0;
-    padding: 0;
-    box-sizing: border-box;
 }
 
-.frontmatter-container {
-    height: 100%; /* Relative to A4 page height */
+/* 2. TYPOGRAPHY RULES */
+h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+    color: var(--color-primary);
+    page-break-after: avoid;
+}
+
+h1 { font-size: 28pt; margin-bottom: 5mm; }
+h2 { font-size: 20pt; border-bottom: 2px solid var(--color-primary); padding-bottom: 2mm; }
+
+/* 3. COOKBOOK COMPONENTS */
+
+/* The Recipe Card (Standard Grammar Rule Box) */
+.recipe-card {
+    background-color: var(--color-bg-card);
+    border: 2px dashed var(--color-primary);
+    border-radius: 12px;
+    padding: 5mm;
+    margin: 5mm 0;
+    page-break-inside: avoid;
+}
+
+/* The Chef's Note (Warnings/Exceptions) */
+.chef-note {
+    background-color: var(--color-bg-note);
+    border-right: 6px solid var(--color-accent); /* RTL Leading Edge */
+    padding: 4mm 6mm;
+    margin: 5mm 0;
+    font-style: italic;
+    page-break-inside: avoid;
+}
+
+/* Ingredient List (Styled Lists) */
+ul.ingredient-list {
+    list-style-type: none;
+    padding-right: 0;
+}
+
+ul.ingredient-list li {
+    position: relative;
+    padding-right: 25px;
+    margin-bottom: 8px;
+}
+
+ul.ingredient-list li::before {
+    content: "🥄"; /* Spoon bullet point */
+    position: absolute;
+    right: 0;
+    color: var(--color-primary);
+}
+
+/* 4. UTILITY CLASSES */
+.text-accent { color: var(--color-accent); }
+.text-primary { color: var(--color-primary); }
+
+.image-placeholder {
+    width: 100%;
+    height: 80mm;
+    border: 2px solid #ccc;
+    background: #eee;
     display: flex;
-    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    text-align: center;
-    border: 2px solid var(--color-primary); /* Visual aid for margins */
-    padding: 20mm;
+    color: #666;
+    margin: 5mm 0;
 }

@@ -1,33 +1,24 @@
-# **📘 Modern Arabic Grammar Book using Web-to-Print process**
+# 📘 Modern Arabic Grammar Book
 
-A modern, high-quality Arabic Grammar book project built with **HTML**, **CSS Paged Media**, and **Python**. This repository acts as a "Book Engine" that compiles individual HTML chapters into a single, print-ready PDF using WeasyPrint.
+A modern, high-quality Arabic Grammar book project built with **HTML**, **CSS Paged Media**, and **Python**.
 
-Target Audience: Middle School Students.  
-Language: Modern Standard Arabic (MSA) with full Diacritics (Tashkeel).
+## 🚀 Quick Start
 
-## **🚀 Quick Start**
+### Prerequisites
+* Python 3.10 or higher
+* **GTK3 libraries** (CRITICAL: Required for WeasyPrint rendering).
+    * *Linux:* `sudo apt-get install libpango-1.0-0`
+    * *Mac:* `brew install pango`
+    * *Windows:* Follow WeasyPrint docs carefully.
 
-### **Prerequisites**
+### Installation
+1. Clone the repository.
+2. Install Python dependencies:
+   `pip install -r requirements.txt`
 
-* Python 3.10 or higher  
-* GTK3 libraries (Required for WeasyPrint)
-
-### **Installation**
-
-1. Clone the repository:  
-   git clone [https://github.com/ibrahim4433/book-arabic-grammer.git](https://github.com/ibrahim4433/book-arabic-grammer.git)  
-   cd arabic-grammar-book
-
-2. Install Python dependencies:  
-   pip install \-r requirements.txt
-
-### **Building the Book**
-
-To generate the PDF, run the build script:
-
-python build.py
-
-The final PDF will be generated at: output/book.pdf
+### Building the Book
+Run the build script:
+`python build.py`
 
 ## **📂 Project Structure**
 
