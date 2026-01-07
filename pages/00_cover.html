@@ -6,62 +6,58 @@
     <title>Cover Page</title>
     <link rel="stylesheet" href="../styles/main.css">
     <style>
-        .cover-page {
-            height: 100vh;
+        /* Local overrides for Cover Page specific layout */
+        .cover-container {
+            height: 90vh; /* Adjust for print margins */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
+            border: 4px double var(--color-primary);
+            padding: 10mm;
+            border-radius: 20px;
         }
-        h1.book-title {
-            font-size: 48pt;
+
+        .main-title {
+            font-size: 42pt;
             color: var(--color-primary);
-            font-family: var(--font-heading);
-            margin-bottom: 10mm;
+            margin: 0;
+            line-height: 1.2;
         }
-        h2.book-subtitle {
-            font-size: 22pt;
-            color: var(--color-secondary);
-            font-family: var(--font-heading);
-            margin-bottom: 20mm;
+
+        .sub-title {
+            font-size: 20pt;
+            margin-top: 5mm;
+            margin-bottom: 15mm;
+            color: var(--color-text);
         }
-        .image-placeholder {
-            width: 80%;
-            height: 400px;
-            border: 2px dashed var(--color-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: auto;
-        }
-        .book-meta {
+
+        .meta-info {
             margin-top: auto;
-            padding-bottom: 20mm;
             font-size: 12pt;
-            color: var(--color-secondary);
-        }
-        .highlight-red {
-            color: #D32F2F;
-        }
-        .highlight-blue {
-            color: #1976D2;
+            color: #546E7A;
         }
     </style>
 </head>
 <body>
-    <div class="cover-page">
-        <h1 class="book-title">قَوَاعِدُ اللُّغَةِ الْعَرَبِيَّةِ</h1>
-        <h2 class="book-subtitle"><span class="highlight-red">الْوَصْفَةُ السِّرِّيَّةُ</span> لِطَبْخِ الْجُمَلِ وَتَذَوُّقِ الْبَلَاغَةِ</h2>
 
-        <div class="image-placeholder cover-art">
-            [صورة: رسم توضيحي لشيف عربي يطبخ الحروف العربية في قدر كبير - Cover Art]
+    <div class="cover-container">
+        <h1 class="main-title">قَوَاعِدُ اللُّغَةِ الْعَرَبِيَّةِ</h1>
+
+        <h2 class="sub-title">
+            <span class="text-accent">الْوَصْفَةُ السِّرِّيَّةُ</span> لِطَبْخِ الْجُمَلِ وَتَذَوُّقِ الْبَلَاغَةِ
+        </h2>
+
+        <div class="image-placeholder" style="border-style: dashed; border-color: var(--color-accent);">
+            [صورة: غلاف فني يُظهر حروفاً عربية تُطبخ في قدر نحاسي قديم]
         </div>
 
-        <div class="book-meta">
-            <p>إِعْدَادُ وَتَنْسِيقُ: <span class="highlight-blue">Book Architect</span></p>
-            <p>إِصْدَارُ عَامِ 2026</p>
+        <div class="meta-info">
+            <p>إِعْدَادُ: <strong>مُهَنْدِسُ الْكِتَابِ (The Architect)</strong></p>
+            <p>إِصْدَارُ عَامِ: 2026</p>
         </div>
     </div>
+
 </body>
 </html>
