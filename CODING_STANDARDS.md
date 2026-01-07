@@ -1,0 +1,4 @@
+Coding Standards & Quality GatesHTML / Content RulesSemantic Structure: Use <article>, <section>, <h1>–<h3>.RTL Enforcement: Every HTML file must start with:<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+Diacritics (Tashkeel): All Arabic text MUST have full diacritics.Color Coding (Grammar):Use <span class="highlight-red"> for I'rab signs (Grammatical endings).Use <span class="highlight-blue"> for Particles (Harf Jar, etc.).Use <span class="keyword"> for Definitions.CSS / Design RulesPaged Media: Always define @page with correct margins (e.g., margin: 20mm).Avoid Breaks:h1, h2, .grammar-box, table { break-inside: avoid; page-break-inside: avoid; }
+Variables: Use CSS variables for colors (defined in :root).--color-primary (Teal/Green)--color-accent (Red/Orange for grammar)Python Build RulesPath Handling: Use os.path and glob to reliably find files across OS environments.Error Handling: The script should fail gracefully if a file is missing.
