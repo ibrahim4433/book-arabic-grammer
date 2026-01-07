@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700&family=Noto+Naskh+Arabic:wght@400;700&display=swap');
+
+:root {
+    --color-primary: #00897B; /* Teal */
+    --color-secondary: #263238; /* Dark Grey */
+    --font-body: "Noto Naskh Arabic", serif;
+    --font-heading: "Noto Kufi Arabic", sans-serif;
+}
+
+@page {
+    size: A4;
+    margin: 20mm;
+    bleed: 3mm;
+    marks: crop cross;
+}
+
+html {
+    direction: rtl;
+}
+
+body {
+    font-family: var(--font-body);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.frontmatter-container {
+    height: 100%; /* Relative to A4 page height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    border: 2px solid var(--color-primary); /* Visual aid for margins */
+    padding: 20mm;
+}
