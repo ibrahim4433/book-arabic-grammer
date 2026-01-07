@@ -15,7 +15,7 @@ Language: Modern Standard Arabic (MSA) with full Diacritics (Tashkeel).
 ### **Installation**
 
 1. Clone the repository:  
-   git clone \[https://github.com/ibrahim4433/book-arabic-grammer.git](https://github.com/ibrahim4433/book-arabic-grammer.git)  
+   git clone [https://github.com/ibrahim4433/book-arabic-grammer.git](https://github.com/ibrahim4433/book-arabic-grammer.git)  
    cd arabic-grammar-book
 
 2. Install Python dependencies:  
