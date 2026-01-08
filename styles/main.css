@@ -5,25 +5,18 @@
     --color-primary: #00897B;   /* Teal - Main Theme */
     --color-secondary: #263238; /* Dark Grey - Text */
     --color-accent: #E64A19;    /* Burnt Orange - Focus/Alerts */
+    --bg-light: #FAFAFA;
 
     /* TYPOGRAPHY */
     --font-heading: 'Noto Kufi Arabic', sans-serif;
     --font-body: 'Noto Naskh Arabic', serif;
 }
 
-/* 1. PRINT SETUP (A4) */
+/* 1. GLOBAL PAGE SETUP */
 @page {
     size: A4;
-    margin: 20mm;
+    margin: 20mm; /* The Single Source of Truth for Margins */
     bleed: 3mm;
-    marks: crop cross;
-
-    @bottom-center {
-        content: counter(page);
-        font-family: var(--font-heading);
-        font-size: 10pt;
-        color: var(--color-primary);
-    }
 }
 
 html {
@@ -35,61 +28,71 @@ body {
     font-family: var(--font-body);
     color: var(--color-secondary);
     font-size: 14pt;
-    line-height: 1.8; /* Crucial for Tashkeel readability */
+    line-height: 2.05; /* CRITICAL: High line-height for Tashkeel */
     margin: 0;
+    padding: 0;
+    text-align: justify;
 }
 
-/* 2. TYPOGRAPHY RULES */
-h1, h2, h3, h4 {
+/* 2. HEADINGS */
+h1, h2, h3 {
     font-family: var(--font-heading);
     color: var(--color-primary);
+    margin-top: 10mm;
     page-break-after: avoid;
 }
 
-h1 { font-size: 28pt; margin-bottom: 5mm; }
-h2 { font-size: 20pt; border-bottom: 2px solid var(--color-primary); padding-bottom: 2mm; }
-
-/* 3. COMPONENT CLASSES (The New Standard) */
-
-/* Grammar Rule (Replaces .recipe-card) */
-.grammar-rule {
-    border: 2px solid var(--color-primary); /* Solid or Double, no dashed */
-    background-color: #FAFAFA;
-    border-radius: 8px;
-    padding: 20mm;
-    margin-bottom: 10mm;
-    page-break-inside: avoid; /* MANDATORY */
+/* 3. COMPONENT CLASSES */
+.rule-box {
+    border: 2px solid var(--color-primary);
+    background-color: var(--bg-light);
+    border-radius: 4px;
+    padding: 10mm;
+    margin: 10mm 0;
+    page-break-inside: avoid;
 }
 
-/* Focus Point (Replaces .chef-note) */
-.focus-point {
-    background-color: #FFF3E0; /* Light Orange tint */
-    border-right: 4px solid var(--color-accent); /* Right-side border for RTL emphasis */
-    padding: 10mm;
+.alert-box {
+    border-right: 6px solid var(--color-accent);
+    background-color: #FFF3E0;
+    padding: 5mm 10mm;
+    margin: 10mm 0;
     font-style: italic;
     page-break-inside: avoid;
 }
 
-/* 4. LIST STYLING (Strict Academic Standard) */
-ul {
-    list-style-type: disc !important;
-    list-style-image: none !important;
+/* 4. UTILITIES & COVER */
+.cover-container {
+    text-align: center;
+    border: 4px double var(--color-primary);
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
 }
-
-ol {
-    list-style-type: decimal !important;
-}
-
-/* 5. UTILITY CLASSES */
-.text-accent { color: var(--color-accent); }
-.text-primary { color: var(--color-primary); }
 
 .book-title {
-    font-size: 36pt;
-    margin-bottom: 10mm;
+    font-size: 42pt;
+    margin: 0;
+    line-height: 1.2;
+    color: var(--color-primary);
 }
 
 .book-subtitle {
-    font-size: 18pt;
-    color: var(--color-primary);
+    font-size: 24pt;
+    color: var(--color-accent);
+    margin-bottom: 20mm;
+}
+
+.meta-info {
+    margin-top: auto;
+    font-size: 12pt;
+    color: #546E7A;
+}
+
+ul {
+    list-style-type: disc;
+    padding-right: 10mm;
 }
