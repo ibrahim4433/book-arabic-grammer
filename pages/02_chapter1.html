@@ -2,63 +2,154 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Chapter 1: Parts of Speech</title>
+    <title>Chapter 1: The Active Layout</title>
     <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        .chapter-container {
+            position: relative;
+        }
+        .chapter-header {
+            position: relative;
+            margin-bottom: 40px;
+            border-bottom: none;
+        }
+        .bricks-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .brick {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .brick-primary {
+            border-top: 6px solid var(--color-primary);
+        }
+        .brick-secondary {
+            border-top: 6px solid var(--color-secondary);
+        }
+        .check-list {
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .check-list p {
+            margin: 5px 0;
+        }
+        .bridge {
+            grid-column: 1 / -1;
+            background: #f5f5f5;
+            border-left: 6px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .bridge-content {
+            width: 70%;
+        }
+        .analogy-icon {
+            font-size: 2rem;
+            opacity: 0.2;
+        }
+        .cheat-code {
+            background: #FFF8E1;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px dashed #FFD54F;
+            margin-bottom: 30px;
+        }
+        .cheat-code h4 {
+            color: #F57F17;
+            margin: 0 0 5px 0;
+        }
+        .cheat-code p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        .micro-challenge {
+            background: #263238;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: auto;
+        }
+        .micro-challenge h5 {
+            margin: 0 0 10px 0;
+            color: var(--color-primary);
+        }
+        .options {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .option-item {
+            background: rgba(255,255,255,0.1);
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- PAGE HEADER -->
-    <header style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--color-primary); margin-bottom: 10mm; padding-bottom: 5mm;">
-        <div style="flex-grow: 1;">
-            <h1 style="margin: 0; font-size: 24pt;">مِمَّ تَتَكَوَّنُ الْجُمْلَةُ؟</h1>
-            <h2 style="margin: 0; font-size: 16pt; color: var(--color-secondary);">أَقْسَامُ الْكَلَامِ الثَّلَاثَة</h2>
-        </div>
-        <div style="font-family: var(--font-heading); font-size: 48pt; font-weight: 900; color: var(--color-primary); opacity: 0.2;">01</div>
+<div class="chapter-container">
+
+    <header class="chapter-header">
+        <span class="watermark-number">01</span>
+        <h1 style="position: relative; z-index: 2; font-size: 2.2rem; margin: 0;">مِمَّ تَتَكَوَّنُ الْجُمْلَةُ؟</h1>
+        <p class="subtitle" style="color: #666; margin-top: 5px;">ثَلَاثَةُ أَنْوَاعٍ لَا رَابِعَ لَهَا</p>
     </header>
 
-    <!-- INTRODUCTION -->
-    <section style="margin-bottom: 15mm;">
+    <section class="bricks-grid">
+
+        <div class="card brick brick-primary">
+            <h3 style="color: var(--color-primary); margin-top: 0;">1. الاسْمُ</h3>
+            <p style="margin-bottom: 15px;">كَلِمَةٌ تَدُلُّ عَلَى "مَعْنَى" ثَابِتٍ.</p>
+            <div class="check-list">
+                <p><span class="icon-check"></span> يَقْبَلُ (الـ).</p>
+                <p><span class="icon-check"></span> يَقْبَلُ التَّنْوِينَ.</p>
+            </div>
+        </div>
+
+        <div class="card brick brick-secondary">
+            <h3 style="color: var(--color-secondary); margin-top: 0;">2. الفِعْلُ</h3>
+            <p style="margin-bottom: 15px;">حَدَثٌ مَحْبُوسٌ دَاخِلَ "زَمَنٍ".</p>
+            <div class="check-list">
+                <p><span class="icon-cross"></span> لَا يَقْبَلُ (الـ).</p>
+                <p><span class="icon-check"></span> يَتَغَيَّرُ شَكْلُهُ (مَاضٍ/مُضَارِعٌ).</p>
+            </div>
+        </div>
+
+        <div class="card bridge">
+            <div class="bridge-content">
+                <h3 style="margin: 0; color: #333;">3. الحَرْفُ</h3>
+                <p style="margin: 5px 0 0 0;">هُوَ "الْجِسْرُ" الَّذِي يَرْبِطُ الْأَسْمَاءَ بِالْأَفْعَالِ. لَيْسَ لَهُ مَعْنَى إِلَّا إِذَا وَصَلْتَهُ بِغَيْرِهِ.</p>
+            </div>
+            <div class="analogy-icon">🔗</div>
+        </div>
+    </section>
+
+    <section class="cheat-code">
+        <h4>🚀 شِيفْرَةُ الْحَلّ (CHEAT CODE)</h4>
         <p>
-            تَخَيَّلْ أَنَّكَ تُرِيدُ بِنَاءَ بَيْتٍ، هَلْ يُمْكِنُكَ ذَلِكَ دُونَ مَعْرِفَةِ أَنْوَاعِ حِجَارَةِ البِنَاءِ؟ بِالتَّأْكِيدِ لَا. اللُّغَةُ الْعَرَبِيَّةُ -عَلَى اتِّسَاعِهَا- تُبْنَى مِنْ ثَلَاثَةِ 'أَحْجَارٍ' أَسَاسِيَّةٍ فَقَطْ. إِذَا أَتْقَنْتَ التَّمْيِيزَ بَيْنَهَا، فَقَدْ مَلَكْتَ مِفْتَاحَ النَّحْوِ.
+            السِّرُّ فِي <strong>"الـ" التَّعْرِيفِ</strong>. إِذَا شَكَكْتَ فِي الْكَلِمَةِ، حَاوِلْ أَنْ تُلْبِسَهَا "الـ":<br>
+            - قَبِلَتْهَا؟ ← <strong>اسْمٌ</strong> (بَيْت ← الْبَيْت ✅).<br>
+            - رَفَضَتْهَا؟ ← <strong>فِعْلٌ</strong> (يَلْعَبُ ← الـ يَلْعَبُ؟ ❌ مُسْتَحِيل).
         </p>
     </section>
 
-    <!-- COMPONENT GRID -->
-    <section class="cards-grid">
-
-        <!-- CARD 1: THE NOUN -->
-        <article class="card">
-            <h3 style="margin-top: 0;">1. الْاسْمُ</h3>
-            <p><strong>كَلِمَةٌ تَدُلُّ عَلَى مَعْنًى فِي نَفْسِهَا، وَلَا تَرْتَبِطُ بِزَمَنٍ.</strong></p>
-            <p><span class="icon-check">&#10004;</span> <strong>عَلَامَتُهُ:</strong> يَقْبَلُ (الـ) التَّعْرِيف، وَالتَّنْوِين.</p>
-            <p><strong>أَمْثِلَة:</strong> <span class="highlight-red">رَجُلٌ</span>، <span class="highlight-red">الْبَيْتُ</span>، <span class="highlight-red">دِمَشْق</span>.</p>
-        </article>
-
-        <!-- CARD 2: THE VERB -->
-        <article class="card">
-            <h3 style="margin-top: 0;">2. الْفِعْلُ</h3>
-            <p><strong>كَلِمَةٌ تَدُلُّ عَلَى حَدَثٍ مُقْتَرِنٍ بِزَمَنٍ (مَاضٍ، أَوْ حَاضِرٍ، أَوْ مُسْتَقْبَل).</strong></p>
-            <p><span class="icon-cross">&#10006;</span> <strong>عَلَامَتُهُ:</strong> لَا يَقْبَلُ (الـ) التَّعْرِيف.</p>
-            <p><strong>أَمْثِلَة:</strong> <span class="highlight-blue">كَتَبَ</span>، <span class="highlight-blue">يَلْعَبُ</span>، <span class="highlight-blue">اجْلِسْ</span>.</p>
-        </article>
-
-        <!-- CARD 3: THE PARTICLE -->
-        <article class="card">
-            <h3 style="margin-top: 0;">3. الْحَرْفُ</h3>
-            <p><strong>كَلِمَةٌ لَا يَظْهَرُ مَعْنَاهَا كَامِلًا إِلَّا مَعَ غَيْرِهَا.</strong></p>
-            <p><span class="icon-link">&#128279;</span> <strong>وَظِيفَتُهُ:</strong> الرَّبْطُ بَيْنَ أَجْزَاءِ الْجُمْلَةِ (مِثْلَ الإِسْمَنْتِ بَيْنَ الحِجَارَةِ).</p>
-            <p><strong>أَمْثِلَة:</strong> <span class="highlight-blue">فِي</span>، <span class="highlight-blue">عَلَى</span>، <span class="highlight-blue">مِنْ</span>، <span class="highlight-blue">هَلْ</span>.</p>
-        </article>
-
-    </section>
-
-    <!-- SUMMARY BOX -->
-    <aside class="summary-box">
-        <h3 style="margin-top: 0; color: var(--color-accent-gold);"><span class="icon-bulb">&#128161;</span> زُبْدَةُ الْكَلَامِ</h3>
-        <p>
-            الْكَلَامُ الْمُفِيدُ هُوَ الَّذِي يُعْطِي مَعْنًى تَامًّا يَحْسُنُ السُّكُوتُ عَلَيْهِ (جُمْلَةٌ مُفِيدَةٌ). أَمَّا مُجَرَّدُ صَفِّ الْكَلِمَاتِ دُونَ رَابِطٍ أَوْ مَعْنًى مُكْتَمِلٍ فَلَا قِيمَةَ لَهُ فِي النَّحْوِ.
-        </p>
-    </aside>
+    <footer class="micro-challenge">
+        <h5>🧠 تَحَدِّي عَلَى السَّرِيع</h5>
+        <p style="margin: 0; font-size: 0.9rem;">أَيُّ الْكَلِمَاتِ التَّالِيَةِ <strong>فِعْلٌ</strong>؟</p>
+        <div class="options">
+            <span class="option-item">[ ] عُصْفُور</span>
+            <span class="option-item">[ ] يَرْكُضُ</span>
+            <span class="option-item">[ ] فِي</span>
+        </div>
+    </footer>
+</div>
 
 </body>
 </html>
