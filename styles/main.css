@@ -21,6 +21,7 @@
 @page {
     size: A4;
     margin: 15mm; /* The Single Source of Truth for Margins */
+    margin-right: 20mm; /* Accommodate the side strip */
     bleed: 3mm;
 }
 
@@ -40,8 +41,19 @@ body {
 
     /* TEXTURE: Magazine Aesthetic */
     background-color: #fdfdfd;
-    background-image: radial-gradient(#e0f2f1 1px, transparent 1px);
-    background-size: 10mm 10mm;
+    background-image: radial-gradient(#cfd8dc 1.5px, transparent 1.5px);
+    background-size: 8mm 8mm;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 6mm;
+    background-color: var(--color-primary);
+    z-index: 999;
 }
 
 /* 2. HEADINGS */
@@ -140,18 +152,48 @@ h3 {
     font-weight: 700;
 }
 
-.icon-check {
-    color: var(--color-primary);
+.icon-check, .icon-cross {
     font-weight: bold;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.2em;
+    height: 1.2em;
+    border-radius: 50%;
+    margin-left: 5px;
+    color: white;
+}
+
+.icon-check {
+    background-color: var(--color-primary);
+}
+
+.icon-check::before {
+    content: "\2713";
 }
 
 .icon-cross {
-    color: var(--color-accent-red);
-    font-weight: bold;
+    background-color: var(--color-accent-red);
+}
+
+.icon-cross::before {
+    content: "\2715";
 }
 
 .icon-link {
     color: var(--color-secondary);
+}
+
+.watermark-number {
+    position: absolute;
+    top: -20px;
+    right: 0;
+    font-size: 8rem;
+    color: rgba(0,0,0,0.03);
+    z-index: 0;
+    font-weight: 900;
+    line-height: 1;
+    pointer-events: none;
 }
 
 .icon-bulb {
