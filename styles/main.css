@@ -1,11 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700&family=Noto+Naskh+Arabic:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700;900&family=Noto+Naskh+Arabic:wght@400;500;700&display=swap');
 
 :root {
     /* PALETTE: Modern Academic */
     --color-primary: #00897B;   /* Teal - Main Theme */
     --color-secondary: #263238; /* Dark Grey - Text */
     --color-accent: #E64A19;    /* Burnt Orange - Focus/Alerts */
+    --color-accent-red: #D32F2F; /* Red - Error/No */
+    --color-accent-gold: #FBC02D; /* Gold - Idea */
     --bg-light: #FAFAFA;
+
+    /* SHADOWS: Diffuse, multi-layer shadow for "lifted" effect */
+    --shadow-depth: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
     /* TYPOGRAPHY */
     --font-heading: 'Noto Kufi Arabic', sans-serif;
@@ -32,6 +37,12 @@ body {
     margin: 0;
     padding: 0;
     text-align: justify;
+
+    /* TEXTURE: Tactile Paper Feel */
+    background-color: var(--bg-light);
+    /* ACTION REQUIRED: Drop 'paper_grain.png' into assets/images/ */
+    background-image: url('../assets/images/paper_grain.png');
+    background-blend-mode: multiply;
 }
 
 /* 2. HEADINGS */
@@ -43,13 +54,25 @@ h1, h2, h3 {
 }
 
 /* 3. COMPONENT CLASSES */
+.card {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    padding: 8mm;
+    margin: 5mm 0;
+    box-shadow: var(--shadow-depth);
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
 .rule-box {
-    border: 2px solid var(--color-primary);
-    background-color: var(--bg-light);
+    background-color: #FFFFFF;
+    border-top: 4px solid var(--color-primary);
     border-radius: 4px;
     padding: 10mm;
     margin: 10mm 0;
+    box-shadow: var(--shadow-depth);
     page-break-inside: avoid;
+    break-inside: avoid;
 }
 
 .alert-box {
@@ -59,37 +82,115 @@ h1, h2, h3 {
     margin: 10mm 0;
     font-style: italic;
     page-break-inside: avoid;
+    break-inside: avoid;
+    box-shadow: var(--shadow-depth);
 }
 
-/* 4. UTILITIES & COVER */
-.cover-container {
-    text-align: center;
-    border: 4px double var(--color-primary);
-    height: 90vh;
+.summary-box {
+    background-color: #FFFDE7; /* Light Yellow */
+    border: 1px solid var(--color-accent-gold);
+    border-radius: 8px;
+    padding: 8mm;
+    margin: 10mm 0;
+    box-shadow: var(--shadow-depth);
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+/* 4. LAYOUT UTILITIES */
+.grid-3-columns {
+    display: flex;
+    gap: 5mm;
+    justify-content: space-between;
+}
+
+.grid-3-columns > * {
+    flex: 1;
+    min-width: 0; /* Flexbox overflow fix */
+}
+
+/* 5. TEXT & COLOR UTILITIES */
+.highlight-red {
+    color: var(--color-accent-red);
+    font-weight: 700;
+}
+
+.highlight-blue {
+    color: var(--color-primary); /* Using Primary Teal for Blue/Grammar focus */
+    font-weight: 700;
+}
+
+.icon-check {
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+.icon-cross {
+    color: var(--color-accent-red);
+    font-weight: bold;
+}
+
+.icon-link {
+    color: var(--color-secondary);
+}
+
+.icon-bulb {
+    color: var(--color-accent-gold);
+}
+
+/* 6. COVER PAGE SPECIFICS */
+.cover-page {
+    height: 297mm; /* Full A4 Height */
+    width: 210mm;
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-radius: 8px;
+    text-align: center;
+    overflow: hidden;
 }
 
-.book-title {
-    font-size: 42pt;
-    margin: 0;
-    line-height: 1.2;
+/* Abstract Geometric Shape */
+.cover-art::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 180mm;
+    height: 180mm;
+    border-radius: 50%; /* Circle */
+    background-color: var(--color-primary);
+    opacity: 0.1;
+    z-index: -1;
+}
+
+.book-title-hero {
+    font-family: var(--font-heading);
+    font-weight: 900; /* Massive */
+    font-size: 48pt;
+    line-height: 1.1;
     color: var(--color-primary);
+    margin: 0 0 5mm 0;
+    z-index: 1;
 }
 
-.book-subtitle {
-    font-size: 24pt;
-    color: var(--color-accent);
-    margin-bottom: 20mm;
+.book-subtitle-hero {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 20pt;
+    color: var(--color-secondary);
+    margin: 0;
+    z-index: 1;
 }
 
-.meta-info {
-    margin-top: auto;
-    font-size: 12pt;
+.cover-footer {
+    position: absolute;
+    bottom: 30mm;
+    font-size: 14pt;
     color: #546E7A;
+    text-align: center;
 }
 
 ul {
