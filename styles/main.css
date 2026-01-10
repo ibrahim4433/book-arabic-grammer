@@ -20,7 +20,7 @@
 /* 1. GLOBAL PAGE SETUP */
 @page {
     size: A4;
-    margin: 20mm; /* The Single Source of Truth for Margins */
+    margin: 15mm; /* The Single Source of Truth for Margins */
     bleed: 3mm;
 }
 
@@ -32,17 +32,16 @@ html {
 body {
     font-family: var(--font-body);
     color: var(--color-secondary);
-    font-size: 14pt;
-    line-height: 2.05; /* CRITICAL: High line-height for Tashkeel */
+    font-size: 12pt;
+    line-height: 1.6; /* Tighter professional look */
     margin: 0;
     padding: 0;
     text-align: justify;
 
-    /* TEXTURE: Tactile Paper Feel */
-    background-color: var(--bg-light);
-    /* ACTION REQUIRED: Drop 'paper_grain.png' into assets/images/ */
-    background-image: url('../assets/images/paper_grain.png');
-    background-blend-mode: multiply;
+    /* TEXTURE: Magazine Aesthetic */
+    background-color: #fdfdfd;
+    background-image: radial-gradient(#e0f2f1 1px, transparent 1px);
+    background-size: 10mm 10mm;
 }
 
 /* 2. HEADINGS */
@@ -53,13 +52,28 @@ h1, h2, h3 {
     page-break-after: avoid;
 }
 
+h1 {
+    font-size: 28pt;
+}
+
+h2 {
+    font-size: 18pt;
+}
+
+h3 {
+    font-size: 14pt;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 5mm;
+}
+
 /* 3. COMPONENT CLASSES */
 .card {
     background-color: #FFFFFF;
     border-radius: 8px;
-    padding: 8mm;
+    padding: 5mm;
     margin: 5mm 0;
-    box-shadow: var(--shadow-depth);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     page-break-inside: avoid;
     break-inside: avoid;
 }
@@ -98,6 +112,12 @@ h1, h2, h3 {
 }
 
 /* 4. LAYOUT UTILITIES */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10mm;
+}
+
 .grid-3-columns {
     display: flex;
     gap: 5mm;
