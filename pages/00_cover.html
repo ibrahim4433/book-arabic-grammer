@@ -5,9 +5,23 @@
     <title>Cover Page</title>
     <!-- Cover Page Design v2 -->
     <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        .cover-page {
+            /* Override for framed look if needed, but structure is mostly in main.css now */
+            min-height: 297mm;
+            box-sizing: border-box;
+            border-top: 10px solid var(--color-primary);
+            border-bottom: 10px solid var(--color-primary);
+            /* Ensure shapes are removed */
+        }
+        /* Ensure no pseudo-element shapes interfere if they are still in main.css */
+        .cover-page::before, .cover-page::after {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
-    <article class="cover-page cover-art">
+    <article class="cover-page">
         <h1 class="book-title-hero">قَوَاعِدُ اللُّغَةِ الْعَرَبِيَّةِ</h1>
         <h2 class="book-subtitle-hero">الْمَنْهَجُ الْحَدِيثُ لِإِتْقَانِ النَّحْوِ</h2>
 

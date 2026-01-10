@@ -32,11 +32,15 @@ html {
 body {
     font-family: var(--font-body);
     color: var(--color-secondary);
-    font-size: 12pt;
-    line-height: 1.6; /* Tighter professional look */
+    font-size: 11pt;
+    line-height: 1.5;
     margin: 0;
     padding: 0;
     text-align: justify;
+
+    border-left: 5mm solid var(--color-primary);
+    padding-left: 5mm;
+    box-sizing: border-box;
 
     /* TEXTURE: Magazine Aesthetic */
     background-color: #fdfdfd;
@@ -53,11 +57,13 @@ h1, h2, h3 {
 }
 
 h1 {
-    font-size: 28pt;
+    font-size: 24pt;
+    font-weight: bold;
 }
 
 h2 {
-    font-size: 18pt;
+    font-size: 16pt;
+    font-weight: bold;
 }
 
 h3 {
@@ -71,9 +77,9 @@ h3 {
 .card {
     background-color: #FFFFFF;
     border-radius: 8px;
-    padding: 5mm;
+    padding: 10px;
     margin: 5mm 0;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
     page-break-inside: avoid;
     break-inside: avoid;
 }
@@ -159,9 +165,13 @@ h3 {
 }
 
 /* 6. COVER PAGE SPECIFICS */
+.chapter-container {
+    width: 100%;
+}
+
 .cover-page {
     height: 297mm; /* Full A4 Height */
-    width: 210mm;
+    width: 100%;
     position: relative;
     display: flex;
     flex-direction: column;
