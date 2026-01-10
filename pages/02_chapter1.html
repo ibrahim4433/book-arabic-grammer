@@ -2,148 +2,63 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Chapter 1</title>
+    <title>Chapter 1: Parts of Speech</title>
     <link rel="stylesheet" href="../styles/main.css">
-    <style>
-        /* Local overrides for Chapter 1 */
-
-        /* Header */
-        .chapter-header {
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--color-primary);
-            padding-bottom: 15px;
-        }
-        .chapter-header h1 {
-            color: var(--color-primary);
-            margin: 0;
-        }
-        .chapter-header h2 {
-            color: #555;
-            margin-top: 5px;
-            font-weight: normal;
-        }
-
-        /* Intro */
-        .intro-text {
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-            text-align: justify;
-        }
-
-        /* Card Customizations */
-        /* Note: Basic .card and .cards-grid styles come from main.css */
-
-        .card-noun {
-            border-top: 4px solid var(--color-primary);
-        }
-        .card-verb {
-            border-top: 4px solid var(--color-secondary);
-        }
-        .card-particle {
-            border-top: 4px solid #333;
-        }
-
-        .card h3 {
-            margin-top: 0;
-        }
-        .card-noun h3 { color: var(--color-primary); }
-        .card-verb h3 { color: var(--color-secondary); }
-        .card-particle h3 { color: #333; }
-
-        .def {
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .features {
-            font-size: 0.95rem;
-            padding-right: 20px;
-            color: #444;
-        }
-        .features li {
-            margin-bottom: 5px;
-        }
-
-        /* Rule/Test Box */
-        .test-box {
-            margin-top: 30px;
-            background: #FFF8E1;
-            padding: 15px;
-            border: 1px solid #FFECB3;
-            border-radius: 4px;
-        }
-        .test-box h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.1rem;
-            color: #F57F17;
-        }
-        .test-box p {
-            margin-bottom: 10px;
-        }
-        .test-box ul {
-            margin: 0;
-            padding-right: 20px;
-        }
-    </style>
 </head>
 <body>
 
-<div class="chapter-container">
-
-    <header class="chapter-header">
-        <div class="header-content">
-            <h1>01. مِمَّ تَتَكَوَّنُ الْجُمْلَةُ؟</h1>
-            <h2>أَقْسَامُ الْكَلَامِ: اسْم، فِعْل، حَرْف</h2>
+    <!-- PAGE HEADER -->
+    <header style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--color-primary); margin-bottom: 10mm; padding-bottom: 5mm;">
+        <div style="flex-grow: 1;">
+            <h1 style="margin: 0; font-size: 24pt;">مِمَّ تَتَكَوَّنُ الْجُمْلَةُ؟</h1>
+            <h2 style="margin: 0; font-size: 16pt; color: var(--color-secondary);">أَقْسَامُ الْكَلَامِ الثَّلَاثَة</h2>
         </div>
+        <div style="font-family: var(--font-heading); font-size: 48pt; font-weight: 900; color: var(--color-primary); opacity: 0.2;">01</div>
     </header>
 
-    <section class="intro-text">
+    <!-- INTRODUCTION -->
+    <section style="margin-bottom: 15mm;">
         <p>
-            <strong>تَخَيَّلْ مَعِي:</strong> لَوْ دَخَلْتَ إِلَى "سُوبَرْ مَارْكِت" اللُّغَةِ الْعَرَبِيَّةِ، سَتَجِدُ مَلَايِينَ الْكَلِمَاتِ.
-            لَكِنَّ الْخَبَرَ الْجَيِّدَ أَنَّكَ لَسْتَ بِحَاجَةٍ لِحِفْظِهَا كُلِّهَا! كُلُّ هَذِهِ الْمَلَايِينِ مُصَنَّفَةٌ فِي <strong>3 رُفُوفٍ فَقَطْ</strong>.
-            إِذَا عَرَفْتَ كَيْفَ تُحَدِّدُ "نَوْعَ" الْكَلِمَةِ، فَقَدْ قَطَعْتَ نِصْفَ الطَّرِيقِ نَحْوَ الْإِعْرَابِ الصَّحِيحِ.
+            تَخَيَّلْ أَنَّكَ تُرِيدُ بِنَاءَ بَيْتٍ، هَلْ يُمْكِنُكَ ذَلِكَ دُونَ مَعْرِفَةِ أَنْوَاعِ حِجَارَةِ البِنَاءِ؟ بِالتَّأْكِيدِ لَا. اللُّغَةُ الْعَرَبِيَّةُ -عَلَى اتِّسَاعِهَا- تُبْنَى مِنْ ثَلَاثَةِ 'أَحْجَارٍ' أَسَاسِيَّةٍ فَقَطْ. إِذَا أَتْقَنْتَ التَّمْيِيزَ بَيْنَهَا، فَقَدْ مَلَكْتَ مِفْتَاحَ النَّحْوِ.
         </p>
     </section>
 
+    <!-- COMPONENT GRID -->
     <section class="cards-grid">
 
-        <div class="card card-noun">
-            <h3>1. الاسْمُ</h3>
-            <p class="def">مَا دَلَّ عَلَى مَعْنًى غَيْرِ مُقْتَرِنٍ بِزَمَنٍ.</p>
-            <ul class="features">
-                <li>✅ <strong>عَلَامَتُهُ:</strong> يَقْبَلُ (الـ) وَلُعْبَةَ التَّنْوِينِ.</li>
-                <li>🏠 <strong>مِثَالٌ:</strong> الطَّاوِلَةُ، قَلَمٌ، دِمَشْقُ.</li>
-            </ul>
-        </div>
+        <!-- CARD 1: THE NOUN -->
+        <article class="card">
+            <h3 style="margin-top: 0;">1. الْاسْمُ</h3>
+            <p><strong>كَلِمَةٌ تَدُلُّ عَلَى مَعْنًى فِي نَفْسِهَا، وَلَا تَرْتَبِطُ بِزَمَنٍ.</strong></p>
+            <p><span class="icon-check">&#10004;</span> <strong>عَلَامَتُهُ:</strong> يَقْبَلُ (الـ) التَّعْرِيف، وَالتَّنْوِين.</p>
+            <p><strong>أَمْثِلَة:</strong> <span class="highlight-red">رَجُلٌ</span>، <span class="highlight-red">الْبَيْتُ</span>، <span class="highlight-red">دِمَشْق</span>.</p>
+        </article>
 
-        <div class="card card-verb">
-            <h3>2. الفِعْلُ</h3>
-            <p class="def">حَدَثٌ + زَمَنٌ (مَاضٍ، مُضَارِعٌ، أَمْرٌ).</p>
-            <ul class="features">
-                <li>❌ <strong>عَلَامَتُهُ:</strong> يَكْرَهُ (الـ) التَّعْرِيفِ.</li>
-                <li>🏃 <strong>مِثَالٌ:</strong> رَكَضَ، يَكْتُبُ، قُمْ.</li>
-            </ul>
-        </div>
+        <!-- CARD 2: THE VERB -->
+        <article class="card">
+            <h3 style="margin-top: 0;">2. الْفِعْلُ</h3>
+            <p><strong>كَلِمَةٌ تَدُلُّ عَلَى حَدَثٍ مُقْتَرِنٍ بِزَمَنٍ (مَاضٍ، أَوْ حَاضِرٍ، أَوْ مُسْتَقْبَل).</strong></p>
+            <p><span class="icon-cross">&#10006;</span> <strong>عَلَامَتُهُ:</strong> لَا يَقْبَلُ (الـ) التَّعْرِيف.</p>
+            <p><strong>أَمْثِلَة:</strong> <span class="highlight-blue">كَتَبَ</span>، <span class="highlight-blue">يَلْعَبُ</span>، <span class="highlight-blue">اجْلِسْ</span>.</p>
+        </article>
 
-        <div class="card card-particle">
-            <h3>3. الحَرْفُ</h3>
-            <p class="def">لَا مَعْنَى لَهُ إِلَّا مَعَ غَيْرِهِ (مُجَرَّدُ وَصْلَةٍ).</p>
-            <ul class="features">
-                <li>🔗 <strong>وَظِيفَتُهُ:</strong> رَبْطُ الْكَلَامِ (مِثْلَ الْغِرَاءِ).</li>
-                <li>📍 <strong>مِثَالٌ:</strong> فِي، عَلَى، ثُمَّ.</li>
-            </ul>
-        </div>
+        <!-- CARD 3: THE PARTICLE -->
+        <article class="card">
+            <h3 style="margin-top: 0;">3. الْحَرْفُ</h3>
+            <p><strong>كَلِمَةٌ لَا يَظْهَرُ مَعْنَاهَا كَامِلًا إِلَّا مَعَ غَيْرِهَا.</strong></p>
+            <p><span class="icon-link">&#128279;</span> <strong>وَظِيفَتُهُ:</strong> الرَّبْطُ بَيْنَ أَجْزَاءِ الْجُمْلَةِ (مِثْلَ الإِسْمَنْتِ بَيْنَ الحِجَارَةِ).</p>
+            <p><strong>أَمْثِلَة:</strong> <span class="highlight-blue">فِي</span>، <span class="highlight-blue">عَلَى</span>، <span class="highlight-blue">مِنْ</span>، <span class="highlight-blue">هَلْ</span>.</p>
+        </article>
+
     </section>
 
-    <section class="rule-box test-box">
-        <h3>🕵️ كَيْفَ تُمَيِّزُ بَيْنَهُمْ بِسُرْعَةٍ؟ (اخْتِبَارُ الـ)</h3>
-        <p>عِنْدَكَ كَلِمَةٌ وَمُحْتَارٌ فِيهَا؟ جَرِّبْ أَدْخِلْ عَلَيْهَا <strong>(الـ) التَّعْرِيفَ</strong>:</p>
-        <ul>
-            <li>إِذَا قَبِلَتْهَا وَصَارَ لَهَا مَعْنًى ← <strong>اسْمٌ</strong> (مِثَال: كِتَاب ← الْكِتَاب ✅).</li>
-            <li>إِذَا وَجَدْتَهَا ثَقِيلَةً وَلَمْ تَرْكَبْ ← <strong>فِعْلٌ</strong> (مِثَال: يَقْرَأُ ← الـ يَقْرَأُ ❌).</li>
-        </ul>
-    </section>
-
-</div>
+    <!-- SUMMARY BOX -->
+    <aside class="summary-box">
+        <h3 style="margin-top: 0; color: var(--color-accent-gold);"><span class="icon-bulb">&#128161;</span> زُبْدَةُ الْكَلَامِ</h3>
+        <p>
+            الْكَلَامُ الْمُفِيدُ هُوَ الَّذِي يُعْطِي مَعْنًى تَامًّا يَحْسُنُ السُّكُوتُ عَلَيْهِ (جُمْلَةٌ مُفِيدَةٌ). أَمَّا مُجَرَّدُ صَفِّ الْكَلِمَاتِ دُونَ رَابِطٍ أَوْ مَعْنًى مُكْتَمِلٍ فَلَا قِيمَةَ لَهُ فِي النَّحْوِ.
+        </p>
+    </aside>
 
 </body>
 </html>
