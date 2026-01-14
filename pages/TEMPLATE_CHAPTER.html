@@ -7,50 +7,54 @@
 </head>
 <body>
 
-    <header style="position: relative; margin-bottom: 20mm;">
-        <span class="watermark-number">00</span> <h1>العُنْوَانُ الرَّئِيسِيُّ</h1>
-        <h2 style="color: var(--color-accent);">الْعُنْوَانُ الْفَرْعِيُّ أَوِ الْمِثَالُ</h2>
+    <header class="chapter-header">
+        <div class="watermark-number">00</div>
+        <h1>العُنْوَانُ الرَّئِيسِيُّ</h1>
+        <h2>وصف قصير أو مثال توضيحي</h2>
     </header>
 
-    <section class="chapter-grid">
+    <section class="layout-cards">
         
-        <div class="concept-card">
-            <h3>الْمُصْطَلَحُ الْأَوَّلُ</h3>
-            <p>الشَّرْحُ هُنَا...</p>
-            <ul class="check-list">
-                <li><span class="icon-check"></span> خَصِيصَة 1</li>
-            </ul>
-        </div>
-
-        <div class="concept-card secondary">
-            <h3>الْمُصْطَلَحُ الثَّانِي</h3>
-            <p>الشَّرْحُ هُنَا...</p>
-            <ul class="check-list">
-                <li><span class="icon-cross"></span> خَصِيصَة 2</li>
-            </ul>
-        </div>
-
-        <div class="analogy-box">
-            <div>
-                <h4>🔗 الرَّابِطُ الذِّهْنِيُّ</h4>
-                <p>كَيْفَ تَرْبِطُ بَيْنَ الْمَفْهُومَيْنِ؟ مِثَالٌ مِنَ الْحَيَاةِ.</p>
+        <article class="app-card primary">
+            <h3 class="card-title">
+                الْمُصْطَلَحُ 1
+                <span class="badge yes">اسم</span>
+            </h3>
+            <p>الشرح هنا يأتي في بطاقة عائمة مع ظل ناعم. التصميم نظيف وغير مزدحم.</p>
+            <div style="margin-top: 15px;">
+                <div class="checklist-item">✅ يقبل (الـ) التعريف</div>
+                <div class="checklist-item">✅ يقبل التنوين</div>
             </div>
-        </div>
+        </article>
+
+        <article class="app-card secondary">
+            <h3 class="card-title">
+                الْمُصْطَلَحُ 2
+                <span class="badge no">فعل</span>
+            </h3>
+            <p>اللون الرمادي في الأعلى يميز النوع الثاني. الخطوط واضحة ومقروءة.</p>
+            <div style="margin-top: 15px;">
+                <div class="checklist-item">❌ لا يقبل (الـ)</div>
+                <div class="checklist-item">🔄 يتغير بالزمن</div>
+            </div>
+        </article>
 
     </section>
 
-    <section class="cheat-code-box">
-        <p><strong>كَيْفَ تُمَيِّزُ بِسُرْعَة؟</strong> اكْتُبِ النَّصِيحَةَ الذَّهَبِيَّةَ هُنَا.</p>
+    <section class="widget-box">
+        <div class="widget-icon">🔗</div>
+        <div class="widget-content">
+            <h4>الرابط الذهني</h4>
+            <p style="margin:0; font-size: 0.95rem;">المبتدأ والخبر مثل "القفل والمفتاح". لا يعمل أحدهما دون الآخر.</p>
+        </div>
     </section>
 
-    <footer class="quiz-footer">
-        <h4 style="color: var(--color-primary); margin: 0;">🧠 تَحَدِّي السُّرْعَةِ</h4>
-        <p>سُؤَالُ الْفَصْلِ؟</p>
-        <div class="quiz-options">
-            <span class="quiz-option">[ ] خِيَار 1</span>
-            <span class="quiz-option">[ ] خِيَار 2</span>
-        </div>
-    </footer>
+    <section class="pro-tip">
+        <h4 style="margin: 0 0 5px 0; color: #4DB6AC;">💡 نصيحة احترافية</h4>
+        <p style="margin: 0; color: #ECEFF1;">
+            للتمييز السريع: جرب إضافة "الـ" في عقلك. الكلمة التي ترفضها فوراً هي فعل!
+        </p>
+    </section>
 
 </body>
 </html>
