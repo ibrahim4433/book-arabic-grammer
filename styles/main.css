@@ -259,3 +259,86 @@ ul {
     list-style-type: disc;
     padding-right: 10mm;
 }
+
+/* --- NEW ADDITIONS TO MAIN.CSS --- */
+
+/* 1. LAYOUT GRIDS (The "Spotify" Look) */
+.chapter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 5mm;
+    margin-bottom: 10mm;
+}
+
+/* 2. THE BRICK (Basic Concept Unit) */
+.concept-card {
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-top: 6px solid var(--color-primary); /* Teal Top */
+    padding: 5mm;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    break-inside: avoid;
+}
+
+.concept-card.secondary {
+    border-top-color: var(--color-secondary); /* Dark Grey Top */
+}
+
+/* 3. THE BRIDGE (Connecting Logic) */
+.analogy-box {
+    grid-column: 1 / -1; /* Spans full width */
+    background: #F5F5F5;
+    border-right: 6px solid var(--color-secondary); /* Right strip */
+    padding: 5mm;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10mm;
+    break-inside: avoid;
+}
+
+/* 4. CHEAT CODE (The "Hack") */
+.cheat-code-box {
+    background-color: #FFF8E1; /* Amber Light */
+    border: 2px dashed #FFD54F;
+    border-radius: 8px;
+    padding: 6mm;
+    margin: 10mm 0;
+    position: relative;
+    break-inside: avoid;
+}
+
+.cheat-code-box::before {
+    content: "🚀 CHEAT CODE"; /* Auto label */
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: #FFF8E1;
+    padding: 0 10px;
+    font-weight: bold;
+    color: #F57F17;
+    font-family: var(--font-heading);
+}
+
+/* 5. MICRO CHALLENGE (Footer Quiz) */
+.quiz-footer {
+    background-color: var(--color-secondary);
+    color: #FFFFFF;
+    padding: 6mm;
+    border-radius: 8px;
+    margin-top: 15mm;
+    break-inside: avoid;
+}
+
+.quiz-options {
+    display: flex;
+    gap: 10mm;
+    margin-top: 3mm;
+}
+
+.quiz-option {
+    background: rgba(255,255,255,0.1);
+    padding: 2mm 5mm;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
