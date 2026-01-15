@@ -9,9 +9,9 @@
     --color-white: #FFFFFF;
     
     /* DENSITY VARIABLES */
-    --spacing-tight: 3mm;
-    --spacing-std: 5mm;
-    --radius: 8px; /* Tighter radius = More professional */
+    --spacing-tight: 1mm;
+    --spacing-std: 2mm;
+    --radius: 4px; /* Tighter radius = More professional */
     
     /* SHADOWS (Kept per your request, but refined) */
     --shadow-card: 0 4px 6px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.08);
@@ -21,7 +21,7 @@
 @page {
     size: A4;
     /* Small margins like the classic book to maximize space */
-    margin: 15mm 15mm 20mm 15mm; 
+    margin: 5mm;
     
     /* FOOTER - Automatic Page Numbering */
     @bottom-center {
@@ -39,7 +39,7 @@ body {
     font-family: 'Noto Naskh Arabic', serif;
     color: var(--color-dark);
     font-size: 11pt; /* Dense but readable */
-    line-height: 1.5;
+    line-height: 1.2;
     margin: 0; /* CRITICAL FIX */
     background-color: #FAFAFA; /* Very subtle grey */
     background-image: radial-gradient(#E0E0E0 1px, transparent 1px);
@@ -52,15 +52,15 @@ body {
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid var(--color-primary);
-    padding-bottom: 3mm;
-    margin-bottom: 8mm;
+    padding-bottom: 2mm;
+    margin-bottom: 4mm;
 }
 
 .header-title {
     font-family: 'Noto Kufi Arabic';
     color: var(--color-primary);
     font-weight: 900;
-    font-size: 16pt;
+    font-size: 14pt;
     margin: 0;
 }
 
@@ -85,9 +85,9 @@ body {
 .block-header {
     background-color: var(--color-primary);
     color: white;
-    padding: 3mm 5mm;
+    padding: 1.5mm 3mm;
     font-family: 'Noto Kufi Arabic';
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 700;
     display: flex;
     justify-content: space-between;
@@ -99,7 +99,7 @@ body {
 }
 
 .block-body {
-    padding: 5mm;
+    padding: 2mm;
 }
 
 /* 4. SPLIT LAYOUT (Tables/Comparisons) */
@@ -117,7 +117,7 @@ body {
 }
 
 .structured-list li {
-    padding: 2mm 0;
+    padding: 1mm 0;
     border-bottom: 1px dashed #EEEEEE;
     display: flex;
     align-items: flex-start;
@@ -136,8 +136,8 @@ body {
 .benefit-box {
     background-color: #E0F2F1; /* Light Teal */
     border-right: 4px solid var(--color-primary);
-    padding: 4mm;
-    margin-top: 2mm;
+    padding: 2mm 3mm;
+    margin-top: 1.5mm;
     font-size: 10pt;
     color: #004D40;
 }
@@ -167,14 +167,14 @@ body {
         content: counter(page);
         font-family: 'Noto Kufi Arabic';
         font-weight: 900;
-        font-size: 14pt;
+        font-size: 12pt;
         color: white;
         background-color: var(--color-primary);
         border-radius: 4px; /* Rounded box */
-        width: 10mm;
+        width: 8mm;
         text-align: center;
-        margin-bottom: 10mm; /* Lift it up */
-        margin-left: 15mm;
+        margin-bottom: 5mm; /* Lift it up */
+        margin-left: 5mm;
     }
 }
 
@@ -192,13 +192,13 @@ body {
 .dense-table th {
     background-color: var(--color-primary);
     color: white;
-    padding: 3mm;
+    padding: 1.5mm 3mm;
     text-align: right;
     font-family: 'Noto Kufi Arabic';
 }
 
 .dense-table td {
-    padding: 3mm;
+    padding: 1.5mm 3mm;
     border-bottom: 1px solid #EEEEEE;
     color: var(--color-dark);
 }
@@ -211,7 +211,7 @@ body {
 .poem-container {
     background-color: #FFF;
     border-right: 4px solid var(--color-accent); /* Orange strip */
-    padding: 5mm;
+    padding: 3mm;
     margin-bottom: var(--spacing-std);
     box-shadow: var(--shadow-card);
     border-radius: var(--radius);
@@ -220,7 +220,7 @@ body {
 .poem-line {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 3mm;
+    margin-bottom: 1.5mm;
     font-weight: bold;
     font-size: 11pt;
 }
@@ -245,7 +245,7 @@ body {
 .irab-box {
     border: 1px solid #E0E0E0;
     border-radius: var(--radius);
-    margin-bottom: 3mm;
+    margin-bottom: 2mm;
     display: flex;
     align-items: stretch;
     background: white;
@@ -260,12 +260,12 @@ body {
     justify-content: center;
     font-weight: bold;
     font-family: 'Noto Kufi Arabic';
-    padding: 2mm;
+    padding: 1.5mm;
     border-radius: 0 var(--radius) var(--radius) 0; /* Rounded right side only (RTL) */
 }
 
 .irab-details {
-    padding: 3mm;
+    padding: 2mm 3mm;
     font-size: 10pt;
     flex: 1;
 }
@@ -274,9 +274,9 @@ body {
 /* 5. BIO BOX (For Poets) */
 .bio-card {
     display: flex;
-    gap: 4mm;
+    gap: 3mm;
     background-color: #ECEFF1; /* Blue Grey Light */
-    padding: 4mm;
+    padding: 3mm;
     border-radius: var(--radius);
     margin-bottom: var(--spacing-std);
     align-items: center;
@@ -297,9 +297,9 @@ body {
 
 /* 6. EXAM / QUIZ STYLES */
 .exam-question {
-    margin-bottom: 8mm;
+    margin-bottom: 4mm;
     border-bottom: 1px dashed #BDBDBD;
-    padding-bottom: 5mm;
+    padding-bottom: 3mm;
 }
 
 .exam-number {
