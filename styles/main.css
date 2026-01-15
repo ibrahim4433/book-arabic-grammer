@@ -74,11 +74,11 @@ body {
 
 .header-section.left {
     flex-direction: column;
-    align-items: flex-end; /* Align text to left in LTR context, but right/start in RTL */
+    /* Align text to left in LTR context, but right/start in RTL */
     /* Since direction is RTL, flex-end of row is left. But this is column. */
     /* Let's be specific. Text-align left was requested in previous code, but flex handles alignment. */
-    align-items: flex-end;
-    text-align: left;
+    align-items: center;
+    text-align: center;
 }
 
 .lesson-number {
@@ -96,6 +96,7 @@ body {
     font-size: 10pt;
     color: #757575;
     font-weight: 700;
+    white-space: nowrap;
 }
 
 .author-info {
@@ -212,21 +213,23 @@ body {
     /* Clear the default content first */
     @bottom-left { content: none; }
     
-    /* Place number in the center with a orange circle */
-    @bottom-center {
+    /* Place number in the bottom-left with a green circle */
+    @bottom-left {
         content: counter(page, arabic-indic);
-        background-color: var(--color-accent);
+        background-color: var(--color-primary);
         color: white;
-        width: 10mm;
-        height: 10mm;
+        width: 8mm;
+        height: 8mm;
         border-radius: 50%;
         text-align: center;
-        line-height: 10mm;
+        line-height: 8mm;
         font-family: 'Noto Kufi Arabic';
         font-weight: 900;
-        font-size: 12pt;
-        margin-bottom: 5mm;
+        font-size: 10pt;
+        margin-bottom: 10mm;
     }
+
+    @bottom-center { content: none; }
 }
 
 /* 2. THE GRAMMAR TABLE (Dense & Striped) */
