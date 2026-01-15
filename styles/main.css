@@ -1,30 +1,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700;900&family=Noto+Naskh+Arabic:wght@400;500;700&display=swap');
 
 :root {
-    /* PALETTE: The "Perfect" Theme */
-    --color-primary: #00897B;
-    --color-accent: #D84315;
-    --color-dark: #263238;
-    --color-bg-light: #F9FAFB;
+    /* PALETTE: Modern Academic */
+    --color-primary: #00897B;   /* Teal (Definitions/Good) */
+    --color-accent: #D84315;    /* Burnt Orange (Warnings/Exceptions) */
+    --color-dark: #263238;      /* Text */
+    --color-light: #F5F5F5;     /* Backgrounds */
+    --color-white: #FFFFFF;
     
-    /* DIMENSIONS */
-    --spacing-block: 4mm;
-    --radius: 6px;
+    /* DENSITY VARIABLES */
+    --spacing-tight: 3mm;
+    --spacing-std: 5mm;
+    --radius: 8px; /* Tighter radius = More professional */
+    
+    /* SHADOWS (Kept per your request, but refined) */
+    --shadow-card: 0 4px 6px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.08);
 }
 
+/* 1. PAGE SETUP - "THE OLD BOOK" DENSITY */
 @page {
     size: A4;
-    margin: 15mm 15mm 20mm 15mm; /* Balanced Margins */
+    /* Small margins like the classic book to maximize space */
+    margin: 15mm 15mm 20mm 15mm; 
     
+    /* FOOTER - Automatic Page Numbering */
     @bottom-center {
         content: counter(page);
         font-family: 'Noto Kufi Arabic';
-        font-weight: 900;
-        font-size: 11pt;
-        color: var(--color-dark);
-        border-top: 2px solid var(--color-primary);
-        padding-top: 2mm;
-        width: 100%;
+        font-weight: bold;
+        font-size: 12pt;
+        color: var(--color-primary);
     }
 }
 
@@ -33,125 +38,279 @@ html { direction: rtl; lang: ar; }
 body {
     font-family: 'Noto Naskh Arabic', serif;
     color: var(--color-dark);
-    font-size: 10.5pt;
+    font-size: 11pt; /* Dense but readable */
     line-height: 1.5;
-    margin: 0;
-    background-color: #FFFFFF;
+    margin: 0; /* CRITICAL FIX */
+    background-color: #FAFAFA; /* Very subtle grey */
+    background-image: radial-gradient(#E0E0E0 1px, transparent 1px);
+    background-size: 10mm 10mm; /* Grid dots */
 }
 
-/* 1. HEADER (Clean & Wide) */
+/* 2. THE HEADER STRIP (Like the Old Book) */
 .page-header-strip {
-    border-bottom: 4px solid var(--color-primary);
-    padding-bottom: 3mm;
-    margin-bottom: 6mm;
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: 3mm;
+    margin-bottom: 8mm;
 }
 
 .header-title {
     font-family: 'Noto Kufi Arabic';
-    font-size: 18pt;
     color: var(--color-primary);
+    font-weight: 900;
+    font-size: 16pt;
     margin: 0;
-    line-height: 1.2;
 }
 
-/* 2. WIDE BLOCKS (The Core) */
-.content-block {
-    background: var(--color-bg-light);
-    border: 1px solid #E0E0E0;
-    border-radius: var(--radius);
-    margin-bottom: var(--spacing-block);
-    page-break-inside: avoid;
-    overflow: hidden;
-}
-
-.block-header {
-    background: var(--color-primary);
-    color: white;
-    padding: 1.5mm 4mm;
+.header-subtitle {
     font-family: 'Noto Kufi Arabic';
+    color: #757575;
     font-size: 10pt;
-    font-weight: 700;
+    margin: 0;
 }
 
-.block-header.accent { background: var(--color-accent); }
+/* 3. DENSE CONTENT CARDS (The "Blocks") */
+.content-block {
+    background: var(--color-white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--spacing-std);
+    overflow: hidden; /* Ensures header color doesn't bleed */
+    page-break-inside: avoid; /* Keep blocks intact */
+}
+
+/* Header inside the card (Like the Green/Blue titles in your photos) */
+.block-header {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 3mm 5mm;
+    font-family: 'Noto Kufi Arabic';
+    font-size: 11pt;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.block-header.accent {
+    background-color: var(--color-accent);
+}
 
 .block-body {
-    padding: 3mm 4mm;
+    padding: 5mm;
 }
 
-/* 3. HORIZONTAL LISTS (The Space Saver) */
-/* Instead of 3 lines, this takes 1 line */
-.inline-list {
-    list-style: none;
-    padding: 0;
+/* 4. SPLIT LAYOUT (Tables/Comparisons) */
+.split-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-std);
+}
+
+/* 5. STRUCTURED LISTS (Replacing bullets) */
+.structured-list {
     margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4mm;
+    padding: 0;
+    list-style: none;
 }
 
-.inline-list li {
+.structured-list li {
+    padding: 2mm 0;
+    border-bottom: 1px dashed #EEEEEE;
     display: flex;
-    align-items: center;
-    background: white;
-    padding: 1mm 3mm;
-    border: 1px solid #EEE;
-    border-radius: 4px;
-    font-size: 9.5pt;
+    align-items: flex-start;
 }
+
+.structured-list li:last-child { border-bottom: none; }
 
 .marker {
     color: var(--color-primary);
     font-weight: bold;
-    margin-left: 2mm;
+    margin-left: 3mm;
+    min-width: 5mm;
 }
 
-/* 4. WIDE TABLES */
-.wide-table {
+/* 6. "BENEFIT" BOX (The Fawa'id) */
+.benefit-box {
+    background-color: #E0F2F1; /* Light Teal */
+    border-right: 4px solid var(--color-primary);
+    padding: 4mm;
+    margin-top: 2mm;
+    font-size: 10pt;
+    color: #004D40;
+}
+
+/* 7. FOOTER BAR (Visual only, actual number handled by @page) */
+.footer-decoration {
+    position: fixed;
+    bottom: -15mm;
+    left: 0; right: 0;
+    height: 5mm;
+    background: var(--color-primary);
+    opacity: 0.1;
+    z-index: -1;
+}
+
+/* --- ADD TO styles/main.css --- */
+
+/* 1. FIXED PAGE NUMBER (Anchored & Styled) */
+@page {
+    /* ... existing margins ... */
+    
+    /* Clear the default content first */
+    @bottom-center { content: none; }
+    
+    /* Place number in the corner with a nice box */
+    @bottom-left {
+        content: counter(page);
+        font-family: 'Noto Kufi Arabic';
+        font-weight: 900;
+        font-size: 14pt;
+        color: white;
+        background-color: var(--color-primary);
+        border-radius: 4px; /* Rounded box */
+        width: 10mm;
+        text-align: center;
+        margin-bottom: 10mm; /* Lift it up */
+        margin-left: 15mm;
+    }
+}
+
+/* 2. THE GRAMMAR TABLE (Dense & Striped) */
+.dense-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 10pt;
-    background: white;
-}
-.wide-table th { background: #ECEFF1; padding: 2mm; border-bottom: 2px solid #CFD8DC; font-family: 'Noto Kufi Arabic'; }
-.wide-table td { padding: 2mm; border-bottom: 1px solid #EEE; }
-
-/* 5. POETRY & TEXT (Wide Layout) */
-.poem-wide {
-    display: flex;
-    gap: 5mm;
-    background: white;
-    padding: 3mm;
-    border-right: 4px solid var(--color-accent);
-}
-
-.poem-lines { flex: 1; }
-.poem-row { display: flex; justify-content: space-between; margin-bottom: 1mm; font-weight: bold; font-size: 10pt; }
-.hemistich { width: 48%; text-align: center; }
-
-.poem-meta {
-    width: 25%;
-    border-right: 1px dashed #CCC;
-    padding-right: 3mm;
-    font-size: 9pt;
-    color: #666;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-/* 6. WARNING BOX (Slim) */
-.warning-strip {
-    background: #FFEBEE;
-    color: #C62828;
-    padding: 2mm 4mm;
+    margin-bottom: var(--spacing-std);
+    box-shadow: var(--shadow-card);
     border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.dense-table th {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 3mm;
+    text-align: right;
+    font-family: 'Noto Kufi Arabic';
+}
+
+.dense-table td {
+    padding: 3mm;
+    border-bottom: 1px solid #EEEEEE;
+    color: var(--color-dark);
+}
+
+/* Zebra Striping for readability */
+.dense-table tr:nth-child(even) { background-color: #FAFAFA; }
+
+
+/* 3. POETRY LAYOUT (The "Shatr" System) */
+.poem-container {
+    background-color: #FFF;
+    border-right: 4px solid var(--color-accent); /* Orange strip */
+    padding: 5mm;
+    margin-bottom: var(--spacing-std);
+    box-shadow: var(--shadow-card);
+    border-radius: var(--radius);
+}
+
+.poem-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3mm;
+    font-weight: bold;
+    font-size: 11pt;
+}
+
+.hemistich {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+/* The divider between hemistichs */
+.hemistich:first-child::after {
+    content: "•••";
+    position: absolute;
+    left: -5px;
+    color: #E0E0E0;
+    font-size: 8pt;
+}
+
+
+/* 4. THE I'RAB CARD (Parsing Analysis) */
+.irab-box {
+    border: 1px solid #E0E0E0;
+    border-radius: var(--radius);
+    margin-bottom: 3mm;
+    display: flex;
+    align-items: stretch;
+    background: white;
+}
+
+.irab-word {
+    background-color: var(--color-primary);
+    color: white;
+    width: 25mm;
     display: flex;
     align-items: center;
-    gap: 3mm;
+    justify-content: center;
+    font-weight: bold;
+    font-family: 'Noto Kufi Arabic';
+    padding: 2mm;
+    border-radius: 0 var(--radius) var(--radius) 0; /* Rounded right side only (RTL) */
+}
+
+.irab-details {
+    padding: 3mm;
     font-size: 10pt;
-    margin-top: 1mm;
+    flex: 1;
+}
+
+
+/* 5. BIO BOX (For Poets) */
+.bio-card {
+    display: flex;
+    gap: 4mm;
+    background-color: #ECEFF1; /* Blue Grey Light */
+    padding: 4mm;
+    border-radius: var(--radius);
+    margin-bottom: var(--spacing-std);
+    align-items: center;
+}
+
+.bio-image-placeholder {
+    width: 15mm;
+    height: 15mm;
+    background-color: #B0BEC5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+
+/* 6. EXAM / QUIZ STYLES */
+.exam-question {
+    margin-bottom: 8mm;
+    border-bottom: 1px dashed #BDBDBD;
+    padding-bottom: 5mm;
+}
+
+.exam-number {
+    display: inline-block;
+    background: var(--color-accent);
+    color: white;
+    width: 6mm;
+    height: 6mm;
+    text-align: center;
+    line-height: 6mm;
+    border-radius: 50%;
+    margin-left: 3mm;
+    font-weight: bold;
 }
