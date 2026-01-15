@@ -1,30 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700;900&family=Noto+Naskh+Arabic:wght@400;500;700&display=swap');
 
 :root {
-    /* PALETTE: The "Perfect" Theme */
-    --color-primary: #00897B;
-    --color-accent: #D84315;
-    --color-dark: #263238;
-    --color-bg-light: #F9FAFB;
+    /* PALETTE: Your Bold Theme */
+    --color-primary: #00897B;   /* Teal */
+    --color-accent: #E64A19;    /* Deep Orange */
+    --color-dark: #263238;      /* Text */
+    --color-bg-card: #FFFFFF;
     
-    /* DIMENSIONS */
-    --spacing-block: 4mm;
+    /* DENSITY SETTINGS (The Fix) */
     --radius: 6px;
+    --spacing-block: 3.5mm;     /* Tighter gaps between boxes */
+    --padding-card: 2.5mm;      /* Tighter padding inside boxes */
+    --shadow-card: 0 2px 5px rgba(0,0,0,0.08);
 }
 
 @page {
     size: A4;
-    margin: 15mm 15mm 20mm 15mm; /* Balanced Margins */
+    /* MINIMAL MARGINS: 1cm top/bottom to fit everything */
+    margin: 10mm 15mm 12mm 15mm; 
     
-    @bottom-center {
+    @bottom-left {
         content: counter(page);
         font-family: 'Noto Kufi Arabic';
         font-weight: 900;
         font-size: 11pt;
-        color: var(--color-dark);
-        border-top: 2px solid var(--color-primary);
-        padding-top: 2mm;
-        width: 100%;
+        color: white;
+        background-color: var(--color-primary);
+        border-radius: 4px;
+        width: 8mm;
+        text-align: center;
+        margin-bottom: 8mm;
+        margin-left: 15mm;
     }
 }
 
@@ -33,20 +39,28 @@ html { direction: rtl; lang: ar; }
 body {
     font-family: 'Noto Naskh Arabic', serif;
     color: var(--color-dark);
-    font-size: 10.5pt;
-    line-height: 1.5;
+    font-size: 9.5pt; /* Slightly smaller for density */
+    line-height: 1.4;
     margin: 0;
-    background-color: #FFFFFF;
+    
+    /* BACKGROUND: Dots */
+    background-color: #FAFAFA;
+    background-image: radial-gradient(#B0BEC5 1.5px, transparent 1.5px);
+    background-size: 8mm 8mm;
 }
 
-/* 1. HEADER (Clean & Wide) */
+/* 1. COMPACT HEADER */
 .page-header-strip {
-    border-bottom: 4px solid var(--color-primary);
-    padding-bottom: 3mm;
-    margin-bottom: 6mm;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
+    border-bottom: 3px solid var(--color-primary);
+    padding-bottom: 2mm;
+    margin-bottom: 4mm; /* Reduced spacing */
+    background: white;
+    padding: 3mm;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
 }
 
 .header-title {
@@ -54,104 +68,100 @@ body {
     font-size: 18pt;
     color: var(--color-primary);
     margin: 0;
-    line-height: 1.2;
+    line-height: 1.1;
 }
 
-/* 2. WIDE BLOCKS (The Core) */
+.header-watermark {
+    font-family: 'Noto Kufi Arabic';
+    font-size: 24pt;
+    font-weight: 900;
+    color: #ECEFF1;
+    line-height: 1;
+}
+
+/* 2. THE SOLID TILES (Your "ppp.pdf" Style) */
 .content-block {
-    background: var(--color-bg-light);
-    border: 1px solid #E0E0E0;
+    background: var(--color-bg-card);
     border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
     margin-bottom: var(--spacing-block);
-    page-break-inside: avoid;
     overflow: hidden;
+    page-break-inside: avoid;
+    border: 1px solid #CFD8DC;
 }
 
 .block-header {
-    background: var(--color-primary);
+    background-color: var(--color-primary);
     color: white;
-    padding: 1.5mm 4mm;
+    padding: 1.5mm 3mm; /* Slimmer header */
     font-family: 'Noto Kufi Arabic';
     font-size: 10pt;
     font-weight: 700;
+    display: flex; align-items: center; gap: 2mm;
 }
 
-.block-header.accent { background: var(--color-accent); }
+.block-header.accent { background-color: var(--color-accent); }
 
-.block-body {
-    padding: 3mm 4mm;
-}
+.block-body { padding: var(--padding-card); }
 
-/* 3. HORIZONTAL LISTS (The Space Saver) */
-/* Instead of 3 lines, this takes 1 line */
-.inline-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+/* 3. SIDE-BY-SIDE LAYOUT (The Space Saver) */
+.row-layout {
     display: flex;
-    flex-wrap: wrap;
-    gap: 4mm;
+    gap: 3mm;
+    align-items: flex-start;
+}
+.row-item { flex: 1; }
+
+/* 4. CHIP LISTS (Colorful Pills) */
+.inline-list {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 1.5mm; /* Stacked internally for fit */
 }
 
 .inline-list li {
-    display: flex;
-    align-items: center;
-    background: white;
-    padding: 1mm 3mm;
-    border: 1px solid #EEE;
+    background: #F1F8E9;
+    border: 1px solid #C5E1A5;
+    padding: 1mm 2mm;
     border-radius: 4px;
-    font-size: 9.5pt;
-}
-
-.marker {
-    color: var(--color-primary);
-    font-weight: bold;
-    margin-left: 2mm;
-}
-
-/* 4. WIDE TABLES */
-.wide-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 10pt;
-    background: white;
-}
-.wide-table th { background: #ECEFF1; padding: 2mm; border-bottom: 2px solid #CFD8DC; font-family: 'Noto Kufi Arabic'; }
-.wide-table td { padding: 2mm; border-bottom: 1px solid #EEE; }
-
-/* 5. POETRY & TEXT (Wide Layout) */
-.poem-wide {
-    display: flex;
-    gap: 5mm;
-    background: white;
-    padding: 3mm;
-    border-right: 4px solid var(--color-accent);
-}
-
-.poem-lines { flex: 1; }
-.poem-row { display: flex; justify-content: space-between; margin-bottom: 1mm; font-weight: bold; font-size: 10pt; }
-.hemistich { width: 48%; text-align: center; }
-
-.poem-meta {
-    width: 25%;
-    border-right: 1px dashed #CCC;
-    padding-right: 3mm;
     font-size: 9pt;
-    color: #666;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    font-weight: 600;
+    color: #33691E;
+    display: flex; align-items: center;
 }
 
-/* 6. WARNING BOX (Slim) */
-.warning-strip {
-    background: #FFEBEE;
-    color: #C62828;
-    padding: 2mm 4mm;
-    border-radius: var(--radius);
-    display: flex;
-    align-items: center;
-    gap: 3mm;
-    font-size: 10pt;
-    margin-top: 1mm;
+.accent .inline-list li {
+    background: #FBE9E7;
+    border-color: #FFCCBC;
+    color: #BF360C;
 }
+
+.marker { margin-left: 2mm; font-weight: 900; font-size: 8pt; }
+
+/* 5. TABLES */
+.wide-table {
+    width: 100%; border-collapse: collapse; font-size: 9pt;
+}
+.wide-table th { background: #ECEFF1; padding: 1.5mm; border-bottom: 2px solid #B0BEC5; font-family: 'Noto Kufi Arabic'; }
+.wide-table td { padding: 1.5mm; border-bottom: 1px solid #EEE; }
+
+/* 6. WARNING BOX */
+.warning-box {
+    background: #FFEBEE;
+    border-right: 4px solid #C62828;
+    padding: 2mm 3mm;
+    border-radius: 4px;
+    display: flex; align-items: center; gap: 3mm;
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--spacing-block);
+    font-size: 9pt;
+}
+
+/* 7. POETRY */
+.poem-wide {
+    display: flex; gap: 3mm; align-items: center;
+    background: #FFF; border: 1px dashed #BDBDBD;
+    padding: 2mm; border-radius: 4px;
+}
+.poem-lines { flex: 1; }
+.poem-row { display: flex; justify-content: space-between; margin-bottom: 1.5mm; font-weight: bold; font-size: 9.5pt; }
+.hemistich { width: 48%; text-align: center; }
