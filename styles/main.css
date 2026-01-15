@@ -9,27 +9,39 @@
     --color-white: #FFFFFF;
     
     /* DENSITY VARIABLES */
-    --spacing-tight: 1mm;
-    --spacing-std: 2mm;
-    --radius: 4px; /* Tighter radius = More professional */
+    --spacing-tight: 0.5mm;
+    --spacing-std: 1mm; /* Aggressively Reduced */
+    --radius: 3px;
     
-    /* SHADOWS (Kept per your request, but refined) */
-    --shadow-card: 0 4px 6px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-card: 0 2px 4px rgba(0,0,0,0.04);
 }
 
-/* 1. PAGE SETUP - "THE OLD BOOK" DENSITY */
+/* 1. PAGE SETUP */
 @page {
     size: A4;
-    /* Small margins like the classic book to maximize space */
-    margin: 5mm;
+    margin: 3mm 2mm 3mm 2mm; /* Top/Bottom 3mm, Side 2mm */
     
-    /* FOOTER - Automatic Page Numbering */
-    @bottom-center {
-        content: counter(page);
+    /* Clear default footer */
+    @bottom-center { content: none; }
+
+    /* Custom Footer: Circle with Number */
+    @bottom-left {
+        content: counter(page, arabic-indic);
         font-family: 'Noto Kufi Arabic';
-        font-weight: bold;
-        font-size: 12pt;
-        color: var(--color-primary);
+        font-weight: 900;
+        font-size: 9pt;
+        color: white;
+
+        background-color: var(--color-primary);
+        width: 6mm; /* Smaller circle */
+        height: 6mm;
+        border-radius: 50%;
+
+        text-align: center;
+        line-height: 6mm;
+
+        margin-bottom: 5mm;
+        margin-left: 5mm;
     }
 }
 
@@ -38,56 +50,45 @@ html { direction: rtl; lang: ar; }
 body {
     font-family: 'Noto Naskh Arabic', serif;
     color: var(--color-dark);
-    font-size: 11pt; /* Dense but readable */
-    line-height: 1.2;
-    margin: 0; /* CRITICAL FIX */
-    background-color: #FAFAFA; /* Very subtle grey */
+    font-size: 9pt; /* Reduced to 9pt */
+    line-height: 1.15; /* Tight line height */
+    margin: 0;
+    background-color: #FAFAFA;
     background-image: radial-gradient(#E0E0E0 1px, transparent 1px);
-    background-size: 10mm 10mm; /* Grid dots */
+    background-size: 10mm 10mm;
 }
 
-/* 2. THE HEADER STRIP (Like the Old Book) */
+h1, h2, h3, h4, p, ul, li {
+    margin-top: 0;
+    margin-bottom: 0; /* Remove default margins, rely on container spacing */
+}
+
+/* 2. THE HEADER STRIP */
 .page-header-strip {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid var(--color-primary);
-    padding-bottom: 2mm;
-    margin-bottom: 4mm;
+    padding-bottom: 1mm;
+    margin-bottom: 1.5mm;
 }
 
-.header-title {
-    font-family: 'Noto Kufi Arabic';
-    color: var(--color-primary);
-    font-weight: 900;
-    font-size: 14pt;
-    margin: 0;
-}
-
-.header-subtitle {
-    font-family: 'Noto Kufi Arabic';
-    color: #757575;
-    font-size: 10pt;
-    margin: 0;
-}
-
-/* 3. DENSE CONTENT CARDS (The "Blocks") */
+/* 3. DENSE CONTENT CARDS */
 .content-block {
     background: var(--color-white);
     border-radius: var(--radius);
     box-shadow: var(--shadow-card);
     margin-bottom: var(--spacing-std);
-    overflow: hidden; /* Ensures header color doesn't bleed */
-    page-break-inside: avoid; /* Keep blocks intact */
+    overflow: hidden;
+    page-break-inside: avoid;
 }
 
-/* Header inside the card (Like the Green/Blue titles in your photos) */
 .block-header {
     background-color: var(--color-primary);
     color: white;
-    padding: 1.5mm 3mm;
+    padding: 0.5mm 1.5mm; /* Very tight */
     font-family: 'Noto Kufi Arabic';
-    font-size: 10pt;
+    font-size: 8.5pt;
     font-weight: 700;
     display: flex;
     justify-content: space-between;
@@ -99,17 +100,18 @@ body {
 }
 
 .block-body {
-    padding: 2mm;
+    padding: 1mm;
 }
 
-/* 4. SPLIT LAYOUT (Tables/Comparisons) */
+/* 4. SPLIT LAYOUT */
 .split-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-std);
+    margin-bottom: var(--spacing-std);
 }
 
-/* 5. STRUCTURED LISTS (Replacing bullets) */
+/* 5. STRUCTURED LISTS */
 .structured-list {
     margin: 0;
     padding: 0;
@@ -117,7 +119,7 @@ body {
 }
 
 .structured-list li {
-    padding: 1mm 0;
+    padding: 0.5mm 0;
     border-bottom: 1px dashed #EEEEEE;
     display: flex;
     align-items: flex-start;
@@ -128,59 +130,25 @@ body {
 .marker {
     color: var(--color-primary);
     font-weight: bold;
-    margin-left: 3mm;
-    min-width: 5mm;
+    margin-left: 1.5mm;
+    min-width: 3mm;
 }
 
-/* 6. "BENEFIT" BOX (The Fawa'id) */
+/* 6. BENEFIT BOX */
 .benefit-box {
-    background-color: #E0F2F1; /* Light Teal */
-    border-right: 4px solid var(--color-primary);
-    padding: 2mm 3mm;
-    margin-top: 1.5mm;
-    font-size: 10pt;
+    background-color: #E0F2F1;
+    border-right: 2px solid var(--color-primary);
+    padding: 1mm 1.5mm;
+    margin-top: 0.5mm;
+    font-size: 8.5pt;
     color: #004D40;
 }
 
-/* 7. FOOTER BAR (Visual only, actual number handled by @page) */
-.footer-decoration {
-    position: fixed;
-    bottom: -15mm;
-    left: 0; right: 0;
-    height: 5mm;
-    background: var(--color-primary);
-    opacity: 0.1;
-    z-index: -1;
-}
-
-/* --- ADD TO styles/main.css --- */
-
-/* 1. FIXED PAGE NUMBER (Anchored & Styled) */
-@page {
-    /* ... existing margins ... */
-    
-    /* Clear the default content first */
-    @bottom-center { content: none; }
-    
-    /* Place number in the corner with a nice box */
-    @bottom-left {
-        content: "( " counter(page, arabic-indic) " )";
-        font-family: 'Noto Kufi Arabic';
-        font-weight: 900;
-        font-size: 12pt;
-        color: var(--color-dark);
-        width: auto;
-        text-align: center;
-        margin-bottom: 10mm; /* Lift it up */
-        margin-left: 10mm;
-    }
-}
-
-/* 2. THE GRAMMAR TABLE (Dense & Striped) */
+/* 7. TABLE STYLES */
 .dense-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 10pt;
+    font-size: 8.5pt;
     margin-bottom: var(--spacing-std);
     box-shadow: var(--shadow-card);
     border-radius: var(--radius);
@@ -190,26 +158,24 @@ body {
 .dense-table th {
     background-color: var(--color-primary);
     color: white;
-    padding: 1.5mm 3mm;
+    padding: 0.5mm 1.5mm;
     text-align: right;
     font-family: 'Noto Kufi Arabic';
 }
 
 .dense-table td {
-    padding: 1.5mm 3mm;
+    padding: 0.5mm 1.5mm;
     border-bottom: 1px solid #EEEEEE;
     color: var(--color-dark);
 }
 
-/* Zebra Striping for readability */
 .dense-table tr:nth-child(even) { background-color: #FAFAFA; }
 
-
-/* 3. POETRY LAYOUT (The "Shatr" System) */
+/* 8. POETRY LAYOUT */
 .poem-container {
     background-color: #FFF;
-    border-right: 4px solid var(--color-accent); /* Orange strip */
-    padding: 3mm;
+    border-right: 2px solid var(--color-accent);
+    padding: 1mm 1.5mm;
     margin-bottom: var(--spacing-std);
     box-shadow: var(--shadow-card);
     border-radius: var(--radius);
@@ -218,9 +184,9 @@ body {
 .poem-line {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 1.5mm;
+    margin-bottom: 0.5mm;
     font-weight: bold;
-    font-size: 11pt;
+    font-size: 9pt;
 }
 
 .hemistich {
@@ -229,21 +195,19 @@ body {
     position: relative;
 }
 
-/* The divider between hemistichs */
 .hemistich:first-child::after {
     content: "•••";
     position: absolute;
     left: -5px;
     color: #E0E0E0;
-    font-size: 8pt;
+    font-size: 7pt;
 }
 
-
-/* 4. THE I'RAB CARD (Parsing Analysis) */
+/* 9. IRAB CARD */
 .irab-box {
     border: 1px solid #E0E0E0;
     border-radius: var(--radius);
-    margin-bottom: 2mm;
+    margin-bottom: 1mm;
     display: flex;
     align-items: stretch;
     background: white;
@@ -252,37 +216,37 @@ body {
 .irab-word {
     background-color: var(--color-primary);
     color: white;
-    width: 25mm;
+    width: 15mm;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
     font-family: 'Noto Kufi Arabic';
-    padding: 1.5mm;
-    border-radius: 0 var(--radius) var(--radius) 0; /* Rounded right side only (RTL) */
+    padding: 0.5mm;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 8.5pt;
 }
 
 .irab-details {
-    padding: 2mm 3mm;
-    font-size: 10pt;
+    padding: 1mm 1.5mm;
+    font-size: 8.5pt;
     flex: 1;
 }
 
-
-/* 5. BIO BOX (For Poets) */
+/* 10. BIO CARD */
 .bio-card {
     display: flex;
-    gap: 3mm;
-    background-color: #ECEFF1; /* Blue Grey Light */
-    padding: 3mm;
+    gap: 1.5mm;
+    background-color: #ECEFF1;
+    padding: 1.5mm;
     border-radius: var(--radius);
     margin-bottom: var(--spacing-std);
     align-items: center;
 }
 
 .bio-image-placeholder {
-    width: 15mm;
-    height: 15mm;
+    width: 10mm;
+    height: 10mm;
     background-color: #B0BEC5;
     border-radius: 50%;
     display: flex;
@@ -290,25 +254,37 @@ body {
     justify-content: center;
     color: white;
     font-weight: bold;
+    font-size: 7pt;
 }
 
-
-/* 6. EXAM / QUIZ STYLES */
+/* 11. EXAM STYLES */
 .exam-question {
-    margin-bottom: 4mm;
+    margin-bottom: 1.5mm;
     border-bottom: 1px dashed #BDBDBD;
-    padding-bottom: 3mm;
+    padding-bottom: 1mm;
 }
 
 .exam-number {
     display: inline-block;
     background: var(--color-accent);
     color: white;
-    width: 6mm;
-    height: 6mm;
+    width: 4mm;
+    height: 4mm;
     text-align: center;
-    line-height: 6mm;
+    line-height: 4mm;
     border-radius: 50%;
-    margin-left: 3mm;
+    margin-left: 1.5mm;
     font-weight: bold;
+    font-size: 8pt;
+}
+
+/* Footer Decoration Bar */
+.footer-decoration {
+    position: fixed;
+    bottom: -15mm;
+    left: 0; right: 0;
+    height: 5mm;
+    background: var(--color-primary);
+    opacity: 0.1;
+    z-index: -1;
 }
