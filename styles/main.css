@@ -242,6 +242,10 @@ body {
     box-shadow: var(--shadow-card);
     border-radius: var(--radius);
     overflow: hidden;
+    /* Thick Primary Teal borders on sides and bottom */
+    border-left: 3px solid var(--color-primary);
+    border-right: 3px solid var(--color-primary);
+    border-bottom: 3px solid var(--color-primary);
 }
 
 .dense-table th {
@@ -250,12 +254,16 @@ body {
     padding: 1.5mm 3mm;
     text-align: right;
     font-family: 'Noto Kufi Arabic';
+    /* Vertical separator (Internal) */
+    border-left: 2px solid var(--color-primary);
 }
 
 .dense-table td {
     padding: 1.5mm 3mm;
     border-bottom: 1px solid #EEEEEE;
     color: var(--color-dark);
+    /* Vertical separator (Internal) */
+    border-left: 2px solid var(--color-primary);
 }
 
 /* Zebra Striping for readability */
