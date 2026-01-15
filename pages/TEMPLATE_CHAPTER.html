@@ -8,17 +8,24 @@
 <body>
 
     <header class="page-header-strip">
-        <div style="display: flex; align-items: center; gap: 4mm;">
-            <!-- Lesson Number (Rightmost in RTL) -->
-            <div style="font-family: 'Noto Kufi Arabic'; font-size: 24pt; color: var(--color-primary); font-weight:900; line-height: 1;">١</div>
-            <div>
-                <h1 class="header-title">الْمُبْتَدَأُ وَالْخَبَرُ</h1>
-                <p class="header-subtitle">الْجُمْلَةُ الْاسْمِيَّةُ - الدَّرْسُ الْأَوَّلُ</p>
+        <!-- Right: Lesson Number + Lesson Details -->
+        <div class="header-section right">
+            <div class="lesson-number">١</div>
+            <div class="lesson-details">
+                <div>الدرس الاول</div>
+                <div>الجملة الاسمية</div>
             </div>
         </div>
-        <!-- Author Info (Leftmost in RTL) -->
-        <div style="font-family: 'Noto Kufi Arabic'; font-size: 10pt; color: #757575; font-weight:700; text-align: left;">
-            أ. الياس خفيف - 0994066850
+
+        <!-- Center: Title -->
+        <div class="header-section center">
+            <h1 class="header-title">المبتدأ و الخبر</h1>
+        </div>
+
+        <!-- Left: Author Info -->
+        <div class="header-section left">
+            <div class="author-info">أ. الياس خفيف</div>
+            <div class="author-info">0994066850</div>
         </div>
     </header>
 
