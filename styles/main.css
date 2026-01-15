@@ -164,17 +164,15 @@ body {
     
     /* Place number in the corner with a nice box */
     @bottom-left {
-        content: counter(page);
+        content: "( " counter(page, arabic-indic) " )";
         font-family: 'Noto Kufi Arabic';
         font-weight: 900;
         font-size: 12pt;
-        color: white;
-        background-color: var(--color-primary);
-        border-radius: 4px; /* Rounded box */
-        width: 8mm;
+        color: var(--color-dark);
+        width: auto;
         text-align: center;
-        margin-bottom: 5mm; /* Lift it up */
-        margin-left: 5mm;
+        margin-bottom: 10mm; /* Lift it up */
+        margin-left: 10mm;
     }
 }
 
