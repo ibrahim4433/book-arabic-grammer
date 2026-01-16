@@ -23,6 +23,12 @@
     /* Small margins like the classic book to maximize space */
     margin: 5mm 5mm 15mm 5mm;
     
+    /* Background & Watermark (Full Bleed) */
+    background-image: url('../assets/page-watermark/watermark.png'), url('../assets/page-background/background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
     /* FOOTER - Automatic Page Numbering */
     @bottom-center {
         content: counter(page);
@@ -41,9 +47,6 @@ body {
     font-size: 11pt; /* Dense but readable */
     line-height: 1.2;
     margin: 0; /* CRITICAL FIX */
-    background-color: #FAFAFA; /* Very subtle grey */
-    background-image: radial-gradient(#E0E0E0 1px, transparent 1px);
-    background-size: 10mm 10mm; /* Grid dots */
 }
 
 /* 2. THE HEADER STRIP (Like the Old Book) */
@@ -192,17 +195,6 @@ body {
     margin-top: 1.5mm;
     font-size: 10pt;
     color: #004D40;
-}
-
-/* 7. FOOTER BAR (Visual only, actual number handled by @page) */
-.footer-decoration {
-    position: fixed;
-    bottom: -15mm;
-    left: 0; right: 0;
-    height: 5mm;
-    background: var(--color-primary);
-    opacity: 0.1;
-    z-index: -1;
 }
 
 /* --- ADD TO styles/main.css --- */
