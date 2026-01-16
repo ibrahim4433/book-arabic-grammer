@@ -397,8 +397,8 @@ body {
     font-family: 'Noto Kufi Arabic';
     font-weight: 900;
     font-size: 80pt;
-    color: var(--color-primary);
-    opacity: 0.1;
+    color: #000000;
+    opacity: 0.2;
     transform: rotate(-45deg);
     white-space: nowrap;
 }

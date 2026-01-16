@@ -68,7 +68,43 @@ def main():
         print(f"\n🎨 Rendering: {target_file}...")
         
         try:
-            HTML(input_path).write_pdf(output_path)
+            # Read the file content
+            with open(input_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            # Extract body content
+            import re
+            match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL | re.IGNORECASE)
+            if match:
+                body_inner_html = match.group(1)
+            else:
+                # Fallback if no body tag found (unlikely for valid HTML files)
+                body_inner_html = content
+
+            # Prepare the Master Template (matching build.py)
+            master_html = f"""<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Preview: {target_file}</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <!-- Global Fixed Background -->
+    <div class="global-background-layer"></div>
+
+    <!-- Global Fixed Watermark -->
+    <div class="global-watermark-layer">
+        <span class="watermark-text">أ. الياس خفيف</span>
+    </div>
+
+    <!-- Content -->
+    {body_inner_html}
+</body>
+</html>
+"""
+            # Render with base_url='.' so styles/main.css is found
+            HTML(string=master_html, base_url='.').write_pdf(output_path)
             print(f"✅ Done! Saved to: {output_path}")
         except Exception as e:
             print(f"❌ Error during rendering: {e}")
