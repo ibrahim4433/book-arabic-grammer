@@ -153,9 +153,13 @@ body {
 
 /* 4. SPLIT LAYOUT (Tables/Comparisons) */
 .split-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: row;
     gap: var(--spacing-std);
+}
+
+.split-grid > * {
+    flex: 1;
 }
 
 /* 5. STRUCTURED LISTS (Replacing bullets) */
@@ -401,4 +405,10 @@ body {
     opacity: 0.2;
     transform: rotate(-45deg);
     white-space: nowrap;
+}
+
+/* ICON UTILITIES */
+.icon-pencil::before {
+    content: "\270E";
+    margin-left: 2mm;
 }
