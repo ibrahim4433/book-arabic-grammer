@@ -10,7 +10,7 @@
     
     /* DENSITY VARIABLES */
     --spacing-tight: 1mm;
-    --spacing-std: 2mm;
+    --spacing-std: 1.5mm;
     --radius: 4px; /* Tighter radius = More professional */
     
     /* SHADOWS (Kept per your request, but refined) */
@@ -21,7 +21,7 @@
 @page {
     size: A4;
     /* Small margins like the classic book to maximize space */
-    margin: 5mm 5mm 15mm 5mm;
+    margin: 5mm 5mm 10mm 5mm;
 
     /* FOOTER - Automatic Page Numbering */
     @bottom-center {
@@ -38,8 +38,8 @@ html { direction: rtl; lang: ar; }
 body {
     font-family: 'Noto Naskh Arabic', serif;
     color: var(--color-dark);
-    font-size: 11pt; /* Dense but readable */
-    line-height: 1.2;
+    font-size: 10.8pt; /* Dense but readable */
+    line-height: 1.15;
     margin: 0; /* CRITICAL FIX */
 }
 
@@ -50,7 +50,7 @@ body {
     align-items: center;
     border-bottom: 2px solid var(--color-primary);
     padding-bottom: 2mm;
-    margin-bottom: 4mm;
+    margin-bottom: 2mm;
 }
 
 /* New Header Helper Classes */
@@ -350,7 +350,7 @@ body {
 
 /* 6. EXAM / QUIZ STYLES */
 .exam-question {
-    margin-bottom: 4mm;
+    margin-bottom: 2mm;
     border-bottom: 1px dashed #BDBDBD;
     padding-bottom: 3mm;
 }

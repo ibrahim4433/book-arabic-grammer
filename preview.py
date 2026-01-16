@@ -104,7 +104,10 @@ def main():
 </html>
 """
             # Render with base_url='.' so styles/main.css is found
-            HTML(string=master_html, base_url='.').write_pdf(output_path)
+            doc = HTML(string=master_html, base_url='.').render()
+            page_count = len(doc.pages)
+            doc.write_pdf(output_path)
+            print(f"📄 Page Count: {page_count}")
             print(f"✅ Done! Saved to: {output_path}")
         except Exception as e:
             print(f"❌ Error during rendering: {e}")
