@@ -22,12 +22,6 @@
     size: A4;
     /* Small margins like the classic book to maximize space */
     margin: 5mm 5mm 15mm 5mm;
-    
-    /* Background & Watermark (Full Bleed) */
-    background-image: url('../assets/page-watermark/watermark.png'), url('../assets/page-background/background.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
 
     /* FOOTER - Automatic Page Numbering */
     @bottom-center {
@@ -368,4 +362,43 @@ body {
     border-radius: 50%;
     margin-left: 3mm;
     font-weight: bold;
+}
+
+/* 7. GLOBAL LAYERS (Fixed Background & Watermark) */
+.global-background-layer {
+    position: fixed;
+    z-index: -1000;
+    /* Offset negative margins to cover the entire page (bleed) */
+    top: -5mm;
+    left: -5mm;
+    width: 210mm;
+    height: 297mm;
+    background-image: url('../assets/page-background/background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    pointer-events: none;
+}
+
+.global-watermark-layer {
+    position: fixed;
+    z-index: 9999; /* Above all content */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.watermark-text {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 900;
+    font-size: 80pt;
+    color: var(--color-primary);
+    opacity: 0.1;
+    transform: rotate(-45deg);
+    white-space: nowrap;
 }
