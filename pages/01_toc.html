@@ -4,102 +4,6 @@
     <meta charset="UTF-8">
     <title>Table of Contents</title>
     <link rel="stylesheet" href="../styles/main.css">
-    <style>
-        /* TOC Specific Styles - Modern Editorial */
-
-        .toc-header-section {
-            text-align: center;
-            margin-bottom: 20mm;
-        }
-
-        .toc-main-title {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 5mm;
-            color: var(--color-secondary);
-        }
-
-        .toc-subtitle {
-            font-size: 1.5rem;
-            color: var(--color-accent);
-            font-weight: 500;
-        }
-
-        .toc-chapter {
-            display: flex;
-            flex-direction: row; /* In RTL, this puts the first child (number) on the right */
-            margin-bottom: 15mm;
-            break-inside: avoid;
-            page-break-inside: avoid;
-            align-items: flex-start;
-        }
-
-        .toc-number {
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--color-primary);
-            line-height: 1;
-            margin-left: 20px; /* Space between number and content */
-            flex-shrink: 0;
-            min-width: 60px;
-        }
-
-        .toc-content {
-            flex-grow: 1;
-        }
-
-        .chapter-title {
-            font-size: 1.8rem;
-            font-family: var(--font-heading);
-            color: var(--color-secondary);
-            margin: 0 0 2mm 0;
-            font-weight: 700;
-        }
-
-        .chapter-subtitle {
-            font-size: 1.2rem;
-            color: var(--color-accent);
-            margin: 0 0 5mm 0;
-            font-style: italic;
-        }
-
-        .toc-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .toc-list li {
-            position: relative;
-            padding-right: 20px;
-            margin-bottom: 3mm;
-            font-size: 1rem;
-            color: var(--color-secondary);
-            line-height: 1.6;
-        }
-
-        /* Custom Marker: Teal Square */
-        .toc-list li::before {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0.6em; /* Align with text */
-            width: 8px;
-            height: 8px;
-            background-color: var(--color-primary);
-        }
-
-        .toc-footer {
-            margin-top: 20mm;
-            padding-top: 10mm;
-            border-top: 2px solid var(--color-primary);
-            text-align: center;
-            font-style: italic;
-            color: var(--color-secondary);
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-    </style>
 </head>
 <body>
 
@@ -113,8 +17,8 @@
     <article class="toc-chapter">
         <div class="toc-number">01</div>
         <div class="toc-content">
-            <h3 class="chapter-title">فَكْفِكِ الْجُمْلَةَ وَرَكِّبْهَا</h3>
-            <div class="chapter-subtitle">مِنْ شُو بْتِتْكَوَّنِ الطَّبْخَة؟</div>
+            <h3 class="toc-item-title">فَكْفِكِ الْجُمْلَةَ وَرَكِّبْهَا</h3>
+            <div class="toc-item-subtitle">مِنْ شُو بْتِتْكَوَّنِ الطَّبْخَة؟</div>
             <ul class="toc-list">
                 <li>الْعُدَّةُ الْأَسَاسِيَّة: (اسْم، فِعْل، حَرْف).. كَيْفَ تُمَيِّزُ بَيْنَهُم بِالْعَيْنِ الْمُجَرَّدَة؟</li>
                 <li>الْخَلْطَة: الْفَرْقُ بَيْنَ الْجُمْلَةِ الَلِّي "إِلْهَا طَعْمَة" (الْمُفِيدَة) وَحَكِي الْحَشْو.</li>
@@ -127,8 +31,8 @@
     <article class="toc-chapter">
         <div class="toc-number">02</div>
         <div class="toc-content">
-            <h3 class="chapter-title">الْأَكْشَن وَالْحَرَكَة</h3>
-            <div class="chapter-subtitle">مِين اللِّي عِمِلِ الْعَمْلَة؟ (الْجُمْلَةُ الْفِعْلِيَّة)</div>
+            <h3 class="toc-item-title">الْأَكْشَن وَالْحَرَكَة</h3>
+            <div class="toc-item-subtitle">مِين اللِّي عِمِلِ الْعَمْلَة؟ (الْجُمْلَةُ الْفِعْلِيَّة)</div>
             <ul class="toc-list">
                 <li>مُحَرِّكُ الْأَحْدَاث (الْفِعْل).</li>
                 <li>الْمَاضِي: شِي صَار وَخَلَص وَانْطَوَى.</li>
@@ -144,8 +48,8 @@
     <article class="toc-chapter">
         <div class="toc-number">03</div>
         <div class="toc-content">
-            <h3 class="chapter-title">الرَّوَاقُ وَالْهُدُوء</h3>
-            <div class="chapter-subtitle">بِدَايَةُ السِّيرَةِ وَزُبْدَةُ الْحَكِي (الْجُمْلَةُ الْاسْمِيَّة)</div>
+            <h3 class="toc-item-title">الرَّوَاقُ وَالْهُدُوء</h3>
+            <div class="toc-item-subtitle">بِدَايَةُ السِّيرَةِ وَزُبْدَةُ الْحَكِي (الْجُمْلَةُ الْاسْمِيَّة)</div>
             <ul class="toc-list">
                 <li>الْمُبْتَدَأ: أَوَّلُ كَلِمَة بِنِفْتَح فِيهَا الْمَوْضُوع وَبِنْحُطَّهَا بِالْوَاجِهَة.</li>
                 <li>الْخَبَر: الْكَلِمَةُ الَّتِي تُعْطِيكَ الصَّافِي وَبِتْفَهِّمَك شُو الْقِصَّة.</li>
@@ -158,8 +62,8 @@
     <article class="toc-chapter">
         <div class="toc-number">04</div>
         <div class="toc-content">
-            <h3 class="chapter-title">اللِّي وَقَعَ عَلَيْهِ الْفِعْل</h3>
-            <div class="chapter-subtitle">مِين اللِّي أَكَلِ الضَّرْب؟ (الْمَفْعُولُ بِهِ)</div>
+            <h3 class="toc-item-title">اللِّي وَقَعَ عَلَيْهِ الْفِعْل</h3>
+            <div class="toc-item-subtitle">مِين اللِّي أَكَلِ الضَّرْب؟ (الْمَفْعُولُ بِهِ)</div>
             <ul class="toc-list">
                 <li>الضَّحِيَّة (الْمَفْعُولُ بِهِ): الْغَرَضُ أَوِ الشَّخْصُ الَّذِي اشْتَغَلْنَا فِيه (وَدَائِماً مَنْصُوب).</li>
                 <li>مِفْتَاحُ السِّرّ: اسْأَل حَالَك 'شُو عِمِل؟' أَوْ 'مِين شَاف؟' لِتَعْرِفَهُ فَوْراً.</li>
@@ -172,8 +76,8 @@
     <article class="toc-chapter">
         <div class="toc-number">05</div>
         <div class="toc-content">
-            <h3 class="chapter-title">تَغْيِيرُ الْجَوّ (1)</h3>
-            <div class="chapter-subtitle">كَانَ وَأَخَوَاتُهَا: فَاتُوا عَ الْخَطّ وَقَلَبُوا الْمَوَازِين</div>
+            <h3 class="toc-item-title">تَغْيِيرُ الْجَوّ (1)</h3>
+            <div class="toc-item-subtitle">كَانَ وَأَخَوَاتُهَا: فَاتُوا عَ الْخَطّ وَقَلَبُوا الْمَوَازِين</div>
             <ul class="toc-list">
                 <li>الدُّخُولُ الْمُفَاجِئ: لَيْش 'كَانَ' بْتِفُوت عَ الْجُمْلَةِ الْاسْمِيَّة وَبْتُغَيِّر حَرَكَاتِ الشَّبَاب؟</li>
                 <li>وَظِيفَتُهَا: بْتِرْفَع الْمُبْتَدَأ بَس 'بْتِنْصُب' عَلَى الْخَبَر (بْتِعْمِل قَلَق).</li>
@@ -186,8 +90,8 @@
     <article class="toc-chapter">
         <div class="toc-number">06</div>
         <div class="toc-content">
-            <h3 class="chapter-title">التَّثْبِيتُ وَالتَّوْكِيد (2)</h3>
-            <div class="chapter-subtitle">إِنَّ وَأَخَوَاتُهَا: حَكِي مِنَ الْآخِر</div>
+            <h3 class="toc-item-title">التَّثْبِيتُ وَالتَّوْكِيد (2)</h3>
+            <div class="toc-item-subtitle">إِنَّ وَأَخَوَاتُهَا: حَكِي مِنَ الْآخِر</div>
             <ul class="toc-list">
                 <li>أَدَوَاتُ الْحَسْم: شُغْلِتْهَا تَأَكِّد الْحَكِي وَمَا تِخَلِّي مَجَال لِلشَّكّ (إِنَّ، لَكِنَّ، لَيْتَ...).</li>
                 <li>الْعَكْسُ تَمَاماً: بْتِنْصُب الْمُبْتَدَأ وَبْتِرْفَع الْخَبَر (عَكْس كَانَ).</li>
@@ -200,8 +104,8 @@
     <article class="toc-chapter">
         <div class="toc-number">07</div>
         <div class="toc-content">
-            <h3 class="chapter-title">الزِّينَةُ وَالْوَصْف</h3>
-            <div class="chapter-subtitle">وِصِفْلِي يَاه عَ الْقَدّ (النَّعْت)</div>
+            <h3 class="toc-item-title">الزِّينَةُ وَالْوَصْف</h3>
+            <div class="toc-item-subtitle">وِصِفْلِي يَاه عَ الْقَدّ (النَّعْت)</div>
             <ul class="toc-list">
                 <li>التَّابِعُ الْمُطِيع (الصِّفَة): الْكَلِمَةُ الَّتِي تَمْشِي وَرَا الَّلِي قَبْلَهَا 'عَلَى الْعَمْيَانِي' بِكُلِّ شِي.</li>
                 <li>قَانُونُ التَّوْأَم: نَكِرَة وَنَكِرَة، أَوْ مَعْرِفَة وَمَعْرِفَة.. لَازِم يِشْبِهُوا بَعْض.</li>
@@ -214,8 +118,8 @@
     <article class="toc-chapter">
         <div class="toc-number">08</div>
         <div class="toc-content">
-            <h3 class="chapter-title">التَّشْبِيكُ وَالرَّبْط</h3>
-            <div class="chapter-subtitle">لَزْقَة وَتَوْصِيلَة: الْجَرُّ وَالْإِضَافَة</div>
+            <h3 class="toc-item-title">التَّشْبِيكُ وَالرَّبْط</h3>
+            <div class="toc-item-subtitle">لَزْقَة وَتَوْصِيلَة: الْجَرُّ وَالْإِضَافَة</div>
             <ul class="toc-list">
                 <li>الْجُسُور (حُرُوفُ الْجَرّ): الْكَلِمَاتُ الَّتِي تُوَصِّلُ الْمَعَانِي بِبَعْضِهَا (مِنْ، إِلَى، عَنْ، عَلَى، الْبَاء، الْكَاف، اللَّام...).</li>
                 <li>الْمُضَافُ إِلَيْهِ: كَلِمَة بْتِسْنِد كَلِمَة مِشَان تَوَضِّحْهَا وَتْخَصِّصْهَا (مِتِل: بَاب الْبَيْت، مِفْتَاح السَّيَّارَة).</li>
@@ -228,8 +132,8 @@
     <article class="toc-chapter">
         <div class="toc-number">09</div>
         <div class="toc-content">
-            <h3 class="chapter-title">شِيفْرَةُ الْحَرَكَات</h3>
-            <div class="chapter-subtitle">ضَمَّة وَفَتْحَة وَكَسْرَة.. شُو قِصِّتْهُم؟</div>
+            <h3 class="toc-item-title">شِيفْرَةُ الْحَرَكَات</h3>
+            <div class="toc-item-subtitle">ضَمَّة وَفَتْحَة وَكَسْرَة.. شُو قِصِّتْهُم؟</div>
             <ul class="toc-list">
                 <li>الْمَفَاتِيحُ الْأَرْبَعَة: مُلَخَّصُ الْإِعْرَابِ بِالْعَلَامَاتِ الْأَصْلِيَّة.</li>
                 <li>الضَّمَّة: لِلرَّفْع (عَلَامَةُ الْقُوَّةِ وَالْقِيَادَة).</li>
@@ -244,8 +148,8 @@
     <article class="toc-chapter">
         <div class="toc-number">10</div>
         <div class="toc-content">
-            <h3 class="chapter-title">لَمَّا تِكْبَرِ الشِّلَّة</h3>
-            <div class="chapter-subtitle">مُثَنَّى وَجَمْع.. التَّعَامُل مَعَ الْكُبَار</div>
+            <h3 class="toc-item-title">لَمَّا تِكْبَرِ الشِّلَّة</h3>
+            <div class="toc-item-subtitle">مُثَنَّى وَجَمْع.. التَّعَامُل مَعَ الْكُبَار</div>
             <ul class="toc-list">
                 <li>تَغْيِيرُ الْعُمْلَة: الْإِعْرَابُ بِالْحُرُوف بَدَل الْحَرَكَات (لَمَّا الْعَدَد يِزِيد).</li>
                 <li>الْمُثَنَّى: (اتْنِينَات) بِيِرْفَع بِالْأَلِف وَبِيِنْصُب وَيِجُرّ بِالْيَاء.</li>
