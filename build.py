@@ -10,7 +10,8 @@ def main():
         os.makedirs(output_dir)
 
     # Find all HTML files in pages/ sorted alphabetically
-    pages_files = sorted(glob.glob('pages/*.html'))
+    all_files = sorted(glob.glob('pages/*.html'))
+    pages_files = [f for f in all_files if "TEMPLATE_" not in f]
 
     if not pages_files:
         print("No HTML files found in pages/.")
