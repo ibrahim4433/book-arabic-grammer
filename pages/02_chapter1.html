@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Chapter 1: The Active Layout</title>
+    <title>Chapter 1: Parts of Speech</title>
     <link rel="stylesheet" href="../styles/main.css">
 </head>
 <body>
@@ -12,16 +12,16 @@
         <header class="page-header-strip">
             <!-- Right: Lesson Number + Lesson Details -->
             <div class="header-section right">
-                <div class="lesson-number">٠١</div>
+                <div class="lesson-number">١</div>
                 <div class="lesson-details">
                     <div>النَّحْوُ الْعَرَبِيُّ</div>
-                    <div>أَقْسَامُ الْكَلِمَةِ</div>
+                    <div>مُقَدِّمَةٌ</div>
                 </div>
             </div>
 
             <!-- Center: Title -->
             <div class="header-section center">
-                <h1 class="header-title">مِمَّ تَتَكَوَّنُ الْجُمْلَةُ؟</h1>
+                <h1 class="header-title">أَقْسَامُ الْكَلِمَةِ</h1>
             </div>
 
             <!-- Left: Author Info -->
@@ -30,83 +30,99 @@
             </div>
         </header>
 
-        <!-- Subtitle -->
+        <!-- Definition Block (NEW) -->
         <section class="content-block">
+            <div class="block-header">
+                <span>📌 تَعْرِيفُ الْكَلِمَةِ</span>
+            </div>
             <div class="block-body">
-                <p style="text-align: center; margin: 0; font-weight: bold; color: #666;">ثَلَاثَةُ أَنْوَاعٍ لَا رَابِعَ لَهَا</p>
+                <p style="margin: 0; font-size: 1.1rem;">
+                    الْكَلِمَةُ لَفْظٌ لَهُ مَعْنَى، وَتَنْقَسِمُ فِي اللُّغَةِ الْعَرَبِيَّةِ إِلَى ثَلَاثَةِ أَقْسَامٍ رَئِيسِيَّةٍ: <strong>اسْمٌ</strong>، وَ<strong>فِعْلٌ</strong>، وَ<strong>حَرْفٌ</strong>.
+                </p>
+            </div>
+        </section>
+
+        <!-- Subtitle -->
+        <section class="content-block" style="margin-top: 2mm;">
+            <div class="block-body">
+                <p style="text-align: center; margin: 0; font-weight: bold; color: #666;">الْأَقْسَامُ الثَّلَاثَةُ</p>
             </div>
         </section>
 
         <!-- The Grid: Noun vs Verb -->
         <div class="split-grid">
-            <!-- Noun -->
+            <!-- Noun (Type 1) -->
             <div class="content-block">
                 <div class="block-header">
-                    <span>1. الاسْمُ</span>
+                    <span>١. الاسْمُ</span>
                 </div>
                 <div class="block-body">
-                    <p style="margin-bottom: 15px;">كَلِمَةٌ تَدُلُّ عَلَى "مَعْنَى" ثَابِتٍ.</p>
+                    <p style="margin-bottom: 15px;">كَلِمَةٌ تَدُلُّ عَلَى "مَعْنَى" غَيْرِ مُقْتَرِنٍ بِزَمَنٍ.</p>
                     <ul class="structured-list">
                         <li>
-                            <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;">✓</span>
-                            يَقْبَلُ (الـ).
+                            <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;"></span>
+                            يَقْبَلُ (الـ) التَّعْرِيفِ.
                         </li>
                         <li>
-                            <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;">✓</span>
+                            <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;"></span>
                             يَقْبَلُ التَّنْوِينَ.
+                        </li>
+                         <li>
+                            <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;"></span>
+                            يَقْبَلُ الْجَرَّ.
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Verb -->
+            <!-- Verb (Type 2 - Refactored) -->
             <div class="content-block">
                 <div class="block-header" style="background-color: var(--color-secondary);">
-                    <span>2. الفِعْلُ</span>
+                    <span>٢. الْفِعْلُ</span>
                 </div>
                 <div class="block-body">
-                    <p style="margin-bottom: 15px;">حَدَثٌ مَحْبُوسٌ دَاخِلَ "زَمَنٍ".</p>
+                    <p style="margin-bottom: 15px;">كَلِمَةٌ تَدُلُّ عَلَى "حَدَثٍ" مُقْتَرِنٍ بِزَمَنٍ مُعَيَّنٍ.</p>
                     <ul class="structured-list">
                         <li>
-                            <span class="icon-cross" style="color: var(--color-accent); margin-left: 5px;">✗</span>
-                            لَا يَقْبَلُ (الـ).
+                            <span class="icon-cross" style="color: var(--color-accent); margin-left: 5px;"></span>
+                            لَا يَقْبَلُ (الـ) التَّعْرِيفِ.
                         </li>
                         <li>
-                            <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;">✓</span>
-                            يَتَغَيَّرُ شَكْلُهُ (مَاضٍ/مُضَارِعٌ).
+                            <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;"></span>
+                            يَتَغَيَّرُ حَسَبَ الزَّمَنِ (مَاضٍ، مُضَارِعٌ، أَمْرٌ).
                         </li>
                     </ul>
                 </div>
             </div>
         </div>
 
-        <!-- The Bridge: Particle -->
+        <!-- The Bridge: Particle (Type 3) -->
         <div class="content-block">
             <div class="block-header" style="background-color: #333;">
-                <span>3. الحَرْفُ</span>
+                <span>٣. الْحَرْفُ</span>
             </div>
             <div class="block-body" style="display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                    <p style="margin: 0;">هُوَ "الْجِسْرُ" الَّذِي يَرْبِطُ الْأَسْمَاءَ بِالْأَفْعَالِ. لَيْسَ لَهُ مَعْنَى إِلَّا إِذَا وَصَلْتَهُ بِغَيْرِهِ.</p>
+                    <p style="margin: 0;">كَلِمَةٌ لَا يَظْهَرُ مَعْنَاهَا كَامِلًا إِلَّا مَعَ غَيْرِهَا، مِثْلُ حُرُوفِ الْجَرِّ وَالْعَطْفِ.</p>
                 </div>
-                <div style="font-size: 2rem; opacity: 0.2; margin-right: 10px;">🔗</div>
+                <!-- Icon Removed for safety -->
             </div>
         </div>
 
-        <!-- Cheat Code -->
+        <!-- Cheat Code (Arabized) -->
         <section class="benefit-box">
-            <h4 style="margin: 0 0 5px 0; color: #004D40;">🚀 شِيفْرَةُ الْحَلّ (CHEAT CODE)</h4>
+            <h4 style="margin: 0 0 5px 0; color: #004D40;">🚀 مِفْتَاحُ الْحَلّ</h4>
             <p style="margin: 0;">
-                السِّرُّ فِي <strong>"الـ" التَّعْرِيفِ</strong>. إِذَا شَكَكْتَ فِي الْكَلِمَةِ، حَاوِلْ أَنْ تُلْبِسَهَا "الـ":<br>
+                السِّرُّ فِي <strong>"الـ" التَّعْرِيفِ</strong>. إِذَا شَكَكْتَ فِي الْكَلِمَةِ، حَاوِلْ أَنْ تُدْخِلَ عَلَيْهَا "الـ":<br>
                 - قَبِلَتْهَا؟ ← <strong>اسْمٌ</strong> (بَيْت ← الْبَيْت ✅).<br>
                 - رَفَضَتْهَا؟ ← <strong>فِعْلٌ</strong> (يَلْعَبُ ← الـ يَلْعَبُ؟ ❌ مُسْتَحِيل).
             </p>
         </section>
 
-        <!-- Micro Challenge -->
+        <!-- Micro Challenge (Arabized) -->
         <section class="content-block" style="margin-top: 5mm;">
             <div class="block-header accent">
-                <span>🧠 تَحَدِّي عَلَى السَّرِيع</span>
+                <span>🧠 تَحَدٍّ سَرِيعٌ</span>
             </div>
             <div class="block-body">
                 <p style="margin: 0 0 10px 0;">أَيُّ الْكَلِمَاتِ التَّالِيَةِ <strong>فِعْلٌ</strong>؟</p>
