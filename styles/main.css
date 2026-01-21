@@ -399,99 +399,71 @@ body {
     content: "\270E";
     margin-left: 2mm;
 }
+
+/* FORCE NEW PAGE START */
+.force-new-page {
+    break-before: page;
+    page-break-before: always;
+    display: block;
+    min-height: 260mm; /* Force full height visual */
+    position: relative;
+}
+
 /* =========================================
-   TOC STYLES (Moved from 01_toc.html)
+   TOC STYLES (Refactored)
    ========================================= */
 
-.toc-header-section {
-    text-align: center;
-    margin-bottom: 20mm;
-}
-
-.toc-main-title {
-    font-size: 3rem;
-    font-weight: 700;
-    margin-bottom: 5mm;
-    color: var(--color-secondary);
-}
-
-.toc-subtitle {
-    font-size: 1.5rem;
-    color: var(--color-accent);
-    font-weight: 500;
-}
-
-.toc-chapter {
-    display: flex;
-    flex-direction: row; /* In RTL, this puts the first child (number) on the right */
-    margin-bottom: 15mm;
-    break-inside: avoid;
-    page-break-inside: avoid;
-    align-items: flex-start;
-}
-
-.toc-number {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    line-height: 1;
-    margin-left: 20px; /* Space between number and content */
-    flex-shrink: 0;
-    min-width: 60px;
-}
-
-.toc-content {
-    flex-grow: 1;
-}
-
-.toc-item-title {
-    font-size: 1.8rem;
+.chapter-title {
     font-family: 'Noto Kufi Arabic';
-    color: var(--color-secondary);
-    margin: 0 0 2mm 0;
-    font-weight: 700;
+    font-size: 2.5rem;
+    color: var(--color-primary);
+    text-align: center;
+    margin-bottom: 10mm;
+    font-weight: 900;
 }
 
-.toc-item-subtitle {
-    font-size: 1.2rem;
-    color: var(--color-accent);
-    margin: 0 0 5mm 0;
-    font-style: italic;
-}
-
+/* NEW TOC STYLES (Template Based) */
 .toc-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
 }
 
-.toc-list li {
-    position: relative;
-    padding-right: 20px;
-    margin-bottom: 3mm;
-    font-size: 1rem;
-    color: var(--color-secondary);
-    line-height: 1.6;
-}
-
-/* Custom Marker: Teal Square */
-.toc-list li::before {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0.6em; /* Align with text */
-    width: 8px;
-    height: 8px;
-    background-color: var(--color-primary);
-}
-
-.toc-footer {
-    margin-top: 20mm;
-    padding-top: 10mm;
-    border-top: 2px solid var(--color-primary);
-    text-align: center;
-    font-style: italic;
-    color: var(--color-secondary);
-    break-inside: avoid;
+.toc-item {
+    display: flex;
+    align-items: baseline; /* Align by text baseline */
+    padding: 3mm 0;
+    border-bottom: 1px dashed #E0E0E0;
     page-break-inside: avoid;
+}
+
+.toc-item:last-child {
+    border-bottom: none;
+}
+
+.toc-number {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 700;
+    font-size: 14pt;
+    color: var(--color-primary);
+    width: 12mm; /* Fixed width for alignment */
+    flex-shrink: 0;
+}
+
+.toc-title {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 700;
+    font-size: 12pt;
+    color: var(--color-dark);
+    flex-grow: 1;
+    padding-left: 5mm; /* Space before page number */
+}
+
+.toc-page {
+    font-family: 'Noto Kufi Arabic';
+    font-weight: 700;
+    font-size: 12pt;
+    color: var(--color-accent);
 }

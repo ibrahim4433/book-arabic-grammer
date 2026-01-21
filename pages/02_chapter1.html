@@ -7,123 +7,118 @@
 </head>
 <body>
 
-    <!-- Header Section -->
-    <header class="page-header-strip">
-        <!-- Right: Lesson Number + Lesson Details -->
-        <div class="header-section right">
-            <div class="lesson-number">٠١</div>
-            <div class="lesson-details">
-                <div>النَّحْوُ الْعَرَبِيُّ</div>
-                <div>أَقْسَامُ الْكَلِمَةِ</div>
+    <div class="force-new-page">
+        <!-- Header Section -->
+        <header class="page-header-strip">
+            <!-- Right: Lesson Number + Lesson Details -->
+            <div class="header-section right">
+                <div class="lesson-number">٠١</div>
+                <div class="lesson-details">
+                    <div>النَّحْوُ الْعَرَبِيُّ</div>
+                    <div>أَقْسَامُ الْكَلِمَةِ</div>
+                </div>
+            </div>
+
+            <!-- Center: Title -->
+            <div class="header-section center">
+                <h1 class="header-title">مِمَّ تَتَكَوَّنُ الْجُمْلَةُ؟</h1>
+            </div>
+
+            <!-- Left: Author Info -->
+            <div class="header-section left">
+                <div class="author-info">أ. الياس خفيف</div>
+            </div>
+        </header>
+
+        <!-- Subtitle -->
+        <section class="content-block">
+            <div class="block-body">
+                <p style="text-align: center; margin: 0; font-weight: bold; color: #666;">ثَلَاثَةُ أَنْوَاعٍ لَا رَابِعَ لَهَا</p>
+            </div>
+        </section>
+
+        <!-- The Grid: Noun vs Verb -->
+        <div class="split-grid">
+            <!-- Noun -->
+            <div class="content-block">
+                <div class="block-header">
+                    <span>1. الاسْمُ</span>
+                </div>
+                <div class="block-body">
+                    <p style="margin-bottom: 15px;">كَلِمَةٌ تَدُلُّ عَلَى "مَعْنَى" ثَابِتٍ.</p>
+                    <ul class="structured-list">
+                        <li>
+                            <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;">✓</span>
+                            يَقْبَلُ (الـ).
+                        </li>
+                        <li>
+                            <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;">✓</span>
+                            يَقْبَلُ التَّنْوِينَ.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Verb -->
+            <div class="content-block">
+                <div class="block-header" style="background-color: var(--color-secondary);">
+                    <span>2. الفِعْلُ</span>
+                </div>
+                <div class="block-body">
+                    <p style="margin-bottom: 15px;">حَدَثٌ مَحْبُوسٌ دَاخِلَ "زَمَنٍ".</p>
+                    <ul class="structured-list">
+                        <li>
+                            <span class="icon-cross" style="color: var(--color-accent); margin-left: 5px;">✗</span>
+                            لَا يَقْبَلُ (الـ).
+                        </li>
+                        <li>
+                            <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;">✓</span>
+                            يَتَغَيَّرُ شَكْلُهُ (مَاضٍ/مُضَارِعٌ).
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <!-- Center: Title -->
-        <div class="header-section center">
-            <h1 class="header-title">مِمَّ تَتَكَوَّنُ الْجُمْلَةُ؟</h1>
-        </div>
-
-        <!-- Left: Author Info -->
-        <div class="header-section left">
-            <div class="author-info">أ. الياس خفيف</div>
-        </div>
-    </header>
-
-    <!-- Subtitle (as a content block or just text? Original had it in header.
-         The template header doesn't strictly have a subtitle slot, but I can put it in a content block or under the title if I modify the header.
-         However, keeping with the strict "standard components", let's put the subtitle as the first block header or just omit it if not critical.
-         The original subtitle was "ثَلَاثَةُ أَنْوَاعٍ لَا رَابِعَ لَهَا".
-         I will include it as a benefit box at the top or a small intro block.
-         Actually, `03_verbs_past.html` doesn't have a subtitle in the header.
-         Let's put it in a simple introduction content block.
-    -->
-    <section class="content-block">
-        <div class="block-body">
-            <p style="text-align: center; margin: 0; font-weight: bold; color: #666;">ثَلَاثَةُ أَنْوَاعٍ لَا رَابِعَ لَهَا</p>
-        </div>
-    </section>
-
-    <!-- The Grid: Noun vs Verb -->
-    <div class="split-grid">
-        <!-- Noun -->
+        <!-- The Bridge: Particle -->
         <div class="content-block">
-            <div class="block-header">
-                <span>1. الاسْمُ</span>
+            <div class="block-header" style="background-color: #333;">
+                <span>3. الحَرْفُ</span>
+            </div>
+            <div class="block-body" style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <p style="margin: 0;">هُوَ "الْجِسْرُ" الَّذِي يَرْبِطُ الْأَسْمَاءَ بِالْأَفْعَالِ. لَيْسَ لَهُ مَعْنَى إِلَّا إِذَا وَصَلْتَهُ بِغَيْرِهِ.</p>
+                </div>
+                <div style="font-size: 2rem; opacity: 0.2; margin-right: 10px;">🔗</div>
+            </div>
+        </div>
+
+        <!-- Cheat Code -->
+        <section class="benefit-box">
+            <h4 style="margin: 0 0 5px 0; color: #004D40;">🚀 شِيفْرَةُ الْحَلّ (CHEAT CODE)</h4>
+            <p style="margin: 0;">
+                السِّرُّ فِي <strong>"الـ" التَّعْرِيفِ</strong>. إِذَا شَكَكْتَ فِي الْكَلِمَةِ، حَاوِلْ أَنْ تُلْبِسَهَا "الـ":<br>
+                - قَبِلَتْهَا؟ ← <strong>اسْمٌ</strong> (بَيْت ← الْبَيْت ✅).<br>
+                - رَفَضَتْهَا؟ ← <strong>فِعْلٌ</strong> (يَلْعَبُ ← الـ يَلْعَبُ؟ ❌ مُسْتَحِيل).
+            </p>
+        </section>
+
+        <!-- Micro Challenge -->
+        <section class="content-block" style="margin-top: 5mm;">
+            <div class="block-header accent">
+                <span>🧠 تَحَدِّي عَلَى السَّرِيع</span>
             </div>
             <div class="block-body">
-                <p style="margin-bottom: 15px;">كَلِمَةٌ تَدُلُّ عَلَى "مَعْنَى" ثَابِتٍ.</p>
-                <ul class="structured-list">
-                    <li>
-                        <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;">✓</span>
-                        يَقْبَلُ (الـ).
-                    </li>
-                    <li>
-                        <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;">✓</span>
-                        يَقْبَلُ التَّنْوِينَ.
-                    </li>
-                </ul>
-            </div>
-        </div>
+                <p style="margin: 0 0 10px 0;">أَيُّ الْكَلِمَاتِ التَّالِيَةِ <strong>فِعْلٌ</strong>؟</p>
 
-        <!-- Verb -->
-        <div class="content-block">
-            <div class="block-header" style="background-color: var(--color-secondary);">
-                <span>2. الفِعْلُ</span>
+                <div class="exam-question">
+                    <span style="margin-left: 10px;">[ ] عُصْفُور</span>
+                    <span style="margin-left: 10px;">[ ] يَرْكُضُ</span>
+                    <span style="margin-left: 10px;">[ ] فِي</span>
+                </div>
             </div>
-            <div class="block-body">
-                <p style="margin-bottom: 15px;">حَدَثٌ مَحْبُوسٌ دَاخِلَ "زَمَنٍ".</p>
-                <ul class="structured-list">
-                    <li>
-                        <span class="icon-cross" style="color: var(--color-accent); margin-left: 5px;">✗</span>
-                        لَا يَقْبَلُ (الـ).
-                    </li>
-                    <li>
-                        <span class="icon-check" style="color: var(--color-primary); margin-left: 5px;">✓</span>
-                        يَتَغَيَّرُ شَكْلُهُ (مَاضٍ/مُضَارِعٌ).
-                    </li>
-                </ul>
-            </div>
-        </div>
+        </section>
     </div>
-
-    <!-- The Bridge: Particle -->
-    <div class="content-block">
-        <div class="block-header" style="background-color: #333;">
-            <span>3. الحَرْفُ</span>
-        </div>
-        <div class="block-body" style="display: flex; align-items: center; justify-content: space-between;">
-            <div>
-                <p style="margin: 0;">هُوَ "الْجِسْرُ" الَّذِي يَرْبِطُ الْأَسْمَاءَ بِالْأَفْعَالِ. لَيْسَ لَهُ مَعْنَى إِلَّا إِذَا وَصَلْتَهُ بِغَيْرِهِ.</p>
-            </div>
-            <div style="font-size: 2rem; opacity: 0.2; margin-right: 10px;">🔗</div>
-        </div>
-    </div>
-
-    <!-- Cheat Code -->
-    <section class="benefit-box">
-        <h4 style="margin: 0 0 5px 0; color: #004D40;">🚀 شِيفْرَةُ الْحَلّ (CHEAT CODE)</h4>
-        <p style="margin: 0;">
-            السِّرُّ فِي <strong>"الـ" التَّعْرِيفِ</strong>. إِذَا شَكَكْتَ فِي الْكَلِمَةِ، حَاوِلْ أَنْ تُلْبِسَهَا "الـ":<br>
-            - قَبِلَتْهَا؟ ← <strong>اسْمٌ</strong> (بَيْت ← الْبَيْت ✅).<br>
-            - رَفَضَتْهَا؟ ← <strong>فِعْلٌ</strong> (يَلْعَبُ ← الـ يَلْعَبُ؟ ❌ مُسْتَحِيل).
-        </p>
-    </section>
-
-    <!-- Micro Challenge -->
-    <section class="content-block" style="margin-top: 5mm;">
-        <div class="block-header accent">
-            <span>🧠 تَحَدِّي عَلَى السَّرِيع</span>
-        </div>
-        <div class="block-body">
-            <p style="margin: 0 0 10px 0;">أَيُّ الْكَلِمَاتِ التَّالِيَةِ <strong>فِعْلٌ</strong>؟</p>
-
-            <div class="exam-question">
-                <span style="margin-left: 10px;">[ ] عُصْفُور</span>
-                <span style="margin-left: 10px;">[ ] يَرْكُضُ</span>
-                <span style="margin-left: 10px;">[ ] فِي</span>
-            </div>
-        </div>
-    </section>
 
 </body>
 </html>
