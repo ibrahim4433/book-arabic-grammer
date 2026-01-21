@@ -14,12 +14,13 @@
             <span style="position: absolute; top: 40%; left: 40%; font-size: 15rem; color: #333; opacity: 0.05; transform: rotate(45deg); font-family: 'Noto Naskh Arabic';">و</span>
         </div>
 
-        <div class="title-block" style="background: white; padding: 40px 60px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-radius: 4px; position: relative; z-index: 10;">
+        <!-- Added z-index: 10 and max-width to prevent overflow issues -->
+        <div class="title-block" style="background: white; padding: 40px 60px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-radius: 4px; position: relative; z-index: 10; max-width: 90%;">
             <h1 style="font-size: 3.5rem; margin: 0; line-height: 1.2;">قَوَاعِدُ<br><span style="color: var(--color-primary);">اللُّغَةِ الْعَرَبِيَّةِ</span></h1>
             <p style="font-size: 1.2rem; color: #666; margin-top: 15px; letter-spacing: 2px;">THE MODERN MANUAL</p>
         </div>
 
-        <div class="footer-credits" style="position: absolute; bottom: 30mm;">
+        <div class="footer-credits" style="position: absolute; bottom: 30mm; z-index: 10;">
             <p style="font-size: 0.9rem; color: #555;">إِعْدَادُ: THE ARCHITECT | إِصْدَارُ: 2026</p>
         </div>
     </section>

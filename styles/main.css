@@ -399,3 +399,99 @@ body {
     content: "\270E";
     margin-left: 2mm;
 }
+/* =========================================
+   TOC STYLES (Moved from 01_toc.html)
+   ========================================= */
+
+.toc-header-section {
+    text-align: center;
+    margin-bottom: 20mm;
+}
+
+.toc-main-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 5mm;
+    color: var(--color-secondary);
+}
+
+.toc-subtitle {
+    font-size: 1.5rem;
+    color: var(--color-accent);
+    font-weight: 500;
+}
+
+.toc-chapter {
+    display: flex;
+    flex-direction: row; /* In RTL, this puts the first child (number) on the right */
+    margin-bottom: 15mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    align-items: flex-start;
+}
+
+.toc-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1;
+    margin-left: 20px; /* Space between number and content */
+    flex-shrink: 0;
+    min-width: 60px;
+}
+
+.toc-content {
+    flex-grow: 1;
+}
+
+.toc-item-title {
+    font-size: 1.8rem;
+    font-family: 'Noto Kufi Arabic';
+    color: var(--color-secondary);
+    margin: 0 0 2mm 0;
+    font-weight: 700;
+}
+
+.toc-item-subtitle {
+    font-size: 1.2rem;
+    color: var(--color-accent);
+    margin: 0 0 5mm 0;
+    font-style: italic;
+}
+
+.toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.toc-list li {
+    position: relative;
+    padding-right: 20px;
+    margin-bottom: 3mm;
+    font-size: 1rem;
+    color: var(--color-secondary);
+    line-height: 1.6;
+}
+
+/* Custom Marker: Teal Square */
+.toc-list li::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0.6em; /* Align with text */
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-primary);
+}
+
+.toc-footer {
+    margin-top: 20mm;
+    padding-top: 10mm;
+    border-top: 2px solid var(--color-primary);
+    text-align: center;
+    font-style: italic;
+    color: var(--color-secondary);
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
