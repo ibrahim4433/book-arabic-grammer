@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Cover & Frontmatter</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+
+    <!-- COVER SECTION -->
+    <section class="cover-page" style="height: 297mm; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; overflow: hidden; width: 100%; box-sizing: border-box; padding-top: 50mm;">
+
+        <!-- Artwork Layer -->
+        <div class="art-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+            <span style="position: absolute; top: 15%; right: 10%; font-size: 20rem; color: var(--color-primary); opacity: 0.1; transform: rotate(-15deg); font-family: 'Noto Naskh Arabic';">ن</span>
+            <span style="position: absolute; bottom: 20%; left: 15%; font-size: 25rem; color: var(--color-secondary); opacity: 0.1; transform: rotate(10deg); font-family: 'Noto Naskh Arabic';">ح</span>
+            <span style="position: absolute; top: 40%; left: 40%; font-size: 15rem; color: #333; opacity: 0.05; transform: rotate(45deg); font-family: 'Noto Naskh Arabic';">و</span>
+        </div>
+
+        <!-- Content Layer -->
+        <div style="position: relative; z-index: 10;">
+            <p style="font-size: 1.2rem; margin-bottom: 5mm; color: #555;">الْجُمْهُورِيَّةُ الْعَرَبِيَّةُ السُّورِيَّةُ</p>
+
+            <div class="title-block" style="background: white; padding: 40px 60px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-radius: 4px; display: inline-block;">
+                <h1 style="font-size: 3.5rem; margin: 0; line-height: 1.2;">قَوَاعِدُ<br><span style="color: var(--color-primary);">اللُّغَةِ الْعَرَبِيَّةِ</span></h1>
+                <h2 style="font-size: 1.5rem; color: #666; margin-top: 15px; font-weight: normal;">مِنْهَاجٌ شَامِلٌ فِي النَّحْوِ وَالصَّرْفِ</h2>
+            </div>
+        </div>
+
+        <div class="footer-credits" style="position: absolute; bottom: 30mm; z-index: 10;">
+            <p style="font-size: 1rem; color: #555;">إِعْدَادُ وَتَنْسِيقُ: الْمُهَنْدِس الْيَاس خَفِيف</p>
+        </div>
+    </section>
+
+    <!-- PAGE BREAK -->
+    <div style="break-before: page; page-break-before: always;"></div>
+
+    <!-- TOC SECTION -->
+    <section class="toc-section force-new-page" style="padding-top: 20mm;">
+        <h1 class="chapter-title" style="text-align: center; margin-bottom: 15mm;">فِهْرِسُ الْمُحْتَوَيَاتِ</h1>
+
+        <ul class="toc-list">
+            <!-- Lesson 1 -->
+            <li class="toc-item">
+                <span class="toc-title">أَقْسَامُ الْكَلِمَةِ (مُقَدِّمَةٌ)</span>
+                <span class="toc-dots">...........................................................................</span>
+                <span class="toc-page">٣</span>
+            </li>
+            <!-- Lesson 2 -->
+            <li class="toc-item">
+                <span class="toc-title">الْفِعْلُ الْمَاضِي وَحَالَاتُ بِنَائِهِ</span>
+                <span class="toc-dots">...........................................................................</span>
+                <span class="toc-page">٤</span>
+            </li>
+        </ul>
+    </section>
+
+</body>
+</html>

@@ -25,12 +25,14 @@
 
     /* FOOTER - Automatic Page Numbering */
     @bottom-center {
-        content: counter(page);
+        content: counter(page, arabic-indic);
         font-family: 'Noto Kufi Arabic';
         font-weight: bold;
         font-size: 12pt;
         color: var(--color-primary);
     }
+
+    @bottom-left { content: none; }
 }
 
 html { direction: rtl; lang: ar; }
@@ -193,34 +195,6 @@ body {
     margin-top: 1.5mm;
     font-size: 10pt;
     color: #004D40;
-}
-
-/* --- ADD TO styles/main.css --- */
-
-/* 1. FIXED PAGE NUMBER (Anchored & Styled) */
-@page {
-    /* ... existing margins ... */
-    
-    /* Clear the default content first */
-    @bottom-left { content: none; }
-    
-    /* Place number in the bottom-left with a green circle */
-    @bottom-left {
-        content: counter(page, arabic-indic);
-        background-color: var(--color-primary);
-        color: white;
-        width: 8mm;
-        height: 8mm;
-        border-radius: 50%;
-        text-align: center;
-        line-height: 8mm;
-        font-family: 'Noto Kufi Arabic';
-        font-weight: 900;
-        font-size: 10pt;
-        margin-bottom: 2mm;
-    }
-
-    @bottom-center { content: none; }
 }
 
 /* 2. THE GRAMMAR TABLE (Dense & Striped) */
@@ -400,6 +374,14 @@ body {
     margin-left: 2mm;
 }
 
+.icon-check::before {
+    content: "\2713";
+}
+
+.icon-cross::before {
+    content: "\2717";
+}
+
 /* FORCE NEW PAGE START */
 .force-new-page {
     break-before: page;
@@ -437,19 +419,11 @@ body {
     padding: 3mm 0;
     border-bottom: 1px dashed #E0E0E0;
     page-break-inside: avoid;
+    justify-content: space-between;
 }
 
 .toc-item:last-child {
     border-bottom: none;
-}
-
-.toc-number {
-    font-family: 'Noto Kufi Arabic';
-    font-weight: 700;
-    font-size: 14pt;
-    color: var(--color-primary);
-    width: 12mm; /* Fixed width for alignment */
-    flex-shrink: 0;
 }
 
 .toc-title {
@@ -457,8 +431,18 @@ body {
     font-weight: 700;
     font-size: 12pt;
     color: var(--color-dark);
+}
+
+.toc-dots {
     flex-grow: 1;
-    padding-left: 5mm; /* Space before page number */
+    border-bottom: 1px dotted #ccc;
+    margin: 0 5mm;
+    color: transparent; /* Hide text, just use border if possible, or use periods */
+    /* If using text periods */
+    color: #ccc;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .toc-page {
@@ -467,3 +451,12 @@ body {
     font-size: 12pt;
     color: var(--color-accent);
 }
+
+/* Cover Page Specifics */
+.cover-page {
+    box-sizing: border-box;
+    overflow: hidden;
+    /* padding-top: 50mm;  Handled inline but good to have here */
+}
+
+.english-text { display: none; }
