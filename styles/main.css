@@ -10,7 +10,7 @@
     
     /* DENSITY VARIABLES */
     --spacing-tight: 1mm;
-    --spacing-std: 1.5mm;
+    --spacing-std: 1.2mm;
     --radius: 4px; /* Tighter radius = More professional */
     
     /* SHADOWS (Kept per your request, but refined) */
@@ -21,7 +21,7 @@
 @page {
     size: A4;
     /* Small margins like the classic book to maximize space */
-    margin: 5mm 5mm 10mm 5mm;
+    margin: 5mm 5mm 9mm 5mm;
 
     /* FOOTER - Automatic Page Numbering */
     @bottom-center {
@@ -51,8 +51,8 @@ body {
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid var(--color-primary);
-    padding-bottom: 2mm;
-    margin-bottom: 2mm;
+    padding-bottom: 1.5mm;
+    margin-bottom: 1.5mm;
 }
 
 /* New Header Helper Classes */
@@ -150,7 +150,7 @@ body {
 }
 
 .block-body {
-    padding: 2mm;
+    padding: 1.5mm;
 }
 
 /* 4. SPLIT LAYOUT (Tables/Comparisons) */
