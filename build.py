@@ -54,20 +54,15 @@ def main():
             with open(page_file, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            # Extract content between <body> and </body>
-            # Using regex to capture everything inside body tags
-            match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL | re.IGNORECASE)
-            if match:
-                body_inner_html = match.group(1)
-                # Append to master content
-                # We wrap each file's content in a div or just append.
-                # Since the files seem to be complete sections/pages, appending is fine.
-                # However, to avoid ID conflicts or just to separate, we could wrap them.
-                # But looking at 00_cover.html, it has <section class="cover-page">.
-                # So we just append the inner HTML.
-                accumulated_body_content += body_inner_html + "\n"
+            # Robust Body Extraction
+            body_match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL | re.IGNORECASE)
+            if body_match:
+                page_content = body_match.group(1)
             else:
-                print(f"Warning: No <body> tag found in {page_file}")
+                print(f"  -> Info: No <body> tag in {page_file}. Using full content as fragment.")
+                page_content = content
+
+            accumulated_body_content += page_content + "\n"
 
         except Exception as e:
             print(f"Error reading {page_file}: {e}")
