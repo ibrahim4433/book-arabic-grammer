@@ -416,7 +416,7 @@ body {
 .toc-item {
     display: flex;
     align-items: baseline; /* Align by text baseline */
-    padding: 3mm 0;
+    padding: 1mm 0;
     border-bottom: 1px dashed #E0E0E0;
     page-break-inside: avoid;
     justify-content: space-between;
