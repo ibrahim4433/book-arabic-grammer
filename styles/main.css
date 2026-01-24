@@ -35,17 +35,17 @@
     @bottom-left { content: none; }
 }
 
-html { direction: rtl; lang: ar; }
+html { direction: rtl; }
 
 body {
     font-family: 'Noto Naskh Arabic', serif;
     color: var(--color-dark);
     font-size: 10.8pt; /* Dense but readable */
     line-height: 1.15;
-    margin: 0; /* CRITICAL FIX */
+    margin: 0;
 }
 
-/* 2. THE HEADER STRIP (Like the Old Book) */
+/* 2. THE HEADER STRIP */
 .page-header-strip {
     display: flex;
     justify-content: space-between;
