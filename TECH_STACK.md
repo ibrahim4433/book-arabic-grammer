@@ -22,4 +22,4 @@
 3. **Direction:** ALWAYS set \<html dir="rtl" lang="ar"\>.  
 4. **Fonts:** \- Body: Noto Naskh Arabic (optimized for legibility of Tashkeel).  
    * Headings: Noto Kufi Arabic.  
-5. **File Architecture:** Modular. One HTML file per chapter. NEVER a single index.html for the whole book.
+5. **File Architecture:** Modular. One HTML file per book page. NEVER a single index.html for the whole book.
