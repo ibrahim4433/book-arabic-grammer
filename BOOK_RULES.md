@@ -51,9 +51,10 @@
 
 ## 3. Strict Layout Rules (The "One-Page" Law)
 A. **Language:** content must be 100% Arabic (except for file codes/IDs).
-B. **Atomic Pages:** Every HTML file in `pages/` must render to EXACTLY ONE PDF Page (A4).
-C. **Splitting:** If content exceeds one page, split it into multiple HTML files (e.g., `01_topic.html`, `02_topic_cont.html`).
-D. **Whitespace Optimization:**
+B. **Numerals:** Visible numbers (page numbers, lesson numbers) must use Arabic-Indic digits (e.g., ١, ٢, ٣). Lesson numbers must be included in TOC pages for cross-reference.
+C. **Atomic Pages:** Every HTML file in `pages/` must render to EXACTLY ONE PDF Page (A4).
+D. **Splitting:** If content exceeds one page, split it into multiple HTML files (e.g., `01_topic.html`, `02_topic_cont.html`).
+E. **Whitespace Optimization:**
    - **Overflow (Too big):** Split the file or condense the text/padding.
    - **Underflow (Too empty):** If a page has >30% whitespace at the bottom, pull content from the next page ( if it from the same lesson ) or expand diagrams/examples/text content to fill it.
-E. **Stability:** Do not edit the CSS/Templates unless absolutely necessary to fix a layout break.
+F. **Stability:** Do not edit the CSS/Templates unless absolutely necessary to fix a layout break.
