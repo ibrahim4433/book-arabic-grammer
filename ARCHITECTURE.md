@@ -5,42 +5,44 @@
 *   **`BOOK_RULES.md`**: The central Design System and content rules (The "One-Page Law", Atomic Components).
 *   **`CODING_STANDARDS.md`**: Technical guidelines for HTML structure, CSS conventions, and Python scripts.
 *   **`TECH_STACK.md`**: Defined technologies, constraints, and dependencies.
+*   **`elements_index.md`**: The catalog of all available HTML templates and atomic components.
 *   **`ARCHITECTURE.md`** (This File): High-level overview of file structure, data flow, and build logic.
 
 ## **Directory Structure**
 
+```text
 Root/  
 │  
-├── **pages/**                  \# Content Source
-│   ├── **cover/**              \# Container for full-bleed cover images
-│   │   ├── front-cover.jpg     \# The Book Front Cover (A4)
-│   │   └── back-cover.jpg      \# The Book Back Cover (A4)
-│   ├── 01_toc_p1.html          \# Table of Contents (Part 1)
-│   ├── 02_toc_p2.html          \# Table of Contents (Part 2)
-│   ├── 03_topic.html           \# Content Chapters (Sequential)
+├── **pages/**                  # Content Source
+│   ├── **cover/**              # Container for full-bleed cover images
+│   │   ├── front-cover.jpg     # The Book Front Cover (A4)
+│   │   └── back-cover.jpg      # The Book Back Cover (A4)
+│   ├── 01_toc_p1.html          # Table of Contents (Part 1)
+│   ├── 02_toc_p2.html          # Table of Contents (Part 2)
+│   ├── 03_topic.html           # Content Chapters (Sequential)
 │   └── ...
 │
-├── **assets/**                 \# Static Assets
-│   ├── **Templates/**          \# Atomic HTML Component Patterns (Reference Only)
-│   │   ├── TEMPLATE_C_BLOCK.html
-│   │   ├── TEMPLATE_C_HEADER.html
-│   │   └── ...
-│   ├── **page-background/**    \# Assets for global background layers
-│   ├── images/                 \# High-res images (300dpi preferred)
-│   └── fonts/                  \# Local font files
+├── **assets/**                 # Static Assets
+│   ├── **Templates/**          # Atomic HTML Component Patterns (Reference Only)
+│   │   └── (See elements_index.md for full catalog)
+│   ├── **page-background/**    # Assets for global background layers
+│   ├── images/                 # High-res images (300dpi preferred)
+│   └── fonts/                  # Local font files
 │  
-├── **styles/**                 \# Styling Source
-│   └── main.css                \# **Single Source of Truth** for all book styling.
+├── **styles/**                 # Styling Source
+│   └── main.css                # **Single Source of Truth** for all book styling.
 │  
-├── **tools/**                  \# Utility Scripts
-│   └── verify_layout.py        \# CLI tool to verify "One-Page Law" compliance.
+├── **tools/**                  # Utility Scripts
+│   └── verify_layout.py        # CLI tool to verify "One-Page Law" compliance.
 │  
-├── **output/**                 \# Build Artifacts
-│   └── book.pdf                \# The final generated PDF.
+├── **output/**                 # Build Artifacts
+│   └── book.pdf                # The final generated PDF.
 │  
-├── build.py                    \# **The Builder**: Merges content and generates the PDF.
-├── preview.py                  \# **The Viewer**: Renders individual pages for quick previewing.
-└── requirements.txt            \# Python dependencies (includes `weasyprint`).
+├── build.py                    # **The Builder**: Merges content and generates the PDF.
+├── preview.py                  # **The Viewer**: Renders individual pages for quick previewing.
+├── elements_index.md           # **The Catalog**: Index of all templates and components.
+└── requirements.txt            # Python dependencies (includes `weasyprint`).
+```
 
 ## **Data Flow & Build Logic**
 
