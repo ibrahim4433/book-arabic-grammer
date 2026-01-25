@@ -1,40 +1,76 @@
 # **Project Architecture**
 
+## **Documentation Map**
+
+*   **`BOOK_RULES.md`**: The central Design System and content rules (The "One-Page Law", Atomic Components).
+*   **`CODING_STANDARDS.md`**: Technical guidelines for HTML structure, CSS conventions, and Python scripts.
+*   **`TECH_STACK.md`**: Defined technologies, constraints, and dependencies.
+*   **`ARCHITECTURE.md`** (This File): High-level overview of file structure, data flow, and build logic.
+
 ## **Directory Structure**
 
 Root/  
 │  
-├── pages/                  \# Content Source  
-│   ├── 00\_frontmatter.html \# Title page, Copyright, TOC  
-│   ├── 01\_chapter1.html    \# Chapter 1 content  
-│   ├── 02\_chapter2.html    \# Chapter 2 content  
-│   └── ... (sequential)  
+├── **pages/**                  \# Content Source
+│   ├── **cover/**              \# Container for full-bleed cover images
+│   │   ├── front-cover.jpg     \# The Book Front Cover (A4)
+│   │   └── back-cover.jpg      \# The Book Back Cover (A4)
+│   ├── 01_toc_p1.html          \# Table of Contents (Part 1)
+│   ├── 02_toc_p2.html          \# Table of Contents (Part 2)
+│   ├── 03_topic.html           \# Content Chapters (Sequential)
+│   └── ...
+│
+├── **assets/**                 \# Static Assets
+│   ├── **Templates/**          \# Atomic HTML Component Patterns (Reference Only)
+│   │   ├── TEMPLATE_C_BLOCK.html
+│   │   ├── TEMPLATE_C_HEADER.html
+│   │   └── ...
+│   ├── **page-background/**    \# Assets for global background layers
+│   ├── images/                 \# High-res images (300dpi preferred)
+│   └── fonts/                  \# Local font files
 │  
-├── styles/                 \# Styling Source  
-│   ├── main.css            \# The Single Source of Truth for styles. Imports fonts/vars.  
-│   └── (Optional) theme.css   
+├── **styles/**                 \# Styling Source
+│   └── main.css                \# **Single Source of Truth** for all book styling.
 │  
-├── assets/                 \# Static Assets  
-│   ├── images/             \# High-res images (300dpi preferred)  
-│   └── fonts/              \# Local font files (if not using Google Fonts)  
+├── **tools/**                  \# Utility Scripts
+│   └── verify_layout.py        \# CLI tool to verify "One-Page Law" compliance.
 │  
-├── output/                 \# Build Artifacts  
-│   └── book.pdf            \# The final generated book  
+├── **output/**                 \# Build Artifacts
+│   └── book.pdf                \# The final generated PDF.
 │  
-├── build.py                \# The Build Script (WeasyPrint logic)  
-└── requirements.txt        \# Python dependencies
+├── build.py                    \# **The Builder**: Merges content and generates the PDF.
+├── preview.py                  \# **The Viewer**: Renders individual pages for quick previewing.
+└── requirements.txt            \# Python dependencies (includes `weasyprint`).
 
-## **Data Flow**
+## **Data Flow & Build Logic**
 
-1. **Authoring:** Content is written into individual HTML files in /pages/.  
-2. **Styling:** All pages link to ../styles/main.css.  
-3. **Building:** The build.py script:  
-   * Scans /pages/ for all .html files.  
-   * Sorts them alphabetically.  
-   * Merges them into a single WeasyPrint document.  
-   * Renders output/book.pdf.
+1.  **Content Authoring:**
+    *   Content is written in individual HTML files in `pages/`.
+    *   Each file represents **exactly one A4 page**.
+    *   Cover images are placed in `pages/cover/`.
 
-## **Key Conventions**
+2.  **The Build Process (`build.py`):**
+    *   **Cover Detection:** Checks for `front-cover.jpg` and `back-cover.jpg` in `pages/cover/`.
+    *   **File Scanning:** Scans `pages/` for `*.html` files (excluding templates).
+    *   **Sorting:** Sorts files alphabetically (e.g., `01_` before `02_`).
+    *   **Body Extraction:**
+        *   Uses Regex (`<body[^>]*>(.*?)</body>`) to extract the *inner HTML* of the `<body>` tag.
+        *   If no `<body>` tag is found, treats the entire file as a content fragment.
+    *   **Injection:**
+        *   Injects `front-cover.jpg` (if exists) as the first page (with zero margins).
+        *   Concatenates all extracted body content.
+        *   Injects `back-cover.jpg` (if exists) as the last page.
+        *   Wraps the result in a Master HTML Shell (containing `<head>`, styles, and global fixed layers).
+    *   **Rendering:** Uses `WeasyPrint` to generate `output/book.pdf`.
 
-* **Image Paths:** Must be relative: ../assets/images/image.png.  
-* **Page Breaks:** Use CSS classes .page-break manually where needed, but rely on break-inside: avoid for components.
+3.  **Validation (`tools/verify_layout.py`):**
+    *   Renders a single HTML file to checking page count.
+    *   **Fail:** If Page Count > 1.
+    *   **Warn:** If empty space > 20% (Underflow).
+
+## **Key Architectural Decisions**
+
+*   **Atomic Design:** The book is built from "Atomic Components" (Templates) to ensure consistency.
+*   **One-Page Law:** Strict constraint where 1 HTML File = 1 PDF Page.
+*   **Zero-Margin Covers:** Cover images are handled specially to allow full-bleed printing, bypassing the standard 5mm margins defined in `main.css`.
+*   **Global Layers:** Watermarks and Background Art are injected globally by the build script, not included in individual page files.
