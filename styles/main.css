@@ -460,3 +460,59 @@ body {
 }
 
 .english-text { display: none; }
+
+/* =========================================
+   UTILITIES (New)
+   ========================================= */
+
+/* Spacing */
+.m-0 { margin: 0 !important; }
+.p-0 { padding: 0 !important; }
+
+.mb-1mm { margin-bottom: 1mm !important; }
+.mb-1-5mm { margin-bottom: 1.5mm !important; }
+.mb-2mm { margin-bottom: 2mm !important; }
+.mb-3mm { margin-bottom: 3mm !important; }
+.mb-5mm { margin-bottom: 5mm !important; }
+
+.mt-2mm { margin-top: 2mm !important; }
+.mt-5mm { margin-top: 5mm !important; }
+
+.mr-4mm { margin-right: 4mm !important; }
+.mr-5mm { margin-right: 5mm !important; }
+
+/* Text Alignment */
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+
+/* Vertical Alignment */
+.align-top { vertical-align: top !important; }
+
+/* Typography */
+.font-bold { font-weight: bold !important; }
+.font-normal { font-weight: normal !important; }
+
+.text-sm { font-size: 9pt !important; }
+.text-xs { font-size: 8pt !important; }
+
+/* Colors */
+.text-primary { color: var(--color-primary) !important; }
+.text-accent { color: var(--color-accent) !important; }
+.text-grey { color: #757575 !important; }
+.text-grey-dark { color: #555 !important; }
+.text-white { color: #fff !important; }
+
+/* Lists */
+.list-none { list-style-type: none !important; }
+.list-disc { list-style-type: disc !important; }
+
+/* Specific List Pattern (often used inline) */
+.list-reset-pr {
+    margin: 0 !important;
+    padding-right: 4mm !important;
+}
+
+/* Widths */
+.w-full { width: 100% !important; }
+.flex-1 { flex: 1 !important; }
