@@ -56,5 +56,5 @@ C. **Atomic Pages:** Every HTML file in `pages/` must render to EXACTLY ONE PDF 
 D. **Splitting:** If content exceeds one page, split it into multiple HTML files (e.g., `01_topic.html`, `02_topic_cont.html`).
 E. **Whitespace Optimization:**
    - **Overflow (Too big):** Split the file or condense the text/padding.
-   - **Underflow (Too empty):** If a page has >30% whitespace at the bottom, pull content from the next page ( if it from the same lesson ) or expand diagrams/examples/text content to fill it.
+   - **Underflow (Too empty):** If a page has >20% whitespace at the bottom, pull content from the next page ( if it from the same lesson ) or expand diagrams/examples/text content to fill it.
 F. **Stability:** Do not edit the CSS/Templates unless absolutely necessary to fix a layout break.
