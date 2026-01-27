@@ -34,20 +34,32 @@
 * **Usage:** Conjugations, Examples.
 * **Classes:** `.dense-table`.
 
-### F. Poetry & Bio
+### F. Chips & Horizontal Lists
+* **File:** `TEMPLATE_C_CHIPS.html`
+* **Usage:** Listing small items side-by-side (e.g., pronouns "He, She, It") without vertical stacking.
+* **Classes:** `.chips-container` (or inline flex style).
+
+### G. Poetry & Bio
 * **File:** `TEMPLATE_C_POEM.html`
 * **Usage:** Literature examples.
 * **Classes:** `.poem-container`, `.poem-line`, `.hemistich`, `.bio-card`.
 
-### G. Grammar Analysis (I'rab)
+### H. Grammar Analysis (I'rab)
 * **File:** `TEMPLATE_C_IRAB.html`
-* **Usage:** Parsing examples.
+* **Usage:** Parsing examples (Full Block).
 * **Classes:** `.irab-box`, `.irab-word`, `.irab-details`.
+* **Variants:**
+    * `TEMPLATE_C_IRAB_ROW.html`: Horizontal container for multiple boxes.
+    * `TEMPLATE_C_IRAB_BOX_COMPACT.html`: Compact box for tight spaces.
 
-### H. Quizzes
+### I. Quizzes
 * **File:** `TEMPLATE_C_EXAM.html`
 * **Usage:** End of chapter tests.
 * **Classes:** `.exam-question`, `.exam-number`.
+
+### J. Table of Contents
+* **Files:** `TEMPLATE_C_TOC_PAGE.html`, `TEMPLATE_C_TOC_LEVEL.html`, etc.
+* **Usage:** Specialized templates for constructing the TOC pages.
 
 ## 3. Strict Layout Rules (The "One-Page" Law)
 A. **Language:** content must be 100% Arabic (except for file codes/IDs).

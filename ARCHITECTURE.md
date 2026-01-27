@@ -17,10 +17,10 @@ Root/
 │   ├── **cover/**              # Container for full-bleed cover images
 │   │   ├── front-cover.jpg     # The Book Front Cover (A4)
 │   │   └── back-cover.jpg      # The Book Back Cover (A4)
-│   ├── 01_toc_p1.html          # Table of Contents (Part 1)
-│   ├── 02_toc_p2.html          # Table of Contents (Part 2)
-│   ├── 03_topic.html           # Content Chapters (Sequential)
-│   └── ...
+│   ├── 01.0_n01_toc_p1.html    # Table of Contents (Part 1)
+│   ├── 01.1_n02_toc_p2.html    # Table of Contents (Part 2)
+│   ├── 02.0_n03_verbs_past.html # Lesson Content
+│   └── ...                     # (Follows naming: XX.X_nXX_name.html)
 │
 ├── **assets/**                 # Static Assets
 │   ├── **Templates/**          # Atomic HTML Component Patterns (Reference Only)
