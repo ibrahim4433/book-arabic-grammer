@@ -3,6 +3,14 @@ import os
 import logging
 from weasyprint import HTML
 
+# Add current directory to path to allow importing lint_pages
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+try:
+    import lint_pages
+except ImportError:
+    lint_pages = None
+
 # Mute WeasyPrint logging
 logging.getLogger('weasyprint').setLevel(logging.ERROR)
 
@@ -16,6 +24,21 @@ def verify_layout(filepath):
     if not os.path.exists(filepath):
         print(f"{RED}[FAIL] File not found: {filepath}{RESET}")
         sys.exit(1)
+
+    # CHECK 0: Linter (Atomic Design Compliance)
+    if lint_pages:
+        l_errors, l_warnings = lint_pages.lint_file(filepath)
+        if l_errors:
+            print(f"{RED}[FAIL] Lint Errors found (Atomic Design Violation):{RESET}")
+            for err in l_errors:
+                print(f"  - {err}")
+            # We fail immediately on structure violations
+            sys.exit(1)
+
+        if l_warnings:
+            print(f"{YELLOW}[WARN] Lint Warnings:{RESET}")
+            for warn in l_warnings:
+                print(f"  - {warn}")
 
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
