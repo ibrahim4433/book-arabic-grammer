@@ -42,10 +42,14 @@ The current verification tool checks for page count but not for "Visual Density"
 *   **Refactoring:** Periodically scan `styles/main.css` to ensure utility classes (like `.list-disc`) are actually needed. If they tempt misuse, remove them.
 
 ## 5. Summary of Fixes Applied
-*   **Pages 8 & 9 Refactored:**
-    *   Replaced all instances of `list-disc` with `structured-list`.
+*   **Pages 3, 4, 5 Refactored:**
+    *   Replaced generic lists (`list-disc`, `list-reset-pr`) with `structured-list` using `•` markers.
+    *   Standardized list styling to mimic the cleaner "simple list" aesthetic (removed dashed borders from `structured-list` via CSS).
+*   **Pages 8 & 9 Standardized:**
+    *   Replaced complex markers (e.g., `✅` where repetitive) with simple bullets (`•`) to unify the book's visual theme across all pages.
     *   Replaced custom Blue benefit boxes with standard Teal/Yellow patterns.
     *   Standardized nested content using `<div>` wrappers instead of raw lists.
 *   **Documentation Updated:**
     *   `ARCHITECTURE.md`: Updated file structure.
     *   `BOOK_RULES.md`: Added missing atomic components (Chips, Irab Row, TOC).
+    *   `styles/main.css`: Modified `.structured-list` to act as the single source of truth for all lists, supporting both complex (numbered) and simple (bulleted) styles.

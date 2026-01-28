@@ -200,24 +200,22 @@ body {
 /* 5. STRUCTURED LISTS (Replacing bullets) */
 .structured-list {
     margin: 0;
-    padding: 0;
+    padding: 0; /* Marker provides sufficient indent */
     list-style: none;
 }
 
 .structured-list li {
-    padding: 1mm 0;
-    border-bottom: 1px dashed #EEEEEE;
+    padding: 0.5mm 0; /* Reduced from 1mm to fit One-Page Law in dense tables */
+    /* border-bottom: 1px dashed #EEEEEE; REMOVED for clean look */
     display: flex;
     align-items: flex-start;
 }
 
-.structured-list li:last-child { border-bottom: none; }
-
 .marker {
     color: var(--color-primary);
     font-weight: bold;
-    margin-left: 3mm;
-    min-width: 5mm;
+    margin-left: 2mm; /* Reduced for tighter fit */
+    min-width: 4mm; /* Reduced for tighter fit */
 }
 
 /* 6. "BENEFIT" BOX (The Fawa'id) */
