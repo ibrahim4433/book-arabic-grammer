@@ -547,3 +547,17 @@ body {
 /* Widths */
 .w-full { width: 100% !important; }
 .flex-1 { flex: 1 !important; }
+
+/* Expanded Utilities (Refactoring to Golden Standard) */
+.mt-0 { margin-top: 0 !important; }
+.mt-1mm { margin-top: 1mm !important; }
+
+.mb-0 { margin-bottom: 0 !important; }
+.mb-1mm { margin-bottom: 1mm !important; }
+
+.p-1mm { padding: 1mm !important; }
+
+.dense-table.flat {
+    border: none !important;
+    box-shadow: none !important;
+}

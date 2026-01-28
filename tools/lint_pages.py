@@ -37,7 +37,7 @@ def lint_file(filepath):
     ul_matches = re.finditer(r'<ul([^>]*)>', content)
     for match in ul_matches:
         attrs = match.group(1)
-        if 'structured-list' not in attrs:
+        if 'structured-list' not in attrs and 'toc-list' not in attrs:
             errors.append(f"Generic <ul> found without 'structured-list' class")
 
     # Check 3: Forbidden Inline Styles
