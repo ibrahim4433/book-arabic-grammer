@@ -3,7 +3,7 @@
 ## 1. Core Philosophy
 * **Modular:** Every chapter is built from standard "Atomic Components".
 * **Dense:** Maximize A4 space. Use `split-grid` for comparisons. Avoid vertical stacking if horizontal works.
-* **Visual:** Every rule needs an example. Every definition needs a colored header.
+* **Visual:** Every rule needs an example. Every definition needs a colored header, and the definition text must be colored using `.text-accent`.
 * **Tashkeel:** MANDATORY. All Arabic text must have full diacritics.
 * **Highlighting:** Lesson-focused words in examples MUST be colored to aid learning.
 
@@ -19,6 +19,7 @@
 * **Usage:** Definitions, General Rules.
 * **Classes:** `.content-block`, `.block-header` (Teal), `.block-body`.
 * **Variant:** `.block-header.accent` (Orange) for warnings or secondary info.
+* **Rule:** If the block contains a **Definition** or **Concept Explanation**, the main explanatory paragraph must have the class `.text-accent`.
 
 ### C. Comparison Grids (Split View)
 * **File:** `TEMPLATE_C_SPLIT.html`
