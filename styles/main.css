@@ -561,3 +561,30 @@ body {
     border: none !important;
     box-shadow: none !important;
 }
+
+/* CUSTOM HIGHLIGHT UTILITIES */
+.highlight-blue { color: #1976D2 !important; font-weight: bold; }
+.highlight-red { color: #D32F2F !important; font-weight: bold; }
+.highlight-green { color: #388E3C !important; font-weight: bold; }
+
+/* LINTER COMPLIANCE UTILITIES */
+.text-justify { text-align: justify !important; }
+
+.benefit-box.warning {
+    background-color: #FBE9E7 !important;
+    border-color: var(--color-accent) !important;
+    color: #BF360C !important;
+}
+
+.poem-header {
+    margin: -3mm -3mm 3mm -3mm !important;
+    width: calc(100% + 6mm) !important;
+}
+
+.benefit-box.tip {
+    background-color: #FFF8E1 !important;
+    border-color: #FFB300 !important;
+    color: #F57F17 !important;
+}
+
+.text-dark { color: var(--color-dark) !important; }
