@@ -27,7 +27,10 @@
     *   `TEMPLATE_C_BENEFIT_WARNING` (Orange)
     *   `TEMPLATE_C_BENEFIT_TIP` (Yellow)
 
-6.  **NO LAYOUT HACKS:** NEVER instruct to use negative margins (e.g., `margin-top: -5mm`) or forced breaks `<br>` to manipulate layout. Rely on the atomic components and the layout verification tool.
+6.  **DEFINITION COLORING:** ANY paragraph that defines a concept (Definition) or introduces a new term MUST have the class `.text-accent`. This applies even if the header does not explicitly say "Definition".
+    *   *Example:* `<p class="mb-1mm text-accent">The Verb is a word that...</p>`
+
+7.  **NO LAYOUT HACKS:** NEVER instruct to use negative margins (e.g., `margin-top: -5mm`) or forced breaks `<br>` to manipulate layout. Rely on the atomic components and the layout verification tool.
 
 # 🛡️ TYPOGRAPHIC DEFENSE STRATEGY (MANDATORY)
 
