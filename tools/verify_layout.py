@@ -2,6 +2,7 @@ import sys
 import os
 import logging
 import json
+import re
 from weasyprint import HTML
 
 # Add current directory to path to allow importing lint_pages
@@ -19,8 +20,10 @@ def verify_layout(filepath):
     result = {
         "status": "UNKNOWN",
         "remaining_height_mm": 0.0,
+        "blank_space_percentage": 0.0,
         "recommendation": "NONE",
-        "details": ""
+        "details": "",
+        "split_recommendation": None
     }
 
     if not os.path.exists(filepath):
@@ -52,7 +55,6 @@ def verify_layout(filepath):
         sys.exit(1)
 
     # Extract body content (robust)
-    import re
     match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL | re.IGNORECASE)
     if match:
         body_inner = match.group(1)
@@ -89,31 +91,24 @@ def verify_layout(filepath):
 
     page_count = len(doc.pages)
 
-    # CHECK 1: One-Page Law
-    if page_count > 1:
-        result["status"] = "OVERFLOW"
-        result["details"] = f"Page count is {page_count} (Expected: 1)"
-        result["recommendation"] = "SPLIT_PAGE_OR_CONDENSE"
-        print(json.dumps(result, indent=2))
-        sys.exit(1) # Or 0 depending on pipeline needs, but typically overflow is a failure to meet constraints
-
-    # Analyze Page 1 for Density/Underflow
-    page = doc.pages[0]
+    if page_count == 0:
+         result["status"] = "FAIL"
+         result["details"] = "No pages generated."
+         print(json.dumps(result, indent=2))
+         sys.exit(1)
 
     # WeasyPrint pixels (96 DPI)
     px_to_mm = 25.4 / 96.0
 
     # Layout Constants
     PAGE_HEIGHT_MM = 297.0
-    MARGIN_TOP_MM = 5.0
-    MARGIN_BOTTOM_MM = 10.0 # From CSS @page margin-bottom: 9mm, but let's be safe/consistent with previous
-    # Actually, CSS says margin-bottom: 9mm. Let's use 9mm + buffer or stick to Printable Area.
-    # Previous code used 10.0. Let's check CSS again.
-    # CSS: margin: 5mm 5mm 9mm 5mm;
+    # Printable limit based on 9mm bottom margin (CSS)
+    printable_bottom_limit = PAGE_HEIGHT_MM - 9.0
 
-    printable_bottom_limit = PAGE_HEIGHT_MM - 9.0 # 288mm
-
+    # Analyze Page 1
+    page = doc.pages[0]
     max_y = 0
+    last_element_info = None
 
     # Iterate through all boxes on the page to find the lowest point
     for box in page._page_box.descendants():
@@ -129,12 +124,24 @@ def verify_layout(filepath):
             # Skip root containers
             if box.element.tag in ['html', 'body']: continue
 
-        # Check geometry (border box)
-        # box.position_y is from top of page
-        bottom = box.position_y + box.height
+            # Check geometry (border box)
+            # box.position_y is from top of page
+            bottom = box.position_y + box.height
 
-        if bottom > max_y:
-            max_y = bottom
+            if bottom > max_y:
+                max_y = bottom
+
+                # Capture info about this element for split suggestions
+                el_id = box.element.get('id', '')
+                el_class = box.element.get('class', '')
+                el_tag = box.element.tag
+
+                last_element_info = {
+                    "tag": el_tag,
+                    "id": el_id,
+                    "class": el_class,
+                    "bottom_mm": round(bottom * px_to_mm, 2)
+                }
 
     max_y_mm = max_y * px_to_mm
 
@@ -143,24 +150,43 @@ def verify_layout(filepath):
 
     result["remaining_height_mm"] = round(remaining_height_mm, 2)
 
+    # Calculate Blank Space Percentage (Relative to full page height)
+    blank_percentage = (remaining_height_mm / PAGE_HEIGHT_MM) * 100
+    result["blank_space_percentage"] = round(blank_percentage, 1)
+
+    # CHECK 1: One-Page Law (Overflow)
+    if page_count > 1:
+        result["status"] = "OVERFLOW"
+        result["details"] = f"Page count is {page_count} (Expected: 1). Content spills over."
+        result["recommendation"] = "SPLIT_PAGE_OR_CONDENSE"
+
+        if last_element_info:
+            result["split_recommendation"] = {
+                "message": "The following element is the last one to fit on Page 1.",
+                "element": last_element_info
+            }
+
+        print(json.dumps(result, indent=2))
+        sys.exit(0) # Logic handled, return valid JSON
+
     # CHECK 2: Underflow
-    if remaining_height_mm > 30.0:
+    # Threshold: 10% of full page height (297mm) = 29.7mm
+    THRESHOLD_MM = PAGE_HEIGHT_MM * 0.10
+
+    if remaining_height_mm >= THRESHOLD_MM:
         result["status"] = "UNDERFLOW"
-        result["recommendation"] = "FETCH_NEXT_SECTION"
-        result["details"] = f"Page has {remaining_height_mm:.1f}mm empty space at bottom."
+        result["recommendation"] = "FIT_ANOTHER_SECTION"
+        result["details"] = f"Page has {result['blank_space_percentage']}% ({remaining_height_mm:.1f}mm) empty space. Fill it."
     else:
         result["status"] = "PASS"
-        result["recommendation"] = "NONE"
-        result["details"] = "Layout Valid"
+        result["recommendation"] = "GO_TO_NEXT_PAGE"
+        result["details"] = f"Layout Valid. Blank space: {result['blank_space_percentage']}%."
 
     print(json.dumps(result, indent=2))
     sys.exit(0)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        # result["status"] = "FAIL"
-        # result["details"] = "Usage: python tools/verify_layout.py <filepath>"
-        # print(json.dumps(result, indent=2))
         print("Usage: python tools/verify_layout.py <filepath>")
         sys.exit(1)
     else:
