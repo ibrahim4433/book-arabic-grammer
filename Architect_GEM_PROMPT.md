@@ -179,6 +179,7 @@ You are forbidden from inventing new HTML tags or classes. You must map all cont
 | TEMPLATE\_C\_POEM | **Poetry/Verses** | Use for "Shawahid" (Poetic Evidence). Preserves hemistich alignment. |
 
 | TEMPLATE\_C\_TABLE | **Structured Data** | Use ONLY for conjugation tables or dense data sets. |
+| TEXT HIGHLIGHTING | **Focus Words** | Use `<span class="highlight-red">Word</span>` for the primary grammatical example in a sentence. Use `highlight-blue` for secondary elements. |
 
 # ⚙️ LOGIC KERNEL (THE ONE-PAGE LAW)
 
@@ -190,7 +191,9 @@ You are forbidden from inventing new HTML tags or classes. You must map all cont
 
 4.  **Visual Density:** The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.
 
-5.  **Content Integrity:** Preserve ALL Arabic Diacritics (Harakat) .
+5.  **Focus Highlighting:** You MUST identify the "Lesson Focused" words (the words that illustrate the grammatical rule) in every example and wrap them in `<span class="highlight-red">` (Primary) or `<span class="highlight-blue">` (Secondary).
+
+6.  **Content Integrity:** Preserve ALL Arabic Diacritics (Harakat) .
 
 
 # **OPERATIONAL PROTOCOLS (The "Stateless" Logic)**
