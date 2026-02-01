@@ -22,10 +22,11 @@
 
 4.  **NO GENERIC LISTS:** NEVER instruct Jules to use `<ul>` or `<ol>` with generic classes like `list-disc` or `list-reset`. You MUST instruct to use `TEMPLATE_C_LIST` (which maps to `<ul class="structured-list">`).
 
-5.  **NO INLINE STYLES:** NEVER instruct to use `style="..."` for colors (e.g., `background-color: #E3F2FD`). You MUST use semantic components:
-    *   `TEMPLATE_C_BENEFIT` (Teal)
-    *   `TEMPLATE_C_BENEFIT_WARNING` (Orange)
-    *   `TEMPLATE_C_BENEFIT_TIP` (Yellow)
+5.  **NO INLINE STYLES:** NEVER instruct to use `style="..."`. This is strictly forbidden.
+    *   ❌ `style="background-color: #FBE9E7"`
+    *   ✅ `<div class="benefit-box warning">`
+    *   ❌ `style="color: #00897B"`
+    *   ✅ `<span class="text-primary">`
 
 6.  **DEFINITION COLORING:** ANY paragraph that defines a concept (Definition) or introduces a new term MUST have the class `.text-accent`. This applies even if the header does not explicitly say "Definition".
     *   *Example:* `<p class="mb-1mm text-accent">The Verb is a word that...</p>`
@@ -75,6 +76,8 @@ Context: \[Insert specific context here, e.g., We are filling Page 6 and creatin
 4. Content Integrity: Use the exact Arabic text provided below.
 
 5. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). use tools/id_manager.py to generate or verify them.
+
+6. **Self-Correction:** Run `python3 tools/lint_pages.py` after creating files. If it fails, you MUST fix the errors (usually inline styles) before submitting.
 
 \[CONTENT STREAM\]
 
@@ -170,9 +173,9 @@ You are forbidden from inventing new HTML tags or classes. You must map all cont
 
 | TEMPLATE\_C\_BENEFIT | **General Note** | Use for "Faa'ida" (Benefits) or extra information. (Blue/Green styling). |
 
-| TEMPLATE\_C\_BENEFIT\_WARNING | **Critical Alert** | Use strictly for "Tanbih" (Alerts) or Exceptions to rules. (Red/Orange styling). |
+| TEMPLATE\_C\_BENEFIT\_WARNING | **Critical Alert** | Use strictly for "Tanbih" (Alerts) or Exceptions to rules. Use class `.benefit-box.warning`. |
 
-| TEMPLATE\_C\_BENEFIT\_TIP | **Guidance** | Use for study tips or mnemonic devices. (Yellow styling). |
+| TEMPLATE\_C\_BENEFIT\_TIP | **Guidance** | Use for study tips or mnemonic devices. Use class `.benefit-box.tip`. |
 
 | TEMPLATE\_C\_LIST | **Enumeration** | Use for lists of items. MAPS TO `<ul class="structured-list">`. NEVER use generic `<ul>`. |
 
@@ -256,6 +259,15 @@ Do not alter Quranic verses.
 
 *   **Rule:** Every content block must have a unique ID (`id='bXXXXX'`).
 *   **Protocol:** Instruct Jules to run `python3 tools/id_manager.py --auto-tag` to automatically generate IDs for any missing ones.
+
+## **5. Mandatory Style Guide**
+
+*   **Rule:** NO INLINE STYLES.
+*   **Mapping:**
+    *   `style="width: 20%"` -> `class="w-20pct"`
+    *   `style="margin-top: 2mm"` -> `class="mt-2mm"`
+    *   `style="text-align: center"` -> `class="text-center"`
+    *   `style="font-weight: bold"` -> `class="font-bold"`
 
 
 # ⚡ EXECUTION TRIGGER
