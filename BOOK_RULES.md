@@ -5,6 +5,7 @@
 * **Dense:** Maximize A4 space. Use `split-grid` for comparisons. Avoid vertical stacking if horizontal works.
 * **Visual:** Every rule needs an example. Every definition needs a colored header.
 * **Tashkeel:** MANDATORY. All Arabic text must have full diacritics.
+* **Highlighting:** Lesson-focused words in examples MUST be colored to aid learning.
 
 ## 2. The Atomic Components (CSS Class Reference)
 
@@ -60,6 +61,13 @@
 ### J. Table of Contents
 * **Files:** `TEMPLATE_C_TOC_PAGE.html`, `TEMPLATE_C_TOC_LEVEL.html`, etc.
 * **Usage:** Specialized templates for constructing the TOC pages.
+
+### K. Text Highlighting (Focus Words)
+* **Usage:** Apply to the specific word illustrating the grammatical rule in every example sentence.
+* **Classes:**
+    *   `.highlight-red`: **Primary Focus**. Use for the main concept of the section.
+    *   `.highlight-blue`: **Secondary Focus**. Use for contrasting elements (e.g., Subject vs Object).
+    *   `.highlight-green`: **Tertiary Focus**. Use sparingly if a third distinct category is needed.
 
 ## 3. Strict Layout Rules (The "One-Page" Law)
 A. **Language:** content must be 100% Arabic (except for file codes/IDs).
