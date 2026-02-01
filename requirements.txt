@@ -1,1 +1,2 @@
 weasyprint
+beautifulsoup4

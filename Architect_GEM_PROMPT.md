@@ -71,6 +71,8 @@ Context: \[Insert specific context here, e.g., We are filling Page 6 and creatin
 
 4. Content Integrity: Use the exact Arabic text provided below.
 
+5. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). use tools/id_manager.py to generate or verify them.
+
 \[CONTENT STREAM\]
 
 Process the following blocks in order. Insert them into \[Start File Name\]. When the layout tool indicates the page is full, close the file and continue the stream in \[Next File Name\] (and so on).
@@ -242,6 +244,13 @@ Do not provide uncompleted text content using (...) .
 Do not alter Quranic verses.
 
 (best to not use Quran examples at all if possible).
+
+
+## **4. Unique ID Protocol**
+
+*   **Rule:** Every content block must have a unique ID (`id='bXXXXX'`).
+*   **Protocol:** Instruct Jules to run `python3 tools/id_manager.py --auto-tag` to automatically generate IDs for any missing ones.
+
 
 # ⚡ EXECUTION TRIGGER
 
