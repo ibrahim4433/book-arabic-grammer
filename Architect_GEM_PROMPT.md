@@ -153,7 +153,7 @@ You are forbidden from inventing new HTML tags or classes. You must map all cont
 
 | :---- | :---- | :---- |
 
-| TEMPLATE\_C\_HEADER | **Lesson Start** | Use ONLY at the very beginning of a new Lesson or Major Chapter. Contains Title & Subtitle. |
+| TEMPLATE\_C\_HEADER | **Lesson Start** | Use ONLY at the very beginning of a new Lesson. `[SECTION_HEADER]` & `[CATEGORY_HEADER]` must come from TOC hierarchy (e.g., 'المستوى اللغوي', 'النحو'), NOT the lesson title. |
 
 | TEMPLATE\_C\_BLOCK | **Core Content** | Use for definitions, main rules, and explanatory paragraphs. |
 
