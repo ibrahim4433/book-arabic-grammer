@@ -70,3 +70,28 @@ E. **Whitespace Optimization:**
    - **Overflow (Too big):** Split the file or condense the text/padding.
    - **Underflow (Too empty):** If a page has >20% whitespace at the bottom, pull content from the next page ( if it from the same lesson ) or expand diagrams/examples/text content to fill it.
 F. **Stability:** Do not edit the CSS/Templates unless absolutely necessary to fix a layout break.
+
+## 4. Unique Identification System (The ID Rule)
+Every distinct content unit must have a permanent, unique identifier (ID) to facilitate precise referencing and updates.
+
+### A. ID Format
+*   **Format:** `bXXXXX` (The letter 'b' followed by 5 random digits).
+*   **Example:** `id="b83920"`
+*   **Uniqueness:** IDs must be globally unique across all pages.
+
+### B. Target Elements
+The following elements must always have an ID:
+*   `<header>` (Page Header)
+*   `.content-block` (Main Sections)
+*   `.benefit-box` (Tips/Warnings)
+*   `.irab-box` (Parsing Blocks)
+*   `.poem-container` (Poetry)
+*   `.bio-card` (Author/Bio)
+*   `.exam-question` (Quiz Questions)
+*   Direct children of `.split-grid`
+
+### C. Tools
+*   **Generator:** Use `tools/id_manager.py` to generate or manage IDs.
+    *   `python3 tools/id_manager.py next-id`: Generate a new unique ID.
+    *   `python3 tools/id_manager.py verify`: Check for duplicates.
+    *   `python3 tools/id_manager.py auto-tag`: Automatically add IDs to elements that miss them.
