@@ -53,6 +53,7 @@
 * **Variants:**
     * `TEMPLATE_C_IRAB_ROW.html`: Horizontal container for multiple boxes.
     * `TEMPLATE_C_IRAB_BOX_COMPACT.html`: Compact box for tight spaces.
+* **Rule:** The word inside `.irab-word` MUST be White (`#FFFFFF`). Do NOT apply `.highlight-red`, `.highlight-blue`, or any other color class to the text inside `.irab-word`.
 
 ### I. Quizzes
 * **File:** `TEMPLATE_C_EXAM.html`
