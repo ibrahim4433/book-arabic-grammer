@@ -165,9 +165,9 @@ You are forbidden from inventing new HTML tags or classes. You must map all cont
 
 | TEMPLATE\_C\_SPLIT | **Comparison/Examples** | Use for "Muqabala" (Side-by-Side). Right column for "Positive/Nominative", Left for "Negative/Accusative". |
 
-| TEMPLATE\_C\_IRAB\_ROW | **Single Parsing** | Use for simple, one-line grammatical analysis (Word \-\> Role). |
+| TEMPLATE\_C\_IRAB\_ROW | **Single Parsing** | Use for simple, one-line grammatical analysis (Word \-\> Role). Word must be WHITE. |
 
-| TEMPLATE\_C\_IRAB\_BOX | **Deep Parsing** | Use for complex, multi-line analysis of a single sentence. |
+| TEMPLATE\_C\_IRAB\_BOX | **Deep Parsing** | Use for complex, multi-line analysis of a single sentence. Word must be WHITE. |
 
 | TEMPLATE\_C\_IRAB\_BOX\_COMPACT | **Quick Parsing** | Use when vertical space is tight, but a box style is needed. |
 
@@ -274,6 +274,7 @@ Do not alter Quranic verses.
 ## **5. Mandatory Style Guide**
 
 *   **Rule:** NO INLINE STYLES.
+*   **Rule:** Irab Words inside `.irab-word` MUST be white. Do NOT use `.highlight-*` classes.
 *   **Mapping:**
     *   `style="width: 20%"` -> `class="w-20pct"`
     *   `style="margin-top: 2mm"` -> `class="mt-2mm"`
