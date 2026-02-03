@@ -641,3 +641,4 @@ body {
 .align-middle { vertical-align: middle !important; }
 .bg-grey-light { background-color: #F5F5F5 !important; } /* Same as light */
 .mb-std { margin-bottom: var(--spacing-std) !important; }
+.border-bottom { border-bottom: 1px solid #EEE !important; }
