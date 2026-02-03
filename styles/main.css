@@ -275,6 +275,11 @@ body {
     border-radius: var(--radius);
 }
 
+.poem-verses {
+    display: flex;
+    flex-direction: column;
+}
+
 .poem-line {
     display: flex;
     justify-content: space-between;
