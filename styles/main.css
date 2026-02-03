@@ -298,6 +298,10 @@ body {
     font-size: 8pt;
 }
 
+.poem-verses {
+    margin-bottom: 2mm;
+}
+
 
 /* 4. THE I'RAB CARD (Parsing Analysis) */
 .irab-box {
@@ -579,6 +583,7 @@ body {
 .mb-1mm { margin-bottom: 1mm !important; }
 
 .p-1mm { padding: 1mm !important; }
+.p-2mm { padding: 2mm !important; }
 
 .dense-table.flat {
     border: none !important;
@@ -641,4 +646,8 @@ body {
 .align-middle { vertical-align: middle !important; }
 .bg-grey-light { background-color: #F5F5F5 !important; } /* Same as light */
 .mb-std { margin-bottom: var(--spacing-std) !important; }
+
+/* New Utilities for Munada */
+.block { display: block !important; }
+.gap-1mm { gap: 1mm !important; }
 .border-bottom { border-bottom: 1px solid #EEE !important; }
