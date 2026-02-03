@@ -611,7 +611,6 @@ body {
 
 .poem-header {
     margin: -3mm -3mm 3mm -3mm !important;
-    width: calc(100% + 6mm) !important;
 }
 
 .benefit-box.tip {
