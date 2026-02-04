@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+from bs4 import BeautifulSoup
 
 # Configuration
 PAGES_DIR = 'pages/'
@@ -25,9 +26,6 @@ def parse_allowed_classes(css_file):
     with open(css_file, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # Simple regex to find class selectors
-    # We look for .classname
-    # We filter out typical file extensions that might appear in url(...)
     candidates = set(re.findall(r'\.([a-zA-Z][a-zA-Z0-9_-]*)', content))
 
     allowed = set()
@@ -58,6 +56,50 @@ def suggest_fix_for_style(style_content):
         return "Remove inline style and use a CSS class."
     return " ".join(suggestions)
 
+def check_exam_compliance(soup, errors):
+    """
+    Enforces the 'Golden Standard' for Exams (Test Yourself).
+    1. Header must be .bg-dark.
+    2. Questions must have answer boxes.
+    """
+    # 1. Check Headers
+    headers = soup.find_all(class_='block-header')
+    for header in headers:
+        text = header.get_text()
+        if 'اخْتَبِرْ نَفْسَكَ' in text or 'Test Yourself' in text:
+            classes = header.get('class', [])
+            if 'bg-dark' not in classes:
+                errors.append(f"Exam Header '{text.strip()}' must have class '.bg-dark'. Found: {classes}")
+            if 'accent' in classes:
+                errors.append(f"Exam Header '{text.strip()}' must NOT have class '.accent'.")
+
+    # 2. Check Questions (Must have answer box)
+    questions = soup.find_all(class_='exam-question')
+    for q in questions:
+        # Look for the answer box
+        answer_box = q.find(class_='bg-grey-lighter')
+        if not answer_box:
+            # Check if it is a 'Solved Exercise' (has answers in text).
+            # If so, it shouldn't use .exam-question class?
+            # OR, if we enforce exams to be unsolved, this is an error.
+            # But wait, existing solved exercises use .exam-question?
+            # Let's check 06.0. It uses .exam-question.
+            # If I enforce this now, 06.0 will fail.
+            # I must exclude pages that are NOT being converted yet?
+            # Or strict enforcement: If you use .exam-question, you MUST have an answer box.
+            # If it's a solved exercise, use .content-block + .structured-list, NOT .exam-question?
+            # That seems like a good semantic distinction.
+            # But 06.0 uses .exam-question.
+            # I will mark it as error, which forces me to fix 06.0/07.1 as well?
+            # No, I decided NOT to convert 06.0/07.1 because they are solved.
+            # So I should probably RENAME the class in 06.0/07.1 to something else, like .exercise-item?
+            # Or just allow it if it has a .marker?
+            # The target style has an answer box.
+
+            # Refined Rule: If it lacks an answer box, it's suspicious.
+            # But let's look at the target: <div class="border-light h-8mm bg-grey-lighter rounded"></div>
+            errors.append(f"Exam Question (id={q.get('id', 'N/A')}) missing Answer Box (div.bg-grey-lighter).")
+
 def lint_file(filepath, allowed_classes=None):
     # Auto-load allowed classes if not provided
     if allowed_classes is None and os.path.exists(STYLES_FILE):
@@ -82,7 +124,7 @@ def lint_file(filepath, allowed_classes=None):
         suggestion = suggest_fix_for_style(style_content)
         errors.append(f"STRICT VIOLATION: Inline style found: '{style_content}'. {suggestion}")
 
-    # Extract all classes used in the HTML
+    # Check 2: Class Whitelist & Forbidden
     class_attrs = re.findall(r'class=["\']([^"\']*)["\']', content)
     used_classes = set()
     for attr in class_attrs:
@@ -90,24 +132,28 @@ def lint_file(filepath, allowed_classes=None):
         for cls in classes:
             used_classes.add(cls)
 
-    # Check 2: Whitelist (Draconian)
     if allowed_classes:
         for cls in used_classes:
             if cls not in allowed_classes:
-                errors.append(f"Class '{cls}' is NOT defined in styles/main.css (Hallucinated Class). Add it to CSS or fix typo.")
+                errors.append(f"Class '{cls}' is NOT defined in styles/main.css.")
 
-    # Check 3: Forbidden Classes (Design System Violations)
     for cls in used_classes:
         if cls in FORBIDDEN_CLASSES:
-            errors.append(f"Class '{cls}' is explicitly FORBIDDEN by Design System. Use .structured-list instead.")
+            errors.append(f"Class '{cls}' is explicitly FORBIDDEN. Use .structured-list instead.")
 
-    # Check 4: UL without structured-list
-    # Note: 'toc-list' is allowed.
+    # Check 3: UL compliance
     ul_matches = re.finditer(r'<ul([^>]*)>', content)
     for match in ul_matches:
         attrs = match.group(1)
         if 'structured-list' not in attrs and 'toc-list' not in attrs:
             errors.append(f"Generic <ul> found without 'structured-list' class.")
+
+    # Check 4: BeautifulSoup Semantic Checks
+    try:
+        soup = BeautifulSoup(content, 'html.parser')
+        check_exam_compliance(soup, errors)
+    except Exception as e:
+        warnings.append(f"Could not parse HTML for semantic checks: {e}")
 
     return errors, warnings
 
@@ -135,7 +181,6 @@ def main():
     print(f"Linting {len(target_files)} files...\n")
 
     for filepath in target_files:
-        # Skip cover images folder if it gets picked up (it shouldn't as we filter .html)
         errors, warnings = lint_file(filepath, allowed_classes)
 
         if errors:

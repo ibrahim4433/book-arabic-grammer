@@ -55,10 +55,11 @@
     * `TEMPLATE_C_IRAB_BOX_COMPACT.html`: Compact box for tight spaces.
 * **Rule:** The word inside `.irab-word` MUST be White (`#FFFFFF`). Do NOT apply `.highlight-red`, `.highlight-blue`, or any other color class to the text inside `.irab-word`.
 
-### I. Quizzes
+### I. Quizzes (Test Yourself)
 * **File:** `TEMPLATE_C_EXAM.html`
 * **Usage:** End of chapter tests.
-* **Classes:** `.exam-question`, `.exam-number`.
+* **Classes:** `.exam-question`, `.exam-number`, `.bg-dark` (Header), `.bg-grey-lighter` (Answer Box).
+* **Rule:** All exams must use the Dark Header style (`.bg-dark` not `.accent`) and include an answer input box (`<div class="border-light h-8mm bg-grey-lighter rounded"></div>`) for each question.
 
 ### J. Table of Contents
 * **Files:** `TEMPLATE_C_TOC_PAGE.html`, `TEMPLATE_C_TOC_LEVEL.html`, etc.
