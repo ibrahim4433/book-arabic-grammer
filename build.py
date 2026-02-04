@@ -44,6 +44,7 @@ def main():
         @page cover {
             margin: 0;
             size: A4;
+            @bottom-center { content: none; }
         }
         .cover-page-wrapper {
             page: cover;
@@ -51,6 +52,9 @@ def main():
             height: 297mm;
             overflow: hidden;
             break-after: page;
+            position: relative;
+            z-index: 20000;
+            background: white;
         }
         .cover-page-wrapper img {
             width: 100%;
