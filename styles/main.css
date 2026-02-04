@@ -68,6 +68,12 @@
     @bottom-left { content: none; }
 }
 
+@page blank {
+    margin: 0;
+    size: A4;
+    @bottom-center { content: none; }
+}
+
 html { direction: rtl; }
 
 body {
@@ -646,7 +652,19 @@ body {
 .pt-20mm { padding-top: 20mm !important; }
 .pl-0 { padding-left: 0 !important; }
 .h-5mm { height: 5mm !important; }
-.toc-section { display: block; }
+.toc-section {
+    display: block;
+    counter-reset: page 1;
+}
+
+.blank-page {
+    page: blank;
+    width: 210mm;
+    height: 297mm;
+    background: white;
+    position: relative;
+    z-index: 20000;
+}
 .align-middle { vertical-align: middle !important; }
 .bg-grey-light { background-color: #F5F5F5 !important; } /* Same as light */
 .mb-std { margin-bottom: var(--spacing-std) !important; }
