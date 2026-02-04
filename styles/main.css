@@ -350,7 +350,7 @@ body {
 }
 
 /* 6. EXAM / QUIZ STYLES */
-.exam-question {
+.exam-question, .exercise-question {
     margin-bottom: 2mm;
     border-bottom: 1px dashed #BDBDBD;
     padding-bottom: 3mm;
