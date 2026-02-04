@@ -28,8 +28,9 @@
 
 ### D. Structured Lists
 * **File:** `TEMPLATE_C_LIST.html`
-* **Usage:** Listing rules or conditions.
-* **Classes:** `.structured-list`, `.marker` (Checkmarks/Crosses).
+* **Usage:** Enumerating points (1, 2, 3...).
+* **Classes:** `.structured-list` (The `<ul>`), `.list-item-content`.
+* **Forbidden:** Do NOT use generic `<ul>` tags.
 
 ### E. Data Tables
 * **File:** `TEMPLATE_C_TABLE.html`
@@ -41,9 +42,11 @@
 * **Usage:** Listing small items side-by-side (e.g., pronouns "He, She, It") without vertical stacking.
 * **Classes:** `.chips-container` (or inline flex style).
 
-### G. Poetry & Bio
-* **File:** `TEMPLATE_C_POEM.html`
-* **Usage:** Literature examples.
+### G. Shawahid (Poetic Evidence) & I'rab
+* **File:** `TEMPLATE_C_POEM.html` + `TEMPLATE_C_IRAB_ROW.html`
+* **Mandatory Rule:** Every poetic verse (Shahid) acting as a grammatical example MUST be immediately followed by an I'rab (Parsing) line for the "Witness Word" (محل الشاهد).
+* **Coloring Rule:** The Witness Word in the I'rab explanation must be colored using `.highlight-red` (for signs) or `.highlight-blue` (for particles) to match the visual style of Page 10.
+* **Format:** Use `TEMPLATE_C_IRAB_ROW` or a dedicated `.irab-footer` inside the block.
 * **Classes:** `.poem-container`, `.poem-line`, `.hemistich`, `.bio-card`.
 
 ### H. Grammar Analysis (I'rab)
@@ -55,11 +58,13 @@
     * `TEMPLATE_C_IRAB_BOX_COMPACT.html`: Compact box for tight spaces.
 * **Rule:** The word inside `.irab-word` MUST be White (`#FFFFFF`). Do NOT apply `.highlight-red`, `.highlight-blue`, or any other color class to the text inside `.irab-word`.
 
-### I. Quizzes (Test Yourself)
+### I. Exams & Drills (Test Yourself)
 * **File:** `TEMPLATE_C_EXAM.html`
 * **Usage:** End of chapter tests.
 * **Classes:** `.exam-question`, `.exam-number`, `.bg-dark` (Header), `.bg-grey-lighter` (Answer Box).
-* **Rule:** All exams must use the Dark Header style (`.bg-dark` not `.accent`) and include an answer input box (`<div class="border-light h-8mm bg-grey-lighter rounded"></div>`) for each question.
+* **Mandatory Rule:** Every Lesson Sequence (ending before the next main Chapter/Header) MUST end with an Exam Section.
+* **Minimum:** At least one (1) Question Block is required at the end of every lesson.
+* **Style:** All exams must use the Dark Header style (`.bg-dark` not `.accent`) and include an answer input box (`<div class="border-light h-8mm bg-grey-lighter rounded"></div>`) for each question.
 
 ### J. Table of Contents
 * **Files:** `TEMPLATE_C_TOC_PAGE.html`, `TEMPLATE_C_TOC_LEVEL.html`, etc.
