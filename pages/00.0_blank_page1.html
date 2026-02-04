@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8"/>
+    <title>Blank Page</title>
+    <link href="../styles/main.css" rel="stylesheet"/>
+    <style>
+        /* Force no header/footer and ensure white background */
+        @page {
+            margin: 0;
+            size: A4;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+        .blank-page {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            /* Ensure it breaks the page after */
+            break-after: page;
+        }
+    </style>
+</head>
+<body>
+    <div class="blank-page force-new-page"></div>
+</body>
+</html>
