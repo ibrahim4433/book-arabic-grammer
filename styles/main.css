@@ -654,7 +654,24 @@ body {
 .h-5mm { height: 5mm !important; }
 .toc-section {
     display: block;
+}
+
+@page toc_start {
+    size: A4;
+    margin: 5mm 5mm 9mm 5mm;
     counter-reset: page 1;
+    @bottom-center {
+        content: counter(page, arabic-indic);
+        font-family: 'Noto Kufi Arabic';
+        font-weight: bold;
+        font-size: 12pt;
+        color: var(--color-primary);
+    }
+    @bottom-left { content: none; }
+}
+
+#toc-page-1 {
+    page: toc_start;
 }
 
 .blank-page {
