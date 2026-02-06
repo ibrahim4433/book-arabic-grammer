@@ -10,8 +10,98 @@ from pathlib import Path
 
 # --- CONFIGURATION ---
 JULES_API_KEY = os.getenv("JULES_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # Required for Vision
 JULES_API_URL = "https://jules.googleapis.com/v1alpha" # Placeholder for the Jules/Code Assist API
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent"
 PROJECT_ROOT = Path(__file__).parent.parent
+
+class VisionGEM:
+    """
+    Handles Image-to-Text extraction using Gemini 1.5 Pro via REST API.
+    """
+    def __init__(self, api_key):
+        self.api_key = api_key
+        if not self.api_key:
+            print("⚠️ GEMINI_API_KEY is missing! Vision features will fail.")
+
+    def extract_text(self, image_paths):
+        """
+        Sends images to Gemini and requests a raw transcription.
+        """
+        if not self.api_key:
+            raise ValueError("GEMINI_API_KEY is required for image processing.")
+        
+        print(f"👁️ VisionGEM: Processing {len(image_paths)} images...")
+
+        # 1. Prepare Content Parts
+        contents_parts = []
+        
+        # Add the Prompt
+        prompt_text = (
+            "You are an expert Arabic OCR engine. "
+            "Transcribe the Arabic text from these educational images EXACTLY as it appears. "
+            "Preserve all diacritics (Harakat) strictly. "
+            "Do not summarize. Do not explain. Just output the raw Arabic text. "
+            "If there are headers, use markdown headers (#). "
+            "If there are tables, represent them as markdown tables. "
+            "Ignore page numbers or irrelevant footer text."
+        )
+        contents_parts.append({"text": prompt_text})
+
+        # Add Images (Base64 encoding)
+        import base64
+        for img_path in image_paths:
+            try:
+                with open(img_path, "rb") as image_file:
+                    encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
+                
+                # Determine mime type
+                mime_type = "image/jpeg"
+                if img_path.suffix.lower() in ['.png']:
+                    mime_type = "image/png"
+                elif img_path.suffix.lower() in ['.webp']:
+                    mime_type = "image/webp"
+
+                contents_parts.append({
+                    "inline_data": {
+                        "mime_type": mime_type,
+                        "data": encoded_string
+                    }
+                })
+            except Exception as e:
+                print(f"❌ Error reading image {img_path}: {e}")
+
+        # 2. Construct Payload
+        payload = {
+            "contents": [{
+                "parts": contents_parts
+            }],
+            "generationConfig": {
+                "temperature": 0.0, # Deterministic for OCR
+                "maxOutputTokens": 8192
+            }
+        }
+
+        # 3. Call API
+        try:
+            url = f"{GEMINI_API_URL}?key={self.api_key}"
+            response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload)
+            response.raise_for_status()
+            
+            result = response.json()
+            # Extract text from response
+            try:
+                extracted_text = result['candidates'][0]['content']['parts'][0]['text']
+                return extracted_text
+            except (KeyError, IndexError):
+                print(f"❌ Unexpected API Response: {result}")
+                return ""
+
+        except requests.exceptions.RequestException as e:
+            print(f"❌ VisionGEM API Failed: {e}")
+            if e.response:
+                print(f"   Response: {e.response.text}")
+            sys.exit(1)
 
 class ArchitectGEM:
     """
@@ -23,7 +113,7 @@ class ArchitectGEM:
     def __init__(self, model="gemini-1.5-pro"):
         self.model = model
 
-    def generate_plan(self, system_prompt_path, user_content_path, project_state_str):
+    def generate_plan(self, system_prompt_path, user_content_str, project_state_str):
         """
         Executes the Architect Logic using the official 'Piping' method.
         Equivalent to: cat prompt.md content.txt state.json | gemini --non-interactive
@@ -34,8 +124,6 @@ class ArchitectGEM:
         try:
             with open(system_prompt_path, 'r', encoding='utf-8') as f:
                 sys_prompt = f.read()
-            with open(user_content_path, 'r', encoding='utf-8') as f:
-                usr_content = f.read()
         except FileNotFoundError as e:
             print(f"❌ Error reading input files: {e}")
             sys.exit(1)
@@ -43,7 +131,7 @@ class ArchitectGEM:
         full_stream_input = (
             f"{sys_prompt}\n\n"
             f"=== PROJECT STATE ===\n[PROJECT_STATE]\n{project_state_str}\n\n"
-            f"=== LESSON CONTENT ===\n{usr_content}"
+            f"=== LESSON CONTENT ===\n{user_content_str}"
         )
 
         # 2. Call Gemini CLI with Official Headless Flags
@@ -152,7 +240,10 @@ def extract_plan_block(full_response):
 # --- MAIN WORKFLOW ---
 def main():
     parser = argparse.ArgumentParser(description="Architect-Jules Orchestrator")
-    parser.add_argument("--lesson", required=True, help="Path to the raw lesson text file")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--lesson", help="Path to the raw lesson text file")
+    group.add_argument("--image-dir", help="Path to directory containing lesson images")
+    
     parser.add_argument("--model", default="gemini-1.5-pro", help="Gemini model to use")
     parser.add_argument("--repo", default="ibrahim4433/book-arabic-grammer", help="GitHub repo name for Jules")
     args = parser.parse_args()
@@ -167,23 +258,52 @@ def main():
         except Exception as e:
              print(f"⚠️ Could not read project state: {e}")
 
-    # 2. Define Inputs
+    # 2. Get Content (Text or Images)
+    user_content = ""
+    
+    if args.lesson:
+        current_lesson = Path(args.lesson)
+        if not current_lesson.exists():
+            print(f"❌ Lesson file not found: {current_lesson}")
+            sys.exit(1)
+        with open(current_lesson, 'r', encoding='utf-8') as f:
+            user_content = f.read()
+            
+    elif args.image_dir:
+        img_dir = Path(args.image_dir)
+        if not img_dir.exists():
+            print(f"❌ Image directory not found: {img_dir}")
+            sys.exit(1)
+            
+        # Find images
+        images = sorted(list(img_dir.glob("*.jpg")) + list(img_dir.glob("*.png")) + list(img_dir.glob("*.webp")))
+        if not images:
+            print(f"❌ No images found in {img_dir}")
+            sys.exit(1)
+            
+        vision = VisionGEM(api_key=GEMINI_API_KEY)
+        user_content = vision.extract_text(images)
+        
+        # Save extraction for debugging
+        output_dir = PROJECT_ROOT / "output"
+        output_dir.mkdir(exist_ok=True)
+        with open(output_dir / "extracted_vision.txt", "w", encoding='utf-8') as f:
+            f.write(user_content)
+        print(f"📄 Text extracted and saved to {output_dir / 'extracted_vision.txt'}")
+
+    # 3. Define Architect Prompt
     architect_prompt = PROJECT_ROOT / "Architect_GEM_PROMPT.md"
-    current_lesson = Path(args.lesson)
 
-    if not current_lesson.exists():
-        print(f"❌ Lesson file not found: {current_lesson}")
-        sys.exit(1)
-
-    # 3. Run Architect (Headless CLI)
+    # 4. Run Architect (Headless CLI)
     architect = ArchitectGEM(model=args.model)
     print("⏳ Running Architect...")
-    raw_response = architect.generate_plan(architect_prompt, current_lesson, project_state_str)
+    # Note: We pass the STRING content now, not path
+    raw_response = architect.generate_plan(architect_prompt, user_content, project_state_str)
 
     # Extract the actual plan content (remove markdown wrapper)
     plan = extract_plan_block(raw_response)
 
-    # 4. Save Plan (Optional Debugging)
+    # 5. Save Plan (Optional Debugging)
     output_dir = PROJECT_ROOT / "output"
     output_dir.mkdir(exist_ok=True)
     plan_file = output_dir / "latest_plan.md"
@@ -192,7 +312,7 @@ def main():
         f.write(plan)
     print(f"📋 Plan generated and saved to {plan_file}")
 
-    # 5. Execute Jules
+    # 6. Execute Jules
     jules = JulesClient(api_key=JULES_API_KEY)
     jules.create_session(plan, repo_name=args.repo)
 
