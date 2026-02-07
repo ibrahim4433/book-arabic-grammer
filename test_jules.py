@@ -2,7 +2,7 @@ import requests
 import base64
 import os
 
-api_key = "" 
+api_key = " " 
 url = "https://jules.googleapis.com/v1alpha/sessions"
 
 with open("input/1.jpg", "rb") as f:
