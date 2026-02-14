@@ -1,6 +1,5 @@
 venv
 __pycache__
-output/
 .DS_Store
 /pages/cover
 /secrets
@@ -8,3 +7,10 @@ output/
 /plans
 /beta-utilities
 test_jules.py
+/output/export/book.pdf
+/output/debug/book-debug.pdf
+/output/debug/TEMPLATE_CHAPTER.pdf
+/verification
+/output/text-data/raw
+.gemini/
+gha-creds-*.json

@@ -7,8 +7,8 @@ from pathlib import Path
 
 # --- CONFIGURATION ---
 PROJECT_ROOT = Path(__file__).parent.parent
-RAW_DIR = PROJECT_ROOT / "output/raw"
-INDEX_FILE = PROJECT_ROOT / "raw_to_lesson_index.json"
+RAW_DIR = PROJECT_ROOT / "output/text-data/raw"
+INDEX_FILE = PROJECT_ROOT / "output/text-data/raw_to_lesson_index.json"
 
 def get_lesson_mapping():
     print("🔍 Mapping raw text to lessons...")
@@ -31,17 +31,25 @@ def get_lesson_mapping():
     content_str = "\n".join(all_content)
     
     # We write the content to a temp file to avoid shell argument length limits
-    temp_content_path = PROJECT_ROOT / "output/full_raw_indexed.txt"
+    temp_content_path = PROJECT_ROOT / "output/text-data/full_raw_indexed.txt"
     temp_content_path.write_text(content_str, encoding='utf-8')
+    
+    toc_path = PROJECT_ROOT / "output/text-data/TOC.txt"
+    toc_content = ""
+    if toc_path.exists():
+        toc_content = "\n\n=== TABLE OF CONTENTS (Reference) ===\n" + toc_path.read_text(encoding='utf-8')
 
     prompt = f"""You are an expert Arabic book editor. I have provided a file at {temp_content_path} containing lines from transcribed Arabic grammar images. 
 Your task is to identify the START and END lines for every lesson/topic found in that text.
+Use the provided Table of Contents as a reference for the correct lesson names.
 Output ONLY a JSON object mapping Lesson Title to its address range.
 
 Format:
 {{
   "Lesson Title": {{"start": "raw_x.txt:lineN", "end": "raw_y.txt:lineM"}}
 }}
+
+{toc_content}
 """
 
     try:

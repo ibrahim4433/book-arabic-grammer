@@ -1,0 +1,112 @@
+````text
+# **SESSION 1**
+
+[TASK DEFINITION]
+Objective: Implement the lesson "The Morphological Balance" (الميزان الصرفي).
+Reference: Following "One-Page Law" and pedagogical "Gold Standard".
+Files: 
+1. `pages/09.0_n28_sarf_mizan.html` (Basics & Addition Rules)
+2. `pages/09.1_n28_sarf_mizan_cont.html` (Weak Letters, Deletion & Exercises)
+
+[CONTENT STREAM - PAGE 1]
+
+--- START STREAM ---
+
+=== BLOCK 1: Header ===
+(Component: TEMPLATE_C_HEADER)
+Title: المِيزَانُ الصَّرْفِيُّ
+Lesson: ٢٨
+Category: عِلْمُ الصَّرْفِ
+Section: مَبَادِئُ الصَّرْفِ
+
+=== BLOCK 2: Definition ===
+(Component: TEMPLATE_C_BLOCK)
+Title: تَعْرِيفُ المِيزَانِ الصَّرْفِيِّ
+Class: text-accent
+Content: هُوَ مِقْيَاسٌ لِمَعْرِفَةِ حُرُوفِ الكَلِمَةِ، يَتَأَلَّفُ مِنْ ثَلَاثَةِ أَحْرُفٍ (ف، ع، ل) تُقَابِلُ الأُصُولَ الثَّلَاثَةَ الَّتِي تَتَكَوَّنُ مِنْهَا أَغْلَبُ الكَلِمَاتِ العَرَبِيَّةِ.
+
+=== BLOCK 3: Basic Matrix ===
+(Component: TEMPLATE_C_TABLE)
+Title: كَيْفِيَّةُ الوَزْنِ (الفِعْلُ الثُّلَاثِيُّ)
+Headers: ["حُرُوفُ المِيزَانِ", "فَاءُ الفِعْلِ", "عَيْنُ الفِعْلِ", "لَامُ الفِعْلِ"]
+Row 1: ["الكَلِمَةُ", "ضَـ", "ـرَ", "بَ"]
+Row 2: ["المِيزَانُ", "فَـ", "ـعَ", "لَ"]
+
+=== BLOCK 4: Golden Rules ===
+(Component: TEMPLATE_C_BENEFIT_TIP)
+Content: ضَبْطُ بِنْيَةِ الكَلِمَةِ المَوْزُونَةِ (بِالحَرَكَاتِ وَالسَّكَنَاتِ) يَجِبُ أَنْ يُطَابِقَ ضَبْطَ الوَزْنِ الصَّرْفِيِّ تَمَاماً.
+
+=== BLOCK 5: Quadrilateral Roots ===
+(Component: TEMPLATE_C_BLOCK)
+Title: الزِّيَادَةُ بِتَكْرِارِ اللامِ (الرُّبَاعِيُّ وَالخُمَاسِيُّ الأَصْلِيُّ)
+Content: إِذَا كَانَتْ حُرُوفُ الكَلِمَةِ الأَصْلِيَّةُ أَرْبَعَةً أَوْ خَمْسَةً، نُكَرِّرُ اللَّامَ فِي آخِرِ المِيزَانِ.
+
+=== BLOCK 6: Quadrilateral Table ===
+(Component: TEMPLATE_C_TABLE)
+Title: مِثَالُ الفِعْلِ الرُّبَاعِيِّ الأَصْلِيِّ (بَعْثَرَ)
+Headers: ["حُرُوفُ المِيزَانِ", "فَاءُ الفِعْلِ", "عَيْنُ الفِعْلِ", "لَامُ الفِعْلِ", "اللَّامُ الثَّانِيَةُ"]
+Row 1: ["الكَلِمَةُ", "بَـ", "ـعْ", "ثَـ", "ـرَ"]
+Row 2: ["المِيزَانُ", "فَـ", "ـعْ", "لَـ", "لَ"]
+
+=== BLOCK 7: Extra Letters (Non-Original) ===
+(Component: TEMPLATE_C_SPLIT)
+Left_Title: الزِّيَادَةُ بِتَضْعِيفِ الأَصْلِ
+Left_Content: إِذَا كَانَتِ الزِّيَادَةُ بِتَكْرِارِ حَرْفٍ أَصْلِيٍّ، نُضَعِّفُ مَا يُقَابِلُهُ. مِثْلُ: <span class="highlight-red">سَبَّحَ</span> (فَعَّلَ).
+Right_Title: الزِّيَادَةُ بِحُرُوفِ "سَأَلْتُمُونِيهَا"
+Right_Content: نَزِنُ الأُصُولَ وَنُضِيفُ الزَّائِدَ كَمَا هُوَ. مِثْلُ: <span class="highlight-blue">كَاتَبَ</span> (فَاعَلَ)، <span class="highlight-blue">اسْتَفْتَحَ</span> (اسْتَفْعَلَ).
+
+--- END STREAM ---
+
+[CONTENT STREAM - PAGE 2]
+
+--- START STREAM ---
+
+=== BLOCK 1: Header ===
+(Component: TEMPLATE_C_HEADER)
+Title: المِيزَانُ الصَّرْفِيُّ (تَتِمَّةٌ)
+Lesson: ٢٨
+Category: عِلْمُ الصَّرْفِ
+
+=== BLOCK 2: Weak Letters Rules ===
+(Component: TEMPLATE_C_BLOCK)
+Title: وَزْنُ الكَلِمَاتِ المُعْتَلَّةِ
+Class: text-accent
+Content: يُعْتَبَرُ الحَرْفُ المُعْتَلُّ كَأَنَّهُ صَحِيحٌ. إِذَا تَحَرَّكَ حُرِّكَ مُقَابِلُهُ، وَإِنْ سَكَنَ فِي النُّطْقِ اعْتُبِرَ مُتَحَرِّكاً فِي المِيزَانِ (عَلَى أَصْلِهِ).
+Examples: 
+- <span class="highlight-red">قَامَ</span> (فَعَلَ) - أَصْلُهَا "قَوَمَ".
+- <span class="highlight-red">يَقُولُ</span> (يَفْعُلُ) - أَصْلُهَا "يَقْوُلُ".
+
+=== BLOCK 3: Doubled & Deleted Letters ===
+(Component: TEMPLATE_C_SPLIT)
+Left_Title: المُضَعَّفُ الثُّلَاثِيُّ
+Left_Content: لَا يُشَدَّدُ فِي المِيزَانِ لِأَنَّ التَّضْعِيفَ عِبَارَةٌ عَنْ عَيْنِ الفِعْلِ وَلَامِهِ. مِثْلُ: <span class="highlight-red">شَدَّ</span> (فَعَلَ).
+Right_Title: الحَذْفُ فِي الكَلِمَةِ
+Right_Content: إِذَا حُذِفَ حَرْفٌ مِنَ الكَلِمَةِ حُذِفَ مَا يُقَابِلُهُ. مِثْلُ: <span class="highlight-red">قُلْ</span> (فُلْ)، <span class="highlight-red">ارْمِ</span> (افْعِ).
+
+=== BLOCK 4: Applied Matrix (Exercises) ===
+(Component: TEMPLATE_C_TABLE)
+Title: أَمْثِلَةٌ تَطْبِيقِيَّةٌ شَامِلَةٌ
+Class: dense-table
+Headers: ["الكَلِمَةُ", "الوَزْنُ الصَّرْفِيُّ", "الكَلِمَةُ", "الوَزْنُ الصَّرْفِيُّ"]
+Row 1: ["قُلْتُ", "فُلْتُ", "لَمْ يَرَ", "لَمْ يَفِ"]
+Row 2: ["عُدْ", "فُعْ", "يَنْقَضِي", "يَنْفَعِلُ"]
+Row 3: ["ثِقَةٌ", "عِلَةٌ", "حَاجٌ", "فَاعٌ"]
+Row 4: ["بُرُوقٌ", "فُعُولٌ", "كَوّى", "فَعَلَ"]
+Row 5: ["الأَمَانِي", "الأَفَاعِلُ", "عِشْنَا", "فِلْنَا"]
+Row 6: ["تَغَطَّتْ", "تَفَعَّتْ", "أَوْهَتْ", "أَفْعَتْ"]
+
+=== BLOCK 5: Mandatory Exam ===
+(Component: TEMPLATE_C_EXAM)
+Question 1: زِنِ الكَلِمَاتِ الآتِيَةَ مَعَ الضَّبْطِ التَّامِّ: (تَسْتَقِلُّ، رِئَاسَة، حَرَّتْ، أُسْطُورَة).
+Question 2: بَيِّنِ الحُرُوفَ المَحْذُوفَةَ مِنْ خِلَالِ الوَزْنِ فِي: (سَلْ، عِشْ، قِ).
+Question 3: مَا وَزْنُ "يَنْصَبَانِي" وَ "أَشْتَهِي"؟
+
+--- END STREAM ---
+
+[OPERATIONAL PROTOCOLS]
+1. Create `pages/09.0_n28_sarf_mizan.html` using `TEMPLATE_C_BASE`.
+2. Create `pages/09.1_n28_sarf_mizan_cont.html` for the second half.
+3. Apply full Tashkeel to all Arabic content.
+4. Run `python3 tools/id_manager.py --auto-tag`.
+5. Run `python3 tools/verify_layout.py` on both files to ensure "One-Page Law" compliance.
+````

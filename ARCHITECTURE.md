@@ -5,7 +5,7 @@
 *   **`BOOK_RULES.md`**: The central Design System and content rules (The "One-Page Law", Atomic Components).
 *   **`CODING_STANDARDS.md`**: Technical guidelines for HTML structure, CSS conventions, and Python scripts.
 *   **`TECH_STACK.md`**: Defined technologies, constraints, and dependencies.
-*   **`elements_index.md`**: The catalog of all available HTML templates and atomic components.
+*   **`docs/elements_index.md`**: The catalog of all available HTML templates and atomic components.
 *   **`ARCHITECTURE.md`** (This File): High-level overview of file structure, data flow, and build logic.
 
 ## **Directory Structure**
@@ -24,7 +24,7 @@ Root/
 │
 ├── **assets/**                 # Static Assets
 │   ├── **Templates/**          # Atomic HTML Component Patterns (Reference Only)
-│   │   └── (See elements_index.md for full catalog)
+│   │   └── (See docs/elements_index.md for full catalog)
 │   ├── **page-background/**    # Assets for global background layers
 │   ├── images/                 # High-res images (300dpi preferred)
 │   └── fonts/                  # Local font files
@@ -39,8 +39,9 @@ Root/
 │   └── book.pdf                # The final generated PDF.
 │  
 ├── build.py                    # **The Builder**: Merges content and generates the PDF.
+├── docs/                   # Documentation & AI Personas
+│   └── elements_index.md   # **The Catalog**: Index of all templates and components.
 ├── preview.py                  # **The Viewer**: Renders individual pages for quick previewing.
-├── elements_index.md           # **The Catalog**: Index of all templates and components.
 └── requirements.txt            # Python dependencies (includes `weasyprint`).
 ```
 

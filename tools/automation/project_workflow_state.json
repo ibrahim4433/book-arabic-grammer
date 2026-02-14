@@ -1,0 +1,17 @@
+{
+  "lessons": {
+    "الميزان الصرفي": {
+      "created_at": "2026-02-07T17:55:30.902079",
+      "status": "PLANNED",
+      "history": [
+        {
+          "from": "RAW",
+          "to": "PLANNED",
+          "timestamp": "2026-02-07T17:55:30.903716"
+        }
+      ],
+      "plan_file": "/home/user/Documents/GitHub/book-arabic-grammer/plans/plan_الميزان الصرفي.md",
+      "updated_at": "2026-02-07T17:55:30.903739"
+    }
+  }
+}

@@ -5,7 +5,7 @@ from weasyprint import HTML
 
 def main():
     # Ensure output directory exists
-    output_dir = 'output'
+    output_dir = 'output/export'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 

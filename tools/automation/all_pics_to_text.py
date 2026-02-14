@@ -7,7 +7,7 @@ from pathlib import Path
 # --- CONFIGURATION ---
 PROJECT_ROOT = Path(__file__).parent.parent
 INPUT_DIR = PROJECT_ROOT / "input"
-OUTPUT_RAW_DIR = PROJECT_ROOT / "output/raw"
+OUTPUT_RAW_DIR = PROJECT_ROOT / "output/text-data/raw"
 
 def transcribe_image(image_path, output_path):
     print(f"👁️ Transcribing {image_path.name}...")

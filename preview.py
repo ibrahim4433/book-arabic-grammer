@@ -31,7 +31,7 @@ def get_chapter_map():
 
 def main():
     # 1. Setup Output Directory
-    output_dir = 'output'
+    output_dir = 'output/debug'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
