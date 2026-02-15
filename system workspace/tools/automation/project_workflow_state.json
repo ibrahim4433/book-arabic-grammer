@@ -103,6 +103,41 @@
         "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/00-الجامد والمشتق-plan.md"
       },
       "last_updated": 1771183695.9486375
+    },
+    "09-almizan_alsarfi-plan": {
+      "status": "AUDIT_PASS",
+      "files": {
+        "html": "/home/user/Documents/GitHub/book-arabic-grammer/pages/pages/09.0_n28_almizan.html"
+      },
+      "last_updated": 1771193684.5192618
+    },
+    "13-ilal-plan": {
+      "status": "AUDIT_PASS",
+      "files": {
+        "html": "/home/user/Documents/GitHub/book-arabic-grammer/pages/pages/13.0_n28_ilal.html"
+      },
+      "last_updated": 1771193686.5709722
+    },
+    "12-الصحيح والمعتل-plan": {
+      "status": "AUDIT_PASS",
+      "files": {
+        "html": "/home/user/Documents/GitHub/book-arabic-grammer/pages/pages/12.0_n28_sahih_mutal.html"
+      },
+      "last_updated": 1771193688.6132498
+    },
+    "11-ibdal-plan": {
+      "status": "AUDIT_PASS",
+      "files": {
+        "html": "/home/user/Documents/GitHub/book-arabic-grammer/pages/pages/11.0_n28_ibdal.html"
+      },
+      "last_updated": 1771193690.6236172
+    },
+    "09-jamid_mushtaq-plan": {
+      "status": "AUDIT_PASS",
+      "files": {
+        "html": "/home/user/Documents/GitHub/book-arabic-grammer/pages/pages/09.0_n28_jamid_mushtaq.html"
+      },
+      "last_updated": 1771193692.8316195
     }
   }
 }
