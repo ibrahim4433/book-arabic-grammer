@@ -1,0 +1,26 @@
+{
+  "project_goals": {
+    "output_format": "PDF (A4)",
+    "one_page_rule": true,
+    "full_tashkeel": true,
+    "modular_architecture": true
+  },
+  "rating_criteria": [
+    "Code structure matches .specs/technical.md directory layout",
+    "All HTML pages validate against the 'One-Page Law'",
+    "Python scripts follow PEP 8 and use type hinting where possible",
+    "No API keys are hardcoded (use secrets/ or env vars)",
+    "All new content uses standard templates from assets/Templates/",
+    "CSS uses print-specific units (mm, cm, pt) not px"
+  ],
+  "critical_paths": [
+    "tools/automation/workflow_manager.py",
+    "build.py",
+    "styles/main.css"
+  ],
+  "success_metrics": {
+    "build_success_rate": "> 95%",
+    "page_overflow_count": 0,
+    "unidentified_blocks": 0
+  }
+}

@@ -1,0 +1,11 @@
+# User Experience (UX) Expectations
+
+The user experience must be professional, featuring tools that are intuitive and easy to handle.
+
+Operational details should be displayed in a manner that is:
+*   **Easy to Understand:** Clear visualization of processes.
+*   **Controllable:** allowing user intervention.
+*   **Practical:** Focused on utility.
+*   **Detailed (Debugging-oriented):** Providing deep insights.
+
+The ultimate goal is to ensure that every stage's details are displayed fully and professionally, effectively functioning as a **comprehensive and clear control room**.

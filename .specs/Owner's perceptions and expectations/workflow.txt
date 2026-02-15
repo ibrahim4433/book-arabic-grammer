@@ -1,0 +1,24 @@
+# Project Workflow System
+
+The project workflow operates as follows:
+
+1.  **Input:** I (the user) place screenshots/images from an old book into the input directory.
+2.  **Execution:** I run the main tool (`system.py`).
+3.  **Menu Options:** The tool offers me several options:
+    *   **A:** Perform the complete workflow: from converting images to text, creating plans, generating pages, auditing them, to final production.
+    *   **B:** Only convert images to text via OCR.
+    *   **C:** Only convert raw text into study plans.
+    *   **D:** Only convert study plans into book pages.
+    *   **E:** Status Check: Explore images not yet converted to text, texts not yet converted to plans, or plans not yet accurately converted to pages.
+
+4.  **Selection:** I (the user) select option **A**.
+5.  **Process Execution:**
+    *   The tool reads images from the `input` folder.
+    *   It uses **`all_pics_to_text.py`** to convert images and ensures all are processed into raw text.
+    *   It then uses **`create_lesson_index.py`** to merge fragmented text files into a cohesive text corpus, identifying lesson boundaries (start/end) and mapping them to the required lessons in `TOC.txt`.
+    *   Next, it uses **`plan_refiner.py`** to generate robust plans based on `master_GEM instructions`. These are structured as "Sessions" formatted specifically for **Jules**, ensuring clear visibility of all details.
+    *   The tool then uses **`lesson_compiler.py`** to create batch sessions for these lesson plans in the correct order and format. It sends them to Jules via the API and monitors the process.
+    *   It handles any questions from Jules by using the headless Gemini-cli (referencing my project context) and sends the answers back.
+    *   Once completed, the tool receives results by approving Jules' changes in the GitHub repo.
+    *   It pulls the generated page files and performs necessary evaluations according to **`Architect_AUDITOR.md`**.
+    *   **Loop:** The process iterates—resending to Jules or performing manual corrections via headless Gemini-cli—until the evaluation score is optimal.
