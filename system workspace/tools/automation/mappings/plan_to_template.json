@@ -1,0 +1,51 @@
+{
+  "TEMPLATE_C_HEADER": {
+    "Title": "[CHAPTER_TITLE]",
+    "Lesson": "[LESSON_NUMBER]",
+    "Author": "[AUTHOR_NAME]",
+    "Section": "[SECTION_HEADER]",
+    "Category": "[CATEGORY_HEADER]",
+    "default_values": {
+      "[AUTHOR_NAME]": "إبراهيم العبدالله",
+      "[AUTHOR_PHONE]": "050XXXXXXX"
+    }
+  },
+  "TEMPLATE_C_BLOCK": {
+    "Title": "[BLOCK_TITLE]",
+    "Content": "[CONTENT_TEXT]",
+    "Benefit Title": "[BENEFIT_TITLE]",
+    "Benefit Text": "[BENEFIT_TEXT]",
+    "Class": "[CLASS_MODIFIER]"
+  },
+  "TEMPLATE_C_TABLE": {
+    "Title": "[TABLE_TITLE]",
+    "Content": {
+      "target": "MARKDOWN_TABLE",
+      "transform": "markdown_to_html_table"
+    }
+  },
+  "TEMPLATE_C_SPLIT": {
+      "Title": "[BLOCK_TITLE]",
+      "Content": "[CONTENT_TEXT]"
+  },
+  "TEMPLATE_C_LIST": {
+      "Title": "[BLOCK_TITLE]",
+      "Content": {
+          "target": "[LIST_ITEMS]",
+          "transform": "markdown_list_to_html"
+      }
+  },
+   "TEMPLATE_C_POEM": {
+      "Title": "[POEM_TITLE]",
+      "Content": "[POEM_BODY]",
+      "Poet": "[POET_NAME]"
+  },
+  "TEMPLATE_C_IRAB_BOX": {
+      "Word": "[IRAB_WORD]",
+      "Analysis": "[IRAB_DETAILS]"
+  },
+    "TEMPLATE_C_EXAM": {
+      "Question": "[QUESTION_TEXT]",
+      "Number": "[QUESTION_NUMBER]"
+  }
+}

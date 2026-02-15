@@ -1,0 +1,52 @@
+{
+  "guidance": {
+    "description": "Design Patterns derived from analyzing 29 existing pages.",
+    "GOLDEN_FLOW": [
+      "1. TEMPLATE_C_HEADER (Always Start)",
+      "2. TEMPLATE_C_BLOCK (Definition - Most Common Start)",
+      "3. TEMPLATE_C_SPLIT (Analysis - High Frequency)",
+      "4. TEMPLATE_C_IRAB_BOX (Parsing - Mandatory)",
+      "5. TEMPLATE_C_EXAM (Always End)"
+    ],
+    "COMPONENT_FREQUENCY": {
+      "TEMPLATE_C_BLOCK": 134,
+      "TEMPLATE_C_LIST": 67,
+      "TEMPLATE_C_HEADER": 25,
+      "TEMPLATE_C_EXAM": 20,
+      "TEMPLATE_C_SPLIT": 17,
+      "TEMPLATE_C_POEM": 16,
+      "TEMPLATE_C_IRAB_BOX": 15,
+      "TEMPLATE_C_TABLE": 10
+    },
+    "STYLING_RULES": {
+      "highlight-red": "Use for Grammar Signs (Harakat/Endings)",
+      "highlight-blue": "Use for Fixed Particles (Harf)",
+      "text-accent": "Use for Definitions"
+    }
+  },
+  "analytics": {
+    "analyzed_files": 29,
+    "top_classes": {
+      "highlight-red": 356,
+      "marker": 250,
+      "text-sm": 196,
+      "block-header": 143,
+      "block-body": 138,
+      "content-block": 137,
+      "highlight-blue": 123,
+      "hemistich": 102,
+      "irab-word": 90,
+      "irab-box": 89,
+      "irab-details": 89,
+      "font-bold": 85,
+      "structured-list": 81,
+      "header-section": 75,
+      "mb-2mm": 65,
+      "m-0": 62,
+      "accent": 59,
+      "text-center": 55,
+      "text-accent": 54,
+      "mb-0": 53
+    }
+  }
+}

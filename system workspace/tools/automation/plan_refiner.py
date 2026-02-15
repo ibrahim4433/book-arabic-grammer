@@ -7,43 +7,64 @@ from pathlib import Path
 
 # Config
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-ARCHITECT_PROMPT = PROJECT_ROOT / "docs/Architect_GEM_MASTER.md"
-AUDITOR_PROMPT = PROJECT_ROOT / "docs/Architect_AUDITOR.md"
-PATTERNS_FILE = PROJECT_ROOT / "assets/design_patterns.json"
+ARCHITECT_PROMPT = PROJECT_ROOT / "system workspace/Architect_GEM_MASTER.md"
+AUDITOR_PROMPT = PROJECT_ROOT / "system workspace/Architect_AUDITOR.md"
+PATTERNS_FILE = PROJECT_ROOT / "Jules workspace/design_patterns.json"
+TOC_FILE = PROJECT_ROOT / "input/TOC.txt"
+
+# Global state for sticky model selection within a single run
+CURRENT_MODEL_INDEX = 0
+MODELS_CHAIN = [
+    "gemini-3-pro-preview",
+    "gemini-2.5-pro",
+    "gemini-3-flash-preview",
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite"
+]
 
 def run_gemini(prompt_file, context_files, additional_text=""):
-    """Runs Gemini CLI with the prompt and context files."""
-    try:
-        # Correct flags for this version of Gemini CLI
-        # Use -p/--prompt and pass full context via stdin
-        
-        # Construct input stream
-        input_content = prompt_file.read_text(encoding='utf-8') + "\n\n"
-        input_content += additional_text + "\n\n"
-        
-        for f in context_files:
+    """Runs Gemini CLI with the prompt and context files using a sticky fallback chain."""
+    global CURRENT_MODEL_INDEX
+    
+    # Construct input stream
+    input_content = prompt_file.read_text(encoding='utf-8') + "\n\n"
+    input_content += additional_text + "\n\n"
+    
+    # Inject TOC context automatically if available
+    if TOC_FILE.exists():
+        input_content += f"=== TOC.txt ===\n" + TOC_FILE.read_text(encoding='utf-8') + "\n\n"
+    
+    for f in context_files:
+        if f.exists():
             input_content += f"=== {f.name} ===\n" + f.read_text(encoding='utf-8') + "\n\n"
+
+    for i in range(CURRENT_MODEL_INDEX, len(MODELS_CHAIN)):
+        model = MODELS_CHAIN[i]
+        try:
+            print(f"⏳ Running Gemini CLI (Model: {model})...")
+            cmd = ["gemini", "--prompt", "Follow context.", "--model", model, "--output-format", "text"]
             
-        # Call gemini with -p "" (empty prompt) and piped input
-        cmd = ["gemini", "--prompt", "Follow the instructions in the provided context and output the result.", "--output-format", "text"]
-        
-        result = subprocess.run(
-            cmd,
-            input=input_content,
-            capture_output=True,
-            text=True,
-            encoding='utf-8',
-            check=False
-        )
-        
-        if result.returncode != 0:
-            print(f"❌ Gemini Error: {result.stderr}")
-            return None
+            result = subprocess.run(
+                cmd,
+                input=input_content,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                check=False,
+                timeout=300
+            )
             
-        return result.stdout.strip()
-    except Exception as e:
-        print(f"❌ Execution Error: {e}")
-        return None
+            if result.returncode == 0 and result.stdout.strip():
+                if i != CURRENT_MODEL_INDEX:
+                    print(f"🔄 Switched to model '{model}' for the remainder of this session.")
+                CURRENT_MODEL_INDEX = i
+                return result.stdout.strip()
+                
+            print(f"⚠️ Model '{model}' failed or quota exhausted.")
+        except Exception as e:
+            print(f"❌ Execution Error with {model}: {e}")
+            
+    return None
 
 def extract_json(text):
     """Extracts JSON block from text."""

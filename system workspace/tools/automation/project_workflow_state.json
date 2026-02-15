@@ -2,7 +2,7 @@
   "lessons": {
     "الميزان الصرفي": {
       "created_at": "2026-02-07T17:55:30.902079",
-      "status": "PLANNED",
+      "status": "PLAN_READY",
       "history": [
         {
           "from": "RAW",
@@ -11,11 +11,15 @@
         }
       ],
       "plan_file": "/home/user/Documents/GitHub/book-arabic-grammer/plans/plan_الميزان الصرفي.md",
-      "updated_at": "2026-02-14T23:23:27.624329"
+      "updated_at": "2026-02-14T23:23:27.624329",
+      "files": {
+        "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/09-الميزان الصرفي-plan.md"
+      },
+      "last_updated": 1771180131.4684758
     },
     "معاني صيغ الزيادة": {
       "created_at": "2026-02-14T23:27:07.865252",
-      "status": "PLANNED",
+      "status": "PLAN_READY",
       "history": [
         {
           "from": "RAW",
@@ -24,7 +28,81 @@
         }
       ],
       "plan_file": "/home/user/Documents/GitHub/book-arabic-grammer/plans/plan_معاني صيغ الزيادة.md",
-      "updated_at": "2026-02-14T23:27:07.894460"
+      "updated_at": "2026-02-14T23:27:07.894460",
+      "files": {
+        "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/10-معاني صيغ الزيادة-plan.md"
+      },
+      "last_updated": 1771180292.343404
+    },
+    "الإبدال": {
+      "status": "PLAN_READY",
+      "files": {
+        "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/11-الإبدال-plan.md"
+      },
+      "last_updated": 1771180381.7292004
+    },
+    "الصحيح والمعتل": {
+      "status": "PLAN_READY",
+      "files": {
+        "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/12-الصحيح والمعتل-plan.md"
+      },
+      "last_updated": 1771180531.841643
+    },
+    "الإعلال": {
+      "status": "PLAN_READY",
+      "files": {
+        "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/13-الإعلال-plan.md"
+      },
+      "last_updated": 1771180685.554967
+    },
+    "الجامد والمشتق": {
+      "status": "PLAN_READY",
+      "files": {
+        "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/14-الجامد والمشتق-plan.md"
+      },
+      "last_updated": 1771180844.7815921
+    },
+    "09 - الميزان الصرفي": {
+      "status": "PLAN_READY",
+      "files": {
+        "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/00-الميزان الصرفي-plan.md"
+      },
+      "last_updated": 1771183285.7275577
+    },
+    "10 - معاني صيغ الزيادة": {
+      "status": "PLAN_READY",
+      "files": {
+        "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/00-معاني صيغ الزيادة-plan.md"
+      },
+      "last_updated": 1771183368.9865062
+    },
+    "11 - الإبدال": {
+      "status": "PLAN_READY",
+      "files": {
+        "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/00-الإبدال-plan.md"
+      },
+      "last_updated": 1771183458.4429164
+    },
+    "12 - الصحيح والمعتل": {
+      "status": "PLAN_READY",
+      "files": {
+        "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/00-الصحيح والمعتل-plan.md"
+      },
+      "last_updated": 1771183522.1747162
+    },
+    "13 - الإعلال": {
+      "status": "PLAN_READY",
+      "files": {
+        "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/00-الإعلال-plan.md"
+      },
+      "last_updated": 1771183603.0665298
+    },
+    "14 - الجامد والمشتق": {
+      "status": "PLAN_READY",
+      "files": {
+        "plan": "/home/user/Documents/GitHub/book-arabic-grammer/plans/00-الجامد والمشتق-plan.md"
+      },
+      "last_updated": 1771183695.9486375
     }
   }
 }
