@@ -3,11 +3,40 @@ import sys
 import os
 import json
 import re
+import subprocess
 from pathlib import Path
 
 # --- CONFIGURATION ---
 PROJECT_ROOT = Path(__file__).parent.resolve()
 MODULES_PATH = PROJECT_ROOT / "system workspace/tools/automation"
+
+# --- CLI COLORS ---
+class Colors:
+    HEADER = '\033[95m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+
+def check_dependencies():
+    """Checks and installs missing dependencies from requirements.txt."""
+    req_file = PROJECT_ROOT / "requirements.txt"
+    if not req_file.exists():
+        print(f"{Colors.WARNING}⚠️ requirements.txt not found. Skipping dependency check.{Colors.ENDC}")
+        return
+
+    print(f"{Colors.BLUE}🔍 Checking dependencies...{Colors.ENDC}")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", str(req_file)])
+        print(f"{Colors.GREEN}✅ Dependencies are satisfied.{Colors.ENDC}")
+    except subprocess.CalledProcessError as e:
+        print(f"{Colors.FAIL}❌ Failed to install dependencies: {e}{Colors.ENDC}")
+        sys.exit(1)
+
+# Check dependencies BEFORE importing modules that might require them
+check_dependencies()
 
 # Add modules path to sys.path to allow imports despite spaces in directory names
 if str(MODULES_PATH) not in sys.path:
@@ -26,16 +55,6 @@ except ImportError as e:
     print(f"❌ Critical Error: Failed to import modules. Ensure 'system workspace/tools/automation/modules' exists.")
     print(f"Details: {e}")
     sys.exit(1)
-
-# --- CLI COLORS ---
-class Colors:
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    GREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
 
 # --- MENU SYSTEM ---
 def print_header():
