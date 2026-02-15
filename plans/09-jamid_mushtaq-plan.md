@@ -21,7 +21,7 @@ Reference: Follow patterns in `design_patterns.json` and `BOOK_RULES.md`.
 (Component: TEMPLATE_C_HEADER)
 Title: الجَامِدُ وَالمُشْتَقُّ
 Lesson: ٩
-Author: إِبْرَاهِيم أَبُو مُحَمَّد
+
 
 === BLOCK 2: Definition of Jamid and Mushtaq ===
 (Component: TEMPLATE_C_BLOCK)

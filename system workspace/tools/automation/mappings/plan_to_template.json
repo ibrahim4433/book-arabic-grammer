@@ -6,7 +6,7 @@
     "Section": "[SECTION_HEADER]",
     "Category": "[CATEGORY_HEADER]",
     "default_values": {
-      "[AUTHOR_NAME]": "إبراهيم العبدالله",
+      "[AUTHOR_NAME]": "                        ",
       "[AUTHOR_PHONE]": "050XXXXXXX"
     }
   },

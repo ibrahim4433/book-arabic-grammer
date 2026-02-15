@@ -20,7 +20,6 @@ Reference: Follow patterns in `BOOK_RULES.md` and `styles/main.css`.
 (Component: TEMPLATE_C_HEADER)
 Title: المِيزَانُ الصَّرْفِيُّ
 Lesson: ٩
-Author: إِبْرَاهِيم أَبُو مُحَمَّد
 
 === BLOCK 2: Definition ===
 (Component: TEMPLATE_C_BLOCK)

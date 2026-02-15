@@ -14,7 +14,6 @@
 2.  **Metadata Extraction:**
     *   **Lesson Number:** Extract the absolute number from the TOC (e.g., 9, 10, 11).
     *   **Title:** Extract the clean Arabic title. **DO NOT** include the number prefix in the title field (e.g., use "المِيزَانُ الصَّرْفِيُّ" not "09 - المِيزَانُ الصَّرْفِيُّ").
-    *   **Author:** "إِبْرَاهِيم أَبُو مُحَمَّد".
 3.  **Page Breaking Logic (CRITICAL):**
     *   **ONE-PAGE LAW:** Every HTML file must correspond to exactly ONE A4 page.
     *   **Filenaming:** Always start with `pages/XX.0_nXX_[slug].html`.
@@ -65,7 +64,6 @@ Reference: Follow patterns in design_patterns.json.
 (Component: TEMPLATE_C_HEADER)
 Title: [Clean Arabic Title]
 Lesson: [Arabic-Indic Number]
-Author: إِبْرَاهِيم أَبُو مُحَمَّد
 
 === BLOCK 2: [Topic] ===
 (Component: TEMPLATE_C_BLOCK)

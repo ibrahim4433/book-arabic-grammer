@@ -20,7 +20,6 @@ Reference: Follow patterns in design_patterns.json.
 (Component: TEMPLATE_C_HEADER)
 Title: الْفِعْلُ الصَّحِيحُ وَالْفِعْلُ الْمُعْتَلُّ
 Lesson: ١٢
-Author: إِبْرَاهِيم أَبُو مُحَمَّد
 
 === BLOCK 2: Definitions ===
 (Component: TEMPLATE_C_BLOCK)

@@ -20,7 +20,6 @@ Reference: Follow patterns in design_patterns.json.
 (Component: TEMPLATE_C_HEADER)
 Title: الإِبْدَالُ
 Lesson: ١١
-Author: إِبْرَاهِيم أَبُو مُحَمَّد
 
 === BLOCK 2: Definition ===
 (Component: TEMPLATE_C_BLOCK)

@@ -22,7 +22,6 @@ Reference: Follow patterns in `BOOK_RULES.md`.
 (Component: TEMPLATE_C_HEADER)
 Title: الإِعْلَالُ
 Lesson: ١٣
-Author: إِبْرَاهِيم أَبُو مُحَمَّد
 
 === BLOCK 2: Definition ===
 (Component: TEMPLATE_C_BLOCK)
