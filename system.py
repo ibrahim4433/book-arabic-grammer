@@ -18,6 +18,7 @@ try:
     from modules.vision import VisionClient
     from modules.text_processing import TextProcessor
     from modules.planner import Planner
+    from modules.jules_planner import JulesPlanner
     from modules.compiler import Compiler
     from modules.auditor import Auditor
     from modules.state_manager import StateManager
@@ -49,8 +50,9 @@ def print_menu():
     print(f"{Colors.BLUE}[A] Full Auto Workflow (Images -> Book Page){Colors.ENDC}")
     print(f"{Colors.BLUE}[B] OCR Only (Images -> Raw Text){Colors.ENDC}")
     print(f"{Colors.BLUE}[C] Plan Generation (Raw Text -> Architect Plans){Colors.ENDC}")
-    print(f"{Colors.BLUE}[D] Page Generation (Plans -> HTML){Colors.ENDC}")
-    print(f"{Colors.BLUE}[E] System Status & Debug{Colors.ENDC}")
+    print(f"{Colors.BLUE}[D] Plan Generation with Jules (Raw Text -> Architect Plans){Colors.ENDC}")
+    print(f"{Colors.BLUE}[E] Page Generation (Plans -> HTML){Colors.ENDC}")
+    print(f"{Colors.BLUE}[F] System Status & Debug{Colors.ENDC}")
     print(f"{Colors.FAIL}[Q] Quit{Colors.ENDC}")
     print("-" * 50)
 
@@ -77,12 +79,15 @@ def main():
                 run_planning(state_manager)
                 
             elif choice == 'D':
+                run_jules_planning(state_manager)
+
+            elif choice == 'E':
                 run_generation(state_manager)
                 
             elif choice == 'A':
                 run_full_auto(state_manager)
                 
-            elif choice == 'E':
+            elif choice == 'F':
                 show_status(state_manager)
                 
             else:
@@ -194,6 +199,12 @@ def run_planning(state_manager):
         )
         if plan_path:
             state_manager.update_lesson_status(lesson_title, "PLAN_READY", {"plan": str(plan_path)})
+
+def run_jules_planning(state_manager):
+    print(f"\n{Colors.BOLD}>>> Running Jules Planner Module...{Colors.ENDC}")
+    # We initialize JulesPlanner with the PROJECT_ROOT
+    planner = JulesPlanner(PROJECT_ROOT)
+    planner.run_batch_planning(max_concurrent=5)
 
 def run_generation(state_manager):
     print(f"\n{Colors.BOLD}>>> Running Page Generation Module...{Colors.ENDC}")
