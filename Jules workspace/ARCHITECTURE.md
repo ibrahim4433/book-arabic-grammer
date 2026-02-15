@@ -5,7 +5,7 @@
 *   **`BOOK_RULES.md`**: The central Design System and content rules (The "One-Page Law", Atomic Components).
 *   **`CODING_STANDARDS.md`**: Technical guidelines for HTML structure, CSS conventions, and Python scripts.
 *   **`TECH_STACK.md`**: Defined technologies, constraints, and dependencies.
-*   **`docs/elements_index.md`**: The catalog of all available HTML templates and atomic components.
+*   **`system workspace/elements_index.md`**: The catalog of all available HTML templates and atomic components.
 *   **`ARCHITECTURE.md`** (This File): High-level overview of file structure, data flow, and build logic.
 
 ## **Directory Structure**
@@ -24,7 +24,7 @@ Root/
 │
 ├── **assets/**                 # Static Assets
 │   ├── **Templates/**          # Atomic HTML Component Patterns (Reference Only)
-│   │   └── (See docs/elements_index.md for full catalog)
+│   │   └── (See system workspace/elements_index.md for full catalog)
 │   ├── **page-background/**    # Assets for global background layers
 │   ├── images/                 # High-res images (300dpi preferred)
 │   └── fonts/                  # Local font files
@@ -32,15 +32,23 @@ Root/
 ├── **styles/**                 # Styling Source
 │   └── main.css                # **Single Source of Truth** for all book styling.
 │  
-├── **tools/**                  # Utility Scripts
-│   └── verify_layout.py        # CLI tool to verify "One-Page Law" compliance.
+├── **Jules workspace/**        # AI Context & Validation Tools
+│   ├── verify_layout.py        # CLI tool to verify "One-Page Law" compliance.
+│   ├── lint_pages.py           # Content linter.
+│   ├── id_manager.py           # ID Management tool.
+│   ├── ARCHITECTURE.md         # This File.
+│   ├── BOOK_RULES.md           # Design System Rules.
+│   └── CODING_STANDARDS.md     # Code Guidelines.
+│
+├── **system workspace/**       # Backend Automation & Prompts
+│   ├── tools/                  # Automation Scripts (OCR, Planner, Compiler).
+│   ├── Architect_GEM_MASTER.md # Master Prompt.
+│   └── elements_index.md       # Full Catalog of Templates.
 │  
 ├── **output/**                 # Build Artifacts
 │   └── book.pdf                # The final generated PDF.
 │  
 ├── build.py                    # **The Builder**: Merges content and generates the PDF.
-├── docs/                   # Documentation & AI Personas
-│   └── elements_index.md   # **The Catalog**: Index of all templates and components.
 ├── preview.py                  # **The Viewer**: Renders individual pages for quick previewing.
 └── requirements.txt            # Python dependencies (includes `weasyprint`).
 ```
@@ -66,7 +74,7 @@ Root/
         *   Wraps the result in a Master HTML Shell (containing `<head>`, styles, and global fixed layers).
     *   **Rendering:** Uses `WeasyPrint` to generate `output/book.pdf`.
 
-3.  **Validation (`tools/verify_layout.py`):**
+3.  **Validation (`Jules workspace/verify_layout.py`):**
     *   Renders a single HTML file to checking page count.
     *   **Fail:** If Page Count > 1.
     *   **Warn:** If empty space > 20% (Underflow).

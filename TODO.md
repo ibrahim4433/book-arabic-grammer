@@ -1,27 +1,27 @@
 # Project TODO: The "Control Room" & System Refactoring
 
-This document outlines the roadmap for transforming the current scripts into a centralized, interactive "Control Room" (`system.py`) utilizing the Jules API and the `AI workspace` context.
+This document outlines the roadmap for transforming the current scripts into a centralized, interactive "Control Room" (`system.py`) utilizing the Jules API and the `system workspace` context.
 
 ## 🏗️ Phase 1: Infrastructure & API Integration (Jules)
 
 - [ ] **Jules API Verification & Enhanced Wrapper**
-    - [ ] **Research:** Deeply analyze `dispatch_jules.py` against the "Jules v1alpha" capabilities (Sessions, Activities, Source Context).
-    - [ ] **Refactor `dispatch_jules.py`:** Create a robust `JulesClient` module in `tools/automation/modules/jules_client.py`.
+    - [ ] **Research:** Deeply analyze `system workspace/tools/automation/dispatch_jules.py` against the "Jules v1alpha" capabilities (Sessions, Activities, Source Context).
+    - [ ] **Refactor `dispatch_jules.py`:** Create a robust `JulesClient` module in `system workspace/tools/automation/modules/jules_client.py`.
         - [ ] Implement `create_session` with precise `sourceContext` (linking to the GitHub repo).
         - [ ] Implement **Session Monitoring**: Do not just "fire and forget". Add polling to check `session.status` or `activities` to confirm completion/PR creation.
         - [ ] Add error handling for API quotas or network failures.
     - [ ] **Test:** Create a `tests/test_jules_connectivity.py` script to verify authentication and basic session creation (dry-run).
 
-- [ ] **AI Workspace Consolidation**
-    - [ ] **Path Updates:** Update all script references to point to `AI workspace/` for prompts.
+- [ ] **System Workspace Consolidation**
+    - [ ] **Path Updates:** Update all script references to point to `system workspace/` for prompts.
     - [ ] **Prompt Definition:**
-        - [ ] Confirm `AI workspace/Architect_GEM_MASTER.md` is the "Master Plan" prompt.
-        - [ ] Confirm `AI workspace/Architect_AUDITOR.md` is the "Auditor" prompt.
-    - [ ] **Prompt Loading:** Create a utility `tools/automation/modules/prompt_loader.py` to securely load these prompts.
+        - [ ] Confirm `system workspace/Architect_GEM_MASTER.md` is the "Master Plan" prompt.
+        - [ ] Confirm `system workspace/Architect_AUDITOR.md` is the "Auditor" prompt.
+    - [ ] **Prompt Loading:** Create a utility `system workspace/tools/automation/modules/prompt_loader.py` to securely load these prompts.
 
 ## 🛠️ Phase 2: Core Tool Refactoring (Modularization)
 
-*The existing tools in `tools/automation/` must be refactored into importable modules for `system.py`.*
+*The existing tools in `system workspace/tools/automation/` must be refactored into importable modules for `system.py`.*
 
 - [ ] **Module: Vision (OCR)** (`modules/vision.py`)
     - [ ] Refactor logic from `orchestrator.py` (VisionGEM class) and `all_pics_to_text.py`.
@@ -46,11 +46,11 @@ This document outlines the roadmap for transforming the current scripts into a c
     - [ ] **Loop:** Monitor Jules -> Wait for PR/Commit -> Trigger "Auditor".
 
 - [ ] **Module: Auditor (Quality Control)** (`modules/auditor.py`)
-    - [ ] Implement logic using `Architect_AUDITOR.md`.
+    - [ ] Implement logic using `Architect_AUDITOR.md` and `Jules workspace/verify_layout.py`.
     - [ ] Process:
         1. Pull generated HTML.
-        2. Run `verify_layout.py` (One-Page Law).
-        3. Run Visual Inspection (Gemini Vision) or HTML Linting.
+        2. Run `Jules workspace/verify_layout.py` (One-Page Law).
+        3. Run Visual Inspection (Gemini Vision) or HTML Linting (`Jules workspace/lint_pages.py`).
         4. **Feedback Loop:** If score < Threshold, send feedback back to Jules (New Session or Reply).
 
 ## 🎛️ Phase 3: The "Control Room" (`system.py`)
@@ -69,7 +69,7 @@ This document outlines the roadmap for transforming the current scripts into a c
         [Q] Quit
         ```
 
-- [ ] **State Management (`project_workflow_state.json`)**
+- [ ] **State Management (`system workspace/tools/automation/project_workflow_state.json`)**
     - [ ] Ensure the system tracks the state of every lesson (e.g., `OCR_DONE`, `PLAN_READY`, `PAGE_GENERATED`, `AUDIT_PASS`).
     - [ ] Dashboard View: Option [E] should display a table of all lessons and their current status.
 

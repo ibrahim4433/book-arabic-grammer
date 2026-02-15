@@ -21,9 +21,9 @@ pip install -r requirements.txt
 | :--- | :--- |
 | `python build.py` | **Build Full Book.** Generates `output/book.pdf`. |
 | `python preview.py` | **Preview Page.** Interactive tool to render a single HTML page for rapid iteration. |
-| `python tools/id_manager.py auto-tag` | **Auto-ID.** Automatically assigns unique IDs (`bXXXXX`) to all content blocks. |
-| `python tools/verify_layout.py` | **Verify Layout.** Checks compliance with the "One-Page Law". |
-| `python tools/lint_pages.py` | **Lint Content.** Checks for missing IDs, invalid nesting, or rule violations. |
+| `python "Jules workspace/id_manager.py" auto-tag` | **Auto-ID.** Automatically assigns unique IDs (`bXXXXX`) to all content blocks. |
+| `python "Jules workspace/verify_layout.py"` | **Verify Layout.** Checks compliance with the "One-Page Law". |
+| `python "Jules workspace/lint_pages.py"` | **Lint Content.** Checks for missing IDs, invalid nesting, or rule violations. |
 
 ---
 
@@ -36,7 +36,8 @@ pip install -r requirements.txt
 - **/assets/Templates**: HTML snippets for all Atomic Components. **Use these, do not invent new structures.**
 - **/styles/main.css**: The global stylesheet. **Do not modify** unless fixing a critical layout bug.
 - **/output**: Destination for generated PDFs (`book.pdf`) and debug files.
-- **/tools**: Scripts for ID management, linting, and verification.
+- **/Jules workspace**: Tools and Context for the AI Agent (Rules, Standards, Verification Scripts).
+- **/system workspace**: Backend Automation Tools and Prompts.
 
 ---
 
@@ -61,7 +62,11 @@ Every HTML file in `/pages/` must render to **exactly one A4 page**.
 - **Requirement:** Every significant content block must have a unique ID.
 - **Format:** `id="bXXXXX"` (e.g., `b83920`).
 - **Target Elements:** `.content-block`, `.irab-box`, `.poem-container`, `.exam-question`, headers, tables.
-- **Workflow:** Write the code -> Run `python tools/id_manager.py auto-tag`.
+### C. Tools
+*   **Generator:** Use `Jules workspace/id_manager.py` to generate or manage IDs.
+    *   `python3 "Jules workspace/id_manager.py" next-id`: Generate a new unique ID.
+    *   `python3 "Jules workspace/id_manager.py" verify`: Check for duplicates.
+    *   `python3 "Jules workspace/id_manager.py" auto-tag`: Automatically add IDs to elements that miss them.
 
 ### 5. Color Coding Standard
 - **`.highlight-red`**: **Primary Focus** (e.g., I'rab signs, changing endings).

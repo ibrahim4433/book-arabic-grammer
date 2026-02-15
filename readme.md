@@ -51,6 +51,6 @@ Run the build script:
 
 For detailed technical constraints and architecture, please refer to:
 
-* [TECH\_STACK.md](https://github.com/ibrahim4433/book-arabic-grammer/blob/main/TECH_STACK.md) \- Frameworks and strict constraints.  
-* [ARCHITECTURE.md](https://github.com/ibrahim4433/book-arabic-grammer/blob/main/ARCHITECTURE.md) \- File structure and build logic.  
-* [CODING\_STANDARDS.md](https://github.com/ibrahim4433/book-arabic-grammer/blob/main/CODING_STANDARDS.md) \- HTML/CSS rules and snippets.
+* [TECH\_STACK.md](https://github.com/ibrahim4433/book-arabic-grammer/blob/main/Jules%20workspace/TECH_STACK.md) \- Frameworks and strict constraints.  
+* [ARCHITECTURE.md](https://github.com/ibrahim4433/book-arabic-grammer/blob/main/Jules%20workspace/ARCHITECTURE.md) \- File structure and build logic.  
+* [CODING\_STANDARDS.md](https://github.com/ibrahim4433/book-arabic-grammer/blob/main/Jules%20workspace/CODING_STANDARDS.md) \- HTML/CSS rules and snippets.
