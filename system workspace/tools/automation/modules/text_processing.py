@@ -19,7 +19,7 @@ class TextProcessor:
     def __init__(self, project_root=None, api_key=None):
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
         self.raw_dir = self.project_root / "system workspace/text-data/raw"
-        self.toc_path = self.project_root / "input/TOC.txt"
+        self.toc_path = self.project_root / "system workspace/TOC.json"
         self.index_file = self.project_root / "system workspace/text-data/raw_to_lesson_index.json"
         
         self.client = GeminiClient(api_key, self.project_root)
@@ -30,41 +30,60 @@ class TextProcessor:
 
     def validate_toc(self):
         """
-        Validates the structure of TOC.txt.
-        Expected format: One lesson title per line.
+        Validates the structure of TOC.json.
+        Expected format: JSON object where keys are lesson numbers and values are metadata dicts.
         """
         if not self.toc_path.exists():
             print(f"❌ TOC file not found at {self.toc_path}")
             return False
 
-        content = self.toc_path.read_text(encoding='utf-8').strip()
-        lines = content.splitlines()
-        
-        if not lines:
-            print("❌ TOC file is empty.")
-            return False
+        try:
+            content = self.toc_path.read_text(encoding='utf-8').strip()
+            data = json.loads(content)
 
-        print(f"✅ TOC Validated: {len(lines)} topics found.")
-        return True
+            if not isinstance(data, dict):
+                print("❌ TOC JSON is not a dictionary object.")
+                return False
+
+            if not data:
+                print("❌ TOC file is empty.")
+                return False
+
+            # Optional: Check for required fields in at least one item
+            first_key = next(iter(data))
+            if not isinstance(data[first_key], dict) or 'title' not in data[first_key]:
+                 print("❌ TOC items do not have 'title' field.")
+                 return False
+
+            print(f"✅ TOC Validated: {len(data)} topics found.")
+            return True
+
+        except json.JSONDecodeError as e:
+            print(f"❌ TOC JSON Decode Error: {e}")
+            return False
 
     def get_lesson_number(self, lesson_title):
         """
-        Retrieves the lesson number for a given title from TOC.txt.
-        Assumes TOC format: "09 - Lesson Title"
+        Retrieves the lesson number for a given title from TOC.json.
         """
         if not self.toc_path.exists():
             return "00"
             
-        content = self.toc_path.read_text(encoding='utf-8')
-        for line in content.splitlines():
-            # Regex to match "09 - Title" or "9 - Title"
-            match = re.match(r"^(\d+)\s*-\s*(.*)", line.strip())
-            if match:
-                number = match.group(1).zfill(2) # Ensure 2 digits
-                title = match.group(2).strip()
-                if title == lesson_title.strip():
-                    return number
-        return "00"
+        try:
+            content = self.toc_path.read_text(encoding='utf-8')
+            data = json.loads(content)
+
+            clean_input_title = lesson_title.strip()
+
+            for number, metadata in data.items():
+                title = metadata.get('title', '').strip()
+                if title == clean_input_title:
+                    return number.zfill(2) # Ensure 2 digits
+
+            return "00"
+        except Exception as e:
+            print(f"⚠️ Error reading TOC for lesson number: {e}")
+            return "00"
 
     def merge_raw_text(self):
         """
@@ -113,7 +132,16 @@ class TextProcessor:
 
         print("🔍 Mapping raw text to lessons via Gemini...")
         
-        toc_content = self.toc_path.read_text(encoding='utf-8')
+        try:
+            toc_data = json.loads(self.toc_path.read_text(encoding='utf-8'))
+            # Simplify TOC for the prompt: "Number - Title" list
+            toc_lines = []
+            for num, meta in toc_data.items():
+                toc_lines.append(f"{num} - {meta.get('title', 'Unknown')}")
+            toc_content = "\n".join(toc_lines)
+        except Exception as e:
+             print(f"❌ Failed to process TOC.json: {e}")
+             return None
         
         # System Prompt
         system_instruction = f"""You are an expert Arabic book editor.

@@ -11,9 +11,14 @@
 # [CONSTRAINTS & PROTOCOLS]
 
 1.  **Source of Truth:** Adhere strictly to `BOOK_RULES.md` and `elements_index.md`.
-2.  **Metadata Extraction:**
+2.  **Metadata Extraction & Usage:**
     *   **Lesson Number:** Extract the absolute number from the TOC (e.g., 9, 10, 11).
     *   **Title:** Extract the clean Arabic title. **DO NOT** include the number prefix in the title field (e.g., use "المِيزَانُ الصَّرْفِيُّ" not "09 - المِيزَانُ الصَّرْفِيُّ").
+    *   **Header Data (MANDATORY):** You must populate the `TEMPLATE_C_HEADER` component with the specific metadata provided in the prompt:
+        *   `[CATEGORY_HEADER]` <- Use `LESSON_LEVEL`
+        *   `[SECTION_HEADER]` <- Use `LESSON_UNIT`
+        *   `[AUTHOR_NAME]` <- Use `LESSON_AUTHOR`
+        *   `[AUTHOR_PHONE]` <- Use `LESSON_AUTHOR_NUMBER`
 3.  **Page Breaking Logic (CRITICAL):**
     *   **ONE-PAGE LAW:** Every HTML file must correspond to exactly ONE A4 page.
     *   **Filenaming:** Always start with `pages/XX.0_nXX_[slug].html`.
@@ -62,8 +67,12 @@ Reference: Follow patterns in design_patterns.json.
 
 === BLOCK 1: Lesson Header ===
 (Component: TEMPLATE_C_HEADER)
-Title: [Clean Arabic Title]
-Lesson: [Arabic-Indic Number]
+[LESSON_NUMBER]: [Number]
+[CHAPTER_TITLE]: [Title]
+[CATEGORY_HEADER]: [Level]
+[SECTION_HEADER]: [Unit]
+[AUTHOR_NAME]: [Author]
+[AUTHOR_PHONE]: [Phone]
 
 === BLOCK 2: [Topic] ===
 (Component: TEMPLATE_C_BLOCK)
