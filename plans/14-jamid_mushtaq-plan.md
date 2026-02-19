@@ -1,8 +1,8 @@
 # **SESSION 09.0**
 
 [TASK DEFINITION]
-Objective: Implement Lesson 09 - The Solid and The Derived (الجامد والمشتق).
-File: `pages/09.0_n28_jamid_mushtaq.html`
+Objective: Implement Lesson 14 - The Solid and The Derived (الجامد والمشتق).
+File: `pages/14.0_nxx_jamid_mushtaq.html`
 Reference: Follow patterns in `design_patterns.json` and `BOOK_RULES.md`.
 
 [CONSTRAINTS & PROTOCOLS]

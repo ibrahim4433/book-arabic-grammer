@@ -2,7 +2,7 @@
 
 [TASK DEFINITION]
 Objective: Implement Lesson 11 - Substitution (Al-Ibdal).
-File: `pages/11.0_n28_ibdal.html`
+File: `pages/11.0_nxx_ibdal.html`
 Reference: Follow patterns in design_patterns.json.
 
 [CONSTRAINTS & PROTOCOLS]

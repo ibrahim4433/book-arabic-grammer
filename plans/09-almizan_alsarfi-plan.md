@@ -2,7 +2,7 @@
 
 [TASK DEFINITION]
 Objective: Implement Lesson 09 - Morphological Balance.
-File: `pages/09.0_n28_almizan.html`
+File: `pages/09.0_nxx_almizan.html`
 Reference: Follow patterns in `BOOK_RULES.md` and `styles/main.css`.
 
 [CONSTRAINTS & PROTOCOLS]

@@ -2,7 +2,7 @@
 
 [TASK DEFINITION]
 Objective: Implement Lesson 13 (الإعلال).
-File: `pages/13.0_n28_ilal.html`
+File: `pages/13.0_nxx_ilal.html`
 Reference: Follow patterns in `BOOK_RULES.md`.
 
 [CONSTRAINTS & PROTOCOLS]

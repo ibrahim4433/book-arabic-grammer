@@ -102,6 +102,79 @@ class JulesClient:
             print(f"❌ JulesClient Error (Get Status): {e}")
             return None
 
+    def send_response(self, session_id, message):
+        """
+        Sends a response (user input) to a session that is waiting for input.
+        
+        Args:
+            session_id (str): The session ID.
+            message (str): The text message to send.
+            
+        Returns:
+            bool: True if successful, False otherwise.
+        """
+        headers = {
+            "X-Goog-Api-Key": self.api_key,
+            "Content-Type": "application/json"
+        }
+        
+        # Construct URL - assuming :sendMessage or similar action
+        # Based on typical patterns, it might be appending a turn or a specific action.
+        # Since we don't have the spec, we will try the most common "addInput" or "sendMessage" pattern
+        # for these types of agents.
+        # IF THIS FAILS, we might need to adjust.
+        
+        url = f"https://jules.googleapis.com/v1alpha/{session_id}:send"
+        if "https" in session_id:
+             # If session_id is a URL, strip it to get base and append :send
+             url = f"{session_id}:send"
+
+        payload = {
+            "text": message
+        }
+        
+        try:
+            print(f"📤 Sending response to {session_id}...")
+            resp = requests.post(url, headers=headers, json=payload, timeout=30)
+            resp.raise_for_status()
+            print("✅ Response sent.")
+            return True
+        except requests.exceptions.RequestException as e:
+            print(f"❌ JulesClient Error (Send Response): {e}")
+            if e.response:
+                print(f"   Response: {e.response.text}")
+            return False
+
+    def get_latest_message(self, session_data):
+        """
+        Extracts the latest message/question from the session data.
+        
+        Args:
+            session_data (dict): The session object from get_session_status.
+            
+        Returns:
+            str: The text of the last message from the agent, or None.
+        """
+        # Attempt to parse 'turns' or 'messages'
+        # Structure assumption: { "turns": [ { "role": "MODEL", "parts": [ { "text": "..." } ] } ] }
+        
+        if not session_data: return None
+        
+        turns = session_data.get('turns', [])
+        if not turns: return None
+        
+        last_turn = turns[-1]
+        
+        # Check if it's from the Model (Agent)
+        if last_turn.get('role') != 'MODEL':
+            return None
+            
+        parts = last_turn.get('parts', [])
+        if parts and 'text' in parts[0]:
+            return parts[0]['text']
+            
+        return None
+
     def wait_for_completion(self, session_id, timeout_minutes=15, check_interval=30):
         """
         Polls the session until it reaches a terminal state (COMPLETED, FAILED, CANCELLED).

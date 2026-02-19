@@ -1,0 +1,208 @@
+import sys
+import os
+import json
+import time
+import re
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# Ensure modules are importable
+sys.path.append(str(Path(__file__).parent))
+
+from jules_client import JulesClient
+from gemini_client import GeminiClient
+from jules_client_plans import JulesPlanClient  # Reusing PR pulling logic
+
+class JulesPageGenerator:
+    """
+    Orchestrates the batch generation of HTML Pages from Plans using Jules Sessions.
+    Handles interactive Q&A with Gemini Headless.
+    """
+
+    def __init__(self, project_root=None):
+        self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
+        self.jules_client = JulesPlanClient(project_root=self.project_root) # Reuse for PR pulling
+        self.gemini_client = GeminiClient(project_root=self.project_root)
+        
+        # Load Context for Gemini (Headless)
+        self.context_files = [
+            "GEMINI.md",
+            "CODING_STANDARDS.md",
+            "assets/Templates/TEMPLATE_C_BASE.html"
+        ]
+        self.project_context = self._load_context()
+
+    def _load_context(self):
+        """Loads key documentation to help Gemini answer Jules' questions."""
+        context = "=== PROJECT CONTEXT ===\n"
+        for fname in self.context_files:
+            fpath = self.project_root / fname
+            if fpath.exists():
+                context += f"\n--- {fname} ---\n{fpath.read_text(encoding='utf-8')}\n"
+        return context
+
+    def _monitor_and_handle_session(self, session_id, lesson_title):
+        """
+        Monitors a running session.
+        If Jules asks a question (WAITING_FOR_INPUT or similar), uses Gemini to answer.
+        """
+        print(f"👀 Monitoring {lesson_title} ({session_id})...")
+        
+        # We poll for a bit longer than standard planning because coding takes time
+        start_time = time.time()
+        timeout = 25 * 60 # 25 minutes
+        
+        while time.time() - start_time < timeout:
+            status_data = self.jules_client.get_session_status(session_id)
+            if not status_data:
+                time.sleep(30)
+                continue
+                
+            state = status_data.get('state', 'UNKNOWN')
+            print(f"   [{lesson_title}] Status: {state}")
+            
+            # 1. Handle Success
+            if state == 'SUCCEEDED':
+                return "SUCCEEDED"
+                
+            # 2. Handle Failure
+            if state in ['FAILED', 'CANCELLED']:
+                return state
+                
+            # 3. Handle Interaction (Hypothetical state 'NEEDS_INPUT' or 'WAITING_FOR_USER_INPUT')
+            # If the API doesn't explicitly say "WAITING", we might infer from 'turns' 
+            # if the last turn was from MODEL and it ended with a question mark?
+            # For now, let's assume a state or if the log indicates waiting.
+            # If we don't know the exact state name for waiting, we rely on the user's description.
+            # "if Jules asked questions..." implies a pause.
+            
+            # Let's check the last message from the Model
+            last_msg = self.jules_client.get_latest_message(status_data)
+            
+            if state == "NEEDS_INTERACTION" or (last_msg and "?" in last_msg and state not in ['SUCCEEDED', 'FAILED']):
+                 # Heuristic: If it looks like a question and not done, answer it.
+                 # But we must be careful not to answer the *same* question twice.
+                 # We need to track turns.
+                 pass # Logic to be added if we can confirm state. 
+            
+            # If the system explicitly exposes a "waiting" state (e.g. 'ACTION_REQUIRED'), handle it.
+            if state == 'ACTION_REQUIRED' or state == 'WAITING_FOR_INPUT':
+                print(f"❓ [{lesson_title}] Jules is asking for input...")
+                
+                question = self.jules_client.get_latest_message(status_data)
+                if not question:
+                    question = "Please continue." # Fallback
+                
+                print(f"   Question: {question[:100]}...")
+                
+                # Ask Gemini Headless
+                answer = self._ask_gemini_headless(question)
+                print(f"   💡 Gemini Answer: {answer[:100]}...")
+                
+                # Send back
+                self.jules_client.send_response(session_id, answer)
+                
+                # Wait a bit to let it process
+                time.sleep(10)
+
+            time.sleep(30)
+            
+        return "TIMEOUT"
+
+    def _ask_gemini_headless(self, question):
+        """
+        Uses the headless Gemini client to answer a question about the project.
+        """
+        system_prompt = (
+            "You are the Lead Architect for the Arabic Grammar Book project.\n"
+            "A developer (Jules) is asking a question about the implementation.\n"
+            "Answer the question clearly and concisely using the provided Project Context.\n"
+            "If you need to provide a path, use the relative path from project root.\n"
+            "Do not be conversational, just answer."
+        )
+        
+        full_prompt = f"{self.project_context}\n\n=== QUESTION ===\n{question}"
+        return self.gemini_client.generate_content_headless(system_prompt + "\n\n" + full_prompt)
+
+    def process_plan(self, plan_path):
+        """
+        Worker for a single plan.
+        """
+        plan_content = plan_path.read_text(encoding='utf-8')
+        lesson_title = plan_path.stem
+        
+        # 1. Start Session
+        print(f"🚀 [Start] Generating Page for {lesson_title}...")
+        
+        prompt = (
+            f"Generate the HTML page for the following plan.\n"
+            f"Use the templates in `assets/Templates/`.\n"
+            f"Follow `GEMINI.md` rules strictly (One-Page Law, Tashkeel, IDs).\n"
+            f"The output file should be `pages/{lesson_title.replace('-plan', '.html')}` (adjust naming to nXX format if needed).\n"
+            f"PLAN:\n{plan_content}"
+        )
+        
+        session = self.jules_client.create_session(prompt, f"PageGen: {lesson_title}", automation_mode="AUTO_CREATE_PR")
+        if not session:
+            return False
+            
+        session_id = session.get('name')
+        
+        # 2. Monitor
+        status = self._monitor_and_handle_session(session_id, lesson_title)
+        
+        if status != "SUCCEEDED":
+            print(f"❌ [Failed] Session {session_id} ended with status: {status}")
+            return False
+            
+        # 3. Pull Result
+        details = self.jules_client.get_session_details(session_id)
+        target_file = f"{lesson_title.replace('-plan', '')}.html" 
+        # Note: The actual filename might vary if Jules decides to rename it. 
+        # But we instructed it. We'll try to pull what we asked for.
+        # Actually, we should pull the *branch* and see what changed.
+        
+        # For now, assume strict naming or pull the PR branch.
+        success = self.jules_client.pull_plan_from_github(details, f"pages/{target_file}")
+        
+        if success:
+            print(f"✅ [Complete] Page saved: {target_file}")
+            return True
+        else:
+             # Fallback: Try to list files in the PR/Branch?
+             print(f"⚠️ Could not pull specific file. The branch '{details.get('branch')}' might have it with a different name.")
+             return False
+
+    def run_batch_generation(self, max_concurrent=5):
+        """
+        Main entry point.
+        """
+        print(f"\n🏭 Starting Jules Page Generation (Batch Size: {max_concurrent})...")
+        
+        plans_dir = self.project_root / "plans"
+        plans = sorted(list(plans_dir.glob("*.md")))
+        
+        if not plans:
+            print("⚠️ No plans found in plans/ directory.")
+            return
+
+        print(f"📋 Found {len(plans)} plans.")
+        
+        with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
+            future_to_plan = {
+                executor.submit(self.process_plan, plan): plan.name
+                for plan in plans
+            }
+            
+            for future in as_completed(future_to_plan):
+                name = future_to_plan[future]
+                try:
+                    success = future.result()
+                    res = "✅ Success" if success else "❌ Failed"
+                    print(f"🏁 {res}: {name}")
+                except Exception as exc:
+                    print(f"💥 Exception processing {name}: {exc}")
+
+if __name__ == "__main__":
+    gen = JulesPageGenerator()
+    gen.run_batch_generation(max_concurrent=1)

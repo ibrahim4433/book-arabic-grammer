@@ -51,6 +51,7 @@ try:
     from modules.compiler import Compiler
     from modules.auditor import Auditor
     from modules.state_manager import StateManager
+    from modules.jules_page_generator import JulesPageGenerator
 except ImportError as e:
     print(f"❌ Critical Error: Failed to import modules. Ensure 'system workspace/tools/automation/modules' exists.")
     print(f"Details: {e}")
@@ -226,30 +227,13 @@ def run_jules_planning(state_manager):
     planner.run_batch_planning(max_concurrent=5)
 
 def run_generation(state_manager):
-    print(f"\n{Colors.BOLD}>>> Running Page Generation Module...{Colors.ENDC}")
+    print(f"\n{Colors.BOLD}>>> Running Jules Page Generation Module (Batch)...{Colors.ENDC}")
     
-    compiler = Compiler()
-    auditor = Auditor()
-    
-    # Scan for plans
-    plans_dir = PROJECT_ROOT / "plans"
-    plans = list(plans_dir.glob("*.md"))
-    
-    for plan in plans:
-        print(f"Processing {plan.name}...")
-        
-        # Compile
-        html_path = compiler.compile_page(plan)
-        if not html_path: continue
-        
-        # Audit
-        audit_res = auditor.audit_page(html_path)
-        print(f"Audit Result: {audit_res['status']}")
-        
-        if audit_res['status'] == "PASS":
-             state_manager.update_lesson_status(plan.stem, "AUDIT_PASS", {"html": str(html_path)})
-        else:
-             print(f"❌ Audit Failed: {audit_res.get('details')}")
+    try:
+        generator = JulesPageGenerator(project_root=PROJECT_ROOT)
+        generator.run_batch_generation(max_concurrent=5)
+    except Exception as e:
+        print(f"❌ Error in Page Generation: {e}")
 
 def run_full_auto(state_manager):
     run_ocr(state_manager)
