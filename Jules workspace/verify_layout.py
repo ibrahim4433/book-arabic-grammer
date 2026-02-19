@@ -123,6 +123,8 @@ def verify_layout(filepath):
             if 'watermark-text' in classes: continue
             # Skip root containers
             if box.element.tag in ['html', 'body']: continue
+            # Skip layout wrappers that might force full height
+            if 'force-new-page' in classes: continue
 
             # Check geometry (border box)
             # box.position_y is from top of page
