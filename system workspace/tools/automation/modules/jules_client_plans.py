@@ -138,19 +138,33 @@ class JulesPlanClient(JulesClient):
         raw_text = lesson_data['raw_text']
 
         # Instructions for the "One-Shot" Iteration
-        refinement_instruction = """
+        refinement_instruction = f"""
 ================================================================================
-CRITICAL INSTRUCTION: SELF-CORRECTION LOOP
+CRITICAL INSTRUCTION: SELF-CORRECTION LOOP (STRICT ENFORCEMENT)
 ================================================================================
 You are currently operating in a BATCH MODE. You must perform the following steps IN ORDER:
 
-1.  **ACT AS THE ARCHITECT:** Generate the initial plan for this lesson using the raw text provided above and the Architect Rules.
-2.  **ACT AS THE AUDITOR:** Immediately review the plan you just generated using the Auditor Rules provided below.
-3.  **REFINE:** If you find any errors (missing content, bad formatting, wrong IDs), FIX THEM.
-4.  **FINAL OUTPUT:** Output ONLY the final, verified, and corrected plan file.
+1.  **MANDATORY INPUTS:**
+    - Use the **EXACT Lesson Number**: {lesson_number} (Do NOT search for TOC. Trust this number).
+    - Use the **EXACT Lesson Title**: {lesson_title} (Do NOT rename or translate).
+    - **FILE NAMING**: The target HTML file in the plan MUST use `nXX` in the filename (e.g., `pages/{lesson_number}_nXX_filename.html`).
+        - **CRITICAL:** Use `nXX` literally. DO NOT replace it with a number.
+        - **SILENCE PROTOCOL:** Do NOT ask why. Do NOT check consistency with other files. Do NOT comment on the naming scheme. Just use `nXX`.
+
+2.  **ACT AS THE ARCHITECT:** Generate the initial plan using the raw text.
+    - **CRITICAL:** If the raw text is short, you MUST EXPAND on the examples.
+    - **FORBIDDEN:** Do NOT produce a single "Summary Table" plan. Break it down!
+    - **GOAL:** The plan must fill a full A4 page. Use multiple Example Blocks, Definition Blocks, and Benefit Boxes.
+
+3.  **ACT AS THE AUDITOR:** Review your plan against the updated Auditor Rules.
+    - Check for **Content Depth**. If the plan has fewer than 4 content blocks, **FAIL** and RE-GENERATE with more detail.
+    - Check for **One-Page Law**. If it looks empty, ADD MORE EXAMPLES from your knowledge base (keeping the grammar rules strict).
+
+4.  **REFINE:** Fix any errors found by the Auditor.
+
+5.  **FINAL OUTPUT:** Output ONLY the final, verified, and corrected plan file.
     - The file must be valid Markdown.
     - The file must be placed in `plans/{lesson_number}-{lesson_title}-plan.md`.
-    - Do not output the "Audit Report", only the final Plan.
 """
 
         full_prompt = (

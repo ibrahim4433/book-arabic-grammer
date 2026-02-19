@@ -53,3 +53,33 @@ class StateManager:
 
     def get_all_lessons(self):
         return self.state["lessons"]
+
+    def get_consolidated_state(self):
+        """
+        Returns a dictionary where keys are normalized Lesson Numbers (e.g., '09', '10').
+        Values are merged status objects.
+        """
+        consolidated = {}
+        import re
+        
+        for key, data in self.state["lessons"].items():
+            # Try to extract number
+            match = re.match(r'^(\d+)', key)
+            if match:
+                num = match.group(1)
+                # If we already have this number, merge latest status
+                if num in consolidated:
+                    existing = consolidated[num]
+                    # Merge logic: Take the most advanced status or latest timestamp
+                    if data.get('last_updated', 0) > existing.get('last_updated', 0):
+                        consolidated[num] = data
+                        consolidated[num]['original_key'] = key # Keep track
+                else:
+                    consolidated[num] = data
+                    consolidated[num]['original_key'] = key
+            else:
+                # No number, keep as is (or maybe try to map if I had the index)
+                # For now, put in "Unnumbered" or keep key
+                consolidated[key] = data
+                
+        return consolidated

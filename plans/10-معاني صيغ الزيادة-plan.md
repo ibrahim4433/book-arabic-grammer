@@ -2,7 +2,7 @@
 
 [TASK DEFINITION]
 Objective: Implement مَعَانِي صِيَغِ الزِّيَادَةِ (Lesson 10).
-File: `pages/10.0_n29_maani_ziyada.html`
+File: `pages/10.0_nxx_maani_ziyada.html`
 Reference: Follow patterns in design_patterns.json.
 
 [CONSTRAINTS & PROTOCOLS]
@@ -20,7 +20,6 @@ Reference: Follow patterns in design_patterns.json.
 (Component: TEMPLATE_C_HEADER)
 Title: مَعَانِي صِيَغِ الزِّيَادَةِ
 Lesson: ١٠
-Author: إِبْرَاهِيم أَبُو مُحَمَّد
 
 === BLOCK 2: تعريف معاني الزيادة ===
 (Component: TEMPLATE_C_BLOCK)

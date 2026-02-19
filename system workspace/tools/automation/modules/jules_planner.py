@@ -63,24 +63,83 @@ class JulesPlanner:
 
         return "\n".join(extracted)
 
-    def process_lesson(self, lesson_title, range_info):
+    def run_batch_planning(self, max_concurrent=5, update_callback=None):
+        """
+        Main entry point. Orchestrates the batch processing.
+        Args:
+            update_callback (callable): Function(lesson_title, status, message)
+        """
+        if not update_callback:
+            def update_callback(title, status, msg): print(f"[{status}] {title}: {msg}")
+
+        print(f"\n🧠 Starting Jules Batch Planning (Max Concurrent: {max_concurrent})...")
+
+        # 1. Get Lesson Index
+        index_path = self.project_root / "system workspace/text-data/raw_to_lesson_index.json"
+        if not index_path.exists():
+            update_callback("System", "WARN", "Lesson index missing. Generating...")
+            mapping = self.tp.generate_lesson_index()
+        else:
+            mapping = json.loads(index_path.read_text(encoding='utf-8'))
+
+        if not mapping:
+            update_callback("System", "ERROR", "No lessons to process.")
+            return
+
+        # 2. Filter Processed Lessons?
+        to_process = {}
+        for title, info in mapping.items():
+            lesson_number = self.tp.get_lesson_number(title)
+            clean_title = re.sub(r'^\d+\s*-\s*', '', title).strip()
+            plan_path = self.project_root / f"plans/{lesson_number}-{clean_title}-plan.md"
+
+            if plan_path.exists():
+                update_callback(title, "SKIP", "Plan exists")
+            else:
+                to_process[title] = info
+                update_callback(title, "PENDING", "Queued")
+
+        if not to_process:
+            update_callback("System", "DONE", "All plans exist.")
+            return
+
+        # 3. Execute Batch
+        with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
+            future_to_lesson = {
+                executor.submit(self.process_lesson_with_callback, title, info, update_callback): title
+                for title, info in to_process.items()
+            }
+            
+            for future in as_completed(future_to_lesson):
+                pass # The callback handles updates inside the future
+
+    def process_lesson_with_callback(self, lesson_title, range_info, callback):
+        """Wrapper for process_lesson that uses callback."""
+        callback(lesson_title, "RUNNING", "Starting...")
+        try:
+            # Re-implement process_lesson logic here but with callbacks?
+            # Or just call self.process_lesson and modify it to accept callback?
+            # Better to modify process_lesson signature.
+            self.process_lesson(lesson_title, range_info, callback)
+        except Exception as e:
+            callback(lesson_title, "ERROR", str(e))
+
+    def process_lesson(self, lesson_title, range_info, callback=None):
         """
         Worker function for a single lesson.
-        1. Extract text.
-        2. Create Session.
-        3. Wait for Completion.
-        4. Pull Plan.
         """
+        if not callback: callback = lambda t, s, m: print(f"[{s}] {t}: {m}")
+        
         lesson_number = self.tp.get_lesson_number(lesson_title)
         clean_title = re.sub(r'^\d+\s*-\s*', '', lesson_title).strip()
         filename = f"{lesson_number}-{clean_title}-plan.md"
 
-        print(f"🚀 [Start] {lesson_title}...")
+        callback(lesson_title, "RUNNING", "Extracting Text...")
 
         # 1. Extract Text
         raw_text = self._extract_lesson_text(range_info['start'], range_info['end'])
         if not raw_text:
-            print(f"❌ [Error] No text found for {lesson_title}")
+            callback(lesson_title, "ERROR", "No text found")
             return False
 
         # 2. Construct Prompt
@@ -89,94 +148,46 @@ class JulesPlanner:
             'title': clean_title,
             'raw_text': raw_text
         }
-
         mega_prompt = self.client.construct_mega_prompt(
-            lesson_data,
-            self.architect_prompt,
-            self.auditor_prompt
+            lesson_data, self.architect_prompt, self.auditor_prompt
         )
 
         # 3. Create Session
+        callback(lesson_title, "RUNNING", "Creating Session...")
         session = self.client.create_plan_session(lesson_title, mega_prompt)
         if not session:
+            callback(lesson_title, "ERROR", "Session Creation Failed")
             return False
 
         session_id = session.get('name')
+        callback(lesson_title, "RUNNING", f"Monitoring Session ({session_id})...")
 
         # 4. Monitor Session
+        # We need to poll inside here and update callback occasionally
+        # But wait_for_completion blocks. Let's modify wait_for_completion to accept callback?
+        # Or just wait.
         status = self.client.wait_for_completion(session_id, timeout_minutes=20)
 
         if status != "SUCCEEDED":
-            print(f"❌ [Failed] Session {session_id} ended with status: {status}")
+            callback(lesson_title, "FAILED", f"Session ended: {status}")
             return False
 
         # 5. Pull Result
+        callback(lesson_title, "RUNNING", "Pulling Plan...")
         details = self.client.get_session_details(session_id)
         if not details:
-            print(f"⚠️ [Warning] Could not find branch/PR for {session_id}. Manual check required.")
+            callback(lesson_title, "WARN", "No PR found. Manual check needed.")
             return False
 
         success = self.client.pull_plan_from_github(details, filename)
 
         if success:
-            print(f"✅ [Complete] Plan saved: {filename}")
+            callback(lesson_title, "SUCCESS", f"Plan saved: {filename}")
             return True
         else:
-            print(f"❌ [Error] Failed to pull plan for {lesson_title}")
+            callback(lesson_title, "ERROR", "Pull Failed")
             return False
 
-    def run_batch_planning(self, max_concurrent=5):
-        """
-        Main entry point. Orchestrates the batch processing.
-        """
-        print(f"\n🧠 Starting Jules Batch Planning (Max Concurrent: {max_concurrent})...")
-
-        # 1. Get Lesson Index
-        index_path = self.project_root / "system workspace/text-data/raw_to_lesson_index.json"
-        if not index_path.exists():
-            print("⚠️ Lesson index not found. Generating...")
-            mapping = self.tp.generate_lesson_index()
-        else:
-            mapping = json.loads(index_path.read_text(encoding='utf-8'))
-
-        if not mapping:
-            print("❌ No lessons to process.")
-            return
-
-        # 2. Filter Processed Lessons?
-        # Check if plan already exists
-        to_process = {}
-        for title, info in mapping.items():
-            lesson_number = self.tp.get_lesson_number(title)
-            clean_title = re.sub(r'^\d+\s*-\s*', '', title).strip()
-            plan_path = self.project_root / f"plans/{lesson_number}-{clean_title}-plan.md"
-
-            if plan_path.exists():
-                print(f"⏭️ Skipping {title} (Plan exists)")
-            else:
-                to_process[title] = info
-
-        if not to_process:
-            print("✅ All plans already exist!")
-            return
-
-        print(f"📋 Processing {len(to_process)} lessons...")
-
-        # 3. Execute Batch
-        with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
-            future_to_lesson = {
-                executor.submit(self.process_lesson, title, info): title
-                for title, info in to_process.items()
-            }
-
-            for future in as_completed(future_to_lesson):
-                title = future_to_lesson[future]
-                try:
-                    success = future.result()
-                    status = "✅ Success" if success else "❌ Failed"
-                    print(f"🏁 {status}: {title}")
-                except Exception as exc:
-                    print(f"💥 Exception processing {title}: {exc}")
 
 if __name__ == "__main__":
     planner = JulesPlanner()

@@ -124,15 +124,17 @@ class JulesPageGenerator:
         full_prompt = f"{self.project_context}\n\n=== QUESTION ===\n{question}"
         return self.gemini_client.generate_content_headless(system_prompt + "\n\n" + full_prompt)
 
-    def process_plan(self, plan_path):
+    def process_plan(self, plan_path, callback=None):
         """
         Worker for a single plan.
         """
+        if not callback: callback = lambda t, s, m: print(f"[{s}] {t}: {m}")
+
         plan_content = plan_path.read_text(encoding='utf-8')
         lesson_title = plan_path.stem
         
         # 1. Start Session
-        print(f"🚀 [Start] Generating Page for {lesson_title}...")
+        callback(lesson_title, "RUNNING", "Starting Session...")
         
         prompt = (
             f"Generate the HTML page for the following plan.\n"
@@ -144,65 +146,97 @@ class JulesPageGenerator:
         
         session = self.jules_client.create_session(prompt, f"PageGen: {lesson_title}", automation_mode="AUTO_CREATE_PR")
         if not session:
+            callback(lesson_title, "ERROR", "Session Create Failed")
             return False
             
         session_id = session.get('name')
+        callback(lesson_title, "RUNNING", f"Monitoring {session_id}...")
         
         # 2. Monitor
-        status = self._monitor_and_handle_session(session_id, lesson_title)
+        status = self._monitor_and_handle_session(session_id, lesson_title, callback)
         
         if status != "SUCCEEDED":
-            print(f"❌ [Failed] Session {session_id} ended with status: {status}")
+            callback(lesson_title, "FAILED", f"Ended with {status}")
             return False
             
         # 3. Pull Result
+        callback(lesson_title, "RUNNING", "Pulling Page...")
         details = self.jules_client.get_session_details(session_id)
         target_file = f"{lesson_title.replace('-plan', '')}.html" 
-        # Note: The actual filename might vary if Jules decides to rename it. 
-        # But we instructed it. We'll try to pull what we asked for.
-        # Actually, we should pull the *branch* and see what changed.
         
-        # For now, assume strict naming or pull the PR branch.
         success = self.jules_client.pull_plan_from_github(details, f"pages/{target_file}")
         
         if success:
-            print(f"✅ [Complete] Page saved: {target_file}")
+            callback(lesson_title, "SUCCESS", f"Page Saved: {target_file}")
             return True
         else:
-             # Fallback: Try to list files in the PR/Branch?
-             print(f"⚠️ Could not pull specific file. The branch '{details.get('branch')}' might have it with a different name.")
+             callback(lesson_title, "WARN", "Pull failed, check Branch.")
              return False
 
-    def run_batch_generation(self, max_concurrent=5):
+    def _monitor_and_handle_session(self, session_id, lesson_title, callback):
+        """
+        Monitors a running session.
+        If Jules asks a question, uses Gemini to answer.
+        """
+        start_time = time.time()
+        timeout = 25 * 60 # 25 minutes
+        
+        while time.time() - start_time < timeout:
+            status_data = self.jules_client.get_session_status(session_id)
+            if not status_data:
+                time.sleep(30)
+                continue
+                
+            state = status_data.get('state', 'UNKNOWN')
+            
+            # Update Status only if changed? Or just show current state
+            # callback(lesson_title, "RUNNING", f"State: {state}")
+
+            if state == 'SUCCEEDED':
+                return "SUCCEEDED"
+            if state in ['FAILED', 'CANCELLED']:
+                return state
+                
+            if state == 'ACTION_REQUIRED' or state == 'WAITING_FOR_INPUT':
+                callback(lesson_title, "INTERACT", "Jules needs input...")
+                
+                question = self.jules_client.get_latest_message(status_data)
+                if not question: question = "Please continue."
+                
+                # Ask Gemini Headless
+                answer = self._ask_gemini_headless(question)
+                callback(lesson_title, "INTERACT", "Sending Answer...")
+                
+                self.jules_client.send_response(session_id, answer)
+                time.sleep(10)
+
+            time.sleep(30)
+            
+        return "TIMEOUT"
+
+    def run_batch_generation(self, max_concurrent=5, update_callback=None):
         """
         Main entry point.
         """
+        if not update_callback:
+            def update_callback(t, s, m): print(f"[{s}] {t}: {m}")
+
         print(f"\n🏭 Starting Jules Page Generation (Batch Size: {max_concurrent})...")
         
         plans_dir = self.project_root / "plans"
         plans = sorted(list(plans_dir.glob("*.md")))
         
         if not plans:
-            print("⚠️ No plans found in plans/ directory.")
+            update_callback("System", "WARN", "No plans found.")
             return
 
-        print(f"📋 Found {len(plans)} plans.")
+        update_callback("System", "INFO", f"Found {len(plans)} plans.")
         
         with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
             future_to_plan = {
-                executor.submit(self.process_plan, plan): plan.name
+                executor.submit(self.process_plan, plan, update_callback): plan.stem
                 for plan in plans
             }
             
             for future in as_completed(future_to_plan):
-                name = future_to_plan[future]
-                try:
-                    success = future.result()
-                    res = "✅ Success" if success else "❌ Failed"
-                    print(f"🏁 {res}: {name}")
-                except Exception as exc:
-                    print(f"💥 Exception processing {name}: {exc}")
-
-if __name__ == "__main__":
-    gen = JulesPageGenerator()
-    gen.run_batch_generation(max_concurrent=1)
+                pass # Callbacks handle updates
