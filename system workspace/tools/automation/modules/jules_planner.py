@@ -142,17 +142,39 @@ class JulesPlanner:
             callback(lesson_title, "ERROR", "No text found")
             return False
 
-        # 2. Construct Prompt
+        # 2. Get Metadata from TOC.json
+        lesson_metadata = {}
+        if self.tp.toc_path.exists():
+            try:
+                toc_data = json.loads(self.tp.toc_path.read_text(encoding='utf-8'))
+                # Try to find by number (stripping leading zeros if key is integer-like string)
+                key = str(int(lesson_number)) if lesson_number.isdigit() else lesson_number
+                if key in toc_data:
+                    lesson_metadata = toc_data[key]
+                else:
+                    # Fallback: search by title
+                    for k, v in toc_data.items():
+                         if v.get('title', '').strip() == lesson_title.strip():
+                             lesson_metadata = v
+                             break
+            except Exception:
+                pass
+
+        # 3. Construct Prompt
         lesson_data = {
             'number': lesson_number,
             'title': clean_title,
-            'raw_text': raw_text
+            'raw_text': raw_text,
+            'level': lesson_metadata.get('level', ''),
+            'unit': lesson_metadata.get('Unit', ''),
+            'author': lesson_metadata.get('author', ''),
+            'author_number': lesson_metadata.get('author_number', '')
         }
         mega_prompt = self.client.construct_mega_prompt(
             lesson_data, self.architect_prompt, self.auditor_prompt
         )
 
-        # 3. Create Session
+        # 4. Create Session
         callback(lesson_title, "RUNNING", "Creating Session...")
         session = self.client.create_plan_session(lesson_title, mega_prompt)
         if not session:
@@ -162,7 +184,7 @@ class JulesPlanner:
         session_id = session.get('name')
         callback(lesson_title, "RUNNING", f"Monitoring Session ({session_id})...")
 
-        # 4. Monitor Session
+        # 5. Monitor Session
         # We need to poll inside here and update callback occasionally
         # But wait_for_completion blocks. Let's modify wait_for_completion to accept callback?
         # Or just wait.
@@ -172,7 +194,7 @@ class JulesPlanner:
             callback(lesson_title, "FAILED", f"Session ended: {status}")
             return False
 
-        # 5. Pull Result
+        # 6. Pull Result
         callback(lesson_title, "RUNNING", "Pulling Plan...")
         details = self.client.get_session_details(session_id)
         if not details:

@@ -137,6 +137,12 @@ class JulesPlanClient(JulesClient):
         lesson_title = lesson_data['title']
         raw_text = lesson_data['raw_text']
 
+        # New Metadata extraction
+        level = lesson_data.get('level', '')
+        unit = lesson_data.get('unit', '')
+        author = lesson_data.get('author', '')
+        author_number = lesson_data.get('author_number', '')
+
         # Instructions for the "One-Shot" Iteration
         refinement_instruction = f"""
 ================================================================================
@@ -150,6 +156,15 @@ You are currently operating in a BATCH MODE. You must perform the following step
     - **FILE NAMING**: The target HTML file in the plan MUST use `nXX` in the filename (e.g., `pages/{lesson_number}_nXX_filename.html`).
         - **CRITICAL:** Use `nXX` literally. DO NOT replace it with a number.
         - **SILENCE PROTOCOL:** Do NOT ask why. Do NOT check consistency with other files. Do NOT comment on the naming scheme. Just use `nXX`.
+
+    - **METADATA INJECTION (TEMPLATE_C_HEADER):**
+        - You MUST use these values when populating `TEMPLATE_C_HEADER`:
+        - [CATEGORY_HEADER] (Level): {level}
+        - [SECTION_HEADER] (Unit): {unit}
+        - [AUTHOR_NAME]: {author}
+        - [AUTHOR_PHONE]: {author_number}
+        - [CHAPTER_TITLE]: {lesson_title}
+        - [LESSON_NUMBER]: {lesson_number}
 
 2.  **ACT AS THE ARCHITECT:** Generate the initial plan using the raw text.
     - **CRITICAL:** If the raw text is short, you MUST EXPAND on the examples.

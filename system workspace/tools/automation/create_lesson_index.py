@@ -15,7 +15,10 @@ def get_lesson_mapping():
     
     # Sort files numerically
     def sort_key(p):
-        return int(p.stem.split('_')[1])
+        try:
+            return int(p.stem.split('_')[1])
+        except (IndexError, ValueError):
+            return 0
 
     all_content = []
     files = sorted(list(RAW_DIR.glob("raw_*.txt")), key=sort_key)
@@ -32,12 +35,20 @@ def get_lesson_mapping():
     
     # We write the content to a temp file to avoid shell argument length limits
     temp_content_path = PROJECT_ROOT / "output/text-data/full_raw_indexed.txt"
+    temp_content_path.parent.mkdir(parents=True, exist_ok=True)
     temp_content_path.write_text(content_str, encoding='utf-8')
     
-    toc_path = PROJECT_ROOT / "output/text-data/TOC.txt"
+    toc_path = PROJECT_ROOT / "system workspace/TOC.json"
     toc_content = ""
     if toc_path.exists():
-        toc_content = "\n\n=== TABLE OF CONTENTS (Reference) ===\n" + toc_path.read_text(encoding='utf-8')
+        try:
+            toc_data = json.loads(toc_path.read_text(encoding='utf-8'))
+            lines = []
+            for k, v in toc_data.items():
+                lines.append(f"{k} - {v.get('title', 'Unknown')}")
+            toc_content = "\n\n=== TABLE OF CONTENTS (Reference) ===\n" + "\n".join(lines)
+        except Exception as e:
+            print(f"Warning: Failed to read TOC.json: {e}")
 
     prompt = f"""You are an expert Arabic book editor. I have provided a file at {temp_content_path} containing lines from transcribed Arabic grammar images. 
 Your task is to identify the START and END lines for every lesson/topic found in that text.
@@ -77,6 +88,7 @@ Format:
 def main():
     mapping = get_lesson_mapping()
     if mapping:
+        INDEX_FILE.parent.mkdir(parents=True, exist_ok=True)
         with open(INDEX_FILE, "w", encoding="utf-8") as f:
             json.dump(mapping, f, ensure_ascii=False, indent=2)
         print(f"✅ Index created at {INDEX_FILE}")

@@ -18,7 +18,7 @@ class Planner:
         self.plans_dir = self.project_root / "plans"
         self.prompt_path = self.project_root / "system workspace/Architect_GEM_MASTER.md"
         self.state_path = self.project_root / "system workspace/tools/automation/project_state.json"
-        self.toc_path = self.project_root / "input/TOC.txt"
+        self.toc_path = self.project_root / "system workspace/TOC.json"
         
         self.client = GeminiClient(api_key, self.project_root)
         
@@ -35,7 +35,7 @@ class Planner:
 
         print(f"🧠 Planner: Generating plan for '{output_filename}'...")
 
-        # 1. Load System Prompt & Inject Variables
+        # 1. Load System Prompt
         system_instruction = self.prompt_path.read_text(encoding='utf-8')
         
         # 2. Load Context (Project State, TOC, Design Patterns)
@@ -43,22 +43,47 @@ class Planner:
         if self.state_path.exists():
             state_content = self.state_path.read_text(encoding='utf-8')
             
-        toc_content = ""
+        # Get Metadata from TOC.json
+        lesson_metadata = {}
         if self.toc_path.exists():
-            toc_content = self.toc_path.read_text(encoding='utf-8')
-            
+            try:
+                toc_data = json.loads(self.toc_path.read_text(encoding='utf-8'))
+                # Try to find by number (stripping leading zeros if key is integer-like string)
+                key = str(int(lesson_number)) if lesson_number.isdigit() else lesson_number
+                if key in toc_data:
+                    lesson_metadata = toc_data[key]
+                else:
+                    # Fallback: search by title
+                    for k, v in toc_data.items():
+                        if v.get('title', '').strip() == lesson_title.strip():
+                            lesson_metadata = v
+                            break
+            except Exception as e:
+                print(f"⚠️ Error reading TOC.json: {e}")
+
         patterns_content = ""
         patterns_path = self.project_root / "Jules workspace/design_patterns.json"
         if patterns_path.exists():
             patterns_content = patterns_path.read_text(encoding='utf-8')
 
+        # Format Metadata for Prompt
+        metadata_str = (
+            f"LESSON_NUMBER: {lesson_number}\n"
+            f"LESSON_TITLE: {lesson_title}\n"
+        )
+        if lesson_metadata:
+            metadata_str += (
+                f"LESSON_LEVEL: {lesson_metadata.get('level', '')}\n"
+                f"LESSON_UNIT: {lesson_metadata.get('Unit', '')}\n"
+                f"LESSON_AUTHOR: {lesson_metadata.get('author', '')}\n"
+                f"LESSON_AUTHOR_NUMBER: {lesson_metadata.get('author_number', '')}\n"
+            )
+
         # 3. Construct User Content
         user_content = (
             f"=== TARGET METADATA ===\n"
-            f"LESSON_NUMBER: {lesson_number}\n"
-            f"LESSON_TITLE: {lesson_title}\n\n"
+            f"{metadata_str}\n\n"
             f"=== PROJECT STATE ===\n{state_content}\n\n"
-            f"=== TOC (REFERENCE) ===\n{toc_content}\n\n"
             f"=== DESIGN PATTERNS ===\n{patterns_content}\n\n"
             f"=== LESSON CONTENT (RAW ARABIC) ===\n{raw_lesson_text}"
         )
@@ -72,8 +97,7 @@ class Planner:
             print("❌ Planner failed to generate content.")
             return None
 
-        # 5. Extract Plan Block (if wrapped in markdown code block)
-        # The prompt instructs to output a quadruple backtick block, but we handle variations
+        # 5. Extract Plan Block
         plan_content = self._extract_plan_block(response_text)
         
         # 6. Save Plan
