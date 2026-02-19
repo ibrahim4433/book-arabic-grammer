@@ -10,3 +10,4 @@ test_jules.py
 .gemini/
 gha-creds-*.json
 *.jpg
+output/book-debug.pdf
