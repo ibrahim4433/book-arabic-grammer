@@ -19,7 +19,7 @@ class TextProcessor:
     def __init__(self, project_root=None, api_key=None, use_headless=False):
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
         self.raw_dir = self.project_root / "system workspace/text-data/raw"
-        self.toc_path = self.project_root / "system workspace/TOC.json"
+        self.toc_path = self.project_root / "input/TOC.json"
         self.index_file = self.project_root / "system workspace/text-data/raw_to_lesson_index.json"
         
         self.client = GeminiClient(api_key, self.project_root, use_headless=use_headless)
@@ -152,18 +152,19 @@ class TextProcessor:
         system_instruction = f"""You are an expert Arabic book editor.
 I have a file containing lines from transcribed Arabic grammar images (format: [filename:line] text).
 
-Your task is to identify the START and END line markers for every lesson/topic found in that text.
-You MUST use the provided Table of Contents as the definitive source for lesson titles.
-Do not invent lesson titles. Only use titles present in the TOC.
-
-Output ONLY a valid JSON object mapping each Lesson Title to its range.
+Your task is to identify the EXACT START and END line markers for every lesson/topic found in that text based on the provided Table of Contents (TOC).
+CRITICAL RULES:
+1. You MUST use the provided Table of Contents as the definitive source for lesson titles.
+2. The keys in your JSON output MUST match the exact titles from the TOC. Do not invent, paraphrase, or skip any lesson titles.
+3. Find the exact `[filename:line]` where each lesson begins (usually indicated by a title heading) and where it ends (just before the next lesson begins, or at the end of the text).
+4. Output ONLY a valid JSON object. No explanations.
 
 === TABLE OF CONTENTS ===
 {toc_content}
 
 === OUTPUT FORMAT ===
 {{
-  "Lesson Title": {{
+  "Exact Lesson Title 1": {{
     "start": "raw_1.txt:5",
     "end": "raw_2.txt:10"
   }}

@@ -228,6 +228,20 @@ def run_ocr(state_manager):
             
             progress.advance(task)
 
+def run_raw_processing(state_manager):
+    console.print(Panel("[bold]Running Raw Processing...[/bold]", style="blue"))
+    tp = TextProcessor()
+    if not tp.validate_toc(): return
+    
+    console.print("1. Merging Raw Text...")
+    merged_path = tp.merge_raw_text()
+    if not merged_path: return
+    
+    console.print("2. Generating Lesson Index...")
+    mapping = tp.generate_lesson_index()
+    if mapping:
+        console.print("[bold green]✅ Raw Processing Complete![/bold green]")
+
 def run_planning(state_manager):
     console.print(Panel("[bold]Running Standard Planner...[/bold]", style="blue"))
     
@@ -290,10 +304,11 @@ def main():
             choices=[
                 "A) Full Auto Workflow",
                 "B) OCR Only (Images -> Raw)",
-                "C) Plan Generation (Standard)",
-                "D) Plan Generation (Jules Batch)",
-                "E) Page Generation (Jules Batch)",
-                "F) Audit & Verify Pages",
+                "C) Raw Processing (Merge & Index)",
+                "D) Plan Generation (Standard)",
+                "E) Plan Generation (Jules Batch)",
+                "F) Page Generation (Jules Batch)",
+                "G) Audit & Verify Pages",
                 "Q) Quit"
             ],
             style=questionary.Style([
@@ -316,22 +331,17 @@ def main():
 
         op = choice[0]
 
-        if op == "D":
+        if op == "E":
             run_jules_planning_ui(state_manager)
-        elif op == "E":
+        elif op == "F":
             run_jules_generation_ui(state_manager)
         elif op == "B":
-            # Call existing run_ocr but maybe wrap output?
-            # For now, just call it, it prints to stdout.
-            # We can capture it or leave it.
-            from system import run_ocr
             run_ocr(state_manager)
         elif op == "C":
-            from system import run_planning
+            run_raw_processing(state_manager)
+        elif op == "D":
             run_planning(state_manager)
-        elif op == "F":
-             # New option for Audit/Status refresh if needed
-             # or maybe call verify_layout
+        elif op == "G":
              console.print("Running Audit...")
              subprocess.run(["python3", "Jules workspace/lint_pages.py"])
         

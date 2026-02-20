@@ -14,7 +14,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 RAW_DIR = PROJECT_ROOT / "system workspace/text-data/raw"
 INDEX_FILE = PROJECT_ROOT / "system workspace/text-data/raw_to_lesson_index.json"
-TOC_FILE = PROJECT_ROOT / "system workspace/TOC.json"
+TOC_FILE = PROJECT_ROOT / "input/TOC.json"
 
 # Add modules path to sys.path to import GeminiClient
 MODULES_PATH = PROJECT_ROOT / "system workspace/tools/automation/modules"
@@ -90,15 +90,16 @@ def get_lesson_mapping():
 I have provided a file containing lines from transcribed Arabic grammar images.
 Each line is prefixed with `[filename:line_number]`.
 
-Your task is to identify the START and END line markers for every lesson/topic found in that text.
-You MUST use the provided Table of Contents as the definitive source for lesson titles.
-Do not invent lesson titles. Only use titles present in the TOC.
-
-Output ONLY a valid JSON object mapping each Lesson Title to its start and end line markers.
+Your task is to identify the EXACT START and END line markers for every lesson/topic found in that text based on the provided Table of Contents (TOC).
+CRITICAL RULES:
+1. You MUST use the provided Table of Contents as the definitive source for lesson titles.
+2. The keys in your JSON output MUST match the exact titles from the TOC. Do not invent, paraphrase, or skip any lesson titles.
+3. Find the exact `[filename:line_number]` where each lesson begins (usually indicated by a title heading) and where it ends (just before the next lesson begins, or at the end of the text).
+4. Output ONLY a valid JSON object. No explanations.
 
 Format:
 {{
-  "Lesson Title": {{
+  "Exact Lesson Title 1": {{
     "start": "raw_X.txt:lineN",
     "end": "raw_Y.txt:lineM"
   }}

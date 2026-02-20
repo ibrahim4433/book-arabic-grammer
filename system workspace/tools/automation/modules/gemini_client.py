@@ -101,7 +101,13 @@ class GeminiClient:
             return result['candidates'][0]['content']['parts'][0]['text']
             
         except requests.exceptions.RequestException as e:
-            print(f"❌ Gemini API Failed: {e}")
+            status_code = getattr(e.response, 'status_code', None)
+            print(f"❌ Gemini API Failed (Status: {status_code}): {e}")
+            
+            # Fallback for authentication or quota errors
+            if status_code in [401, 403, 429] or not self.api_key:
+                print("🔄 Falling back to Headless CLI...")
+                return self.generate_content_headless(full_prompt, images)
             return ""
         except (KeyError, IndexError):
             print(f"❌ Unexpected API Response: {result}")

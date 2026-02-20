@@ -61,7 +61,27 @@ class StateManager:
         """
         consolidated = {}
         import re
+        import os
         
+        # Verify files exist, remove them from state if they don't
+        keys_to_delete = []
+        for key, data in self.state["lessons"].items():
+            if "files" in data:
+                existing_files = {}
+                for ftype, fpath in data["files"].items():
+                    if os.path.exists(fpath):
+                        existing_files[ftype] = fpath
+                data["files"] = existing_files
+                
+                # If we lost files, we might want to downgrade status, but for now just removing missing files is enough
+                if not existing_files:
+                    keys_to_delete.append(key)
+        
+        for key in keys_to_delete:
+            del self.state["lessons"][key]
+            
+        self.save_state() # Save cleaned state
+
         for key, data in self.state["lessons"].items():
             # Try to extract number
             match = re.match(r'^(\d+)', key)

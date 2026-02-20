@@ -18,7 +18,7 @@ class Planner:
         self.plans_dir = self.project_root / "plans"
         self.prompt_path = self.project_root / "system workspace/Architect_GEM_MASTER.md"
         self.state_path = self.project_root / "system workspace/tools/automation/project_state.json"
-        self.toc_path = self.project_root / "system workspace/TOC.json"
+        self.toc_path = self.project_root / "input/TOC.json"
         
         self.client = GeminiClient(api_key, self.project_root)
         

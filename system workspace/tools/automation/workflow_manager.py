@@ -171,7 +171,7 @@ class WorkflowManager:
         except: print("❌ Verification script failed.")
 
     def get_lesson_text(self, lesson_name):
-        index_file = PROJECT_ROOT / "assets/data/raw_to_lesson_index.json"
+        index_file = PROJECT_ROOT / "system workspace/text-data/raw_to_lesson_index.json"
         if not index_file.exists():
             return None
         

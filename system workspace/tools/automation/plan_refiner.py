@@ -10,7 +10,7 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 ARCHITECT_PROMPT = PROJECT_ROOT / "system workspace/Architect_GEM_MASTER.md"
 AUDITOR_PROMPT = PROJECT_ROOT / "system workspace/Architect_AUDITOR.md"
 PATTERNS_FILE = PROJECT_ROOT / "Jules workspace/design_patterns.json"
-TOC_FILE = PROJECT_ROOT / "system workspace/TOC.json"
+TOC_FILE = PROJECT_ROOT / "input/TOC.json"
 
 # Global state for sticky model selection within a single run
 CURRENT_MODEL_INDEX = 0
