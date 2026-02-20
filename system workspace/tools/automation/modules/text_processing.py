@@ -49,7 +49,7 @@ class TextProcessor:
                 print("❌ TOC file is empty.")
                 return False
 
-            # Optional: Check for required fields in at least one item
+            # Check for required fields in at least one item
             first_key = next(iter(data))
             if not isinstance(data[first_key], dict) or 'title' not in data[first_key]:
                  print("❌ TOC items do not have 'title' field.")
@@ -93,8 +93,8 @@ class TextProcessor:
         # Sort files numerically
         def sort_key(p):
             try:
-                match = re.search(r'\d+', p.stem)
-                return int(match.group()) if match else 0
+                match = re.search(r'raw_(\d+)', p.name)
+                return int(match.group(1)) if match else 0
             except ValueError:
                 return 0
 
@@ -106,10 +106,13 @@ class TextProcessor:
 
         all_content = []
         for f in files:
-            lines = f.read_text(encoding='utf-8').splitlines()
-            for i, line in enumerate(lines):
-                if len(line.strip()) < 2: continue
-                all_content.append(f"[{f.name}:{i+1}] {line}")
+            try:
+                lines = f.read_text(encoding='utf-8').splitlines()
+                for i, line in enumerate(lines):
+                    if len(line.strip()) < 2: continue
+                    all_content.append(f"[{f.name}:{i+1}] {line}")
+            except Exception as e:
+                print(f"⚠️ Error reading {f.name}: {e}")
 
         merged_content = "\n".join(all_content)
         output_path = self.project_root / "system workspace/text-data/full_raw_indexed.txt"
@@ -136,7 +139,9 @@ class TextProcessor:
             toc_data = json.loads(self.toc_path.read_text(encoding='utf-8'))
             # Simplify TOC for the prompt: "Number - Title" list
             toc_lines = []
-            for num, meta in toc_data.items():
+            sorted_keys = sorted(toc_data.keys(), key=lambda x: int(x) if x.isdigit() else float('inf'))
+            for num in sorted_keys:
+                meta = toc_data[num]
                 toc_lines.append(f"{num} - {meta.get('title', 'Unknown')}")
             toc_content = "\n".join(toc_lines)
         except Exception as e:
@@ -146,26 +151,33 @@ class TextProcessor:
         # System Prompt
         system_instruction = f"""You are an expert Arabic book editor.
 I have a file containing lines from transcribed Arabic grammar images (format: [filename:line] text).
+
 Your task is to identify the START and END line markers for every lesson/topic found in that text.
-Use the provided Table of Contents as the ground truth for lesson names.
-Output ONLY a valid JSON object mapping Lesson Title to its range.
+You MUST use the provided Table of Contents as the definitive source for lesson titles.
+Do not invent lesson titles. Only use titles present in the TOC.
+
+Output ONLY a valid JSON object mapping each Lesson Title to its range.
 
 === TABLE OF CONTENTS ===
 {toc_content}
 
 === OUTPUT FORMAT ===
 {{
-  "Lesson Title": {{'start': "raw_1.txt:5", 'end': "raw_2.txt:10"}}
+  "Lesson Title": {{
+    "start": "raw_1.txt:5",
+    "end": "raw_2.txt:10"
+  }}
 }}
 """
         
         # User Content (The merged raw text)
         user_content = merged_path.read_text(encoding='utf-8')
 
-        # Call Gemini (Headless CLI)
-        full_prompt = f"{system_instruction}\n\n{user_content}"
-        resp_text = self.client.generate_content_headless(
-            full_prompt
+        # Call Gemini (Smart Client handles API Key vs CLI)
+        # Using generate_content instead of forced headless mode
+        resp_text = self.client.generate_content(
+            system_instruction=system_instruction,
+            user_content=user_content
         )
         
         if not resp_text:
@@ -175,6 +187,12 @@ Output ONLY a valid JSON object mapping Lesson Title to its range.
         try:
             # Clean potential markdown block ```json ... ```
             cleaned_json = resp_text.replace("```json", "").replace("```", "").strip()
+
+            # Additional cleanup if needed (e.g. remove preamble text before {)
+            match = re.search(r'\{.*\}', cleaned_json, re.DOTALL)
+            if match:
+                cleaned_json = match.group(0)
+
             mapping = json.loads(cleaned_json)
             
             with open(self.index_file, "w", encoding="utf-8") as f:
