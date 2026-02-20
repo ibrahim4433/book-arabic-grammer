@@ -16,13 +16,13 @@ class TextProcessor:
     3. Mapping raw text to lessons using GeminiClient.
     """
 
-    def __init__(self, project_root=None, api_key=None):
+    def __init__(self, project_root=None, api_key=None, use_headless=False):
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
         self.raw_dir = self.project_root / "system workspace/text-data/raw"
         self.toc_path = self.project_root / "system workspace/TOC.json"
         self.index_file = self.project_root / "system workspace/text-data/raw_to_lesson_index.json"
         
-        self.client = GeminiClient(api_key, self.project_root)
+        self.client = GeminiClient(api_key, self.project_root, use_headless=use_headless)
         
         # Ensure directories exist
         self.raw_dir.mkdir(parents=True, exist_ok=True)
