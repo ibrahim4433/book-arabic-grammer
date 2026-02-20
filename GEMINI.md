@@ -6,6 +6,7 @@ This project is a premium Arabic Grammar book engineered using **HTML5**, **CSS3
 
 ### Prerequisites
 - **Python 3.10+**
+- **Node.js & npm** (Required for Gemini CLI)
 - **GTK3 libraries** (Essential for WeasyPrint rendering):
     - *Linux:* `sudo apt-get install libpango-1.0-0`
     - *Mac:* `brew install pango`
@@ -14,6 +15,7 @@ This project is a premium Arabic Grammar book engineered using **HTML5**, **CSS3
 ### Installation
 ```bash
 pip install -r requirements.txt
+npm install -g @google/gemini-cli
 ```
 
 ### Key Commands

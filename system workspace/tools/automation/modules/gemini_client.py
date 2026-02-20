@@ -22,9 +22,10 @@ class GeminiClient:
     ]
     current_model_index = 0
     
-    def __init__(self, api_key=None, project_root=None):
+    def __init__(self, api_key=None, project_root=None, use_headless=False):
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
         self.api_key = api_key or self._load_api_key()
+        self.use_headless = use_headless
         self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent"
 
     def _load_api_key(self):
@@ -48,9 +49,9 @@ class GeminiClient:
         """
         Generates content using Gemini REST API.
         """
-        if not self.api_key:
-            print("⚠️ API Key missing. Switching to Headless CLI...")
-            return self.generate_content_headless(system_instruction + "\n\n" + user_content)
+        if self.use_headless or not self.api_key:
+            print("⚠️ API Key missing or Headless mode requested. Switching to Headless CLI...")
+            return self.generate_content_headless(system_instruction + "\n\n" + user_content, images=images)
 
         parts = []
         full_prompt = f"{system_instruction}\n\n{user_content}" if system_instruction else user_content

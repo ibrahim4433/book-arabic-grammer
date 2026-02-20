@@ -231,7 +231,7 @@ def run_ocr(state_manager):
 def run_planning(state_manager):
     console.print(Panel("[bold]Running Standard Planner...[/bold]", style="blue"))
     
-    tp = TextProcessor()
+    tp = TextProcessor(use_headless=True)
     if not tp.validate_toc(): return
         
     console.print("1. Merging Raw Text...")
