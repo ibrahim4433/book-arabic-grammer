@@ -130,8 +130,18 @@ class JulesPlanner:
         """
         if not callback: callback = lambda t, s, m: print(f"[{s}] {t}: {m}")
         
-        lesson_number = self.tp.get_lesson_number(lesson_title)
-        clean_title = re.sub(r'^\d+\s*-\s*', '', lesson_title).strip()
+        # Attempt to parse number and title from the lesson_title (which is a key from index)
+        match = re.match(r'^(\d+)\s*-\s*(.*)', lesson_title)
+        if match:
+            # Found "9 - Title"
+            inferred_number = match.group(1).zfill(2)
+            clean_title = match.group(2).strip()
+            lesson_number = inferred_number
+        else:
+            # Fallback for "Title" only
+            clean_title = lesson_title.strip()
+            lesson_number = self.tp.get_lesson_number(clean_title)
+
         filename = f"{lesson_number}-{clean_title}-plan.md"
 
         callback(lesson_title, "RUNNING", "Extracting Text...")
@@ -154,7 +164,7 @@ class JulesPlanner:
                 else:
                     # Fallback: search by title
                     for k, v in toc_data.items():
-                         if v.get('title', '').strip() == lesson_title.strip():
+                         if v.get('title', '').strip() == clean_title:
                              lesson_metadata = v
                              break
             except Exception:
