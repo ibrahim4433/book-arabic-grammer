@@ -4,7 +4,7 @@ from pathlib import Path
 class StateManager:
     """
     Manages the workflow state for lessons.
-    State File: system workspace/tools/automation/project_workflow_state.json
+    State File: system-workspace/tools/automation/project_workflow_state.json
     Schema:
     {
       "lessons": {
@@ -19,7 +19,7 @@ class StateManager:
     
     def __init__(self, project_root=None):
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
-        self.state_file = self.project_root / "system workspace/tools/automation/project_workflow_state.json"
+        self.state_file = self.project_root / "system-workspace/tools/automation/project_workflow_state.json"
         self.state = self._load_state()
 
     def _load_state(self):

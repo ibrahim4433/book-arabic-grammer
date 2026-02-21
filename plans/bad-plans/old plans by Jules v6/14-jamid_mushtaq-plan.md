@@ -6,7 +6,7 @@ File: `pages/14.0_nxx_jamid_mushtaq.html`
 Reference: Follow patterns in `design_patterns.json` and `BOOK_RULES.md`.
 
 [CONSTRAINTS & PROTOCOLS]
-1.  **Page Breaking:** Use `python3 "Jules workspace/verify_layout.py"` after every major block. If the status is "FULL" or "OVERFLOW", close the current file (e.g., `09.0_...`) and move the remaining content to the next sequential file (e.g., `09.1_...`).
+1.  **Page Breaking:** Use `python3 "Jules-workspace/verify_layout.py"` after every major block. If the status is "FULL" or "OVERFLOW", close the current file (e.g., `09.0_...`) and move the remaining content to the next sequential file (e.g., `09.1_...`).
 2.  **Content:** 100% Arabic with full Harakat. Preserve ALL diacritics.
 3.  **Highlighting:** Use `.highlight-red` for primary focus words and `.highlight-blue` for secondary focus.
 4.  **Definitions:** Must use `.text-accent` class for the main definition text.

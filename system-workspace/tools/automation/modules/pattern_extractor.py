@@ -13,7 +13,7 @@ class PatternExtractor:
     def __init__(self, project_root=None):
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
         self.pages_dir = self.project_root / "pages"
-        self.output_path = self.project_root / "Jules workspace/design_patterns.json"
+        self.output_path = self.project_root / "Jules-workspace/design_patterns.json"
         
         # Map CSS classes to Component Names (Reverse lookup)
         self.class_map = {

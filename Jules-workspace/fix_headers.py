@@ -4,7 +4,7 @@ import re
 from bs4 import BeautifulSoup
 
 PAGES_DIR = "pages/"
-TOC_FILE = "system workspace/TOC.json"
+TOC_FILE = "system-workspace/TOC.json"
 
 ARABIC_NUMERALS = {
     '0': '٠', '1': '١', '2': '٢', '3': '٣', '4': '٤',

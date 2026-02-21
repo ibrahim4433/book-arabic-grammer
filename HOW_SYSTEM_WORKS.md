@@ -24,12 +24,12 @@ Understanding where things live is half the battle.
 | Directory / File | Description |
 | :--- | :--- |
 | **`system.py`** | 🎛️ **The Control Room.** Run this script to start the interactive menu. |
-| **`Jules workspace/`** | 🛠️ **Developer Tools.** Scripts for verifying and fixing content. |
+| **`Jules-workspace/`** | 🛠️ **Developer Tools.** Scripts for verifying and fixing content. |
 | `├── Templates/` | HTML templates (`TEMPLATE_C_BLOCK.html`, etc.) used by the generator. |
 | `├── lint_pages.py` | Checks HTML for CSS violations and semantic errors. |
 | `├── verify_layout.py` | Checks for content overflow (One-Page Law) using WeasyPrint. |
 | `├── id_manager.py` | Manages unique IDs (`b12345`) for content blocks. |
-| **`system workspace/`** | 🧠 **The Brain.** Core automation logic. |
+| **`system-workspace/`** | 🧠 **The Brain.** Core automation logic. |
 | `├── tools/automation/` | |
 | `│   ├── modules/` | Python classes (`vision.py`, `planner.py`, `jules_page_generator.py`). |
 | `│   └── project_workflow_state.json` | 🗄️ **Database.** Tracks the status of every lesson. |
@@ -54,7 +54,7 @@ This opens the **Control Room**, a menu-based interface.
 *   **What it does:**
     *   Scans `input/` for images.
     *   Uses `VisionClient` (wrapping Gemini Pro Vision) to transcribe text.
-    *   Saves text files to `system workspace/text-data/raw/raw_{filename}.txt`.
+    *   Saves text files to `system-workspace/text-data/raw/raw_{filename}.txt`.
 *   **Key File:** `modules/vision.py`
 
 ### Phase 2: Processing & Indexing
@@ -62,7 +62,7 @@ This opens the **Control Room**, a menu-based interface.
 *   **What it does:**
     *   **Merges:** Combines all `raw_*.txt` files into one huge file: `full_raw_indexed.txt` (with line numbers).
     *   **Indexes:** Reads `input/TOC.json` and uses Gemini to find exactly where each lesson starts and ends in the huge text file.
-    *   **Outputs:** `system workspace/text-data/raw_to_lesson_index.json`.
+    *   **Outputs:** `system-workspace/text-data/raw_to_lesson_index.json`.
 *   **Key File:** `modules/text_processing.py`
 
 ### Phase 3: Planning (The Architect)
@@ -79,7 +79,7 @@ This opens the **Control Room**, a menu-based interface.
 *   **What it does:**
     *   Uses `JulesPageGenerator` to read the Markdown Plan.
     *   Starts a new Jules Session with the **Developer Persona**.
-    *   Instructs the agent to map every plan block to a specific HTML template in `Jules workspace/Templates/`.
+    *   Instructs the agent to map every plan block to a specific HTML template in `Jules-workspace/Templates/`.
     *   The Agent writes the code and commits it (or we pull it).
     *   Saves the HTML to `pages/{number}-{slug}.html`.
 *   **Key File:** `modules/jules_page_generator.py`
@@ -125,7 +125,7 @@ The system needs to remember its brain. It stores the state of every lesson in `
     }
     ```
 
-### Templates: `Jules workspace/Templates/`
+### Templates: `Jules-workspace/Templates/`
 We do not hardcode HTML. We use templates.
 *   `TEMPLATE_C_HEADER.html`: Standard lesson header.
 *   `TEMPLATE_C_BLOCK.html`: Generic content block with title.
@@ -150,12 +150,12 @@ Before you start, ensure you have the following:
     *   Save it to `secrets/Jules_API.txt` or set the `JULES_API_KEY` environment variable.
 
 ### Adding a New Feature
-1.  **Modify the Module:** Edit the Python file in `system workspace/tools/automation/modules/`.
+1.  **Modify the Module:** Edit the Python file in `system-workspace/tools/automation/modules/`.
 2.  **Update `system.py`:** If you added a new capability, add a menu option for it.
 
 ### Debugging
 *   **Logs:** Check the console output. `system.py` uses color-coded logs (Red = Error, Green = Success).
-*   **Intermediate Files:** Check `system workspace/text-data/` to see exactly what text the AI is seeing.
+*   **Intermediate Files:** Check `system-workspace/text-data/` to see exactly what text the AI is seeing.
 *   **Plan Files:** If the HTML is wrong, check the `plans/*.md` file first. The Agent follows the plan strictly.
 
 ### Common Issues & Fixes

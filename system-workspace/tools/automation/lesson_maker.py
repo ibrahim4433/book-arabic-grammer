@@ -12,7 +12,7 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 RAW_DIR = PROJECT_ROOT / "output/text-data/raw"
 PLANS_DIR = PROJECT_ROOT / "plans"
 RATINGS_DIR = PROJECT_ROOT / "ratings"
-INDEX_FILE = PROJECT_ROOT / "system workspace/text-data/raw_to_lesson_index.json"
+INDEX_FILE = PROJECT_ROOT / "system-workspace/text-data/raw_to_lesson_index.json"
 STATE_FILE = PROJECT_ROOT / "tools/automation/project_state.json"
 SECRETS_DIR = PROJECT_ROOT / "secrets"
 

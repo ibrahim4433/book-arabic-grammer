@@ -23,7 +23,7 @@ except ImportError:
 
 # --- CONFIGURATION ---
 PROJECT_ROOT = Path(__file__).parent.resolve()
-MODULES_PATH = PROJECT_ROOT / "system workspace/tools/automation"
+MODULES_PATH = PROJECT_ROOT / "system-workspace/tools/automation"
 sys.path.append(str(MODULES_PATH))
 
 # --- MODULE IMPORTS ---
@@ -200,7 +200,7 @@ def run_ocr(state_manager):
         return
 
     vision = VisionClient()
-    output_dir = PROJECT_ROOT / "system workspace/text-data/raw"
+    output_dir = PROJECT_ROOT / "system-workspace/text-data/raw"
     output_dir.mkdir(parents=True, exist_ok=True)
     
     with Progress(
@@ -343,7 +343,7 @@ def main():
             run_planning(state_manager)
         elif op == "G":
              console.print("Running Audit...")
-             subprocess.run(["python3", "Jules workspace/lint_pages.py"])
+             subprocess.run(["python3", "Jules-workspace/lint_pages.py"])
         
         if op != "Q":
             questionary.press_any_key_to_continue().ask()

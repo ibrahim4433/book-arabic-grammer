@@ -16,8 +16,8 @@ class Planner:
     def __init__(self, project_root=None, api_key=None):
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
         self.plans_dir = self.project_root / "plans"
-        self.prompt_path = self.project_root / "system workspace/Architect_GEM_MASTER.md"
-        self.state_path = self.project_root / "system workspace/tools/automation/project_state.json"
+        self.prompt_path = self.project_root / "system-workspace/Architect_GEM_MASTER.md"
+        self.state_path = self.project_root / "system-workspace/tools/automation/project_state.json"
         self.toc_path = self.project_root / "input/TOC.json"
         
         self.client = GeminiClient(api_key, self.project_root)
@@ -62,7 +62,7 @@ class Planner:
                 print(f"⚠️ Error reading TOC.json: {e}")
 
         patterns_content = ""
-        patterns_path = self.project_root / "Jules workspace/design_patterns.json"
+        patterns_path = self.project_root / "Jules-workspace/design_patterns.json"
         if patterns_path.exists():
             patterns_content = patterns_path.read_text(encoding='utf-8')
 

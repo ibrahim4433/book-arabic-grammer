@@ -22,11 +22,11 @@ class JulesPlanner:
         self.tp = TextProcessor(project_root=self.project_root)
 
         # Load Prompts
-        self.architect_prompt = (self.project_root / "system workspace/Architect_GEM_MASTER.md").read_text(encoding='utf-8')
-        self.auditor_prompt = (self.project_root / "system workspace/Architect_AUDITOR.md").read_text(encoding='utf-8')
+        self.architect_prompt = (self.project_root / "system-workspace/Architect_GEM_MASTER.md").read_text(encoding='utf-8')
+        self.auditor_prompt = (self.project_root / "system-workspace/Architect_AUDITOR.md").read_text(encoding='utf-8')
 
         # Load Raw Text Index
-        self.raw_text_path = self.project_root / "system workspace/text-data/full_raw_indexed.txt"
+        self.raw_text_path = self.project_root / "system-workspace/text-data/full_raw_indexed.txt"
         if not self.raw_text_path.exists():
             print("⚠️ Raw text index missing. Generating...")
             self.tp.merge_raw_text()
@@ -75,7 +75,7 @@ class JulesPlanner:
         print(f"\n🧠 Starting Jules Batch Planning (Max Concurrent: {max_concurrent})...")
 
         # 1. Get Lesson Index
-        index_path = self.project_root / "system workspace/text-data/raw_to_lesson_index.json"
+        index_path = self.project_root / "system-workspace/text-data/raw_to_lesson_index.json"
         if not index_path.exists():
             update_callback("System", "WARN", "Lesson index missing. Generating...")
             mapping = self.tp.generate_lesson_index()

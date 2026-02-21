@@ -5,7 +5,7 @@ from pathlib import Path
 
 # Add project root to path
 project_root = Path(__file__).resolve().parent.parent.parent.parent
-sys.path.append(str(project_root / "system workspace/tools/automation"))
+sys.path.append(str(project_root / "system-workspace/tools/automation"))
 
 from modules.planner import Planner
 

@@ -17,11 +17,11 @@ This guide explains how to use the **Modern Arabic Grammar Book** system to conv
 *   **What happens:**
     *   The system sends each image to Gemini (AI Vision).
     *   It extracts all Arabic text with full Tashkeel (diacritics).
-    *   It saves the text to `system workspace/text-data/raw/raw_X.txt`.
-*   **Output:** Check `system workspace/text-data/raw/` to see the text files.
+    *   It saves the text to `system-workspace/text-data/raw/raw_X.txt`.
+*   **Output:** Check `system-workspace/text-data/raw/` to see the text files.
 
 ### 3. Create the Lesson Index
-*   **Prerequisite:** Ensure you have a `TOC.txt` (Table of Contents) file in `system workspace/text-data/`. This file should list the lesson titles exactly as they appear in the book.
+*   **Prerequisite:** Ensure you have a `TOC.txt` (Table of Contents) file in `system-workspace/text-data/`. This file should list the lesson titles exactly as they appear in the book.
 *   **Command:** `python3 system.py` -> Select **Option C**.
 *   **What happens:**
     *   The system reads all raw text files.
@@ -56,7 +56,7 @@ This guide explains how to use the **Modern Arabic Grammar Book** system to conv
 *   **Output:** Check `pages/` for the new HTML files.
 
 ### 6. Verify Layout (The Quality Gate)
-*   **Command:** `python3 "Jules workspace/verify_layout.py" pages/YOUR_FILE.html`
+*   **Command:** `python3 "Jules-workspace/verify_layout.py" pages/YOUR_FILE.html`
 *   **What happens:**
     *   The system renders the page to a temporary PDF.
     *   It checks if the content fits on **One A4 Page**.
@@ -69,7 +69,7 @@ This guide explains how to use the **Modern Arabic Grammar Book** system to conv
 ## **Phase 4: Final Assembly**
 
 ### 7. Assign Unique IDs
-*   **Command:** `python3 "Jules workspace/id_manager.py" auto-tag`
+*   **Command:** `python3 "Jules-workspace/id_manager.py" auto-tag`
 *   **What happens:**
     *   Scans all HTML files.
     *   Assigns a unique `bXXXXX` ID to every content block.
@@ -93,8 +93,8 @@ This guide explains how to use the **Modern Arabic Grammar Book** system to conv
 | 2 | **Index** | `python3 system.py` (Option C) |
 | 3 | **Plan** | `python3 system.py` (Option D or E) |
 | 4 | **Compile** | `python3 system.py` (Option F) |
-| 5 | **Verify** | `python3 "Jules workspace/verify_layout.py" pages/X.html` |
-| 6 | **Tag IDs** | `python3 "Jules workspace/id_manager.py" auto-tag` |
+| 5 | **Verify** | `python3 "Jules-workspace/verify_layout.py" pages/X.html` |
+| 6 | **Tag IDs** | `python3 "Jules-workspace/id_manager.py" auto-tag` |
 | 7 | **Build** | `python3 build.py` |
 
 ---

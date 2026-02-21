@@ -23,9 +23,9 @@ npm install -g @google/gemini-cli
 | :--- | :--- |
 | `python build.py` | **Build Full Book.** Generates `output/book.pdf`. |
 | `python preview.py` | **Preview Page.** Interactive tool to render a single HTML page for rapid iteration. |
-| `python "Jules workspace/id_manager.py" auto-tag` | **Auto-ID.** Automatically assigns unique IDs (`bXXXXX`) to all content blocks. |
-| `python "Jules workspace/verify_layout.py"` | **Verify Layout.** Checks compliance with the "One-Page Law". |
-| `python "Jules workspace/lint_pages.py"` | **Lint Content.** Checks for missing IDs, invalid nesting, or rule violations. |
+| `python "Jules-workspace/id_manager.py" auto-tag` | **Auto-ID.** Automatically assigns unique IDs (`bXXXXX`) to all content blocks. |
+| `python "Jules-workspace/verify_layout.py"` | **Verify Layout.** Checks compliance with the "One-Page Law". |
+| `python "Jules-workspace/lint_pages.py"` | **Lint Content.** Checks for missing IDs, invalid nesting, or rule violations. |
 
 ---
 
@@ -38,8 +38,8 @@ npm install -g @google/gemini-cli
 - **/assets/Templates**: HTML snippets for all Atomic Components. **Use these, do not invent new structures.**
 - **/styles/main.css**: The global stylesheet. **Do not modify** unless fixing a critical layout bug.
 - **/output**: Destination for generated PDFs (`book.pdf`) and debug files.
-- **/Jules workspace**: Tools and Context for the AI Agent (Rules, Standards, Verification Scripts).
-- **/system workspace**: Backend Automation Tools and Prompts.
+- **/Jules-workspace**: Tools and Context for the AI Agent (Rules, Standards, Verification Scripts).
+- **/system-workspace**: Backend Automation Tools and Prompts.
 
 ---
 
@@ -65,10 +65,10 @@ Every HTML file in `/pages/` must render to **exactly one A4 page**.
 - **Format:** `id="bXXXXX"` (e.g., `b83920`).
 - **Target Elements:** `.content-block`, `.irab-box`, `.poem-container`, `.exam-question`, headers, tables.
 ### C. Tools
-*   **Generator:** Use `Jules workspace/id_manager.py` to generate or manage IDs.
-    *   `python3 "Jules workspace/id_manager.py" next-id`: Generate a new unique ID.
-    *   `python3 "Jules workspace/id_manager.py" verify`: Check for duplicates.
-    *   `python3 "Jules workspace/id_manager.py" auto-tag`: Automatically add IDs to elements that miss them.
+*   **Generator:** Use `Jules-workspace/id_manager.py` to generate or manage IDs.
+    *   `python3 "Jules-workspace/id_manager.py" next-id`: Generate a new unique ID.
+    *   `python3 "Jules-workspace/id_manager.py" verify`: Check for duplicates.
+    *   `python3 "Jules-workspace/id_manager.py" auto-tag`: Automatically add IDs to elements that miss them.
 
 ### 5. Color Coding Standard
 - **`.highlight-red`**: **Primary Focus** (e.g., I'rab signs, changing endings).
@@ -158,7 +158,7 @@ Content: [Exact Arabic Text with .text-accent class]
     - Inject the plan's content using the correct templates.
     - **Apply Tashkeel** to ALL text.
     - **Apply Classes** (`.highlight-red`, `.text-accent`).
-4.  **Tag IDs:** Run `python "Jules workspace/id_manager.py" auto-tag`.
+4.  **Tag IDs:** Run `python "Jules-workspace/id_manager.py" auto-tag`.
 5.  **Verify:**
     - Run `python preview.py` -> Select page -> Check layout.
     - Ensure strict adherence to the **One-Page Law**.

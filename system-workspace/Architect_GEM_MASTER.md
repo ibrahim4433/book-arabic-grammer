@@ -14,7 +14,7 @@
 
 # [CONSTRAINTS & PROTOCOLS]
 
-1.  **Source of Truth:** Adhere strictly to `Jules workspace/BOOK_RULES.md` and `Jules workspace/elements_index.md`.
+1.  **Source of Truth:** Adhere strictly to `Jules-workspace/BOOK_RULES.md` and `Jules-workspace/elements_index.md`.
 2.  **Metadata:**
     *   **Lesson Number:** [LESSON_NUMBER]
     *   **Title:** [TITLE]
@@ -24,12 +24,12 @@
         *   `[AUTHOR_NAME]` <- Use `LESSON_AUTHOR`
         *   `[AUTHOR_PHONE]` <- Use `LESSON_AUTHOR_NUMBER`
 
-4.  **Templates:** Use strictly the `Jules workspace/Templates/` components. 
+4.  **Templates:** Use strictly the `Jules-workspace/Templates/` components. 
     *   NEVER use generic `<ul>`. Map to `TEMPLATE_C_LIST`.
     *   Use `TEMPLATE_C_IRAB` for multi-line analysis and `TEMPLATE_C_IRAB_ROW` for concise word-to-role mappings.....
-    *   THINK Carefully about how and why to use an element template in the plan and use `Jules workspace/elements_index.md`for full details about them 
+    *   THINK Carefully about how and why to use an element template in the plan and use `Jules-workspace/elements_index.md`for full details about them 
 5.  **Content Integrity:** Preserve ALL Arabic Diacritics (Harakat) exactly as provided.
-6.  **Visual Density:** Mimic the theme and design patterns of existing pages `pages/*.html` (visual density, color coding), Use `Jules workspace/design_patterns.json` as reference.
+6.  **Visual Density:** Mimic the theme and design patterns of existing pages `pages/*.html` (visual density, color coding), Use `Jules-workspace/design_patterns.json` as reference.
 
 ---
 
@@ -61,7 +61,7 @@ Reference: Follow patterns in design_patterns.json.
 
 [CONSTRAINTS & PROTOCOLS]
 1. Source of Truth: Adhere strictly to BOOK\_RULES.md and elements\_index.md
-2. Page Breaking: Do NOT estimate length manually , instead Use `Jules workspace/verify_layout.py` after every block to determine exactly where to cut the content to ensure it fits the A4 constraints perfectly. If page is "FULL", continue in `pages/[LESSON_NUMBER].1_...`.
+2. Page Breaking: Do NOT estimate length manually , instead Use `Jules-workspace/verify_layout.py` after every block to determine exactly where to cut the content to ensure it fits the A4 constraints perfectly. If page is "FULL", continue in `pages/[LESSON_NUMBER].1_...`.
 3. text Content: 100% Arabic with full Harakat.
 4. Highlighting: Use `.highlight-red` for primary focus words and `.highlight-blue`,`.highlight-green`  for secondary.
 5. Definitions: Must use `.text-accent` class.
@@ -73,9 +73,9 @@ Reference: Follow patterns in design_patterns.json.
     *   `style="margin-top: 2mm"` -> `class="mt-2mm"`
     *   `style="text-align: center"` -> `class="text-center"`
     *   `style="font-weight: bold"` -> `class="font-bold"`
-6. Templates: You are forbidden from inventing new HTML tags or classes. You must map all content strictly using "Jules workspace/Templates/" components as the STREAM says.
-7. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). use "Jules workspace/id_manager.py" to generate or verify them.
-8. **Self-Correction:** Run "Jules workspace/lint_pages.py" after creating html files. If it fails, you MUST fix the errors (usually inline styles) before submitting.
+6. Templates: You are forbidden from inventing new HTML tags or classes. You must map all content strictly using "Jules-workspace/Templates/" components as the STREAM says.
+7. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). use "Jules-workspace/id_manager.py" to generate or verify them.
+8. **Self-Correction:** Run "Jules-workspace/lint_pages.py" after creating html files. If it fails, you MUST fix the errors (usually inline styles) before submitting.
 9. Do not summarize examples. 
 10. Do not provide uncompleted text content using (...) .
 11. You must preserve the **exact** Tashkeel provided in the input and add any missing Tashkeel needed.  

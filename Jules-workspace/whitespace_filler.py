@@ -5,7 +5,7 @@ import json
 from bs4 import BeautifulSoup
 
 PAGES_DIR = "pages/"
-VERIFY_SCRIPT = "Jules workspace/verify_layout.py"
+VERIFY_SCRIPT = "Jules-workspace/verify_layout.py"
 
 def get_blank_space(filepath):
     """Runs verify_layout.py and returns the blank space percentage."""

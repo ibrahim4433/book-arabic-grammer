@@ -6,7 +6,7 @@ File: `pages/09.0_nxx_almizan.html`
 Reference: Follow patterns in `BOOK_RULES.md` and `styles/main.css`.
 
 [CONSTRAINTS & PROTOCOLS]
-1. Page Breaking: Use `python3 "Jules workspace/verify_layout.py"` after every block. If "FULL" or "OVERFLOW", close the current file (e.g., `09.0`) and continue in `pages/09.1_n29_almizan.html`.
+1. Page Breaking: Use `python3 "Jules-workspace/verify_layout.py"` after every block. If "FULL" or "OVERFLOW", close the current file (e.g., `09.0`) and continue in `pages/09.1_n29_almizan.html`.
 2. Content: 100% Arabic with full Harakat.
 3. Highlighting: Use `.highlight-red` for primary focus words (e.g., weights) and `.highlight-blue` for secondary focus.
 4. Definitions: Must use `.text-accent` class for the definition text.

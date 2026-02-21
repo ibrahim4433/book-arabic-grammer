@@ -6,18 +6,18 @@ import re
 from pathlib import Path
 
 # --- CONFIGURATION ---
-# Path(__file__) is system workspace/tools/automation/create_lesson_index.py
+# Path(__file__) is system-workspace/tools/automation/create_lesson_index.py
 # .parent -> automation
 # .parent.parent -> tools
-# .parent.parent.parent -> system workspace
+# .parent.parent.parent -> system-workspace
 # .parent.parent.parent.parent -> REPO ROOT
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
-RAW_DIR = PROJECT_ROOT / "system workspace/text-data/raw"
-INDEX_FILE = PROJECT_ROOT / "system workspace/text-data/raw_to_lesson_index.json"
+RAW_DIR = PROJECT_ROOT / "system-workspace/text-data/raw"
+INDEX_FILE = PROJECT_ROOT / "system-workspace/text-data/raw_to_lesson_index.json"
 TOC_FILE = PROJECT_ROOT / "input/TOC.json"
 
 # Add modules path to sys.path to import GeminiClient
-MODULES_PATH = PROJECT_ROOT / "system workspace/tools/automation/modules"
+MODULES_PATH = PROJECT_ROOT / "system-workspace/tools/automation/modules"
 if str(MODULES_PATH) not in sys.path:
     sys.path.append(str(MODULES_PATH))
 
@@ -65,7 +65,7 @@ def get_lesson_mapping():
     content_str = "\n".join(all_content)
     
     # We write the content to a temp file (optional, but good for debugging)
-    temp_content_path = PROJECT_ROOT / "system workspace/output/text-data/full_raw_indexed.txt"
+    temp_content_path = PROJECT_ROOT / "system-workspace/output/text-data/full_raw_indexed.txt"
     temp_content_path.parent.mkdir(parents=True, exist_ok=True)
     temp_content_path.write_text(content_str, encoding='utf-8')
     print(f"📄 Merged raw text to {temp_content_path}")

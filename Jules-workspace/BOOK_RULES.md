@@ -107,7 +107,7 @@ The following elements must always have an ID:
 *   Direct children of `.split-grid`
 
 ### C. Tools
-*   **Generator:** Use `Jules workspace/id_manager.py` to generate or manage IDs.
-    *   `python3 "Jules workspace/id_manager.py" next-id`: Generate a new unique ID.
-    *   `python3 "Jules workspace/id_manager.py" verify`: Check for duplicates.
-    *   `python3 "Jules workspace/id_manager.py" auto-tag`: Automatically add IDs to elements that miss them.
+*   **Generator:** Use `Jules-workspace/id_manager.py` to generate or manage IDs.
+    *   `python3 "Jules-workspace/id_manager.py" next-id`: Generate a new unique ID.
+    *   `python3 "Jules-workspace/id_manager.py" verify`: Check for duplicates.
+    *   `python3 "Jules-workspace/id_manager.py" auto-tag`: Automatically add IDs to elements that miss them.

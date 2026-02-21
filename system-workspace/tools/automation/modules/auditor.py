@@ -16,7 +16,7 @@ class Auditor:
     
     def __init__(self, project_root=None, api_key=None):
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
-        self.jules_workspace = self.project_root / "Jules workspace"
+        self.jules_workspace = self.project_root / "Jules-workspace"
         self.verify_tool = self.jules_workspace / "verify_layout.py"
         self.lint_tool = self.jules_workspace / "lint_pages.py"
         

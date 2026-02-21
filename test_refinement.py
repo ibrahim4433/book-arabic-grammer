@@ -2,8 +2,8 @@ import sys
 from pathlib import Path
 
 # Add the modules directory to path
-sys.path.append("system workspace/tools/automation")
-sys.path.append("system workspace/tools/automation/modules")
+sys.path.append("system-workspace/tools/automation")
+sys.path.append("system-workspace/tools/automation/modules")
 
 from modules.planner import Planner
 

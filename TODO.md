@@ -1,20 +1,20 @@
 # Project TODO: The "Control Room" & System Refactoring
 
-This document outlines the roadmap for transforming the current scripts into a centralized, interactive "Control Room" (`system.py`) utilizing the Jules API and the `system workspace` context.
+This document outlines the roadmap for transforming the current scripts into a centralized, interactive "Control Room" (`system.py`) utilizing the Jules API and the `system-workspace` context.
 
 ## ✅ Phase 1: Infrastructure & API Integration (Jules)
 
 - [x] **Jules API Verification & Enhanced Wrapper**
-    - [x] **Research:** Deeply analyze `system workspace/tools/automation/dispatch_jules.py`.
-    - [x] **Refactor `dispatch_jules.py`:** Create `system workspace/tools/automation/modules/jules_client.py`.
+    - [x] **Research:** Deeply analyze `system-workspace/tools/automation/dispatch_jules.py`.
+    - [x] **Refactor `dispatch_jules.py`:** Create `system-workspace/tools/automation/modules/jules_client.py`.
         - [x] Implement `create_session` with precise `sourceContext`.
         - [x] Implement **Session Monitoring** (polling).
         - [x] Add error handling.
     - [x] **Test:** Create `tests/test_jules_connectivity.py`.
 
-- [x] **System Workspace Consolidation**
-    - [x] **Path Updates:** Update all script references to point to `system workspace/`.
-    - [x] **Prompt Definition:** Confirmed prompts are in `system workspace/`.
+- [x] **system-workspace Consolidation**
+    - [x] **Path Updates:** Update all script references to point to `system-workspace/`.
+    - [x] **Prompt Definition:** Confirmed prompts are in `system-workspace/`.
 
 ## ✅ Phase 2: Core Tool Refactoring (Modularization)
 
@@ -42,7 +42,7 @@ This document outlines the roadmap for transforming the current scripts into a c
     - [x] Process: Local Compilation + `JulesClient` Dispatch option.
 
 - [x] **Module: Auditor (Quality Control)** (`modules/auditor.py`)
-    - [x] Implement logic using `Jules workspace/verify_layout.py` and `lint_pages.py`.
+    - [x] Implement logic using `Jules-workspace/verify_layout.py` and `lint_pages.py`.
     - [x] Process: Run layout verification and linting.
 
 ## ✅ Phase 3: The "Control Room" (`system.py`)

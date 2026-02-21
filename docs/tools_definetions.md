@@ -35,7 +35,7 @@ This document provides a comprehensive index of all tools available in the **Mod
 
 ---
 
-## 🤖 Automation Suite (`system workspace/tools/automation/`)
+## 🤖 Automation Suite (`system-workspace/tools/automation/`)
 
 (Note: These are now primarily accessed via `system.py`)
 
@@ -44,14 +44,14 @@ This document provides a comprehensive index of all tools available in the **Mod
 *   **What it does:**
     1.  Scans `input/` for images (`.jpg`, `.png`).
     2.  Sends each image to **Gemini Flash/Pro** with a prompt to "Extract all Arabic text with full Tashkeel".
-    3.  Saves the raw text to `system workspace/text-data/raw/raw_X.txt`.
+    3.  Saves the raw text to `system-workspace/text-data/raw/raw_X.txt`.
 *   **Why:** The starting point of the pipeline. Converts physical book scans into digital raw data.
 
 ### 5. `create_lesson_index.py` / `modules.text_processing`
 *   **Purpose:** Structural Mapping.
 *   **What it does:**
     1.  Reads all raw text files.
-    2.  Reads `system workspace/text-data/TOC.txt` (Table of Contents).
+    2.  Reads `system-workspace/text-data/TOC.txt` (Table of Contents).
     3.  Asks Gemini to map "Which lesson is in which file/lines?".
     4.  Generates `assets/data/raw_to_lesson_index.json`.
 *   **Why:** Raw text is unstructured. We need to know that "The Verb" lesson starts at `raw_1.txt:Line 5` and ends at `raw_2.txt:Line 10` to process it effectively.
@@ -60,9 +60,9 @@ This document provides a comprehensive index of all tools available in the **Mod
 *   **Purpose:** AI Planning & Pedagogical Design.
 *   **What it does:**
     1.  Takes raw text for a specific lesson.
-    2.  Consults `system workspace/Architect_GEM_MASTER.md` (The Persona) and `assets/design_patterns.json`.
+    2.  Consults `system-workspace/Architect_GEM_MASTER.md` (The Persona) and `assets/design_patterns.json`.
     3.  Generates a **Markdown Plan** that maps the content to specific HTML Templates (e.g., "Use `TEMPLATE_C_BLOCK` for this definition").
-    4.  **Audits** the plan using `system workspace/Architect_AUDITOR.md` to ensure quality.
+    4.  **Audits** the plan using `system-workspace/Architect_AUDITOR.md` to ensure quality.
     5.  Saves the approved plan to `plans/plan_LESSON_NAME.md`.
 *   **Why:** Ensures consistency. Instead of writing HTML directly, we first design the *structure* of the page.
 
@@ -78,7 +78,7 @@ This document provides a comprehensive index of all tools available in the **Mod
 
 ---
 
-## 🛠️ Utility Tools (`Jules workspace/`)
+## 🛠️ Utility Tools (`Jules-workspace/`)
 
 ### 8. `verify_layout.py`
 *   **Purpose:** Quality Assurance (QA).
@@ -101,9 +101,9 @@ This document provides a comprehensive index of all tools available in the **Mod
 
 ## 📂 Documentation & Configuration
 
-*   **`system workspace/Architect_GEM_MASTER.md`**: The system prompt for the AI Architect. Defines *how* to think about layout.
-*   **`system workspace/Architect_AUDITOR.md`**: The system prompt for the AI Auditor. Defines the "Quality Gates".
-*   **`Jules workspace/elements_index.md`**: A catalog of all available HTML templates.
+*   **`system-workspace/Architect_GEM_MASTER.md`**: The system prompt for the AI Architect. Defines *how* to think about layout.
+*   **`system-workspace/Architect_AUDITOR.md`**: The system prompt for the AI Auditor. Defines the "Quality Gates".
+*   **`Jules-workspace/elements_index.md`**: A catalog of all available HTML templates.
 
 ---
 

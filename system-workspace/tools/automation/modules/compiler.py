@@ -18,7 +18,7 @@ class Compiler:
     def __init__(self, project_root=None, api_key=None):
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
         self.templates_dir = self.project_root / "assets/Templates"
-        self.mappings_path = self.project_root / "system workspace/tools/automation/mappings/plan_to_template.json"
+        self.mappings_path = self.project_root / "system-workspace/tools/automation/mappings/plan_to_template.json"
         self.pages_dir = self.project_root / "pages"
         
         self.jules_client = JulesClient(api_key, self.project_root)

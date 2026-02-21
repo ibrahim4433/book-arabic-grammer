@@ -18,9 +18,9 @@ class TextProcessor:
 
     def __init__(self, project_root=None, api_key=None, use_headless=False):
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
-        self.raw_dir = self.project_root / "system workspace/text-data/raw"
+        self.raw_dir = self.project_root / "system-workspace/text-data/raw"
         self.toc_path = self.project_root / "input/TOC.json"
-        self.index_file = self.project_root / "system workspace/text-data/raw_to_lesson_index.json"
+        self.index_file = self.project_root / "system-workspace/text-data/raw_to_lesson_index.json"
         
         self.client = GeminiClient(api_key, self.project_root, use_headless=use_headless)
         
@@ -115,7 +115,7 @@ class TextProcessor:
                 print(f"⚠️ Error reading {f.name}: {e}")
 
         merged_content = "\n".join(all_content)
-        output_path = self.project_root / "system workspace/text-data/full_raw_indexed.txt"
+        output_path = self.project_root / "system-workspace/text-data/full_raw_indexed.txt"
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(merged_content, encoding='utf-8')
         
