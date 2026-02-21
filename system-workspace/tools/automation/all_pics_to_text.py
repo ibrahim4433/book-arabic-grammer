@@ -64,6 +64,14 @@ def main():
         transcribe_image(img, out_file)
 
     print("✅ Process complete.")
+    
+    print("🧹 Cleaning raw text files...")
+    cleaner_script_path = PROJECT_ROOT / "Jules-workspace/clean_raw_text.py"
+    subprocess.run(
+        [sys.executable, str(cleaner_script_path), str(OUTPUT_RAW_DIR)],
+        check=True
+    )
+    print("🧼 Cleaning complete.")
 
 if __name__ == "__main__":
     main()
