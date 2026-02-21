@@ -146,7 +146,7 @@ Before you start, ensure you have the following:
 1.  **Python 3.10+** installed.
 2.  **Dependencies:** Run `pip install -r requirements.txt`.
 3.  **API Keys:**
-    *   You need a Google Cloud API Key with access to **Gemini 1.5 Pro** and **Google Code Assist**.
+    *   You need a Google Cloud API Key with access to **Gemini 3.1 Pro** and **Google Code Assist**.
     *   Save it to `secrets/Jules_API.txt` or set the `JULES_API_KEY` environment variable.
 
 ### Adding a New Feature
