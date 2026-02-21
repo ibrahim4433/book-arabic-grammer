@@ -73,7 +73,8 @@ class TextProcessor:
             content = self.toc_path.read_text(encoding='utf-8')
             data = json.loads(content)
 
-            clean_input_title = lesson_title.strip()
+            # Clean the input title by removing prefix (e.g., "9 - Title" -> "Title")
+            clean_input_title = re.sub(r'^\d+\s*-\s*', '', lesson_title).strip()
 
             for number, metadata in data.items():
                 title = metadata.get('title', '').strip()
