@@ -72,5 +72,4 @@ This document outlines the roadmap for transforming the current scripts into a c
 ## 🚀 Future Tasks
 
 - [ ] **Advanced Table Parsing:** Improve `Compiler._transform_table` to handle complex markdown tables robustly.
-- [ ] **Visual Auditor:** Implement `Auditor` visual check using Gemini Vision (screenshot -> analysis).
 - [ ] **Jules Feedback Loop:** Automate the feedback loop where Auditor failure triggers a Jules retry session.
