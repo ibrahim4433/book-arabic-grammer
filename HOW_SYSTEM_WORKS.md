@@ -1,191 +1,171 @@
 # How the Arabic Grammar Automation System Works
 
-This document provides a comprehensive technical overview of the automation system used to generate the Arabic Grammar Book. It is designed for junior developers and contributors to understand the architecture, workflows, and key components of the codebase.
-
-## 1. Introduction
-
-The core purpose of this system is to automate the transformation of raw educational content (images of Arabic grammar lessons) into structured HTML pages for the book. The system handles the entire pipeline:
-
-1.  **Ingestion (OCR):** Extracting text from images.
-2.  **Processing:** Cleaning, merging, and indexing the raw text.
-3.  **Planning:** Generating structured lesson plans (Architect phase).
-4.  **Generation:** Converting plans into HTML pages (Developer phase).
-5.  **Audit:** verifying the output against design rules.
-
-The system is built in Python and relies heavily on **Google's Gemini models** (via `GeminiClient`) and **Jules (Code Assist) Agents** (via `JulesClient`).
+Welcome to the **Arabic Grammar Book Automation System**. This document is your comprehensive technical guide. Whether you are a new developer, a contributor, or an AI agent, this file explains how we transform raw images of Arabic grammar lessons into structured, beautiful HTML5 pages.
 
 ---
 
-## 2. System Architecture
+## 1. The Big Picture
 
-The system follows a modular architecture centered around a main controller (`system.py`) and specialized worker modules.
+Our goal is to digitize an Arabic grammar book. We don't just want text; we want **semantic, structured HTML** that follows a strict design system. To achieve this, we use a pipeline of AI agents and Python scripts.
 
-```mermaid
-graph TD
-    User([Developer]) -->|Runs| SystemPY[system.py]
-
-    subgraph "Core Controller"
-        SystemPY --> StateManager[state_manager.py]
-        SystemPY -->|Menu Selection| Workflow{Select Workflow}
-    end
-
-    subgraph "Data Pipeline"
-        Workflow -->|OCR| VisionClient[vision.py]
-        VisionClient -->|Images| Gemini[Gemini API]
-        Gemini -->|Raw Text| RawFiles[(text-data/raw/*.txt)]
-
-        Workflow -->|Process| TextProcessor[text_processing.py]
-        RawFiles --> TextProcessor
-        TextProcessor -->|Merge & Index| IndexedText[(full_raw_indexed.txt)]
-        TextProcessor -->|Map to TOC| LessonIndex[(raw_to_lesson_index.json)]
-    end
-
-    subgraph "Planning Phase"
-        Workflow -->|Plan| Planner[planner.py / jules_planner.py]
-        IndexedText --> Planner
-        LessonIndex --> Planner
-        Planner -->|Generate| PlanFiles[(plans/*.md)]
-    end
-
-    subgraph "Generation Phase"
-        Workflow -->|Generate Page| PageGen[jules_page_generator.py]
-        PlanFiles --> PageGen
-        PageGen -->|Create Session| JulesAgent[Jules Agent API]
-        JulesAgent -->|Pull PR/Branch| HTMLFiles[(pages/*.html)]
-    end
-
-    StateManager -->|Track Status| StateFile[(project_workflow_state.json)]
-```
+### The Pipeline
+1.  **Ingestion (OCR):** We take photos of the book pages (`input/*.jpg`) and use Google Gemini Vision to extract the text.
+2.  **Indexing:** We map the raw text to the Table of Contents (`input/TOC.json`) to know where each lesson starts and ends.
+3.  **Planning (The Architect):** An AI Agent ("The Architect") reads the lesson text and creates a detailed **Markdown Plan** (`plans/*.md`).
+4.  **Coding (The Developer):** Another AI Agent ("The Developer") reads the plan and writes the **HTML Code** (`pages/*.html`).
+5.  **Verification (The Auditor):** We run automated scripts to check for design errors, broken layouts, and duplicate IDs.
 
 ---
 
-## 3. Directory Structure
+## 2. Directory Structure
 
-Understanding the file layout is crucial for navigating the code.
+Understanding where things live is half the battle.
 
 | Directory / File | Description |
 | :--- | :--- |
-| **`system.py`** | **The Main Entry Point.** Run this script to start the CLI. |
-| **`system workspace/`** | Contains core logic, tools, and temporary data. |
-| `├── tools/automation/modules/` | **The Brain.** Contains all Python classes (`vision.py`, `planner.py`, etc.). |
-| `├── text-data/` | Stores intermediate text files (`raw/`, `full_raw_indexed.txt`). |
-| `├── project_workflow_state.json` | **Database.** Tracks the status of every lesson. |
-| **`input/`** | Place source images here (e.g., `01.jpg`). Contains `TOC.json`. |
-| **`plans/`** | Generated Markdown lesson plans live here. |
-| **`pages/`** | Final HTML pages live here. |
-| **`Jules workspace/Templates/`** | HTML templates (`TEMPLATE_C_BASE.html`) used by the generator. |
+| **`system.py`** | 🎛️ **The Control Room.** Run this script to start the interactive menu. |
+| **`Jules workspace/`** | 🛠️ **Developer Tools.** Scripts for verifying and fixing content. |
+| `├── Templates/` | HTML templates (`TEMPLATE_C_BLOCK.html`, etc.) used by the generator. |
+| `├── lint_pages.py` | Checks HTML for CSS violations and semantic errors. |
+| `├── verify_layout.py` | Checks for content overflow (One-Page Law) using WeasyPrint. |
+| `├── id_manager.py` | Manages unique IDs (`b12345`) for content blocks. |
+| **`system workspace/`** | 🧠 **The Brain.** Core automation logic. |
+| `├── tools/automation/` | |
+| `│   ├── modules/` | Python classes (`vision.py`, `planner.py`, `jules_page_generator.py`). |
+| `│   └── project_workflow_state.json` | 🗄️ **Database.** Tracks the status of every lesson. |
+| `├── text-data/` | Stores `raw_*.txt` (OCR output) and `full_raw_indexed.txt`. |
+| **`input/`** | 📥 **Source Material.** Put images here. Contains `TOC.json`. |
+| **`plans/`** | 📝 **Blueprints.** Generated Markdown lesson plans. |
+| **`pages/`** | 🌐 **Final Output.** The HTML pages ready for the book. |
+| **`styles/`** | 🎨 **Design System.** Contains `main.css`. |
 
 ---
 
-## 4. Key Modules & Workflows
+## 3. The Workflow: Step-by-Step
 
-### 4.1. The Controller: `system.py`
-*   **Role:** The command center. It initializes the UI (using the `rich` library) and routes user commands to specific modules.
-*   **Key Function:** `main()` loop displaying the `questionary` menu.
-*   **Dependencies:** Imports all modules from `system workspace/tools/automation/modules`.
+To run the system, open your terminal and run:
+```bash
+python3 system.py
+```
+This opens the **Control Room**, a menu-based interface.
 
-### 4.2. State Management: `state_manager.py`
-*   **Role:** The "Database" of the project. It persists the progress of each lesson.
-*   **Data Store:** `project_workflow_state.json`.
+### Phase 1: Ingestion (OCR)
+*   **Menu Option:** `B) OCR Only`
+*   **What it does:**
+    *   Scans `input/` for images.
+    *   Uses `VisionClient` (wrapping Gemini Pro Vision) to transcribe text.
+    *   Saves text files to `system workspace/text-data/raw/raw_{filename}.txt`.
+*   **Key File:** `modules/vision.py`
+
+### Phase 2: Processing & Indexing
+*   **Menu Option:** `C) Raw Processing`
+*   **What it does:**
+    *   **Merges:** Combines all `raw_*.txt` files into one huge file: `full_raw_indexed.txt` (with line numbers).
+    *   **Indexes:** Reads `input/TOC.json` and uses Gemini to find exactly where each lesson starts and ends in the huge text file.
+    *   **Outputs:** `system workspace/text-data/raw_to_lesson_index.json`.
+*   **Key File:** `modules/text_processing.py`
+
+### Phase 3: Planning (The Architect)
+*   **Menu Option:** `E) Plan Generation (Jules Batch)`
+*   **What it does:**
+    *   Uses `JulesPlanner` to create a "Jules Session" (Google Code Assist).
+    *   Feeds the lesson text and the **Architect Persona** (`Architect_GEM_MASTER.md`).
+    *   The Agent produces a structured Markdown plan describing every block (Header, Rule, Example, Exam).
+    *   Saves the plan to `plans/{number}-{slug}-plan.md`.
+*   **Key File:** `modules/jules_planner.py`
+
+### Phase 4: Page Generation (The Developer)
+*   **Menu Option:** `F) Page Generation (Jules Batch)`
+*   **What it does:**
+    *   Uses `JulesPageGenerator` to read the Markdown Plan.
+    *   Starts a new Jules Session with the **Developer Persona**.
+    *   Instructs the agent to map every plan block to a specific HTML template in `Jules workspace/Templates/`.
+    *   The Agent writes the code and commits it (or we pull it).
+    *   Saves the HTML to `pages/{number}-{slug}.html`.
+*   **Key File:** `modules/jules_page_generator.py`
+
+### Phase 5: Verification & Audit
+*   **Menu Option:** `G) Audit & Verify Pages`
+*   **What it does:** Runs a suite of checks to ensure quality.
+
+#### 1. Linter (`lint_pages.py`)
+Checks for:
+*   **Inline Styles:** Forbidden (e.g., `style="color: red"`).
+*   **Undefined Classes:** Must be in `styles/main.css`.
+*   **Semantic Rules:** e.g., "Exam" headers must be `.bg-dark` and questions must have an answer box.
+
+#### 2. Layout Verifier (`verify_layout.py`)
+*   Uses `WeasyPrint` to render the page virtually.
+*   **One-Page Law:** Checks if content spills onto a second page. If it does, it reports **OVERFLOW**.
+*   **Underflow:** Checks if there is too much whitespace (>10%).
+
+#### 3. ID Manager (`id_manager.py`)
+*   Every content block needs a unique ID (e.g., `id="b49210"`).
+*   Run `python3 Jules\ workspace/id_manager.py auto-tag` to automatically assign IDs to new elements.
+
+---
+
+## 4. Key Components Deep Dive
+
+### The Controller: `system.py`
+This is your dashboard. It uses the `rich` library to display a beautiful status table. It tracks which lessons are `OCR_DONE`, `PLAN_READY`, or `CODED`.
+
+### State Management: `state_manager.py`
+The system needs to remember its brain. It stores the state of every lesson in `project_workflow_state.json`.
 *   **Schema:**
     ```json
-    "lessons": {
-      "01 - Introduction": {
-        "status": "PLAN_READY",
-        "files": { "raw": "...", "plan": "...", "html": "..." },
-        "last_updated": 1715000000
-      }
+    "01": {
+      "status": "CODED",
+      "files": {
+        "raw": "...",
+        "plan": "...",
+        "html": "..."
+      },
+      "last_updated": 1715000000
     }
     ```
-*   **Key Methods:**
-    *   `update_lesson_status(title, status, files)`: Updates the JSON file.
-    *   `get_consolidated_state()`: Merges duplicate entries and sorts lessons.
 
-### 4.3. Phase 1: Ingestion (`vision.py`)
-*   **Role:** Converts images in `input/` to text.
-*   **Tool:** Uses `VisionClient` which wraps `GeminiClient`.
-*   **Process:**
-    1.  Scans `input/*.jpg`.
-    2.  Sends images to Gemini Pro Vision with a strict system prompt ("Transcribe EXACTLY...").
-    3.  Saves output to `system workspace/text-data/raw/raw_{filename}.txt`.
-*   **Why Gemini?** Standard OCR engines struggle with Arabic diacritics (Harakat). Gemini Vision is far more accurate.
+### Templates: `Jules workspace/Templates/`
+We do not hardcode HTML. We use templates.
+*   `TEMPLATE_C_HEADER.html`: Standard lesson header.
+*   `TEMPLATE_C_BLOCK.html`: Generic content block with title.
+*   `TEMPLATE_C_EXAM.html`: The "Test Yourself" section.
+*   `TEMPLATE_C_SPLIT.html`: Two-column layout (Right: Rule, Left: Examples).
 
-### 4.4. Phase 2: Text Processing (`text_processing.py`)
-*   **Role:** Prepares the raw text for the AI Architect.
-*   **Key Operations:**
-    1.  **Merge (`merge_raw_text`):** Combines all `raw_*.txt` files into one huge file (`full_raw_indexed.txt`) with line numbers (e.g., `[raw_01.txt:5] Content`).
-    2.  **Index (`generate_lesson_index`):** Uses Gemini to read the merged text and the `TOC.json` (Table of Contents). It outputs `raw_to_lesson_index.json`, mapping each lesson title to a specific start/end line in the raw text.
+**Rule:** Always use `TEMPLATE_C_SPLIT` for Arabic grammar rules to ensure the text flows correctly (Right-to-Left).
 
-### 4.5. Phase 3: Planning (`planner.py` vs `jules_planner.py`)
-This is where the "Architect" AI designs the lesson. There are two modes:
-
-#### A. Standard Planner (`planner.py`)
-*   **Method:** Direct LLM Call.
-*   **Tool:** `GeminiClient` (Headless).
-*   **Process:** Sends the raw text + `Architect_GEM_MASTER.md` prompt to Gemini and saves the response as a Markdown file.
-*   **Pros:** Fast, cheap.
-*   **Cons:** Cannot self-correct or browse the web.
-
-#### B. Jules Planner (`jules_planner.py`) - **Recommended**
-*   **Method:** Agentic Session.
-*   **Tool:** `JulesPlanClient` (wraps `JulesClient`).
-*   **Process:**
-    1.  Creates a **Jules Session** (Google Code Assist).
-    2.  Sends a "Mega Prompt" containing the text, the Architect Persona, and the Auditor Rules.
-    3.  **Agent Interaction:** The agent (Jules) creates a plan, reviews it against the rules (Auditor), and refines it.
-    4.  **Pull:** The agent commits the plan to a Git branch. The script pulls this file locally.
-*   **Key Class:** `JulesPlanner` manages thread pools to process multiple lessons in parallel.
-
-### 4.6. Phase 4: Page Generation (`jules_page_generator.py`)
-*   **Role:** The "Developer" AI. Converts Markdown plans into HTML.
-*   **Tool:** `JulesPageGenerator`.
-*   **Process:**
-    1.  Reads the Plan (`.md`).
-    2.  Creates a **Jules Session** with instructions to use `Jules workspace/Templates/`.
-    3.  **Monitoring Loop:**
-        *   Checks session status every 30s.
-        *   **Interactive Q&A:** If Jules asks a question (e.g., "Where is the CSS file?"), the script captures it, sends it to a "Headless Gemini" (who has context of the repo), and feeds the answer back to Jules.
-    4.  **Completion:** Once Jules finishes, the script pulls the generated HTML file from the remote branch to `pages/`.
+### Workflow Manager: `workflow_manager.py`
+(Advanced) This is a headless version of the system designed for CI/CD or fully automated runs. It can listen for GitHub Pull Requests and trigger Jules agents automatically.
 
 ---
 
-## 5. Key Classes & Variables
+## 5. Developer Guide: How to Contribute
 
-### `JulesClient` (`jules_client.py`)
-*   **Purpose:** The bridge to the Google Jules API.
-*   **Key Methods:**
-    *   `create_session(prompt)`: Starts a new coding session.
-    *   `wait_for_completion(session_id)`: Polls until the agent finishes.
-    *   `send_response(session_id, message)`: Replies to the agent.
+### Setup & Prerequisites
+Before you start, ensure you have the following:
+1.  **Python 3.10+** installed.
+2.  **Dependencies:** Run `pip install -r requirements.txt`.
+3.  **API Keys:**
+    *   You need a Google Cloud API Key with access to **Gemini 1.5 Pro** and **Google Code Assist**.
+    *   Save it to `secrets/Jules_API.txt` or set the `JULES_API_KEY` environment variable.
 
-### `GeminiClient` (`gemini_client.py`)
-*   **Purpose:** Direct interface to Google Gemini models (for OCR, text processing, and answering Jules' questions).
-*   **Configuration:** Requires `JULES_API_KEY` (or `secrets/Jules_API.txt`).
+### Adding a New Feature
+1.  **Modify the Module:** Edit the Python file in `system workspace/tools/automation/modules/`.
+2.  **Update `system.py`:** If you added a new capability, add a menu option for it.
 
-### `PROJECT_ROOT`
-*   **Definition:** `Path(__file__).parent...`
-*   **Importance:** All file paths are relative to this constant. This allows the tools to run from anywhere, but they assume a specific repo structure.
+### Debugging
+*   **Logs:** Check the console output. `system.py` uses color-coded logs (Red = Error, Green = Success).
+*   **Intermediate Files:** Check `system workspace/text-data/` to see exactly what text the AI is seeing.
+*   **Plan Files:** If the HTML is wrong, check the `plans/*.md` file first. The Agent follows the plan strictly.
 
----
-
-## 6. Configuration & Troubleshooting
-
-### Setup Requirements
-1.  **API Key:** You must have a valid Google Cloud API Key with access to Jules/Gemini.
-    *   Place it in `secrets/Jules_API.txt` or set `JULES_API_KEY` env var.
-2.  **Dependencies:** `pip install rich questionary requests` (plus others in `requirements.txt`).
-
-### Common Issues
-*   **"Missing UI libraries":** Run `pip install rich questionary`.
+### Common Issues & Fixes
 *   **"TOC file not found":** Ensure `input/TOC.json` exists and is valid JSON.
-*   **"Session Timeout":** If Jules takes too long (>25 mins), the script might timeout. Check the console for "TIMEOUT".
-*   **"Pull Failed":** Ensure you have `git` installed and your repo is clean. The tool tries to fetch branches created by the agent.
-
-### Developer Tips
-*   **Debugging:** Use the `debuging/` folder (created by some scripts) to inspect intermediate prompts.
-*   **Logs:** The `system.py` UI uses `rich` for pretty printing. Errors are usually red, warnings yellow.
-*   **Extending:** To add a new tool, create a class in `modules/` and import it in `system.py`.
+*   **"ModuleNotFoundError":** You might be missing dependencies. Run `pip install -r requirements.txt`.
+*   **"Layout Overflow":** The content is too long for one page.
+    *   **Fix:** Edit the HTML to remove non-essential examples.
+    *   **Fix:** Split the lesson into `09.0` and `09.1`.
+*   **"Duplicate ID":** Run `python3 Jules\ workspace/id_manager.py auto-tag` to fix it.
 
 ---
 
-**Happy Coding!** 🚀
+**Happy Automating!** 🚀
