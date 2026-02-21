@@ -14,7 +14,7 @@ The V2 workflow is a **Stage-Gate Pipeline**:
 1.  **Stage 1: Raw Data Ingestion** (✅ Complete)
     *   **Tool:** `all_pics_to_text.py`
     *   **Status:** Functional. Successfully processes images to text with Tashkeel.
-    *   **Output:** `output/text-data/raw/`
+    *   **Output:** `system-workspace/text-data/raw/`
 
 2.  **Stage 2: Structural Indexing** (✅ Complete)
     *   **Tool:** `create_lesson_index.py`

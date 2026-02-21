@@ -7,12 +7,19 @@ from pathlib import Path
 # --- CONFIGURATION ---
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 INPUT_DIR = PROJECT_ROOT / "input"
-OUTPUT_RAW_DIR = PROJECT_ROOT / "output/text-data/raw"
+OUTPUT_RAW_DIR = PROJECT_ROOT / "system-workspace/text-data/raw"
 
 def transcribe_image(image_path, output_path):
     print(f"👁️ Transcribing {image_path.name}...")
     # Correct syntax for headless mode: gemini --prompt "instruction with path"
-    prompt = f"Extract all Arabic text from the attached image {image_path} with full diacritics (Tashkeel). Preserve the structure exactly. Output ONLY the raw Arabic text."
+    prompt = (
+        f"Extract all Arabic text from the attached image {image_path} with full diacritics (Tashkeel). "
+        "Preserve the structure exactly. "
+        "Output ONLY the raw Arabic text. "
+        "Do NOT add any introduction, explanation, or conversational filler. "
+        "Do NOT say 'Here is the transcription'. "
+        "Just output the text."
+    )
     
     try:
         with open(output_path, "w", encoding="utf-8") as out_f:

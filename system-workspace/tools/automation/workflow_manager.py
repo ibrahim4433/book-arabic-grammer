@@ -12,7 +12,7 @@ from workflow_state import WorkflowState, STATE_RAW, STATE_PLANNED, STATE_PENDIN
 # --- CONFIGURATION ---
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 PLANS_DIR = PROJECT_ROOT / "plans"
-RAW_DIR = PROJECT_ROOT / "output/text-data/raw"
+RAW_DIR = PROJECT_ROOT / "system-workspace/text-data/raw"
 SECRETS_DIR = PROJECT_ROOT / "secrets"
 JULES_API_URL = "https://jules.googleapis.com/v1alpha"
 REPO_NAME = "ibrahim4433/book-arabic-grammer"

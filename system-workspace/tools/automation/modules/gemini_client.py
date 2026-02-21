@@ -118,6 +118,11 @@ class GeminiClient:
         Generates content using the `gemini` CLI tool (Headless) with a multi-model fallback chain.
         Starts from the last successful model in the chain (shared across all instances).
         """
+        # If images are provided, append them to the prompt to guide the CLI
+        if images:
+            image_refs = "\n".join([f"Processing Image: {Path(img).absolute()}" for img in images])
+            full_prompt = f"{full_prompt}\n\n[System Note: The user has attached the following images for processing. If your environment allows, read them.]\n{image_refs}"
+
         # Start from the current successful model index
         for i in range(GeminiClient.current_model_index, len(GeminiClient.models_chain)):
             model = GeminiClient.models_chain[i]

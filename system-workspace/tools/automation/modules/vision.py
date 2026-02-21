@@ -28,19 +28,20 @@ class VisionClient:
         # Strict Prompt
         system_instruction = (
             "You are an expert Arabic OCR engine. "
-            "Transcribe the Arabic text from these educational images EXACTLY as it appears. "
-            "Preserve all diacritics (Harakat) strictly. "
-            "Do not summarize. Do not explain. Just output the raw Arabic text. "
-            "If there are headers, use markdown headers (#). "
-            "If there are tables, represent them as markdown tables. "
-            "Ignore page numbers or irrelevant footer text."
+            "Your task is to transcribe the Arabic text from the provided image EXACTLY as it appears. "
+            "1. Preserve all diacritics (Harakat) strictly. "
+            "2. Output ONLY the raw Arabic text. Do not add any introduction, explanation, or conversational filler. "
+            "3. If there are headers, use markdown headers (#). "
+            "4. If there are tables, represent them as markdown tables. "
+            "5. Ignore page numbers or irrelevant footer text. "
+            "6. Do NOT say 'Here is the transcription' or similar. Just the Arabic text."
         )
 
         # Call generic client
         # Pass images as list of paths
         return self.client.generate_content(
             system_instruction=system_instruction,
-            user_content="", # No extra user text needed beyond the system instruction/images
+            user_content="Transcribe this image.", # Explicit user prompt to anchor the request
             images=image_paths
         )
 
