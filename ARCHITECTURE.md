@@ -2,10 +2,10 @@
 
 ## **Documentation Map**
 
-*   **`BOOK_RULES.md`**: The central Design System and content rules (The "One-Page Law", Atomic Components).
+*   **`Jules workspace/BOOK_RULES.md`**: The central Design System and content rules (The "One-Page Law", Atomic Components).
 *   **`CODING_STANDARDS.md`**: Technical guidelines for HTML structure, CSS conventions, and Python scripts.
 *   **`TECH_STACK.md`**: Defined technologies, constraints, and dependencies.
-*   **`system workspace/elements_index.md`**: The catalog of all available HTML templates and atomic components.
+*   **`Jules workspace/elements_index.md`**: The catalog of all available HTML templates and atomic components.
 *   **`ARCHITECTURE.md`** (This File): High-level overview of file structure, data flow, and build logic.
 
 ## **Directory Structure**
@@ -24,7 +24,7 @@ Root/
 │
 ├── **assets/**                 # Static Assets
 │   ├── **Templates/**          # Atomic HTML Component Patterns (Reference Only)
-│   │   └── (See system workspace/elements_index.md for full catalog)
+│   │   └── (See Jules workspace/elements_index.md for full catalog)
 │   ├── **page-background/**    # Assets for global background layers
 │   ├── images/                 # High-res images (300dpi preferred)
 │   └── fonts/                  # Local font files
@@ -36,14 +36,16 @@ Root/
 │   ├── verify_layout.py        # CLI tool to verify "One-Page Law" compliance.
 │   ├── lint_pages.py           # Content linter.
 │   ├── id_manager.py           # ID Management tool.
-│   ├── ARCHITECTURE.md         # This File.
 │   ├── BOOK_RULES.md           # Design System Rules.
-│   └── CODING_STANDARDS.md     # Code Guidelines.
+│   └── elements_index.md       # Full Catalog of Templates.
 │
 ├── **system workspace/**       # Backend Automation & Prompts
 │   ├── tools/                  # Automation Scripts (OCR, Planner, Compiler).
-│   ├── Architect_GEM_MASTER.md # Master Prompt.
-│   └── elements_index.md       # Full Catalog of Templates.
+│   └── Architect_GEM_MASTER.md # Master Prompt.
+│
+├── ARCHITECTURE.md         # This File.
+├── CODING_STANDARDS.md     # Code Guidelines.
+├── TECH_STACK.md           # Defined technologies.
 │  
 ├── **output/**                 # Build Artifacts
 │   └── book.pdf                # The final generated PDF.

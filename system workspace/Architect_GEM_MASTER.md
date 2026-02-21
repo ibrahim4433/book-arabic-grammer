@@ -10,7 +10,7 @@
 
 # [CONSTRAINTS & PROTOCOLS]
 
-1.  **Source of Truth:** Adhere strictly to `BOOK_RULES.md` and `elements_index.md`.
+1.  **Source of Truth:** Adhere strictly to `Jules workspace/BOOK_RULES.md` and `Jules workspace/elements_index.md`.
 2.  **Metadata Extraction & Usage:**
     *   **Lesson Number:** [LESSON_NUMBER]
     *   **Title:** Extract the clean Arabic title. **DO NOT** include the number prefix in the title field (e.g., use "المِيزَانُ الصَّرْفِيُّ" not "09 - المِيزَانُ الصَّرْفِيُّ").
@@ -23,7 +23,7 @@
     *   **ONE-PAGE LAW:** Every HTML file must correspond to exactly ONE A4 page and when page overload make another page
     *   **Filenaming:** Always start with `pages/XX.0_nXX_[slug].html`.
     *   **Protocol for Jules:** You MUST include a `[CONSTRAINTS & PROTOCOLS]` block in the output instructing Jules to:
-        > "Use `tools/verify_layout.py` after every major block. If the status is 'FULL' or 'OVERFLOW', close the current file (e.g., `XX.0_...`) and move the remaining content to the next sequential file (e.g., `XX.1_...`)."
+        > "Use `Jules workspace/verify_layout.py` after every major block. If the status is 'FULL' or 'OVERFLOW', close the current file (e.g., `XX.0_...`) and move the remaining content to the next sequential file (e.g., `XX.1_...`)."
 4.  **Templates:** Use strictly the `assets/Templates/` components. 
     *   NEVER use generic `<ul>`. Map to `TEMPLATE_C_LIST`.
     *   Use `TEMPLATE_C_IRAB` for multi-line analysis and `TEMPLATE_C_IRAB_ROW` for concise word-to-role mappings.
@@ -56,7 +56,7 @@ File: `pages/[LESSON_NUMBER].0_n[INDEX]_[slug].html`
 Reference: Follow patterns in design_patterns.json.
 
 [CONSTRAINTS & PROTOCOLS]
-1. Page Breaking: Use `tools/verify_layout.py` after every block. If "FULL", continue in `pages/[LESSON_NUMBER].1_...`.
+1. Page Breaking: Use `Jules workspace/verify_layout.py` after every block. If "FULL", continue in `pages/[LESSON_NUMBER].1_...`.
 2. Content: 100% Arabic with full Harakat.
 3. Highlighting: Use `.highlight-red` for primary focus words and `.highlight-blue` for secondary.
 4. Definitions: Must use `.text-accent` class.

@@ -13,16 +13,16 @@ This guide explains how to use the **Modern Arabic Grammar Book** system to conv
 *   **Why:** The system processes files in alphanumeric order.
 
 ### 2. Convert Images to Text (OCR)
-*   **Command:** `python3 tools/automation/all_pics_to_text.py`
+*   **Command:** `python3 system.py` -> Select **Option B**.
 *   **What happens:**
     *   The system sends each image to Gemini (AI Vision).
     *   It extracts all Arabic text with full Tashkeel (diacritics).
-    *   It saves the text to `output/text-data/raw/raw_X.txt`.
-*   **Output:** Check `output/text-data/raw/` to see the text files.
+    *   It saves the text to `system workspace/text-data/raw/raw_X.txt`.
+*   **Output:** Check `system workspace/text-data/raw/` to see the text files.
 
 ### 3. Create the Lesson Index
-*   **Prerequisite:** Ensure you have a `TOC.txt` (Table of Contents) file in `output/text-data/`. This file should list the lesson titles exactly as they appear in the book.
-*   **Command:** `python3 tools/automation/create_lesson_index.py`
+*   **Prerequisite:** Ensure you have a `TOC.txt` (Table of Contents) file in `system workspace/text-data/`. This file should list the lesson titles exactly as they appear in the book.
+*   **Command:** `python3 system.py` -> Select **Option C**.
 *   **What happens:**
     *   The system reads all raw text files.
     *   It asks Gemini to match the `TOC.txt` titles to the raw text content.
@@ -34,12 +34,11 @@ This guide explains how to use the **Modern Arabic Grammar Book** system to conv
 ## **Phase 2: Planning & Architecture**
 
 ### 4. Generate Lesson Plans (The Architect)
-*   **Command (Single Lesson):** `python3 tools/automation/workflow_manager.py "Lesson Name"`
-*   **Command (Batch - All Remaining):** `python3 tools/automation/batch_planner.py` (Note: You may need to create this script if it doesn't exist, see Phase 3).
+*   **Command:** `python3 system.py` -> Select **Option D** (Standard) or **Option E** (Jules Batch).
 *   **What happens:**
     *   The "Architect" (AI) reads the raw text for the lesson.
     *   It designs a layout using the project's atomic components (Blocks, Tables, Examples).
-    *   It creates a **Markdown Plan** in `plans/plan_LESSON_NAME.md`.
+    *   It creates a **Markdown Plan** in `plans/`.
     *   The "Auditor" (AI) checks the plan against design rules.
 *   **Output:** Check `plans/` for the generated `.md` files.
 
@@ -48,8 +47,7 @@ This guide explains how to use the **Modern Arabic Grammar Book** system to conv
 ## **Phase 3: Production (Coding)**
 
 ### 5. Compile Plans to HTML (The Builder)
-*   **Command (Single Plan):** `python3 tools/automation/lesson_compiler.py "plans/plan_LESSON_NAME.md"`
-*   **Command (Batch - All Plans):** `python3 tools/automation/batch_compiler.py` (Create this script if needed).
+*   **Command:** `python3 system.py` -> Select **Option F** (Page Generation).
 *   **What happens:**
     *   The system reads the Markdown Plan.
     *   It loads the HTML Templates from `assets/Templates/`.
@@ -58,7 +56,7 @@ This guide explains how to use the **Modern Arabic Grammar Book** system to conv
 *   **Output:** Check `pages/` for the new HTML files.
 
 ### 6. Verify Layout (The Quality Gate)
-*   **Command:** `python3 tools/automation/verify_headless.py pages/YOUR_FILE.html`
+*   **Command:** `python3 "Jules workspace/verify_layout.py" pages/YOUR_FILE.html`
 *   **What happens:**
     *   The system renders the page to a temporary PDF.
     *   It checks if the content fits on **One A4 Page**.
@@ -71,7 +69,7 @@ This guide explains how to use the **Modern Arabic Grammar Book** system to conv
 ## **Phase 4: Final Assembly**
 
 ### 7. Assign Unique IDs
-*   **Command:** `python3 tools/id_manager.py auto-tag`
+*   **Command:** `python3 "Jules workspace/id_manager.py" auto-tag`
 *   **What happens:**
     *   Scans all HTML files.
     *   Assigns a unique `bXXXXX` ID to every content block.
@@ -91,12 +89,12 @@ This guide explains how to use the **Modern Arabic Grammar Book** system to conv
 
 | Step | Task | Command |
 | :--- | :--- | :--- |
-| 1 | **OCR** | `python3 tools/automation/all_pics_to_text.py` |
-| 2 | **Index** | `python3 tools/automation/create_lesson_index.py` |
-| 3 | **Plan** | `python3 tools/automation/workflow_manager.py "Lesson Name"` |
-| 4 | **Compile** | `python3 tools/automation/lesson_compiler.py "plans/plan_X.md"` |
-| 5 | **Verify** | `python3 tools/automation/verify_headless.py pages/X.html` |
-| 6 | **Tag IDs** | `python3 tools/id_manager.py auto-tag` |
+| 1 | **OCR** | `python3 system.py` (Option B) |
+| 2 | **Index** | `python3 system.py` (Option C) |
+| 3 | **Plan** | `python3 system.py` (Option D or E) |
+| 4 | **Compile** | `python3 system.py` (Option F) |
+| 5 | **Verify** | `python3 "Jules workspace/verify_layout.py" pages/X.html` |
+| 6 | **Tag IDs** | `python3 "Jules workspace/id_manager.py" auto-tag` |
 | 7 | **Build** | `python3 build.py` |
 
 ---
