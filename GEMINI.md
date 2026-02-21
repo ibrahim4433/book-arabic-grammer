@@ -158,7 +158,7 @@ Content: [Exact Arabic Text with .text-accent class]
     - Inject the plan's content using the correct templates.
     - **Apply Tashkeel** to ALL text.
     - **Apply Classes** (`.highlight-red`, `.text-accent`).
-4.  **Tag IDs:** Run `python tools/id_manager.py auto-tag`.
+4.  **Tag IDs:** Run `python "Jules workspace/id_manager.py" auto-tag`.
 5.  **Verify:**
     - Run `python preview.py` -> Select page -> Check layout.
     - Ensure strict adherence to the **One-Page Law**.
