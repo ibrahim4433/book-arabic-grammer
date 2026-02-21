@@ -12,7 +12,7 @@
 
 1.  **Source of Truth:** Adhere strictly to `BOOK_RULES.md` and `elements_index.md`.
 2.  **Metadata Extraction & Usage:**
-    *   **Lesson Number:** Extract the absolute number from the TOC (e.g., 9, 10, 11).
+    *   **Lesson Number:** [LESSON_NUMBER]
     *   **Title:** Extract the clean Arabic title. **DO NOT** include the number prefix in the title field (e.g., use "المِيزَانُ الصَّرْفِيُّ" not "09 - المِيزَانُ الصَّرْفِيُّ").
     *   **Header Data (MANDATORY):** You must populate the `TEMPLATE_C_HEADER` component with the specific metadata provided in the prompt:
         *   `[CATEGORY_HEADER]` <- Use `LESSON_LEVEL`
@@ -20,7 +20,7 @@
         *   `[AUTHOR_NAME]` <- Use `LESSON_AUTHOR`
         *   `[AUTHOR_PHONE]` <- Use `LESSON_AUTHOR_NUMBER`
 3.  **Page Breaking Logic (CRITICAL):**
-    *   **ONE-PAGE LAW:** Every HTML file must correspond to exactly ONE A4 page.
+    *   **ONE-PAGE LAW:** Every HTML file must correspond to exactly ONE A4 page and when page overload make another page
     *   **Filenaming:** Always start with `pages/XX.0_nXX_[slug].html`.
     *   **Protocol for Jules:** You MUST include a `[CONSTRAINTS & PROTOCOLS]` block in the output instructing Jules to:
         > "Use `tools/verify_layout.py` after every major block. If the status is 'FULL' or 'OVERFLOW', close the current file (e.g., `XX.0_...`) and move the remaining content to the next sequential file (e.g., `XX.1_...`)."
@@ -39,7 +39,7 @@
 3.  **THE CORE MATRIX:** `TEMPLATE_C_TABLE` (Summary of all rules).
 4.  **DEEP DIVE:** `TEMPLATE_C_SPLIT` or `TEMPLATE_C_BLOCK`.
 5.  **EVIDENCE:** `TEMPLATE_C_POEM` followed by `TEMPLATE_C_IRAB_ROW`.
-6.  **EVALUATION:** `TEMPLATE_C_EXAM` (Mandatory at the end of every lesson).
+6.  **EVALUATION:** `TEMPLATE_C_EXAM` (Mandatory at the end of every lesson(without answers)).
 
 ---
 
