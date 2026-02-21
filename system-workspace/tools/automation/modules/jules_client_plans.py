@@ -143,6 +143,36 @@ class JulesPlanClient(JulesClient):
         author = lesson_data.get('author', '')
         author_number = lesson_data.get('author_number', '')
 
+        # --- PROMPT INJECTION ---
+        # 1. Replace [LESSON_NUMBER] but protect the key [LESSON_NUMBER]:
+        architect_prompt = re.sub(r'\[LESSON_NUMBER\](?!:)', lesson_number, architect_prompt)
+
+        # 2. Key-Value replacements
+        replacements = {
+            '[TITLE]': lesson_title,
+            '[LESSON_TITLE]': lesson_title,
+
+            # Instructions Placeholders (without brackets in the file)
+            'LESSON_LEVEL': level,
+            'LESSON_UNIT': unit,
+            'LESSON_AUTHOR': author,
+            'LESSON_AUTHOR_NUMBER': author_number,
+
+            # Example Placeholders
+            '[Number]': lesson_number,
+            '[Title]': lesson_title,
+            '[Level]': level,
+            '[Unit]': unit,
+            '[Author]': author,
+            '[Phone]': author_number
+        }
+
+        # Sort by length descending to prevent partial replacement
+        sorted_keys = sorted(replacements.keys(), key=len, reverse=True)
+
+        for key in sorted_keys:
+            architect_prompt = architect_prompt.replace(key, replacements[key])
+
         # Instructions for the "One-Shot" Iteration
         refinement_instruction = f"""
 ================================================================================
