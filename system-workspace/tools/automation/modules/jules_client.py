@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import time
+import logging
 from pathlib import Path
 
 class JulesClient:
@@ -61,19 +62,19 @@ class JulesClient:
         }
         
         try:
-            print(f"🚀 JulesClient: Dispatching Session '{title}'...")
+            logging.info(f"🚀 JulesClient: Dispatching Session '{title}'...")
             resp = requests.post(self.base_url, headers=headers, json=payload, timeout=30)
             resp.raise_for_status()
             
             data = resp.json()
             session_id = data.get('name')
-            print(f"✅ JulesClient: Session Created: {session_id}")
+            logging.info(f"✅ JulesClient: Session Created: {session_id}")
             return data
             
         except requests.exceptions.RequestException as e:
-            print(f"❌ JulesClient Error (Create): {e}")
+            logging.error(f"❌ JulesClient Error (Create): {e}")
             if e.response:
-                print(f"   Response: {e.response.text}")
+                logging.error(f"   Response: {e.response.text}")
             return None
 
     def get_session_status(self, session_id):
@@ -99,7 +100,7 @@ class JulesClient:
             return resp.json()
             
         except requests.exceptions.RequestException as e:
-            print(f"❌ JulesClient Error (Get Status): {e}")
+            logging.error(f"❌ JulesClient Error (Get Status): {e}")
             return None
 
     def send_response(self, session_id, message):
@@ -134,15 +135,15 @@ class JulesClient:
         }
         
         try:
-            print(f"📤 Sending response to {session_id}...")
+            logging.info(f"📤 Sending response to {session_id}...")
             resp = requests.post(url, headers=headers, json=payload, timeout=30)
             resp.raise_for_status()
-            print("✅ Response sent.")
+            logging.info("✅ Response sent.")
             return True
         except requests.exceptions.RequestException as e:
-            print(f"❌ JulesClient Error (Send Response): {e}")
+            logging.error(f"❌ JulesClient Error (Send Response): {e}")
             if e.response:
-                print(f"   Response: {e.response.text}")
+                logging.error(f"   Response: {e.response.text}")
             return False
 
     def get_latest_message(self, session_data):
@@ -175,7 +176,7 @@ class JulesClient:
             
         return None
 
-    def wait_for_completion(self, session_id, timeout_minutes=15, check_interval=30):
+    def wait_for_completion(self, session_id, timeout_minutes=15, check_interval=30, status_callback=None):
         """
         Polls the session until it reaches a terminal state (COMPLETED, FAILED, CANCELLED).
         
@@ -183,6 +184,7 @@ class JulesClient:
             session_id (str): The session ID.
             timeout_minutes (int): Max wait time.
             check_interval (int): Seconds between checks.
+            status_callback (callable, optional): function(state) to call on updates.
             
         Returns:
             str: The final state (e.g., 'SUCCEEDED', 'FAILED', 'TIMEOUT').
@@ -190,30 +192,34 @@ class JulesClient:
         start_time = time.time()
         end_time = start_time + (timeout_minutes * 60)
         
-        print(f"⏳ JulesClient: Monitoring session {session_id} (Timeout: {timeout_minutes}m)...")
+        logging.info(f"⏳ JulesClient: Monitoring session {session_id} (Timeout: {timeout_minutes}m)...")
         
         while time.time() < end_time:
             status_data = self.get_session_status(session_id)
             if not status_data:
-                print("⚠️ JulesClient: Could not fetch status. Retrying...")
+                logging.warning("⚠️ JulesClient: Could not fetch status. Retrying...")
                 time.sleep(check_interval)
                 continue
             
             # Extract state - API structure may vary, checking common fields
             # 'state' or 'status' field is expected in v1alpha
             state = status_data.get('state', 'UNKNOWN')
-            print(f"   Status: {state}")
+            logging.info(f"   Status: {state}")
+
+            if status_callback:
+                status_callback(state)
             
             if state in ['SUCCEEDED', 'COMPLETED', 'FAILED', 'CANCELLED']:
-                print(f"✅ JulesClient: Session finished with state: {state}")
+                logging.info(f"✅ JulesClient: Session finished with state: {state}")
                 return state
                 
             time.sleep(check_interval)
             
-        print("❌ JulesClient: Monitoring timed out.")
+        logging.error("❌ JulesClient: Monitoring timed out.")
         return "TIMEOUT"
 
 # Quick test when running as script
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     client = JulesClient()
-    print("JulesClient initialized successfully.")
+    logging.info("JulesClient initialized successfully.")
