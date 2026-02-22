@@ -1,6 +1,8 @@
 import sys
 import json
 import re
+import time
+import random
 import logging
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -134,6 +136,11 @@ class JulesPlanner:
             def default_callback(t, s, m):
                 logging.info(f"[{s}] {t}: {m}")
             callback = default_callback
+
+        # API Safety Delay (5-15s) to prevent burst
+        delay = random.uniform(5, 15)
+        callback(lesson_title, "RUNNING", f"Safety Delay ({delay:.1f}s)...")
+        time.sleep(delay)
         
         # Attempt to parse number and title from the lesson_title (which is a key from index)
         match = re.match(r'^(\d+)\s*-\s*(.*)', lesson_title)
