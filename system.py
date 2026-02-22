@@ -13,6 +13,7 @@ try:
     from rich.table import Table
     from rich.panel import Panel
     from rich.live import Live
+    from rich.layout import Layout
     from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
     from rich import box
     import questionary
@@ -44,6 +45,7 @@ try:
     from modules.jules_planner import JulesPlanner
     from modules.state_manager import StateManager
     from modules.jules_page_generator import JulesPageGenerator
+    from modules.full_auto_workflow import FullAutoWorkflow
 except ImportError as e:
     logging.critical(f"Failed to import modules: {e}")
     print("❌ Critical Error: Failed to import modules. See system.log for details.")
@@ -300,6 +302,128 @@ def run_jules_generation_ui(state_manager):
 
     total_duration = time.time() - start_all
     console.print(f"[bold green]✅ Batch Generation Completed in {format_duration(total_duration)}![/bold green]")
+
+def run_full_auto_ui(state_manager):
+    console.clear()
+    console.print("[bold cyan]🚀 Starting Full Auto Workflow...[/bold cyan]")
+    console.print("[dim]Press Ctrl+C to Pause/Stop[/dim]")
+
+    # Init workflow
+    workflow = FullAutoWorkflow(PROJECT_ROOT, state_manager)
+
+    # Shared state for UI
+    ui_state = {
+        "step": "INIT",
+        "status": "WAITING",
+        "message": "Initializing...",
+        "history": []
+    }
+    lock = threading.Lock()
+
+    def callback(step, status, message):
+        with lock:
+            ui_state["step"] = step
+            ui_state["status"] = status
+            ui_state["message"] = message
+            if status in ["SUCCESS", "WARN", "ERROR", "MISS", "DOWN"]:
+                ui_state["history"].append((time.strftime("%H:%M:%S"), step, status, message))
+                if len(ui_state["history"]) > 12:
+                    ui_state["history"].pop(0)
+
+    workflow.callback = callback
+
+    def generate_layout():
+        layout = Layout()
+        layout.split(
+            Layout(name="header", size=3),
+            Layout(name="main", ratio=1),
+            Layout(name="footer", size=12)
+        )
+
+        with lock:
+            step = ui_state["step"]
+            status = ui_state["status"]
+            msg = ui_state["message"]
+            hist = list(ui_state["history"])
+
+        # Header
+        color = "white"
+        if status == "RUNNING": color = "yellow"
+        elif status == "SUCCESS": color = "green"
+        elif status == "FAILED": color = "red"
+
+        layout["header"].update(Panel(
+            f"[bold {color}]Current Step: {step} - {status}[/bold {color}]\n{msg}",
+            style=f"bold {color}",
+            box=box.ROUNDED
+        ))
+
+        # Main (Live Stats)
+        stats_text = "\n".join([f"{k}: {v}" for k,v in workflow.stats.items()])
+        layout["main"].update(Panel(stats_text, title="Live Stats", box=box.SIMPLE))
+
+        # Footer (Log)
+        log_text = ""
+        for ts, s, st, m in hist:
+            c = "white"
+            if st == "SUCCESS": c = "green"
+            elif st == "WARN": c = "yellow"
+            elif st == "ERROR": c = "red"
+            elif st == "DOWN": c = "cyan"
+            elif st == "MISS": c = "magenta"
+            log_text += f"[{c}]{ts} [{s}] {st}: {m}[/{c}]\n"
+
+        layout["footer"].update(Panel(log_text, title="Log History", box=box.SIMPLE))
+
+        return layout
+
+    # Run Loop with Pause Handling
+    skip_archive = False
+    while True:
+        try:
+            with Live(generate_layout, refresh_per_second=4) as live:
+                # Start workflow
+                workflow.run(skip_archive=skip_archive)
+
+            # If we get here, it finished successfully
+            console.print("[bold green]✅ Full Auto Workflow Completed Successfully![/bold green]")
+
+            # Show Final Report
+            table = Table(title="Final Workflow Report", box=box.ROUNDED)
+            table.add_column("Metric", style="cyan")
+            table.add_column("Value", style="bold white")
+            for k, v in workflow.stats.items():
+                if isinstance(v, list): v = f"{len(v)} ({', '.join(map(str, v[:5]))}...)"
+                table.add_row(k, str(v))
+            console.print(table)
+            break
+
+        except KeyboardInterrupt:
+            # Pause Menu
+            console.print("\n[bold yellow]⏸️ Workflow Paused by User[/bold yellow]")
+            action = questionary.select(
+                "Paused. What would you like to do?",
+                choices=[
+                    "Resume (Continue/Retry current step)",
+                    "Restart (Clean Archive & Start Over)",
+                    "Quit"
+                ]
+            ).ask()
+
+            if not action or action.startswith("Quit"):
+                return
+            elif action.startswith("Restart"):
+                skip_archive = False
+                workflow = FullAutoWorkflow(PROJECT_ROOT, state_manager) # Reset
+                workflow.callback = callback
+                ui_state["history"] = []
+                ui_state["message"] = "Restarting..."
+            elif action.startswith("Resume"):
+                skip_archive = True # Don't re-archive
+                ui_state["message"] = "Resuming..."
+        except Exception as e:
+            console.print(f"[bold red]❌ Critical Error: {e}[/bold red]")
+            break
 
 # --- LEGACY WRAPPERS ---
 
@@ -575,6 +699,8 @@ def main():
 
         if op == "E":
             run_jules_planning_ui(state_manager)
+        elif op == "A":
+            run_full_auto_ui(state_manager)
         elif op == "F":
             run_jules_generation_ui(state_manager)
         elif op == "B":
