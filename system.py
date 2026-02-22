@@ -4,6 +4,7 @@ import re
 import subprocess
 import logging
 import time
+import threading
 from pathlib import Path
 
 # --- RICH & UI IMPORTS ---
@@ -122,9 +123,7 @@ def run_jules_planning_ui(state_manager):
     planner = JulesPlanner(PROJECT_ROOT)
     
     tasks = {} # title -> {status, message}
-
-    def callback(title, status, msg):
-        tasks[title] = {"status": status, "message": msg}
+    lock = threading.Lock()
 
     def generate_table():
         table = Table(title="Planning Progress", box=box.ROUNDED, expand=True)
@@ -132,7 +131,8 @@ def run_jules_planning_ui(state_manager):
         table.add_column("Status", style="bold")
         table.add_column("Message", style="dim", width=60)
 
-        sorted_tasks = sorted(tasks.items()) # Stable sort
+        with lock:
+            sorted_tasks = sorted(tasks.items()) # Stable sort
 
         for title, data in sorted_tasks:
             status = data['status']
@@ -145,7 +145,14 @@ def run_jules_planning_ui(state_manager):
 
         return table
 
-    with Live(generate_table, refresh_per_second=4):
+    # Initialize Live with the initial table
+    with Live(generate_table(), refresh_per_second=4) as live:
+
+        def callback(title, status, msg):
+            with lock:
+                tasks[title] = {"status": status, "message": msg}
+            live.update(generate_table())
+
         planner.run_batch_planning(max_concurrent=5, update_callback=callback)
     
     console.print("[bold green]✅ Batch Planning Completed![/bold green]")
@@ -157,9 +164,7 @@ def run_jules_generation_ui(state_manager):
     generator = JulesPageGenerator(PROJECT_ROOT)
     
     tasks = {}
-
-    def callback(title, status, msg):
-        tasks[title] = {"status": status, "message": msg}
+    lock = threading.Lock()
 
     def generate_table():
         table = Table(title="Generation Progress", box=box.ROUNDED, expand=True)
@@ -167,7 +172,8 @@ def run_jules_generation_ui(state_manager):
         table.add_column("Status", style="bold")
         table.add_column("Details", style="dim", width=60)
         
-        sorted_tasks = sorted(tasks.items())
+        with lock:
+            sorted_tasks = sorted(tasks.items())
 
         for title, data in sorted_tasks:
             s = data['status']
@@ -180,7 +186,14 @@ def run_jules_generation_ui(state_manager):
             table.add_row(title, f"[{color}]{s}[/{color}]", data['message'])
         return table
 
-    with Live(generate_table, refresh_per_second=4):
+    # Initialize Live with the initial table
+    with Live(generate_table(), refresh_per_second=4) as live:
+
+        def callback(title, status, msg):
+            with lock:
+                tasks[title] = {"status": status, "message": msg}
+            live.update(generate_table())
+
         generator.run_batch_generation(max_concurrent=5, update_callback=callback)
 
     console.print("[bold green]✅ Batch Generation Completed![/bold green]")
