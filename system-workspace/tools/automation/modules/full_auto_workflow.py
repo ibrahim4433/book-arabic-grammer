@@ -12,6 +12,7 @@ from modules.github_utils import GithubClient
 from modules.state_manager import StateManager
 from modules.jules_planner import JulesPlanner
 from modules.jules_page_generator import JulesPageGenerator
+from modules.jules_client_plans import JulesPlanClient
 from modules.jules_ocr import JulesOCR
 
 try:
@@ -73,8 +74,8 @@ class FullAutoWorkflow:
             {"id": "OCR", "func": self._step_ocr, "label": "OCR Processing"},
             {"id": "RAW_PROC", "func": self._step_raw_processing, "label": "Raw Text Processing"},
             {"id": "CHECK_EXIST", "func": self._step_check_existing, "label": "Check Existing Pages"},
-            # {"id": "PLAN_SYNC", "func": self._step_sync_plans, "label": "Sync Missing Plans"},
-            # {"id": "PAGE_SYNC", "func": self._step_sync_pages, "label": "Sync Missing Pages"},
+            {"id": "PLAN_SYNC", "func": self._step_sync_plans, "label": "Sync Missing Plans"},
+            {"id": "PAGE_SYNC", "func": self._step_sync_pages, "label": "Sync Missing Pages"},
             {"id": "UNIFIED_GEN", "func": self._step_unified_production, "label": "Unified Generation"},
             {"id": "AUDIT", "func": self._step_audit, "label": "Audit & Verify"}
         ]
@@ -340,55 +341,122 @@ class FullAutoWorkflow:
     def _step_sync_plans(self):
         self._log("PLAN_SYNC", "RUNNING", "Verifying & Syncing Plans...")
 
-        # Get open PRs
-        prs = self.github.list_pull_requests(self.repo_name, author="Jules")
-        if not prs:
-             self._log("PLAN_SYNC", "INFO", "No open PRs from Jules found. Checking general PRs...")
-             prs = self.github.list_pull_requests(self.repo_name)
+        # 1. Identify Missing Plans
+        missing_keys = []
+        for key in self.toc.keys():
+            if key in self.existing_lessons: continue
 
-        for key, data in self.toc.items():
-            if key in self.existing_lessons:
-                continue
-
-            # Check Local
-            local_plan = None
+            # Check Local Plan
+            plan_exists = False
             if self.plans_dir.exists():
                 candidates = list(self.plans_dir.glob(f"{key}-*-plan.md"))
                 if not candidates:
                     candidates = list(self.plans_dir.glob(f"{int(key):02d}-*-plan.md"))
+                if candidates: plan_exists = True
 
-                if candidates:
-                    local_plan = candidates[0]
+            if not plan_exists:
+                missing_keys.append(key)
 
-            if local_plan:
-                continue
+        if not missing_keys:
+            self._log("PLAN_SYNC", "SUCCESS", "All plans present.")
+            return
 
-            # Check GitHub
-            self._log("PLAN_SYNC", "FETCH", f"Searching GitHub for Plan {key}...")
-            found = False
-            for pr in prs:
-                branch = pr['head']['ref']
-                files = self.github.get_file_info(self.repo_name, "plans", branch)
+        self._log("PLAN_SYNC", "INFO", f"Missing {len(missing_keys)} plans. Checking sessions...")
 
-                if files and isinstance(files, list):
-                    for f in files:
-                        if f['name'].startswith(f"{key}-") or f['name'].startswith(f"{int(key):02d}-"):
-                            if f['name'].endswith("-plan.md"):
-                                self._log("PLAN_SYNC", "DOWN", f"Downloading {f['name']}...")
-                                local_path = self.plans_dir / f['name']
-                                if self.github.download_file(f['download_url'], local_path):
-                                    self.stats["plans_downloaded"] += 1
-                                    self.state_manager.update_lesson_status(key, "PLAN_READY", {"plan": str(local_path)})
-                                    found = True
-                                    break
-                if found:
+        # 2. Smart Sync: Check Sessions First
+        client = JulesPlanClient(project_root=self.project_root)
+        recovered_count = 0
+
+        # Filter down missing_keys by successful recoveries
+        still_missing = []
+
+        for key in missing_keys:
+            recovered = False
+            # Find lesson title to query state manager properly?
+            # State Manager uses titles, TOC uses numbers as keys... need mapping.
+            # Try to find lesson title from TOC
+            lesson_title = self.toc[key].get('title', '')
+            # If state manager has a session_id
+            # We need to access state manager by title.
+            # Or iterate state manager entries and match number.
+
+            # Simplify: Check if ANY state entry matches this key/number
+            # State keys are usually "N - Title"
+            target_entry = None
+            target_title = None
+
+            all_state = self.state_manager.get_all_lessons()
+            for t, data in all_state.items():
+                if t.startswith(f"{key} -") or t.startswith(f"{int(key):02d} -"):
+                    target_entry = data
+                    target_title = t
                     break
 
-            if not found:
-                self.stats["missing_plans"].append(key)
-                self._log("PLAN_SYNC", "MISS", f"Plan for {key} not found.")
+            if target_entry:
+                session_id = target_entry.get("session_id")
+                if session_id:
+                    self._log("PLAN_SYNC", "CHECK", f"Checking session {session_id} for {key}...")
+                    status_data = client.get_session_status(session_id)
+                    state = status_data.get('state', 'UNKNOWN') if status_data else 'UNKNOWN'
 
-        self._log("PLAN_SYNC", "SUCCESS", "Plan Sync Complete.")
+                    if state in ['SUCCEEDED', 'COMPLETED']:
+                        self._log("PLAN_SYNC", "PULL", f"Session completed. Pulling plan for {key}...")
+                        details = client.get_session_details(session_id)
+                        # Construct expected filename
+                        filename = f"{int(key):02d}-{re.sub(r'[^a-zA-Z0-9\u0600-\u06FF]+', '_', lesson_title)}-plan.md"
+                        # We don't know exact filename used by agent, so we rely on Pull Logic finding it
+                        # Wait, pull logic needs path. Agent usually names it consistently.
+                        # Actually JulesPlanClient.finalize_pr_and_pull takes a path.
+                        # If we don't know exact filename, we might fail.
+                        # But wait, we can just pull the branch and see what's there?
+                        # Let's try standard naming convention.
+
+                        # Better approach: Scan PR files for plan pattern
+                        # But for now, let's defer to Phase 3 (Bulk Scan) which is safer for unknown filenames.
+                        # EXCEPT if we can confirm the filename from session logs? No.
+                        pass # Defer to bulk scan which is more robust
+
+            still_missing.append(key)
+
+        # 3. Bulk GitHub Recovery (Optimized)
+        self._log("PLAN_SYNC", "FETCH", "Scanning open PRs for missing plans...")
+        prs = self.github.list_pull_requests(self.repo_name)
+
+        # Map found files to keys
+        # We need to know which file corresponds to which key
+        # Filename format: "{number}-{title}-plan.md"
+
+        for pr in prs:
+            if not still_missing: break
+
+            pr_number = pr['number']
+            # self._log("PLAN_SYNC", "SCAN", f"Scanning PR #{pr_number}...")
+            files = self.github.list_pr_files(self.repo_name, pr_number)
+
+            for f in files:
+                fname = f['filename'] # e.g. plans/01-Intro-plan.md
+                if not fname.endswith("-plan.md"): continue
+
+                # Extract number
+                match = re.search(r'plans/(\d+)-', fname)
+                if match:
+                    num = str(int(match.group(1))) # Normalize '01' -> '1'
+
+                    if num in still_missing:
+                        raw_url = f['raw_url']
+                        self._log("PLAN_SYNC", "DOWN", f"Found plan for {num} in PR #{pr_number}. Downloading...")
+                        local_path = self.plans_dir / Path(fname).name
+                        if self.github.download_file(raw_url, local_path):
+                            self.stats["plans_downloaded"] += 1
+                            self.state_manager.update_lesson_status(num, "PLAN_READY", {"plan": str(local_path)})
+                            still_missing.remove(num)
+                            recovered_count += 1
+
+        if still_missing:
+            self.stats["missing_plans"].extend(still_missing)
+            self._log("PLAN_SYNC", "MISS", f"Could not recover {len(still_missing)} plans.")
+        else:
+            self._log("PLAN_SYNC", "SUCCESS", "All missing plans recovered.")
 
     def _step_page_generation(self):
         self._log("PAGE_GEN", "RUNNING", "Generating Pages (JulesPageGenerator)...")
@@ -417,41 +485,53 @@ class FullAutoWorkflow:
     def _step_sync_pages(self):
         self._log("PAGE_SYNC", "RUNNING", "Verifying & Syncing Pages...")
 
-        # Reuse PRs
-        prs = self.github.list_pull_requests(self.repo_name, author="Jules")
-        if not prs:
-             prs = self.github.list_pull_requests(self.repo_name)
+        # 1. Identify Missing Pages
+        missing_keys = []
+        for key in self.toc.keys():
+            if key in self.existing_lessons: continue
+            missing_keys.append(key)
 
-        for key, data in self.toc.items():
-            if key in self.existing_lessons:
-                continue
+        if not missing_keys:
+            self._log("PAGE_SYNC", "SUCCESS", "All pages present.")
+            return
 
-            self._log("PAGE_SYNC", "FETCH", f"Searching GitHub for Page {key}...")
+        self._log("PAGE_SYNC", "INFO", f"Missing {len(missing_keys)} pages. Checking GitHub...")
 
-            found = False
-            for pr in prs:
-                branch = pr['head']['ref']
-                files = self.github.get_file_info(self.repo_name, "pages", branch)
+        # 2. Bulk GitHub Recovery (Optimized)
+        prs = self.github.list_pull_requests(self.repo_name)
+        still_missing = list(missing_keys)
 
-                if files and isinstance(files, list):
-                    for f in files:
-                        if f['name'].startswith(f"{key}.") or f['name'].startswith(f"{int(key):02d}."):
-                            if f['name'].endswith(".html"):
-                                self._log("PAGE_SYNC", "DOWN", f"Downloading {f['name']}...")
-                                local_path = self.pages_dir / f['name']
-                                if self.github.download_file(f['download_url'], local_path):
-                                    self.stats["pages_downloaded"] += 1
-                                    self.state_manager.update_lesson_status(key, "PAGE_GENERATED", {"html": str(local_path)})
-                                    found = True
-                                    break
-                if found:
-                    break
+        for pr in prs:
+            if not still_missing: break
 
-            if not found:
-                self.stats["missing_pages"].append(key)
-                self._log("PAGE_SYNC", "MISS", f"Page for {key} not found.")
+            pr_number = pr['number']
+            files = self.github.list_pr_files(self.repo_name, pr_number)
 
-        self._log("PAGE_SYNC", "SUCCESS", "Page Sync Complete.")
+            for f in files:
+                fname = f['filename'] # e.g. pages/01.0_n01_Intro.html
+                if not fname.endswith(".html"): continue
+                if "pages/" not in fname: continue
+
+                # Match number at start of filename
+                match = re.search(r'pages/(\d+)', fname)
+                if match:
+                    num = str(int(match.group(1))) # Normalize '01' -> '1'
+
+                    if num in still_missing:
+                        raw_url = f['raw_url']
+                        self._log("PAGE_SYNC", "DOWN", f"Found page for {num} in PR #{pr_number}. Downloading...")
+                        local_path = self.pages_dir / Path(fname).name
+                        if self.github.download_file(raw_url, local_path):
+                            self.stats["pages_downloaded"] += 1
+                            self.state_manager.update_lesson_status(num, "PAGE_GENERATED", {"html": str(local_path)})
+                            if num in still_missing:
+                                still_missing.remove(num)
+
+        if still_missing:
+            self.stats["missing_pages"].extend(still_missing)
+            self._log("PAGE_SYNC", "MISS", f"Could not recover {len(still_missing)} pages.")
+        else:
+            self._log("PAGE_SYNC", "SUCCESS", "All missing pages recovered.")
 
     def _step_audit(self):
         self._log("AUDIT", "RUNNING", "Auditing & Verifying Pages...")
