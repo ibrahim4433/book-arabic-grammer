@@ -39,7 +39,7 @@
 2.  **DEFINITION & RULE:** `TEMPLATE_C_BLOCK` (Body text uses `.text-accent`).
 3.  **THE CORE MATRIX:** `TEMPLATE_C_TABLE` (Summary of all lesson rules).
 4.  **DEEP DIVE:** `TEMPLATE_C_SPLIT` , `TEMPLATE_C_BLOCK` , `TEMPLATE_C_LIST.html`, `TEMPLATE_C_CHIPS.html`.
-5.  **EXTRA INFO:** `TEMPLATE_C_BENEFIT.html` , `TEMPLATE_C_BENEFIT_WARNING.html` , `TEMPLATE_C_BENEFIT_TIP.html`
+5.  **EXTRA INFO ( if multi merge them in one section or add them through the lesson ):** `TEMPLATE_C_BENEFIT.html` , `TEMPLATE_C_BENEFIT_WARNING.html` , `TEMPLATE_C_BENEFIT_TIP.html`
 5.  **EVIDENCE:** `TEMPLATE_C_POEM` followed by `TEMPLATE_C_IRAB_ROW`.
 6.  **EVALUATION:** `TEMPLATE_C_EXAM` (Mandatory at the end of every lesson(without answers!)).
 
@@ -80,6 +80,7 @@ Reference: Follow patterns in design_patterns.json.
 10. Do not provide uncompleted text content using (...) .
 11. You must preserve the **exact** Tashkeel provided in the input and add any missing Tashkeel needed.  
 12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.
+13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of teal , also use this tool to verify "Jules-workspace/smart_color_fixer.py"
 
 [CONTENT STREAM]
 

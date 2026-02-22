@@ -52,7 +52,7 @@ Every lesson must follow this "Golden Flow" to ensure consistency and profession
     1.  Start `pages/XX.0_...`
     2.  Run `verify_layout.py`.
     3.  If OVERFLOW, cut at the nearest `content-block` and start `pages/XX.1_..._cont.html`.
-*   **File Naming:** Strictly follow the pattern `pages/XX.X_nXX_slug.html` where `XX.X` is the file index and `nXX` is the page number.
+*   **File Naming:** Strictly follow the pattern `pages/XX.X_nXX_slug.html` where `XX.X` is the file index and `nXX` is the page number ( keep nXX as it is do not replace XX with numbers ).
 
 # 🛡️ TYPOGRAPHIC & TECHNICAL DEFENSE (STRICT)
 
