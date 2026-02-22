@@ -170,11 +170,13 @@ class JulesOCRClient(JulesClient):
                 logging.error(f"   Stderr: {e.stderr.decode()}")
             return False
 
-    def create_ocr_session(self, prompt):
+    def create_ocr_session(self, prompt, title_suffix=""):
         """
         Creates a session specifically for OCR.
         """
         title = f"Jules OCR Batch ({int(time.time())})"
+        if title_suffix:
+            title += f" - {title_suffix}"
         return self.create_session(prompt, title, automation_mode="AUTO_CREATE_PR")
 
     def get_session_details(self, session_id):
