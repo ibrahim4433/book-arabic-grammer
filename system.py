@@ -368,6 +368,39 @@ def run_full_auto_ui(state_manager):
     # Init workflow
     workflow = FullAutoWorkflow(PROJECT_ROOT, state_manager)
 
+    # Ask for starting point
+    start_choice = questionary.select(
+        "Select Starting Point:",
+        choices=[
+            "1. Start normally",
+            "Start from Raw Processing",
+            "Start from Plan Generation",
+            "Start from Page Generation"
+        ],
+        style=questionary.Style([
+            ('qmark', 'fg:#673ab7 bold'),
+            ('question', 'bold'),
+            ('answer', 'fg:#f44336 bold'),
+            ('pointer', 'fg:#673ab7 bold'),
+            ('highlighted', 'fg:#673ab7 bold'),
+            ('selected', 'fg:#cc5454'),
+            ('separator', 'fg:#cc5454'),
+            ('instruction', ''),
+            ('text', ''),
+            ('disabled', 'fg:#858585 italic')
+        ])
+    ).ask()
+
+    if not start_choice:
+        return
+
+    if start_choice == "Start from Raw Processing":
+        workflow.jump_to_step("RAW_PROC")
+    elif start_choice == "Start from Plan Generation":
+        workflow.jump_to_step("PLAN_GEN")
+    elif start_choice == "Start from Page Generation":
+        workflow.jump_to_step("PAGE_GEN")
+
     # Shared state for UI
     ui_state = {
         "history": [],
