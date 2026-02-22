@@ -418,7 +418,7 @@ def run_full_auto_ui(state_manager):
         table.add_column("Status", width=12)
         table.add_column("Start", style="dim")
         table.add_column("End", style="dim")
-        table.add_column("Duration", justify="right", style="yellow")
+        table.add_column("Timer", justify="right", style="yellow")
 
         # Accessing workflow.step_timings is safe as it's modified sequentially in workflow.run
         # but to be safe for UI thread:
@@ -525,7 +525,7 @@ def run_full_auto_ui(state_manager):
         while True:
             try:
                 # Pass console explicitly to ensure Live uses the terminal (original stdout)
-                with Live(generate_layout(), refresh_per_second=4, console=console) as live:
+                with Live(generate_layout, refresh_per_second=4, console=console) as live:
                     live_container["instance"] = live
                     # Start workflow
                     stats = workflow.run(skip_archive=skip_archive)

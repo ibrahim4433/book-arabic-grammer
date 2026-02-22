@@ -11,6 +11,7 @@ sys.path.append(str(Path(__file__).parent))
 
 from gemini_client import GeminiClient
 from jules_client_plans import JulesPlanClient  # Reusing PR pulling logic
+from github_utils import GithubClient
 
 class JulesPageGenerator:
     """
@@ -22,6 +23,7 @@ class JulesPageGenerator:
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
         self.jules_client = JulesPlanClient(project_root=self.project_root) # Reuse for PR pulling
         self.gemini_client = GeminiClient(project_root=self.project_root)
+        self.github = GithubClient(token_path=self.project_root / "secrets/Github_Token.txt")
         
         # Load Context for Gemini (Headless)
         self.context_files = [
@@ -101,19 +103,74 @@ class JulesPageGenerator:
         # 3. Pull Result
         callback(lesson_title, "RUNNING", "Pulling Page...")
         details = self.jules_client.get_session_details(session_id)
-        target_file = f"{lesson_title.replace('-plan', '')}.html" 
         
-        # Use new Merge & Pull logic
-        # target_file is filename.html, so we prepend pages/
+        # Attempt 1: Exact Match Pull using JulesPlanClient logic
+        target_file = f"{lesson_title.replace('-plan', '')}.html"
         target_path = f"pages/{target_file}"
+
         success = self.jules_client.finalize_pr_and_pull(details, target_path, callback=callback)
         
         if success:
             callback(lesson_title, "SUCCESS", f"Page Saved: {target_file}")
             return True
-        else:
-             callback(lesson_title, "WARN", "Pull failed, check Branch.")
+
+        # Attempt 2: Smart Search in Branch (Fallback)
+        callback(lesson_title, "WARN", "Exact Pull Failed. Searching Branch...")
+
+        branch = details.get('branch')
+        if not branch:
+             callback(lesson_title, "ERROR", "No Branch info found.")
              return False
+
+        repo_full_name = f"{self.jules_client.repo_owner}/{self.jules_client.repo_name}"
+
+        try:
+            # List files in pages/ directory of the branch
+            files = self.github.get_file_info(repo_full_name, "pages", branch)
+
+            found_url = None
+            found_name = None
+
+            if files and isinstance(files, list):
+                # Try to find a file that matches the lesson number
+                match = re.search(r'^(\d+)', lesson_title)
+                lesson_num = match.group(1) if match else None
+
+                for f in files:
+                    if not f['name'].endswith(".html"):
+                        continue
+
+                    # If we have a number, check if file starts with it
+                    if lesson_num:
+                        if f['name'].startswith(lesson_num) or f['name'].startswith(str(int(lesson_num))):
+                            found_url = f['download_url']
+                            found_name = f['name']
+                            break
+                    else:
+                        # Fallback: Check if file name is similar to target?
+                        # Or just take the first HTML if we assume 1-to-1 session?
+                        # Let's match stem at least partially
+                        if lesson_title.replace('-plan', '') in f['name']:
+                             found_url = f['download_url']
+                             found_name = f['name']
+                             break
+
+            if found_url:
+                 callback(lesson_title, "DOWN", f"Found alternative: {found_name}")
+                 local_path = self.project_root / "pages" / found_name
+                 if self.github.download_file(found_url, local_path):
+                      callback(lesson_title, "SUCCESS", f"Page Saved: {found_name}")
+                      return True
+                 else:
+                      callback(lesson_title, "ERROR", "Download Failed")
+                      return False
+            else:
+                 callback(lesson_title, "ERROR", "File not found in branch.")
+                 return False
+
+        except Exception as e:
+            callback(lesson_title, "ERROR", f"Search Exception: {e}")
+            return False
 
     def _monitor_and_handle_session(self, session_id, lesson_title, callback):
         """
