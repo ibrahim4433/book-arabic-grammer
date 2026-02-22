@@ -46,6 +46,7 @@ try:
     from modules.state_manager import StateManager
     from modules.jules_page_generator import JulesPageGenerator
     from modules.full_auto_workflow import FullAutoWorkflow
+    from modules.jules_ocr import JulesOCR
 except ImportError as e:
     logging.critical(f"Failed to import modules: {e}")
     print("❌ Critical Error: Failed to import modules. See system.log for details.")
@@ -302,6 +303,49 @@ def run_jules_generation_ui(state_manager):
 
     total_duration = time.time() - start_all
     console.print(f"[bold green]✅ Batch Generation Completed in {format_duration(total_duration)}![/bold green]")
+
+def run_jules_ocr_ui(state_manager):
+    console.clear()
+    console.print("[bold cyan]🚀 Starting Jules Batch OCR (One Session)...[/bold cyan]")
+
+    ocr = JulesOCR(PROJECT_ROOT)
+
+    ui_state = {
+        "status": "INIT",
+        "message": "Initializing..."
+    }
+    lock = threading.Lock()
+
+    def generate_display():
+        with lock:
+            s = ui_state["status"]
+            m = ui_state["message"]
+
+        color = "white"
+        if s == "RUNNING": color = "yellow"
+        elif s == "SUCCESS": color = "green"
+        elif s == "FAILED": color = "red"
+        elif s == "ERROR": color = "red"
+
+        return Panel(
+            f"[bold {color}]Status: {s}[/bold {color}]\n{m}",
+            title="Jules OCR Progress",
+            box=box.ROUNDED,
+            border_style=color
+        )
+
+    start_time = time.time()
+    with Live(generate_display(), refresh_per_second=4) as live:
+
+        def callback(status, msg):
+            with lock:
+                ui_state["status"] = status
+                ui_state["message"] = msg
+            live.update(generate_display())
+
+        ocr.run_ocr_batch(update_callback=callback)
+
+    console.print(f"[bold green]✅ OCR Batch Completed in {format_duration(time.time() - start_time)}![/bold green]")
 
 def run_full_auto_ui(state_manager):
     console.clear()
@@ -681,6 +725,7 @@ def main():
                 "E) Plan Generation (Jules Batch)",
                 "F) Page Generation (Jules Batch)",
                 "G) Audit & Verify Pages",
+                "H) OCR Only by Jules (Images -> Raw)",
                 "Q) Quit"
             ],
             style=questionary.Style([
@@ -719,6 +764,8 @@ def main():
             run_planning(state_manager)
         elif op == "G":
             run_audit_and_verify(state_manager)
+        elif op == "H":
+            run_jules_ocr_ui(state_manager)
         
         if op != "Q":
             console.print(f"\n[dim]Total operation time: {format_duration(time.time() - start_op)}[/dim]")
