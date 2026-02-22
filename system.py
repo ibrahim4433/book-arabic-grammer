@@ -102,6 +102,19 @@ class Timer:
 
 # --- UI HELPERS ---
 
+class StreamLogger:
+    """Redirects writes to a logger."""
+    def __init__(self, logger, level=logging.INFO):
+        self.logger = logger
+        self.level = level
+
+    def write(self, buf):
+        for line in buf.rstrip().splitlines():
+            self.logger.log(self.level, line.rstrip())
+
+    def flush(self):
+        pass
+
 def print_header():
     console.clear()
     console.print(Panel.fit(
@@ -357,47 +370,82 @@ def run_full_auto_ui(state_manager):
 
     # Shared state for UI
     ui_state = {
-        "step": "INIT",
-        "status": "WAITING",
-        "message": "Initializing...",
-        "history": []
+        "history": [],
+        "last_update": time.time()
     }
     lock = threading.Lock()
 
     # Holder for live instance to update from callback
     live_container = {"instance": None}
 
+    def generate_timeline():
+        """Generates the main timeline table."""
+        table = Table(title="Workflow Timeline", box=box.SIMPLE, expand=True)
+        table.add_column("Step", style="bold white")
+        table.add_column("Status", width=12)
+        table.add_column("Start", style="dim")
+        table.add_column("End", style="dim")
+        table.add_column("Duration", justify="right", style="yellow")
+
+        # Accessing workflow.step_timings is safe as it's modified sequentially in workflow.run
+        # but to be safe for UI thread:
+        steps = workflow.get_steps()
+
+        for step in steps:
+            s_id = step['id']
+            # Access timing safely
+            if s_id in workflow.step_timings:
+                meta = workflow.step_timings[s_id]
+                status = meta['status']
+            else:
+                meta = {"status": "PENDING", "start_time": None, "end_time": None, "duration": 0}
+                status = "PENDING"
+
+            # Color Logic
+            s_color = "white"
+            if status == "SUCCESS": s_color = "green"
+            elif status == "RUNNING": s_color = "yellow"
+            elif status == "FAILED": s_color = "red"
+            elif status == "PAUSED": s_color = "magenta"
+            elif status == "PENDING": s_color = "dim"
+
+            # Format Times
+            start_s = time.strftime('%H:%M:%S', time.localtime(meta['start_time'])) if meta['start_time'] else "-"
+            end_s = time.strftime('%H:%M:%S', time.localtime(meta['end_time'])) if meta['end_time'] else "-"
+            dur_s = format_duration(meta['duration']) if meta['duration'] > 0 else "-"
+
+            table.add_row(
+                step['label'],
+                f"[{s_color}]{status}[/{s_color}]",
+                start_s,
+                end_s,
+                dur_s
+            )
+        return table
+
     def generate_layout():
         layout = Layout()
         layout.split(
             Layout(name="header", size=3),
             Layout(name="main", ratio=1),
-            Layout(name="footer", size=12)
+            Layout(name="footer", size=10)
         )
 
-        with lock:
-            step = ui_state["step"]
-            status = ui_state["status"]
-            msg = ui_state["message"]
-            hist = list(ui_state["history"])
-
-        # Header
-        color = "white"
-        if status == "RUNNING": color = "yellow"
-        elif status == "SUCCESS": color = "green"
-        elif status == "FAILED": color = "red"
-
+        # Header info
+        current_step = workflow.get_current_step_name()
         layout["header"].update(Panel(
-            f"[bold {color}]Current Step: {step} - {status}[/bold {color}]\n{msg}",
-            style=f"bold {color}",
+            f"[bold cyan]Full Auto Workflow - {current_step}[/bold cyan]",
+            style="bold white",
             box=box.ROUNDED
         ))
 
-        # Main (Live Stats)
-        stats_text = "\n".join([f"{k}: {v}" for k,v in workflow.stats.items()])
-        layout["main"].update(Panel(stats_text, title="Live Stats", box=box.SIMPLE))
+        # Main: Timeline Table
+        layout["main"].update(Panel(generate_timeline(), box=box.ROUNDED))
 
-        # Footer (Log)
+        # Footer: Log
+        with lock:
+            hist = list(ui_state["history"])
+
         log_text = ""
         for ts, s, st, m in hist:
             c = "white"
@@ -406,6 +454,7 @@ def run_full_auto_ui(state_manager):
             elif st == "ERROR": c = "red"
             elif st == "DOWN": c = "cyan"
             elif st == "MISS": c = "magenta"
+            elif st == "START": c = "blue"
             log_text += f"[{c}]{ts} [{s}] {st}: {m}[/{c}]\n"
 
         layout["footer"].update(Panel(log_text, title="Log History", box=box.SIMPLE))
@@ -414,12 +463,9 @@ def run_full_auto_ui(state_manager):
 
     def callback(step, status, message):
         with lock:
-            ui_state["step"] = step
-            ui_state["status"] = status
-            ui_state["message"] = message
-            if status in ["SUCCESS", "WARN", "ERROR", "MISS", "DOWN"]:
+            if status in ["SUCCESS", "WARN", "ERROR", "MISS", "DOWN", "START", "MERGE", "INDEX", "GEN", "AUDIT"]:
                 ui_state["history"].append((time.strftime("%H:%M:%S"), step, status, message))
-                if len(ui_state["history"]) > 12:
+                if len(ui_state["history"]) > 8:
                     ui_state["history"].pop(0)
 
         # Update live display
@@ -430,52 +476,105 @@ def run_full_auto_ui(state_manager):
 
     # Run Loop with Pause Handling
     skip_archive = False
-    while True:
-        try:
-            with Live(generate_layout(), refresh_per_second=4) as live:
-                live_container["instance"] = live
-                # Start workflow
-                workflow.run(skip_archive=skip_archive)
 
-            # If we get here, it finished successfully
-            console.print("[bold green]✅ Full Auto Workflow Completed Successfully![/bold green]")
+    # Save original stdout to restore later and for console to use
+    original_stdout = sys.stdout
 
-            # Show Final Report
-            table = Table(title="Final Workflow Report", box=box.ROUNDED)
-            table.add_column("Metric", style="cyan")
-            table.add_column("Value", style="bold white")
-            for k, v in workflow.stats.items():
-                if isinstance(v, list): v = f"{len(v)} ({', '.join(map(str, v[:5]))}...)"
-                table.add_row(k, str(v))
-            console.print(table)
-            break
+    try:
+        # Redirect stdout to log to prevent flickering from modules
+        sys.stdout = StreamLogger(logging.getLogger(), logging.INFO)
 
-        except KeyboardInterrupt:
-            # Pause Menu
-            console.print("\n[bold yellow]⏸️ Workflow Paused by User[/bold yellow]")
-            action = questionary.select(
-                "Paused. What would you like to do?",
-                choices=[
-                    "Resume (Continue/Retry current step)",
-                    "Restart (Clean Archive & Start Over)",
+        while True:
+            try:
+                # Pass console explicitly to ensure Live uses the terminal (original stdout)
+                with Live(generate_layout(), refresh_per_second=4, console=console) as live:
+                    live_container["instance"] = live
+                    # Start workflow
+                    stats = workflow.run(skip_archive=skip_archive)
+
+                # If we get here, it finished successfully
+                # We need to temporarily restore stdout to print the final report to screen
+                sys.stdout = original_stdout
+                console.print("[bold green]✅ Full Auto Workflow Completed Successfully![/bold green]")
+
+                # Show Final Report
+                table = Table(title="Final Workflow Report", box=box.ROUNDED)
+                table.add_column("Metric", style="cyan")
+                table.add_column("Value", style="bold white")
+                for k, v in stats.items():
+                    if isinstance(v, list): v = f"{len(v)} ({', '.join(map(str, v[:5]))}...)"
+                    table.add_row(k, str(v))
+                console.print(table)
+                break
+
+            except KeyboardInterrupt:
+                # Restore stdout for interaction
+                sys.stdout = original_stdout
+
+                # Pause Menu
+                console.print("\n[bold yellow]⏸️ Workflow Paused by User[/bold yellow]")
+
+                # Determine options
+                current_step_name = workflow.get_current_step_name()
+
+                choices = [
+                    f"Resume (Continue {current_step_name})",
+                    "Re-do Previous Step",
+                    "Jump to Step...",
+                    "Restart (Full Reset)",
                     "Quit"
                 ]
-            ).ask()
 
-            if not action or action.startswith("Quit"):
-                return
-            elif action.startswith("Restart"):
-                skip_archive = False
-                workflow = FullAutoWorkflow(PROJECT_ROOT, state_manager) # Reset
-                workflow.callback = callback
-                ui_state["history"] = []
-                ui_state["message"] = "Restarting..."
-            elif action.startswith("Resume"):
-                skip_archive = True # Don't re-archive
-                ui_state["message"] = "Resuming..."
-        except Exception as e:
-            console.print(f"[bold red]❌ Critical Error: {e}[/bold red]")
-            break
+                action = questionary.select(
+                    "Paused. What would you like to do?",
+                    choices=choices
+                ).ask()
+
+                if not action or action.startswith("Quit"):
+                    return
+
+                elif action.startswith("Resume"):
+                    skip_archive = True # Usually we don't want to archive again if we resume
+                    console.print("[dim]Resuming...[/dim]")
+                    # Go back to redirecting stdout
+                    sys.stdout = StreamLogger(logging.getLogger(), logging.INFO)
+
+                elif action.startswith("Restart"):
+                    skip_archive = False
+                    workflow = FullAutoWorkflow(PROJECT_ROOT, state_manager) # Reset
+                    workflow.callback = callback
+                    ui_state["history"] = []
+                    console.print("[dim]Restarting...[/dim]")
+                    # Go back to redirecting stdout
+                    sys.stdout = StreamLogger(logging.getLogger(), logging.INFO)
+
+                elif action.startswith("Re-do Previous"):
+                    if workflow.redo_previous_step():
+                        console.print("[green]Rewound to previous step.[/green]")
+                        skip_archive = True # Don't archive again if jumping back inside
+                    else:
+                        console.print("[red]Cannot go back (already at start).[/red]")
+                        time.sleep(1)
+                    # Go back to redirecting stdout
+                    sys.stdout = StreamLogger(logging.getLogger(), logging.INFO)
+
+                elif action.startswith("Jump to Step"):
+                    steps = [s['label'] for s in workflow.get_steps()]
+                    target = questionary.select("Select Step to Jump to:", choices=steps).ask()
+                    if target:
+                        workflow.jump_to_step(target)
+                        skip_archive = True # Assume skip archive if jumping around
+                        console.print(f"[green]Jumped to {target}.[/green]")
+                    # Go back to redirecting stdout
+                    sys.stdout = StreamLogger(logging.getLogger(), logging.INFO)
+
+    except Exception as e:
+        sys.stdout = original_stdout
+        console.print(f"[bold red]❌ Critical Error: {e}[/bold red]")
+        import traceback
+        console.print(traceback.format_exc())
+    finally:
+        sys.stdout = original_stdout
 
 # --- LEGACY WRAPPERS ---
 
