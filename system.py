@@ -320,17 +320,8 @@ def run_full_auto_ui(state_manager):
     }
     lock = threading.Lock()
 
-    def callback(step, status, message):
-        with lock:
-            ui_state["step"] = step
-            ui_state["status"] = status
-            ui_state["message"] = message
-            if status in ["SUCCESS", "WARN", "ERROR", "MISS", "DOWN"]:
-                ui_state["history"].append((time.strftime("%H:%M:%S"), step, status, message))
-                if len(ui_state["history"]) > 12:
-                    ui_state["history"].pop(0)
-
-    workflow.callback = callback
+    # Holder for live instance to update from callback
+    live_container = {"instance": None}
 
     def generate_layout():
         layout = Layout()
@@ -377,11 +368,28 @@ def run_full_auto_ui(state_manager):
 
         return layout
 
+    def callback(step, status, message):
+        with lock:
+            ui_state["step"] = step
+            ui_state["status"] = status
+            ui_state["message"] = message
+            if status in ["SUCCESS", "WARN", "ERROR", "MISS", "DOWN"]:
+                ui_state["history"].append((time.strftime("%H:%M:%S"), step, status, message))
+                if len(ui_state["history"]) > 12:
+                    ui_state["history"].pop(0)
+
+        # Update live display
+        if live_container["instance"]:
+            live_container["instance"].update(generate_layout())
+
+    workflow.callback = callback
+
     # Run Loop with Pause Handling
     skip_archive = False
     while True:
         try:
-            with Live(generate_layout, refresh_per_second=4) as live:
+            with Live(generate_layout(), refresh_per_second=4) as live:
+                live_container["instance"] = live
                 # Start workflow
                 workflow.run(skip_archive=skip_archive)
 
