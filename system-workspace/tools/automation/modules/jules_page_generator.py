@@ -96,7 +96,10 @@ class JulesPageGenerator:
         details = self.jules_client.get_session_details(session_id)
         target_file = f"{lesson_title.replace('-plan', '')}.html" 
         
-        success = self.jules_client.pull_plan_from_github(details, f"pages/{target_file}")
+        # Use new Merge & Pull logic
+        # target_file is filename.html, so we prepend pages/
+        target_path = f"pages/{target_file}"
+        success = self.jules_client.finalize_pr_and_pull(details, target_path, callback=callback)
         
         if success:
             callback(lesson_title, "SUCCESS", f"Page Saved: {target_file}")
