@@ -62,7 +62,7 @@ try:
 except ImportError as e:
     print(f"⚠️ Warning: Could not import Jules Workspace tools: {e}")
 
-console = Console()
+console = Console(file=sys.stdout)
 
 # --- TIMING UTILS ---
 
