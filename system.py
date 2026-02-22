@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 import sys
-import os
-import json
 import re
 import subprocess
-from pathlib import Path
+import logging
 import time
+from pathlib import Path
 
 # --- RICH & UI IMPORTS ---
 try:
     from rich.console import Console
     from rich.table import Table
     from rich.panel import Panel
-    from rich.layout import Layout
     from rich.live import Live
     from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
     from rich import box
@@ -26,18 +24,26 @@ PROJECT_ROOT = Path(__file__).parent.resolve()
 MODULES_PATH = PROJECT_ROOT / "system-workspace/tools/automation"
 sys.path.append(str(MODULES_PATH))
 
+# --- LOGGING SETUP ---
+# Redirect logs to file so they don't break the UI
+logging.basicConfig(
+    filename='system.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    filemode='w'
+)
+
 # --- MODULE IMPORTS ---
 try:
     from modules.vision import VisionClient
     from modules.text_processing import TextProcessor
     from modules.planner import Planner
     from modules.jules_planner import JulesPlanner
-    from modules.compiler import Compiler
-    from modules.auditor import Auditor
     from modules.state_manager import StateManager
     from modules.jules_page_generator import JulesPageGenerator
 except ImportError as e:
-    print(f"❌ Critical Error: Failed to import modules. Details: {e}")
+    logging.critical(f"Failed to import modules: {e}")
+    print("❌ Critical Error: Failed to import modules. See system.log for details.")
     sys.exit(1)
 
 console = Console()
@@ -89,7 +95,7 @@ def display_status_table(state_manager):
         # Clean up title for display
         clean_title = re.sub(r'^\d+\s*-\s*', '', title).strip()
         if key.isdigit() and clean_title == key:
-             clean_title = "Unknown Title"
+            clean_title = "Unknown Title"
 
         # Colorize Status
         status_style = "white"
@@ -110,67 +116,60 @@ def display_status_table(state_manager):
 # --- WORKFLOW HANDLERS ---
 
 def run_jules_planning_ui(state_manager):
+    console.clear() # Clear screen for App-like feel
     console.print("[bold cyan]🚀 Starting Jules Batch Planning...[/bold cyan]")
     
     planner = JulesPlanner(PROJECT_ROOT)
     
-    # Live Table for Status
-    progress_table = Table(title="Planning Progress", box=box.ROUNDED)
-    progress_table.add_column("Lesson", style="cyan")
-    progress_table.add_column("Status", style="bold")
-    progress_table.add_column("Message", style="dim", width=50)
-    
-    # Store dynamic state
     tasks = {} # title -> {status, message}
-
-    def update_ui():
-        # Rebuild table rows
-        progress_table.rows = [] # Clear rows
-        for title, data in tasks.items():
-            status_color = "yellow"
-            if data['status'] == "SUCCESS": status_color = "green"
-            elif data['status'] == "FAILED": status_color = "red"
-            
-            progress_table.add_row(title, f"[{status_color}]{data['status']}[/{status_color}]", data['message'])
 
     def callback(title, status, msg):
         tasks[title] = {"status": status, "message": msg}
-        # Note: In a real async loop we'd await, but here threads update 'tasks' dict
-        # and 'Live' context refreshes automatically.
 
-    with Live(progress_table, refresh_per_second=4):
+    def generate_table():
+        table = Table(title="Planning Progress", box=box.ROUNDED, expand=True)
+        table.add_column("Lesson", style="cyan")
+        table.add_column("Status", style="bold")
+        table.add_column("Message", style="dim", width=60)
+
+        sorted_tasks = sorted(tasks.items()) # Stable sort
+
+        for title, data in sorted_tasks:
+            status = data['status']
+            status_color = "white"
+            if status == "SUCCESS": status_color = "green"
+            elif status == "FAILED": status_color = "red"
+            elif status == "RUNNING": status_color = "yellow"
+
+            table.add_row(title, f"[{status_color}]{status}[/{status_color}]", data['message'])
+
+        return table
+
+    with Live(generate_table, refresh_per_second=4):
         planner.run_batch_planning(max_concurrent=5, update_callback=callback)
     
     console.print("[bold green]✅ Batch Planning Completed![/bold green]")
 
 def run_jules_generation_ui(state_manager):
+    console.clear() # Clear screen for App-like feel
     console.print("[bold cyan]🚀 Starting Jules Page Generation...[/bold cyan]")
     
     generator = JulesPageGenerator(PROJECT_ROOT)
-    
-    progress_table = Table(title="Generation Progress", box=box.ROUNDED)
-    progress_table.add_column("Lesson", style="cyan")
-    progress_table.add_column("Status", style="bold")
-    progress_table.add_column("Details", style="dim", width=60)
     
     tasks = {}
 
     def callback(title, status, msg):
         tasks[title] = {"status": status, "message": msg}
 
-    # Custom loop to update table from 'tasks' dict
-    # Since 'Live' calls the renderable, we need a wrapper or just update the table object
-    # But table rows are static once added. We need to generate a NEW table each refresh
-    # or use a Layout.
-    # Simpler approach: A function that returns the table.
-    
     def generate_table():
-        table = Table(title="Generation Progress", box=box.ROUNDED)
+        table = Table(title="Generation Progress", box=box.ROUNDED, expand=True)
         table.add_column("Lesson", style="cyan")
         table.add_column("Status", style="bold")
         table.add_column("Details", style="dim", width=60)
         
-        for title, data in tasks.items():
+        sorted_tasks = sorted(tasks.items())
+
+        for title, data in sorted_tasks:
             s = data['status']
             color = "white"
             if s == "RUNNING": color = "yellow"
@@ -181,9 +180,7 @@ def run_jules_generation_ui(state_manager):
             table.add_row(title, f"[{color}]{s}[/{color}]", data['message'])
         return table
 
-    with Live(generate_table, refresh_per_second=4) as live:
-        # We need to hook the callback to force a refresh?
-        # Live polls 'generate_table' automatically.
+    with Live(generate_table, refresh_per_second=4):
         generator.run_batch_generation(max_concurrent=5, update_callback=callback)
 
     console.print("[bold green]✅ Batch Generation Completed![/bold green]")
@@ -191,6 +188,7 @@ def run_jules_generation_ui(state_manager):
 # --- LEGACY WRAPPERS ---
 
 def run_ocr(state_manager):
+    console.clear() # Clear screen
     console.print(Panel("[bold]Running OCR Module...[/bold]", style="blue"))
     input_dir = PROJECT_ROOT / "input"
     images = sorted(list(input_dir.glob("*.jpg")) + list(input_dir.glob("*.png")))
@@ -229,32 +227,37 @@ def run_ocr(state_manager):
             progress.advance(task)
 
 def run_raw_processing(state_manager):
+    console.clear()
     console.print(Panel("[bold]Running Raw Processing...[/bold]", style="blue"))
-    tp = TextProcessor()
-    if not tp.validate_toc(): return
     
-    console.print("1. Merging Raw Text...")
-    merged_path = tp.merge_raw_text()
-    if not merged_path: return
-    
-    console.print("2. Generating Lesson Index...")
-    mapping = tp.generate_lesson_index()
-    if mapping:
-        console.print("[bold green]✅ Raw Processing Complete![/bold green]")
+    with console.status("[bold green]Processing...[/bold green]", spinner="dots"):
+        tp = TextProcessor()
+        if not tp.validate_toc(): return
+
+        console.print("1. Merging Raw Text...")
+        merged_path = tp.merge_raw_text()
+        if not merged_path: return
+
+        console.print("2. Generating Lesson Index...")
+        mapping = tp.generate_lesson_index()
+        if mapping:
+            console.print("[bold green]✅ Raw Processing Complete![/bold green]")
 
 def run_planning(state_manager):
+    console.clear()
     console.print(Panel("[bold]Running Standard Planner...[/bold]", style="blue"))
     
-    tp = TextProcessor(use_headless=True)
-    if not tp.validate_toc(): return
+    with console.status("[bold green]Initializing...[/bold green]", spinner="dots"):
+        tp = TextProcessor(use_headless=True)
+        if not tp.validate_toc(): return
+
+        console.print("1. Merging Raw Text...")
+        merged_path = tp.merge_raw_text()
+        if not merged_path: return
         
-    console.print("1. Merging Raw Text...")
-    merged_path = tp.merge_raw_text()
-    if not merged_path: return
-    
-    console.print("2. Generating Lesson Index...")
-    mapping = tp.generate_lesson_index()
-    if not mapping: return
+        console.print("2. Generating Lesson Index...")
+        mapping = tp.generate_lesson_index()
+        if not mapping: return
     
     planner = Planner()
     
@@ -264,13 +267,6 @@ def run_planning(state_manager):
         for lesson_title, range_info in mapping.items():
             lesson_number = tp.get_lesson_number(lesson_title)
             clean_title = re.sub(r'^\d+\s*-\s*', '', lesson_title).strip()
-            
-            # Simplified: Pass full text (context window limited, but standard planner might handle it)
-            # Actually, standard planner expects 'raw_lesson_text'
-            # We should slice it.
-            # For V3 UI, let's just use the merged text as placeholder logic if slicing isn't robust
-            # But we can try to use the same logic as JulesPlanner if available
-            # Or just pass the whole thing.
             
             plan_filename = f"{lesson_number}-{clean_title}-plan.md"
             plan_path = planner.generate_plan(
@@ -342,10 +338,12 @@ def main():
         elif op == "D":
             run_planning(state_manager)
         elif op == "G":
-             console.print("Running Audit...")
-             subprocess.run(["python3", "Jules-workspace/lint_pages.py"])
+            console.clear()
+            console.print("[bold]Running Audit...[/bold]")
+            subprocess.run(["python3", "Jules-workspace/lint_pages.py"], check=False)
         
         if op != "Q":
+            console.print("\n")
             questionary.press_any_key_to_continue().ask()
 
 if __name__ == "__main__":

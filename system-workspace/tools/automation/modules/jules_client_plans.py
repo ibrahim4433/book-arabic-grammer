@@ -3,6 +3,7 @@ import json
 import time
 import subprocess
 import re
+import logging
 from pathlib import Path
 
 # Ensure modules are importable
@@ -65,7 +66,7 @@ class JulesPlanClient(JulesClient):
                     details['pr_number'] = match.group(1)
 
         if not details:
-            print(f"⚠️ Could not identify branch/PR for session {session_id}. Data: {status_data.keys()}")
+            logging.warning(f"⚠️ Could not identify branch/PR for session {session_id}. Data: {status_data.keys()}")
 
         return details
 
@@ -74,13 +75,13 @@ class JulesPlanClient(JulesClient):
         Fetches the plan file from the specified remote context (PR or Branch).
         """
         if not session_details:
-            print("❌ No session details provided.")
+            logging.error("❌ No session details provided.")
             return False
 
         branch_name = session_details.get('branch')
         pr_number = session_details.get('pr_number')
 
-        print(f"⬇️ Pulling {target_filename} (Branch: {branch_name}, PR: {pr_number})...")
+        logging.info(f"⬇️ Pulling {target_filename} (Branch: {branch_name}, PR: {pr_number})...")
 
         try:
             fetch_ref = None
@@ -97,7 +98,7 @@ class JulesPlanClient(JulesClient):
                 fetch_ref = branch_name
                 checkout_ref = f"origin/{branch_name}"
             else:
-                print("❌ Cannot pull: Missing Branch Name and PR Number.")
+                logging.error("❌ Cannot pull: Missing Branch Name and PR Number.")
                 return False
 
             # 1. Fetch
@@ -109,7 +110,7 @@ class JulesPlanClient(JulesClient):
             checkout_cmd = ["git", "checkout", checkout_ref, "--", repo_path]
             subprocess.run(checkout_cmd, check=True, cwd=self.project_root, capture_output=True)
 
-            print(f"✅ Successfully pulled {target_filename}")
+            logging.info(f"✅ Successfully pulled {target_filename}")
 
             # Clean up local temp branch if created
             if pr_number:
@@ -120,13 +121,13 @@ class JulesPlanClient(JulesClient):
             if local_path.exists():
                 return True
             else:
-                print(f"❌ File not found locally after checkout: {local_path}")
+                logging.error(f"❌ File not found locally after checkout: {local_path}")
                 return False
 
         except subprocess.CalledProcessError as e:
-            print(f"❌ Git Error: {e}")
+            logging.error(f"❌ Git Error: {e}")
             if e.stderr:
-                print(f"   Stderr: {e.stderr.decode()}")
+                logging.error(f"   Stderr: {e.stderr.decode()}")
             return False
 
     def construct_mega_prompt(self, lesson_data, architect_prompt, auditor_prompt):
@@ -224,6 +225,7 @@ You are currently operating in a BATCH MODE. You must perform the following step
         return full_prompt
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     # Test Init
     client = JulesPlanClient()
-    print("JulesPlanClient initialized.")
+    logging.info("JulesPlanClient initialized.")

@@ -1,7 +1,7 @@
 import sys
 import json
-import time
 import re
+import logging
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -28,7 +28,7 @@ class JulesPlanner:
         # Load Raw Text Index
         self.raw_text_path = self.project_root / "system-workspace/text-data/full_raw_indexed.txt"
         if not self.raw_text_path.exists():
-            print("⚠️ Raw text index missing. Generating...")
+            logging.warning("⚠️ Raw text index missing. Generating...")
             self.tp.merge_raw_text()
 
         self.raw_lines = self.raw_text_path.read_text(encoding='utf-8').splitlines()
@@ -70,9 +70,11 @@ class JulesPlanner:
             update_callback (callable): Function(lesson_title, status, message)
         """
         if not update_callback:
-            def update_callback(title, status, msg): print(f"[{status}] {title}: {msg}")
+            def default_callback(title, status, msg):
+                logging.info(f"[{status}] {title}: {msg}")
+            update_callback = default_callback
 
-        print(f"\n🧠 Starting Jules Batch Planning (Max Concurrent: {max_concurrent})...")
+        logging.info(f"\n🧠 Starting Jules Batch Planning (Max Concurrent: {max_concurrent})...")
 
         # 1. Get Lesson Index
         index_path = self.project_root / "system-workspace/text-data/raw_to_lesson_index.json"
@@ -128,7 +130,10 @@ class JulesPlanner:
         """
         Worker function for a single lesson.
         """
-        if not callback: callback = lambda t, s, m: print(f"[{s}] {t}: {m}")
+        if not callback:
+            def default_callback(t, s, m):
+                logging.info(f"[{s}] {t}: {m}")
+            callback = default_callback
         
         # Attempt to parse number and title from the lesson_title (which is a key from index)
         match = re.match(r'^(\d+)\s*-\s*(.*)', lesson_title)
@@ -195,10 +200,11 @@ class JulesPlanner:
         callback(lesson_title, "RUNNING", f"Monitoring Session ({session_id})...")
 
         # 5. Monitor Session
-        # We need to poll inside here and update callback occasionally
-        # But wait_for_completion blocks. Let's modify wait_for_completion to accept callback?
-        # Or just wait.
-        status = self.client.wait_for_completion(session_id, timeout_minutes=20)
+        # Define status callback for wait_for_completion
+        def status_update(state):
+            callback(lesson_title, "RUNNING", f"Status: {state}")
+
+        status = self.client.wait_for_completion(session_id, timeout_minutes=20, status_callback=status_update)
 
         if status != "SUCCEEDED":
             callback(lesson_title, "FAILED", f"Session ended: {status}")
@@ -222,5 +228,6 @@ class JulesPlanner:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     planner = JulesPlanner()
     planner.run_batch_planning(max_concurrent=2)

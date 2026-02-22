@@ -1,15 +1,12 @@
 import sys
-import os
-import json
 import time
-import re
+import logging
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Ensure modules are importable
 sys.path.append(str(Path(__file__).parent))
 
-from jules_client import JulesClient
 from gemini_client import GeminiClient
 from jules_client_plans import JulesPlanClient  # Reusing PR pulling logic
 
@@ -41,74 +38,6 @@ class JulesPageGenerator:
                 context += f"\n--- {fname} ---\n{fpath.read_text(encoding='utf-8')}\n"
         return context
 
-    def _monitor_and_handle_session(self, session_id, lesson_title):
-        """
-        Monitors a running session.
-        If Jules asks a question (WAITING_FOR_INPUT or similar), uses Gemini to answer.
-        """
-        print(f"👀 Monitoring {lesson_title} ({session_id})...")
-        
-        # We poll for a bit longer than standard planning because coding takes time
-        start_time = time.time()
-        timeout = 25 * 60 # 25 minutes
-        
-        while time.time() - start_time < timeout:
-            status_data = self.jules_client.get_session_status(session_id)
-            if not status_data:
-                time.sleep(30)
-                continue
-                
-            state = status_data.get('state', 'UNKNOWN')
-            print(f"   [{lesson_title}] Status: {state}")
-            
-            # 1. Handle Success
-            if state == 'SUCCEEDED':
-                return "SUCCEEDED"
-                
-            # 2. Handle Failure
-            if state in ['FAILED', 'CANCELLED']:
-                return state
-                
-            # 3. Handle Interaction (Hypothetical state 'NEEDS_INPUT' or 'WAITING_FOR_USER_INPUT')
-            # If the API doesn't explicitly say "WAITING", we might infer from 'turns' 
-            # if the last turn was from MODEL and it ended with a question mark?
-            # For now, let's assume a state or if the log indicates waiting.
-            # If we don't know the exact state name for waiting, we rely on the user's description.
-            # "if Jules asked questions..." implies a pause.
-            
-            # Let's check the last message from the Model
-            last_msg = self.jules_client.get_latest_message(status_data)
-            
-            if state == "NEEDS_INTERACTION" or (last_msg and "?" in last_msg and state not in ['SUCCEEDED', 'FAILED']):
-                 # Heuristic: If it looks like a question and not done, answer it.
-                 # But we must be careful not to answer the *same* question twice.
-                 # We need to track turns.
-                 pass # Logic to be added if we can confirm state. 
-            
-            # If the system explicitly exposes a "waiting" state (e.g. 'ACTION_REQUIRED'), handle it.
-            if state == 'ACTION_REQUIRED' or state == 'WAITING_FOR_INPUT':
-                print(f"❓ [{lesson_title}] Jules is asking for input...")
-                
-                question = self.jules_client.get_latest_message(status_data)
-                if not question:
-                    question = "Please continue." # Fallback
-                
-                print(f"   Question: {question[:100]}...")
-                
-                # Ask Gemini Headless
-                answer = self._ask_gemini_headless(question)
-                print(f"   💡 Gemini Answer: {answer[:100]}...")
-                
-                # Send back
-                self.jules_client.send_response(session_id, answer)
-                
-                # Wait a bit to let it process
-                time.sleep(10)
-
-            time.sleep(30)
-            
-        return "TIMEOUT"
-
     def _ask_gemini_headless(self, question):
         """
         Uses the headless Gemini client to answer a question about the project.
@@ -128,7 +57,10 @@ class JulesPageGenerator:
         """
         Worker for a single plan.
         """
-        if not callback: callback = lambda t, s, m: print(f"[{s}] {t}: {m}")
+        if not callback:
+            def default_callback(t, s, m):
+                logging.info(f"[{s}] {t}: {m}")
+            callback = default_callback
 
         plan_content = plan_path.read_text(encoding='utf-8')
         lesson_title = plan_path.stem
@@ -197,7 +129,7 @@ class JulesPageGenerator:
             if state in ['FAILED', 'CANCELLED']:
                 return state
                 
-            if state == 'ACTION_REQUIRED' or state == 'WAITING_FOR_INPUT':
+            if state in ['ACTION_REQUIRED', 'WAITING_FOR_INPUT']:
                 callback(lesson_title, "INTERACT", "Jules needs input...")
                 
                 question = self.jules_client.get_latest_message(status_data)
@@ -219,9 +151,9 @@ class JulesPageGenerator:
         Main entry point.
         """
         if not update_callback:
-            def update_callback(t, s, m): print(f"[{s}] {t}: {m}")
+            def update_callback(t, s, m): logging.info(f"[{s}] {t}: {m}")
 
-        print(f"\n🏭 Starting Jules Page Generation (Batch Size: {max_concurrent})...")
+        logging.info(f"\n🏭 Starting Jules Page Generation (Batch Size: {max_concurrent})...")
         
         plans_dir = self.project_root / "plans"
         plans = sorted(list(plans_dir.glob("*.md")))
