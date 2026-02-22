@@ -482,8 +482,6 @@ def run_full_auto_ui(state_manager):
                 table.add_row(step['label'], f"[{s_color}]{status}[/{s_color}]", start_s, end_s, dur_s)
             return table
 
-    display_instance = WorkflowStatusDisplay(workflow, ui_state, lock)
-
     def callback(step, status, message):
         with lock:
             if status in ["SUCCESS", "WARN", "ERROR", "MISS", "DOWN", "START", "MERGE", "INDEX", "GEN", "AUDIT"]:
@@ -504,6 +502,9 @@ def run_full_auto_ui(state_manager):
         sys.stdout = StreamLogger(logging.getLogger(), logging.INFO)
 
         while True:
+            # Ensure display instance has the CURRENT workflow object (important for restarts)
+            display_instance = WorkflowStatusDisplay(workflow, ui_state, lock)
+
             try:
                 # Pass console explicitly to ensure Live uses the terminal (original stdout)
                 with Live(display_instance, refresh_per_second=4, console=console) as live:

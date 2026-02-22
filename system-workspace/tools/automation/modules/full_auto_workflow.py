@@ -108,14 +108,31 @@ class FullAutoWorkflow:
 
     def jump_to_step(self, step_id_or_label):
         """Finds step by ID or Label and sets current index."""
+        target_index = -1
         for i, step in enumerate(self.steps):
             if step['id'] == step_id_or_label or step['label'] == step_id_or_label:
-                self.current_step_index = i
-                # Reset timings for this and future steps?
-                # Ideally, we only reset the step we are jumping to and maybe subsequent ones?
-                # For now, let's just reset the target step's status to PENDING
-                self.step_timings[step['id']]['status'] = "PENDING"
-                return True
+                target_index = i
+                break
+
+        if target_index != -1:
+            self.current_step_index = target_index
+
+            # Mark previous steps as SKIPPED
+            for i in range(target_index):
+                prev_step_id = self.steps[i]['id']
+                # Only mark as skipped if they weren't already successful
+                if self.step_timings[prev_step_id]['status'] == "PENDING":
+                    self.step_timings[prev_step_id]['status'] = "SKIPPED"
+
+            # Reset target step
+            step_id = self.steps[target_index]['id']
+            self.step_timings[step_id]['status'] = "PENDING"
+            self.step_timings[step_id]['start_time'] = None
+            self.step_timings[step_id]['end_time'] = None
+            self.step_timings[step_id]['duration'] = 0.0
+
+            return True
+
         return False
 
     def redo_previous_step(self):
