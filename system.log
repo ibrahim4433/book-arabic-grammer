@@ -1,0 +1,239 @@
+2026-02-22 18:57:40,681 - INFO - 🚀 JulesClient: Dispatching Session 'Jules OCR Batch (1771786660) - Batch 1'...
+2026-02-22 18:57:40,683 - INFO - 🚀 JulesClient: Dispatching Session 'Jules OCR Batch (1771786660) - Batch 2'...
+2026-02-22 18:57:40,684 - INFO - 🚀 JulesClient: Dispatching Session 'Jules OCR Batch (1771786660) - Batch 3'...
+2026-02-22 18:57:40,687 - INFO - 🚀 JulesClient: Dispatching Session 'Jules OCR Batch (1771786660) - Batch 4'...
+2026-02-22 18:57:43,456 - INFO - ✅ JulesClient: Session Created: sessions/17550304616230697310
+2026-02-22 18:57:43,460 - INFO - ⏳ JulesClient: Monitoring session sessions/17550304616230697310 (Timeout: 30m)...
+2026-02-22 18:57:45,708 - INFO -    Status: QUEUED
+2026-02-22 18:57:46,034 - INFO - ✅ JulesClient: Session Created: sessions/11492734297887759827
+2026-02-22 18:57:46,039 - INFO - ⏳ JulesClient: Monitoring session sessions/11492734297887759827 (Timeout: 30m)...
+2026-02-22 18:57:46,636 - INFO - ✅ JulesClient: Session Created: sessions/9748765401238113766
+2026-02-22 18:57:46,644 - INFO - ⏳ JulesClient: Monitoring session sessions/9748765401238113766 (Timeout: 30m)...
+2026-02-22 18:57:47,552 - INFO -    Status: QUEUED
+2026-02-22 18:57:48,674 - INFO - ✅ JulesClient: Session Created: sessions/1517830196181060776
+2026-02-22 18:57:48,679 - INFO - ⏳ JulesClient: Monitoring session sessions/1517830196181060776 (Timeout: 30m)...
+2026-02-22 18:57:50,622 - INFO -    Status: QUEUED
+2026-02-22 18:57:53,592 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:58:17,325 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:58:19,198 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:58:22,867 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:58:25,660 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:58:49,535 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:58:51,059 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:58:55,037 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:59:03,119 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:59:21,402 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:59:22,900 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:59:27,705 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:59:40,321 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:59:53,029 - INFO -    Status: IN_PROGRESS
+2026-02-22 18:59:54,631 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:00:04,877 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:00:12,454 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:00:25,181 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:00:26,481 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:00:36,933 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:00:44,606 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:00:56,817 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:00:58,327 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:01:09,179 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:01:17,066 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:01:28,693 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:01:30,448 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:01:41,330 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:01:49,218 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:02:00,475 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:02:02,253 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:02:13,293 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:02:21,507 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:02:32,748 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:02:34,379 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:02:45,441 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:02:53,629 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:03:04,687 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:03:06,330 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:03:17,838 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:03:26,004 - INFO -    Status: COMPLETED
+2026-02-22 19:03:26,007 - INFO - ✅ JulesClient: Session finished with state: COMPLETED
+2026-02-22 19:03:28,250 - WARNING - ⚠️ Session status missing PR info. Searching GitHub...
+2026-02-22 19:03:29,981 - INFO - 🔍 Found candidate PR #152: Manual OCR for input/8.jpg and input/9.jpg
+2026-02-22 19:03:36,645 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:03:40,995 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:03:50,466 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:04:10,749 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:04:12,658 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:04:23,160 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:04:42,972 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:04:44,833 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:04:55,393 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:05:15,148 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:05:16,737 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:05:27,388 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:05:47,009 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:05:48,557 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:05:59,826 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:06:18,849 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:06:20,210 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:06:32,322 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:06:50,520 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:06:52,022 - INFO -    Status: COMPLETED
+2026-02-22 19:06:52,024 - INFO - ✅ JulesClient: Session finished with state: COMPLETED
+2026-02-22 19:06:54,088 - WARNING - ⚠️ Session status missing PR info. Searching GitHub...
+2026-02-22 19:06:57,467 - INFO - 🔍 Found candidate PR #153: Manual OCR for Arabic Images
+2026-02-22 19:07:04,240 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:07:23,834 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:07:36,567 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:07:55,495 - INFO -    Status: COMPLETED
+2026-02-22 19:07:55,502 - INFO - ✅ JulesClient: Session finished with state: COMPLETED
+2026-02-22 19:07:57,525 - WARNING - ⚠️ Session status missing PR info. Searching GitHub...
+2026-02-22 19:08:03,700 - INFO - 🔍 Found candidate PR #154: Manual OCR Transcription for Images 3-7
+2026-02-22 19:08:16,712 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:08:48,719 - INFO -    Status: COMPLETED
+2026-02-22 19:08:48,720 - INFO - ✅ JulesClient: Session finished with state: COMPLETED
+2026-02-22 19:08:51,219 - WARNING - ⚠️ Session status missing PR info. Searching GitHub...
+2026-02-22 19:08:52,680 - INFO - 🔍 Found candidate PR #155: Manual OCR for images 1, 10, 11, 12, 13
+2026-02-22 19:08:52,682 - INFO - 🔀 Merging PR #155...
+2026-02-22 19:08:55,098 - INFO - ✅ PR #155 merged successfully.
+2026-02-22 19:08:56,997 - INFO - ✅ Finalization complete.
+2026-02-22 19:08:56,998 - INFO - 🔀 Merging PR #153...
+2026-02-22 19:08:59,275 - INFO - ✅ PR #153 merged successfully.
+2026-02-22 19:09:01,637 - INFO - ✅ Finalization complete.
+2026-02-22 19:09:01,644 - INFO - 🔀 Merging PR #154...
+2026-02-22 19:09:04,211 - INFO - ✅ PR #154 merged successfully.
+2026-02-22 19:09:07,178 - INFO - ✅ Finalization complete.
+2026-02-22 19:09:07,179 - INFO - 🔀 Merging PR #152...
+2026-02-22 19:09:09,638 - INFO - ✅ PR #152 merged successfully.
+2026-02-22 19:09:11,708 - INFO - ✅ Finalization complete.
+2026-02-22 19:10:44,208 - INFO - 
+🧠 Starting Jules Batch Planning (Max Concurrent: 5)...
+2026-02-22 19:10:49,327 - INFO - 🚀 JulesClient: Dispatching Session 'Plan Gen: 10 - معاني صيغ الزيادة'...
+2026-02-22 19:10:49,576 - INFO - 🚀 JulesClient: Dispatching Session 'Plan Gen: 14 - الجامد والمشتق'...
+2026-02-22 19:10:49,645 - INFO - 🚀 JulesClient: Dispatching Session 'Plan Gen: 12 - الصحيح والمعتل'...
+2026-02-22 19:10:50,219 - INFO - 🚀 JulesClient: Dispatching Session 'Plan Gen: 11 - الإبدال'...
+2026-02-22 19:10:52,373 - INFO - ✅ JulesClient: Session Created: sessions/15696060504017108346
+2026-02-22 19:10:52,377 - INFO - ⏳ JulesClient: Monitoring session sessions/15696060504017108346 (Timeout: 20m)...
+2026-02-22 19:10:53,182 - INFO - ✅ JulesClient: Session Created: sessions/17340358591108118683
+2026-02-22 19:10:53,188 - INFO - ⏳ JulesClient: Monitoring session sessions/17340358591108118683 (Timeout: 20m)...
+2026-02-22 19:10:54,207 - INFO -    Status: QUEUED
+2026-02-22 19:10:55,216 - INFO -    Status: QUEUED
+2026-02-22 19:10:55,590 - INFO - ✅ JulesClient: Session Created: sessions/18143634472903348673
+2026-02-22 19:10:55,593 - INFO - ⏳ JulesClient: Monitoring session sessions/18143634472903348673 (Timeout: 20m)...
+2026-02-22 19:10:57,487 - INFO -    Status: QUEUED
+2026-02-22 19:10:57,520 - INFO - 🚀 JulesClient: Dispatching Session 'Plan Gen: 13 - الإعلال'...
+2026-02-22 19:10:58,604 - INFO - ✅ JulesClient: Session Created: sessions/9552330373458997407
+2026-02-22 19:10:58,608 - INFO - ⏳ JulesClient: Monitoring session sessions/9552330373458997407 (Timeout: 20m)...
+2026-02-22 19:11:00,761 - INFO -    Status: QUEUED
+2026-02-22 19:11:01,369 - INFO - ✅ JulesClient: Session Created: sessions/15771421322114932786
+2026-02-22 19:11:01,372 - INFO - ⏳ JulesClient: Monitoring session sessions/15771421322114932786 (Timeout: 20m)...
+2026-02-22 19:11:03,520 - INFO -    Status: QUEUED
+2026-02-22 19:11:26,196 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:11:27,170 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:11:29,247 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:11:32,881 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:11:35,686 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:11:58,216 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:11:59,239 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:12:01,069 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:12:04,657 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:12:07,417 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:12:31,086 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:12:31,415 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:12:33,020 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:12:37,791 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:12:39,361 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:13:03,171 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:13:04,907 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:13:08,200 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:13:09,986 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:13:11,385 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:13:35,015 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:13:36,948 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:13:40,502 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:13:41,853 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:13:43,059 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:14:06,790 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:14:08,970 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:14:13,500 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:14:13,789 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:14:16,652 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:14:38,513 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:14:40,912 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:14:45,531 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:14:45,831 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:14:48,628 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:15:10,330 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:15:13,072 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:15:17,688 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:15:23,088 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:15:25,772 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:15:43,305 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:15:45,135 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:15:49,830 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:15:55,262 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:15:57,825 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:16:15,187 - INFO -    Status: COMPLETED
+2026-02-22 19:16:15,189 - INFO - ✅ JulesClient: Session finished with state: COMPLETED
+2026-02-22 19:16:17,207 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:16:22,199 - INFO -    Status: COMPLETED
+2026-02-22 19:16:22,202 - INFO - ✅ JulesClient: Session finished with state: COMPLETED
+2026-02-22 19:16:27,147 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:16:29,873 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:16:49,368 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:16:59,258 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:17:02,437 - INFO -    Status: COMPLETED
+2026-02-22 19:17:02,440 - INFO - ✅ JulesClient: Session finished with state: COMPLETED
+2026-02-22 19:17:21,689 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:17:31,338 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:17:54,820 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:18:04,328 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:18:26,820 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:18:36,235 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:18:58,662 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:19:13,656 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:19:31,176 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:19:45,725 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:20:04,525 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:20:22,447 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:20:36,167 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:20:54,795 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:21:08,005 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:21:27,036 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:21:41,077 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:21:59,600 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:22:13,516 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:22:31,771 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:22:46,263 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:23:03,923 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:23:18,157 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:23:36,164 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:23:50,105 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:24:08,637 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:24:21,649 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:24:40,772 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:24:53,574 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:25:13,244 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:25:25,754 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:25:45,814 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:25:57,997 - INFO -    Status: COMPLETED
+2026-02-22 19:25:57,998 - INFO - ✅ JulesClient: Session finished with state: COMPLETED
+2026-02-22 19:26:17,955 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:26:55,067 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:27:53,109 - ERROR - ❌ JulesClient Error (Get Status): HTTPSConnectionPool(host='jules.googleapis.com', port=443): Max retries exceeded with url: /v1alpha/sessions/9552330373458997407 (Caused by NameResolutionError("HTTPSConnection(host='jules.googleapis.com', port=443): Failed to resolve 'jules.googleapis.com' ([Errno -3] Temporary failure in name resolution)"))
+2026-02-22 19:27:53,115 - WARNING - ⚠️ JulesClient: Could not fetch status. Retrying...
+2026-02-22 19:28:51,146 - ERROR - ❌ JulesClient Error (Get Status): HTTPSConnectionPool(host='jules.googleapis.com', port=443): Max retries exceeded with url: /v1alpha/sessions/9552330373458997407 (Caused by NameResolutionError("HTTPSConnection(host='jules.googleapis.com', port=443): Failed to resolve 'jules.googleapis.com' ([Errno -3] Temporary failure in name resolution)"))
+2026-02-22 19:28:51,147 - WARNING - ⚠️ JulesClient: Could not fetch status. Retrying...
+2026-02-22 19:29:49,177 - ERROR - ❌ JulesClient Error (Get Status): HTTPSConnectionPool(host='jules.googleapis.com', port=443): Max retries exceeded with url: /v1alpha/sessions/9552330373458997407 (Caused by NameResolutionError("HTTPSConnection(host='jules.googleapis.com', port=443): Failed to resolve 'jules.googleapis.com' ([Errno -3] Temporary failure in name resolution)"))
+2026-02-22 19:29:49,178 - WARNING - ⚠️ JulesClient: Could not fetch status. Retrying...
+2026-02-22 19:30:21,691 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:30:55,495 - INFO -    Status: IN_PROGRESS
+2026-02-22 19:31:25,501 - ERROR - ❌ JulesClient: Monitoring timed out.
+2026-02-22 19:32:08,474 - INFO - 
+🏭 Starting Jules Page Generation (Batch Size: 5)...
+2026-02-22 19:32:14,498 - INFO - 🚀 JulesClient: Dispatching Session 'PageGen: 11-الإبدال-plan'...
+2026-02-22 19:32:14,771 - INFO - 🚀 JulesClient: Dispatching Session 'PageGen: 10-معاني صيغ الزيادة-plan'...
+2026-02-22 19:32:17,635 - INFO - 🚀 JulesClient: Dispatching Session 'PageGen: 12-الصحيح والمعتل-plan'...
+2026-02-22 19:32:18,518 - INFO - ✅ JulesClient: Session Created: sessions/13500777463265767765
+2026-02-22 19:32:19,645 - INFO - ✅ JulesClient: Session Created: sessions/650770959449336047
+2026-02-22 19:32:21,335 - INFO - ✅ JulesClient: Session Created: sessions/10687055001569149419
+2026-02-22 19:32:21,722 - INFO - 🚀 JulesClient: Dispatching Session 'PageGen: 13-الإعلال-plan'...
+2026-02-22 19:32:28,045 - INFO - ✅ JulesClient: Session Created: sessions/4329529846022299128
