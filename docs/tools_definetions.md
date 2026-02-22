@@ -71,7 +71,7 @@ This document provides a comprehensive index of all tools available in the **Mod
 *   **What it does:**
     1.  Reads a `.md` Lesson Plan.
     2.  Parses the "Blocks" (Header, Definition, Table, etc.).
-    3.  Loads the corresponding HTML Templates from `assets/Templates/`.
+    3.  Loads the corresponding HTML Templates from `Jules-workspace/Templates/`.
     4.  Fills in the content (Title, Body, Fields).
     5.  Assembles the final HTML file in `pages/`.
 *   **Why:** Automates the tedious HTML writing process. Ensures every page uses the correct classes and structure.
@@ -109,6 +109,6 @@ This document provides a comprehensive index of all tools available in the **Mod
 
 ## 📊 Data & Assets
 
-*   **`assets/Templates/`**: The "Lego Bricks" of the project. Reusable HTML components.
+*   **`Jules-workspace/Templates/`**: The "Lego Bricks" of the project. Reusable HTML components.
 *   **`assets/design_patterns.json`**: Statistics on which components are used most often, helping the AI mimic existing style.
 *   **`assets/data/raw_to_lesson_index.json`**: The map connecting Lesson Titles to Raw Text locations.

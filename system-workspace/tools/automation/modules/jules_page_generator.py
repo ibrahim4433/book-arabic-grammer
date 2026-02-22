@@ -25,7 +25,7 @@ class JulesPageGenerator:
         self.context_files = [
             "GEMINI.md",
             "CODING_STANDARDS.md",
-            "assets/Templates/TEMPLATE_C_BASE.html"
+            "Jules-workspace/Templates/TEMPLATE_C_BASE.html"
         ]
         self.project_context = self._load_context()
 
@@ -70,7 +70,7 @@ class JulesPageGenerator:
         
         prompt = (
             f"Generate the HTML page for the following plan.\n"
-            f"Use the templates in `assets/Templates/`.\n"
+            f"Use the templates in `Jules-workspace/Templates/`.\n"
             f"Follow `GEMINI.md` rules strictly (One-Page Law, Tashkeel, IDs).\n"
             f"The output file should be `pages/{lesson_title.replace('-plan', '.html')}` (adjust naming to nXX format if needed).\n"
             f"PLAN:\n{plan_content}"

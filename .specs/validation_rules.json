@@ -10,7 +10,7 @@
     "All HTML pages validate against the 'One-Page Law'",
     "Python scripts follow PEP 8 and use type hinting where possible",
     "No API keys are hardcoded (use secrets/ or env vars)",
-    "All new content uses standard templates from assets/Templates/",
+    "All new content uses standard templates from Jules-workspace/Templates/",
     "CSS uses print-specific units (mm, cm, pt) not px"
   ],
   "critical_paths": [

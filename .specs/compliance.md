@@ -20,7 +20,7 @@ This document defines the strict "Laws" of the project that cannot be violated.
 *   **Automation:** `tools/id_manager.py` handles this.
 
 ## 🎨 Design System Compliance
-*   **Rule:** Do NOT invent new HTML structures. You MUST use the provided Atomic Components in `assets/Templates/`.
+*   **Rule:** Do NOT invent new HTML structures. You MUST use the provided Atomic Components in `Jules-workspace/Templates/`.
 *   **Approved Components:**
     *   `TEMPLATE_C_HEADER.html`
     *   `TEMPLATE_C_BLOCK.html` (Definitions)

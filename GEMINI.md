@@ -81,7 +81,7 @@ Every HTML file in `/pages/` must render to **exactly one A4 page**.
 
 ## 🧩 Design System: Atomic Components
 
-Always use the templates in `/assets/Templates/`.
+Always use the templates in `/Jules-workspace/Templates/`.
 
 ### 1. Structure & Layout
 | Component | Template File | CSS Class | Usage |

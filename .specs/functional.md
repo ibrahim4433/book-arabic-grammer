@@ -12,7 +12,7 @@ This document defines the core behaviors and features of the Automation System.
 5.  **Verify:** I want the system to alert me *immediately* if a lesson exceeds one page (Overflow), so I can fix it.
 
 ### As a Developer (Maintainer)
-1.  **Templates:** I want to add new HTML templates (`assets/Templates/`) and have the system automatically start using them in new plans.
+1.  **Templates:** I want to add new HTML templates (`Jules-workspace/Templates/`) and have the system automatically start using them in new plans.
 2.  **Styling:** I want to modify `styles/main.css` and see the changes reflected across the entire book instantly.
 3.  **ID Management:** I want a tool to automatically assign unique IDs to every new content block for digital indexing.
 

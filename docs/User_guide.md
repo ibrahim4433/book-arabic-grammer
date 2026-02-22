@@ -50,7 +50,7 @@ This guide explains how to use the **Modern Arabic Grammar Book** system to conv
 *   **Command:** `python3 system.py` -> Select **Option F** (Page Generation).
 *   **What happens:**
     *   The system reads the Markdown Plan.
-    *   It loads the HTML Templates from `assets/Templates/`.
+    *   It loads the HTML Templates from `Jules-workspace/Templates/`.
     *   It fills in the content and assembles the final HTML page.
     *   It saves the file to `pages/XX.X_nXX_lesson_name.html`.
 *   **Output:** Check `pages/` for the new HTML files.
@@ -103,4 +103,4 @@ This guide explains how to use the **Modern Arabic Grammar Book** system to conv
 
 *   **"Lesson not found"**: Check `assets/data/raw_to_lesson_index.json`. The name must match exactly.
 *   **"Overflow" (Page > 1)**: The content is too long for one A4 page. Split the lesson into two parts (e.g., "The Verb Part 1", "The Verb Part 2") in your `TOC.txt` and regenerate the index.
-*   **"Missing Template"**: Ensure `assets/Templates/` contains the template requested by the plan.
+*   **"Missing Template"**: Ensure `Jules-workspace/Templates/` contains the template requested by the plan.

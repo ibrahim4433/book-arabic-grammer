@@ -15,7 +15,7 @@ Context: Creating files `06.0_nxx_follow.html` and up ..( 06.1 , 06.2 , ... as n
 2. Page Breaking Logic:
    *  use tools/verify_layout.py after every major block.
    * If the status is "FULL" or "OVERFLOW", close the file and move to the next sequential filename.
-3. Templates: Use strictly the assets/Templates/ components. 
+3. Templates: Use strictly the Jules-workspace/Templates/ components. 
    * NEVER use generic `<ul>`. Map to `TEMPLATE_C_LIST`.
    * Use `TEMPLATE_C_IRAB` for multi-line analysis and `TEMPLATE_C_IRAB_ROW` for concise word-to-role mappings.
 4. Content Integrity: Preserve ALL Arabic Diacritics (Harakat) exactly as provided.

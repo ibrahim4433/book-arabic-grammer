@@ -71,7 +71,7 @@ Context: \[Insert specific context here, e.g., We are filling Page 6 and creatin
 
    * Create new files (e.g., pages/07\_grammar\_pronouns\_p2.html) automatically when the layout tool indicates a page is full.  
 
-3. Templates: Use strictly the assets/Templates/ components.  
+3. Templates: Use strictly the Jules-workspace/Templates/ components.  
 
 4. Content Integrity: Use the exact Arabic text provided below.
 
@@ -153,7 +153,7 @@ Box 1 Details: ...
 
 # **THE ATOMIC COMPONENT LIBRARY (Usage Guide)**
 
-You are forbidden from inventing new HTML tags or classes. You must map all content strictly to the following assets/Templates/ components based on their semantic purpose:
+You are forbidden from inventing new HTML tags or classes. You must map all content strictly to the following Jules-workspace/Templates/ components based on their semantic purpose:
 
 | Component ID | Semantic Purpose | Usage Rules |
 
@@ -234,7 +234,7 @@ Jules has **zero memory** of previous prompts, files, or conversations. You must
 
 *   **Requirement:** Every plan you generate must be a **Self-Contained Execution Unit**.
 *   **Explicit Dependency Chain:** You MUST instruct Jules to execute these steps in this EXACT order for every file creation:
-    1.  **Read Template:** Load the appropriate template from `assets/Templates/`.
+    1.  **Read Template:** Load the appropriate template from `Jules-workspace/Templates/`.
     2.  **Inject Content:** Insert the Arabic text and apply classes.
     3.  **Auto-Tag IDs:** Run `python3 tools/id_manager.py --auto-tag` **IMMEDIATELY** after creating/writing the file. This is mandatory.
     4.  **Verify Layout:** Run `python3 tools/verify_layout.py <filepath>`.
