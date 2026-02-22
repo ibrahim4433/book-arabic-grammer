@@ -11,6 +11,8 @@ from modules.vision import VisionClient
 from modules.text_processing import TextProcessor
 from modules.github_utils import GithubClient
 from modules.state_manager import StateManager
+from modules.jules_planner import JulesPlanner
+from modules.jules_page_generator import JulesPageGenerator
 
 # Import Jules Workspace Tools (Assuming sys.path is set by system.py)
 try:
@@ -81,10 +83,16 @@ class FullAutoWorkflow:
             # Step Check: Exclude existing pages (User logic)
             existing_lessons = self._step_check_existing()
 
-            # Step E: Verify/Sync Plans
+            # Step E: Plan Generation (With Exclusions)
+            self._step_plan_generation(existing_lessons)
+
+            # Step E-Verify: Sync Missing Plans
             self._step_sync_plans(existing_lessons)
 
-            # Step F: Verify/Sync Pages
+            # Step F: Page Generation (With Exclusions)
+            self._step_page_generation(existing_lessons)
+
+            # Step F-Verify: Sync Missing Pages
             self._step_sync_pages(existing_lessons)
 
             # Step G: Audit & Verify
@@ -162,6 +170,54 @@ class FullAutoWorkflow:
 
         self._log("Step C", "SUCCESS", "Raw Processing Complete.")
         time.sleep(1)
+
+    def _step_plan_generation(self, excluded_lessons):
+        self._log("Step E", "RUNNING", "Generating Plans (JulesPlanner)...")
+        planner = JulesPlanner(self.project_root)
+
+        # Callback wrapper to bridge JulesPlanner status to our UI
+        def bridge_callback(title, status, msg):
+            # Translate internal statuses if needed, or pass through
+            if status in ["ERROR", "FAILED"]:
+                self._log("Step E", "WARN", f"{title}: {msg}")
+            elif status == "SUCCESS":
+                self._log("Step E", "GEN", f"{title}: Plan Generated")
+            else:
+                pass # Too verbose to log every step in main UI history
+
+        try:
+            planner.run_batch_planning(
+                max_concurrent=5,
+                update_callback=bridge_callback,
+                excluded_lessons=excluded_lessons
+            )
+        except Exception as e:
+            self._log("Step E", "ERROR", f"Planner crashed: {e}")
+
+        self._log("Step E", "SUCCESS", "Plan Generation Phase Complete.")
+
+    def _step_page_generation(self, excluded_lessons):
+        self._log("Step F", "RUNNING", "Generating Pages (JulesPageGenerator)...")
+        generator = JulesPageGenerator(self.project_root)
+
+        def bridge_callback(title, status, msg):
+            if status in ["ERROR", "FAILED"]:
+                self._log("Step F", "WARN", f"{title}: {msg}")
+            elif status == "SUCCESS":
+                self._log("Step F", "GEN", f"{title}: Page Generated")
+            elif status == "INTERACT":
+                self._log("Step F", "INFO", f"{title}: Interact - {msg}")
+
+        try:
+            generator.run_batch_generation(
+                max_concurrent=5,
+                update_callback=bridge_callback,
+                excluded_lessons=excluded_lessons
+            )
+        except Exception as e:
+            self._log("Step F", "ERROR", f"Generator crashed: {e}")
+
+        self._log("Step F", "SUCCESS", "Page Generation Phase Complete.")
 
     def _step_check_existing(self):
         self._log("Step Check", "RUNNING", "Checking existing pages...")

@@ -155,28 +155,51 @@ class JulesPageGenerator:
             
         return "TIMEOUT"
 
-    def run_batch_generation(self, max_concurrent=5, update_callback=None):
+    def run_batch_generation(self, max_concurrent=5, update_callback=None, excluded_lessons=None):
         """
         Main entry point.
         """
         if not update_callback:
             def update_callback(t, s, m): logging.info(f"[{s}] {t}: {m}")
 
+        if excluded_lessons is None:
+            excluded_lessons = set()
+
         logging.info(f"\n🏭 Starting Jules Page Generation (Batch Size: {max_concurrent})...")
         
         plans_dir = self.project_root / "plans"
-        plans = sorted(list(plans_dir.glob("*.md")))
+        all_plans = sorted(list(plans_dir.glob("*.md")))
         
-        if not plans:
+        if not all_plans:
             update_callback("System", "WARN", "No plans found.")
             return
 
-        update_callback("System", "INFO", f"Found {len(plans)} plans.")
+        to_process = []
+        for plan in all_plans:
+            # Check if output exists
+            html_name = plan.name.replace("-plan.md", ".html")
+            html_path = self.project_root / "pages" / html_name
+
+            # Check Lesson Number (Assuming "09-Title-plan.md")
+            match = re.match(r'^(\d+)', plan.name)
+            lesson_num = match.group(1) if match else None
+
+            if html_path.exists():
+                update_callback(plan.stem, "SKIP", "HTML exists")
+                continue
+
+            if lesson_num and (lesson_num in excluded_lessons or str(int(lesson_num)) in excluded_lessons):
+                update_callback(plan.stem, "SKIP", "Excluded (Page exists)")
+                continue
+
+            to_process.append(plan)
+
+        update_callback("System", "INFO", f"Queued {len(to_process)} plans for generation.")
         
         with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
             future_to_plan = {
                 executor.submit(self.process_plan, plan, update_callback): plan.stem
-                for plan in plans
+                for plan in to_process
             }
             
             for future in as_completed(future_to_plan):

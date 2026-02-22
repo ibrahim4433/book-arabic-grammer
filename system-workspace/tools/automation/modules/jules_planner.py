@@ -65,16 +65,20 @@ class JulesPlanner:
 
         return "\n".join(extracted)
 
-    def run_batch_planning(self, max_concurrent=5, update_callback=None):
+    def run_batch_planning(self, max_concurrent=5, update_callback=None, excluded_lessons=None):
         """
         Main entry point. Orchestrates the batch processing.
         Args:
             update_callback (callable): Function(lesson_title, status, message)
+            excluded_lessons (set): Set of lesson numbers (str) to skip.
         """
         if not update_callback:
             def default_callback(title, status, msg):
                 logging.info(f"[{status}] {title}: {msg}")
             update_callback = default_callback
+
+        if excluded_lessons is None:
+            excluded_lessons = set()
 
         logging.info(f"\n🧠 Starting Jules Batch Planning (Max Concurrent: {max_concurrent})...")
 
@@ -94,6 +98,12 @@ class JulesPlanner:
         to_process = {}
         for title, info in mapping.items():
             lesson_number = self.tp.get_lesson_number(title)
+
+            # Check Exclusions
+            if lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons:
+                update_callback(title, "SKIP", f"Lesson {lesson_number} excluded (Page exists)")
+                continue
+
             clean_title = re.sub(r'^\d+\s*-\s*', '', title).strip()
             plan_path = self.project_root / f"plans/{lesson_number}-{clean_title}-plan.md"
 
