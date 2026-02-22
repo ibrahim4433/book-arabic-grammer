@@ -445,7 +445,12 @@ def run_full_auto_ui(state_manager):
             # Format Times
             start_s = time.strftime('%H:%M:%S', time.localtime(meta['start_time'])) if meta['start_time'] else "-"
             end_s = time.strftime('%H:%M:%S', time.localtime(meta['end_time'])) if meta['end_time'] else "-"
-            dur_s = format_duration(meta['duration']) if meta['duration'] > 0 else "-"
+
+            # Calculate Duration (Real-time update)
+            if status == "RUNNING" and meta.get('start_time'):
+                dur_s = format_duration(time.time() - meta['start_time'])
+            else:
+                dur_s = format_duration(meta['duration']) if meta.get('duration', 0) > 0 else "-"
 
             table.add_row(
                 step['label'],
