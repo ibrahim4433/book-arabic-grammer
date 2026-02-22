@@ -14,6 +14,11 @@ from modules.jules_planner import JulesPlanner
 from modules.jules_page_generator import JulesPageGenerator
 from modules.jules_ocr import JulesOCR
 
+try:
+    from .unified_flow import UnifiedProductionManager
+except ImportError:
+    pass
+
 # Import Jules Workspace Tools (Assuming sys.path is set by system.py)
 try:
     import id_manager
@@ -68,10 +73,9 @@ class FullAutoWorkflow:
             {"id": "OCR", "func": self._step_ocr, "label": "OCR Processing"},
             {"id": "RAW_PROC", "func": self._step_raw_processing, "label": "Raw Text Processing"},
             {"id": "CHECK_EXIST", "func": self._step_check_existing, "label": "Check Existing Pages"},
-            {"id": "PLAN_GEN", "func": self._step_plan_generation, "label": "Generate Plans"},
             {"id": "PLAN_SYNC", "func": self._step_sync_plans, "label": "Sync Missing Plans"},
-            {"id": "PAGE_GEN", "func": self._step_page_generation, "label": "Generate Pages"},
             {"id": "PAGE_SYNC", "func": self._step_sync_pages, "label": "Sync Missing Pages"},
+            {"id": "UNIFIED_GEN", "func": self._step_unified_production, "label": "Unified Generation"},
             {"id": "AUDIT", "func": self._step_audit, "label": "Audit & Verify"}
         ]
 
@@ -272,6 +276,27 @@ class FullAutoWorkflow:
                         # self._log("CHECK_EXIST", "SKIP", f"Lesson {num} exists.") # Too spammy
 
         self._log("CHECK_EXIST", "SUCCESS", f"Found {len(self.existing_lessons)} completed lessons.")
+
+    def _step_unified_production(self):
+        # Refresh existing lessons to account for Sync steps
+        self._step_check_existing()
+
+        self._log("UNIFIED_GEN", "RUNNING", "Starting Unified Production Manager...")
+
+        def bridge_callback(title, status, msg):
+             log_status = status
+             if status == "RUNNING": log_status = "RUNNING"
+             elif status == "SUCCESS": log_status = "GEN"
+             elif status == "FAILED": log_status = "WARN"
+             elif status == "RETRY": log_status = "WARN"
+
+             self._log("UNIFIED_GEN", log_status, f"{title}: {msg}")
+
+        manager = UnifiedProductionManager(self.project_root, self.state_manager, callback=bridge_callback)
+        manager.populate_queue(self.existing_lessons)
+        manager.run()
+
+        self._log("UNIFIED_GEN", "SUCCESS", "Unified Production Complete.")
 
     def _step_plan_generation(self):
         self._log("PLAN_GEN", "RUNNING", "Generating Plans (JulesPlanner)...")
