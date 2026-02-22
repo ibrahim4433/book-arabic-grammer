@@ -72,7 +72,7 @@ class JulesPageGenerator:
             f"Generate the HTML page for the following plan.\n"
             f"Use the templates in `Jules-workspace/Templates/`.\n"
             f"Follow `GEMINI.md` rules strictly (One-Page Law, Tashkeel, IDs).\n"
-            f"The output file should be `pages/{lesson_title.replace('-plan', '.html')}` (adjust naming to nXX format if needed).\n"
+            f"The output file should be `pages/{lesson_title.replace('-plan', '.html')}` (Keep nXX as it is without replaceing XX with numbers !).\n"
             f"PLAN:\n{plan_content}"
         )
         
