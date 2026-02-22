@@ -1,45 +1,4 @@
-2026-02-22 17:12:32,064 - INFO - 🚀 JulesClient: Dispatching Session 'Jules OCR Batch (1771780352)'...
-2026-02-22 17:12:35,493 - INFO - ✅ JulesClient: Session Created: sessions/15221314755467517437
-2026-02-22 17:12:35,498 - INFO - ⏳ JulesClient: Monitoring session sessions/15221314755467517437 (Timeout: 30m)...
-2026-02-22 17:12:37,356 - INFO -    Status: QUEUED
-2026-02-22 17:13:09,192 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:13:40,591 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:14:12,261 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:14:44,117 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:15:15,978 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:15:47,946 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:16:19,865 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:16:51,399 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:17:24,335 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:17:56,216 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:18:28,086 - INFO -    Status: COMPLETED
-2026-02-22 17:18:28,100 - INFO - ✅ JulesClient: Session finished with state: COMPLETED
-2026-02-22 17:18:29,951 - WARNING - ⚠️ Session status missing PR info. Searching GitHub...
-2026-02-22 17:18:31,180 - INFO - 🔍 Found candidate PR #144: Manual OCR for input images 1 and 2
-2026-02-22 17:18:31,183 - INFO - 🔀 Merging PR #144...
-2026-02-22 17:18:33,804 - INFO - ✅ PR #144 merged successfully.
-2026-02-22 17:18:35,607 - INFO - ✅ Finalization complete.
-2026-02-22 17:20:47,119 - INFO - 
-🧠 Starting Jules Batch Planning (Max Concurrent: 5)...
-2026-02-22 17:20:56,272 - INFO - 🚀 JulesClient: Dispatching Session 'Plan Gen: 9 - الميزان الصرفي'...
-2026-02-22 17:21:00,654 - INFO - ✅ JulesClient: Session Created: sessions/4937262388738914952
-2026-02-22 17:21:00,659 - INFO - ⏳ JulesClient: Monitoring session sessions/4937262388738914952 (Timeout: 20m)...
-2026-02-22 17:21:02,593 - INFO -    Status: QUEUED
-2026-02-22 17:21:34,439 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:22:06,804 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:22:38,566 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:23:10,342 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:23:42,459 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:24:14,094 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:24:45,429 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:25:17,098 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:25:49,022 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:26:20,554 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:26:52,005 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:27:23,508 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:27:54,866 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:28:26,528 - INFO -    Status: IN_PROGRESS
-2026-02-22 17:28:57,944 - INFO -    Status: COMPLETED
-2026-02-22 17:28:57,946 - INFO - ✅ JulesClient: Session finished with state: COMPLETED
-2026-02-22 17:29:03,444 - INFO - 
+2026-02-22 17:47:39,406 - INFO - 
 🏭 Starting Jules Page Generation (Batch Size: 5)...
+2026-02-22 17:47:51,041 - INFO - 🚀 JulesClient: Dispatching Session 'PageGen: 09-الميزان الصرفي-plan'...
+2026-02-22 17:47:54,612 - INFO - ✅ JulesClient: Session Created: sessions/9445130249892928861

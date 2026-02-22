@@ -62,7 +62,7 @@ Reference: Follow patterns in design_patterns.json.
 [CONSTRAINTS & PROTOCOLS]
 1. Source of Truth: Adhere strictly to BOOK\_RULES.md and elements\_index.md
 2. Page Breaking: Do NOT estimate length manually , instead Use `Jules-workspace/verify_layout.py` after every block to determine exactly where to cut the content to ensure it fits the A4 constraints perfectly. If page is "FULL", continue in `pages/[LESSON_NUMBER].1_...`.
-3. text Content: 100% Arabic with full Harakat.
+3. text Content: 100% Arabic with full Harakat ( NO ENGLISH WORDS )
 4. Highlighting: Use `.highlight-red` for primary focus words and `.highlight-blue`,`.highlight-green`  for secondary.
 5. Definitions: Must use `.text-accent` class.
 6. Mandatory Style Guide:
@@ -81,8 +81,7 @@ Reference: Follow patterns in design_patterns.json.
 11. You must preserve the **exact** Tashkeel provided in the input and add any missing Tashkeel needed.  
 12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.
 13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of teal , also use this tool to verify "Jules-workspace/smart_color_fixer.py"
-14. after finishing the pages you must run "Jules-workspace/smart_replace_haam.py" to fix all هام , هامة mistakes !
-15. every text line or raw in the page if it is more than 18 arabic words , you must wrap it into a second line or it will maybe smashed !
+14. DO NOT Create a Python generation script to generate the lesson html pages ! , do it manually !, do not estimate length and cut pages without Using `Jules-workspace/verify_layout.py`after every section!
 
 [CONTENT STREAM]
 
