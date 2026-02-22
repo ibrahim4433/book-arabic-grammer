@@ -374,8 +374,7 @@ def run_full_auto_ui(state_manager):
         choices=[
             "1. Start normally",
             "Start from Raw Processing",
-            "Start from Plan Generation",
-            "Start from Page Generation"
+            "Start from Unified Generation"
         ],
         style=questionary.Style([
             ('qmark', 'fg:#673ab7 bold'),
@@ -396,10 +395,8 @@ def run_full_auto_ui(state_manager):
 
     if start_choice == "Start from Raw Processing":
         workflow.jump_to_step("RAW_PROC")
-    elif start_choice == "Start from Plan Generation":
-        workflow.jump_to_step("PLAN_GEN")
-    elif start_choice == "Start from Page Generation":
-        workflow.jump_to_step("PAGE_GEN")
+    elif start_choice == "Start from Unified Generation":
+        workflow.jump_to_step("UNIFIED_GEN")
 
     # Shared state for UI
     ui_state = {
@@ -408,96 +405,84 @@ def run_full_auto_ui(state_manager):
     }
     lock = threading.Lock()
 
-    # Holder for live instance to update from callback
-    live_container = {"instance": None}
+    # Display Class for Rich Live
+    class WorkflowStatusDisplay:
+        def __init__(self, workflow, ui_state, lock):
+            self.workflow = workflow
+            self.ui_state = ui_state
+            self.lock = lock
 
-    def generate_timeline():
-        """Generates the main timeline table."""
-        table = Table(title="Workflow Timeline", box=box.SIMPLE, expand=True)
-        table.add_column("Step", style="bold white")
-        table.add_column("Status", width=12)
-        table.add_column("Start", style="dim")
-        table.add_column("End", style="dim")
-        table.add_column("Timer", justify="right", style="yellow")
-
-        # Accessing workflow.step_timings is safe as it's modified sequentially in workflow.run
-        # but to be safe for UI thread:
-        steps = workflow.get_steps()
-
-        for step in steps:
-            s_id = step['id']
-            # Access timing safely
-            if s_id in workflow.step_timings:
-                meta = workflow.step_timings[s_id]
-                status = meta['status']
-            else:
-                meta = {"status": "PENDING", "start_time": None, "end_time": None, "duration": 0}
-                status = "PENDING"
-
-            # Color Logic
-            s_color = "white"
-            if status == "SUCCESS": s_color = "green"
-            elif status == "RUNNING": s_color = "yellow"
-            elif status == "FAILED": s_color = "red"
-            elif status == "PAUSED": s_color = "magenta"
-            elif status == "PENDING": s_color = "dim"
-
-            # Format Times
-            start_s = time.strftime('%H:%M:%S', time.localtime(meta['start_time'])) if meta['start_time'] else "-"
-            end_s = time.strftime('%H:%M:%S', time.localtime(meta['end_time'])) if meta['end_time'] else "-"
-
-            # Calculate Duration (Real-time update)
-            if status == "RUNNING" and meta.get('start_time'):
-                dur_s = format_duration(time.time() - meta['start_time'])
-            else:
-                dur_s = format_duration(meta['duration']) if meta.get('duration', 0) > 0 else "-"
-
-            table.add_row(
-                step['label'],
-                f"[{s_color}]{status}[/{s_color}]",
-                start_s,
-                end_s,
-                dur_s
+        def __rich__(self):
+            layout = Layout()
+            layout.split(
+                Layout(name="header", size=3),
+                Layout(name="main", ratio=1),
+                Layout(name="footer", size=10)
             )
-        return table
 
-    def generate_layout():
-        layout = Layout()
-        layout.split(
-            Layout(name="header", size=3),
-            Layout(name="main", ratio=1),
-            Layout(name="footer", size=10)
-        )
+            current_step = self.workflow.get_current_step_name()
+            layout["header"].update(Panel(
+                f"[bold cyan]Full Auto Workflow - {current_step}[/bold cyan]",
+                style="bold white",
+                box=box.ROUNDED
+            ))
 
-        # Header info
-        current_step = workflow.get_current_step_name()
-        layout["header"].update(Panel(
-            f"[bold cyan]Full Auto Workflow - {current_step}[/bold cyan]",
-            style="bold white",
-            box=box.ROUNDED
-        ))
+            layout["main"].update(Panel(self.generate_timeline(), box=box.ROUNDED))
 
-        # Main: Timeline Table
-        layout["main"].update(Panel(generate_timeline(), box=box.ROUNDED))
+            with self.lock:
+                hist = list(self.ui_state["history"])
 
-        # Footer: Log
-        with lock:
-            hist = list(ui_state["history"])
+            log_text = ""
+            for ts, s, st, m in hist:
+                c = "white"
+                if st == "SUCCESS": c = "green"
+                elif st == "WARN": c = "yellow"
+                elif st == "ERROR": c = "red"
+                elif st == "DOWN": c = "cyan"
+                elif st == "MISS": c = "magenta"
+                elif st == "START": c = "blue"
+                log_text += f"[{c}]{ts} [{s}] {st}: {m}[/{c}]\n"
 
-        log_text = ""
-        for ts, s, st, m in hist:
-            c = "white"
-            if st == "SUCCESS": c = "green"
-            elif st == "WARN": c = "yellow"
-            elif st == "ERROR": c = "red"
-            elif st == "DOWN": c = "cyan"
-            elif st == "MISS": c = "magenta"
-            elif st == "START": c = "blue"
-            log_text += f"[{c}]{ts} [{s}] {st}: {m}[/{c}]\n"
+            layout["footer"].update(Panel(log_text, title="Log History", box=box.SIMPLE))
+            return layout
 
-        layout["footer"].update(Panel(log_text, title="Log History", box=box.SIMPLE))
+        def generate_timeline(self):
+            table = Table(title="Workflow Timeline", box=box.SIMPLE, expand=True)
+            table.add_column("Step", style="bold white")
+            table.add_column("Status", width=12)
+            table.add_column("Start", style="dim")
+            table.add_column("End", style="dim")
+            table.add_column("Timer", justify="right", style="yellow")
 
-        return layout
+            steps = self.workflow.get_steps()
+            for step in steps:
+                s_id = step['id']
+                if s_id in self.workflow.step_timings:
+                    meta = self.workflow.step_timings[s_id]
+                    status = meta['status']
+                else:
+                    meta = {"status": "PENDING", "start_time": None, "end_time": None, "duration": 0}
+                    status = "PENDING"
+
+                s_color = "white"
+                if status == "SUCCESS": s_color = "green"
+                elif status == "RUNNING": s_color = "yellow"
+                elif status == "FAILED": s_color = "red"
+                elif status == "PAUSED": s_color = "magenta"
+                elif status == "PENDING": s_color = "dim"
+
+                start_s = time.strftime('%H:%M:%S', time.localtime(meta['start_time'])) if meta['start_time'] else "-"
+                end_s = time.strftime('%H:%M:%S', time.localtime(meta['end_time'])) if meta['end_time'] else "-"
+
+                if status == "RUNNING" and meta.get('start_time'):
+                    dur_s = format_duration(time.time() - meta['start_time'])
+                else:
+                    dur_s = format_duration(meta['duration']) if meta.get('duration', 0) > 0 else "-"
+
+                table.add_row(step['label'], f"[{s_color}]{status}[/{s_color}]", start_s, end_s, dur_s)
+            return table
+
+    display_instance = WorkflowStatusDisplay(workflow, ui_state, lock)
 
     def callback(step, status, message):
         with lock:
@@ -505,10 +490,6 @@ def run_full_auto_ui(state_manager):
                 ui_state["history"].append((time.strftime("%H:%M:%S"), step, status, message))
                 if len(ui_state["history"]) > 8:
                     ui_state["history"].pop(0)
-
-        # Update live display
-        if live_container["instance"]:
-            live_container["instance"].update(generate_layout())
 
     workflow.callback = callback
 
@@ -525,8 +506,7 @@ def run_full_auto_ui(state_manager):
         while True:
             try:
                 # Pass console explicitly to ensure Live uses the terminal (original stdout)
-                with Live(generate_layout(), refresh_per_second=4, console=console) as live:
-                    live_container["instance"] = live
+                with Live(display_instance, refresh_per_second=4, console=console) as live:
                     # Start workflow
                     stats = workflow.run(skip_archive=skip_archive)
 
