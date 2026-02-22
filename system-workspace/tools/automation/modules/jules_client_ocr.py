@@ -182,6 +182,9 @@ For each image, follow these steps STRICTLY:
     -   Example: If input is `input/page_01.jpg`, output MUST be `system-workspace/text-data/raw/raw_page_01.txt`.
 
 Please process ALL listed images in this session and submit your changes as a Pull Request.
+
+DO NOT CREATE A TOOL OR WRITE CODE OR DO ANYTHING ELSE ABOVE !
+DO NOT Create a Python script like perform_ocr.py ! , do OCR yourself manually!
 """
         return prompt
 

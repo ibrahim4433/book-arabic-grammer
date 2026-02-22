@@ -1,22 +1,24 @@
-2026-02-22 13:45:46,470 - INFO - 
-🧠 Starting Jules Batch Planning (Max Concurrent: 5)...
-2026-02-22 13:45:58,773 - INFO - 🚀 JulesClient: Dispatching Session 'Plan Gen: 9 - الميزان الصرفي'...
-2026-02-22 13:46:01,765 - INFO - ✅ JulesClient: Session Created: sessions/5092405352003340469
-2026-02-22 13:46:01,769 - INFO - ⏳ JulesClient: Monitoring session sessions/5092405352003340469 (Timeout: 20m)...
-2026-02-22 13:46:03,392 - INFO -    Status: QUEUED
-2026-02-22 13:46:36,586 - INFO -    Status: IN_PROGRESS
-2026-02-22 13:47:08,245 - INFO -    Status: IN_PROGRESS
-2026-02-22 13:47:39,916 - INFO -    Status: IN_PROGRESS
-2026-02-22 13:48:11,376 - INFO -    Status: IN_PROGRESS
-2026-02-22 13:48:43,075 - INFO -    Status: IN_PROGRESS
-2026-02-22 13:49:14,682 - INFO -    Status: IN_PROGRESS
-2026-02-22 13:49:46,340 - INFO -    Status: IN_PROGRESS
-2026-02-22 13:50:18,205 - INFO -    Status: IN_PROGRESS
-2026-02-22 13:50:50,005 - INFO -    Status: IN_PROGRESS
-2026-02-22 13:51:21,438 - INFO -    Status: IN_PROGRESS
-2026-02-22 13:51:52,948 - INFO -    Status: IN_PROGRESS
-2026-02-22 13:52:24,882 - INFO -    Status: IN_PROGRESS
-2026-02-22 13:52:56,195 - INFO -    Status: COMPLETED
-2026-02-22 13:52:56,196 - INFO - ✅ JulesClient: Session finished with state: COMPLETED
-2026-02-22 13:53:08,450 - INFO - 
-🏭 Starting Jules Page Generation (Batch Size: 5)...
+2026-02-22 14:59:28,553 - INFO - 🚀 JulesClient: Dispatching Session 'Jules OCR Batch (1771772368)'...
+2026-02-22 14:59:30,749 - INFO - ✅ JulesClient: Session Created: sessions/3340523700568745461
+2026-02-22 14:59:30,754 - INFO - ⏳ JulesClient: Monitoring session sessions/3340523700568745461 (Timeout: 30m)...
+2026-02-22 14:59:32,325 - INFO -    Status: QUEUED
+2026-02-22 15:00:04,089 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:00:37,251 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:01:08,664 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:01:40,877 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:02:13,052 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:02:44,939 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:03:16,713 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:03:48,237 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:04:19,744 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:04:51,715 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:05:23,426 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:05:55,479 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:06:26,827 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:06:58,210 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:07:29,641 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:08:01,239 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:08:32,777 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:09:04,430 - INFO -    Status: IN_PROGRESS
+2026-02-22 15:09:37,515 - INFO -    Status: COMPLETED
+2026-02-22 15:09:37,524 - INFO - ✅ JulesClient: Session finished with state: COMPLETED
