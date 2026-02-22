@@ -23,7 +23,9 @@ except ImportError:
 # --- CONFIGURATION ---
 PROJECT_ROOT = Path(__file__).parent.resolve()
 MODULES_PATH = PROJECT_ROOT / "system-workspace/tools/automation"
+JULES_WORKSPACE_PATH = PROJECT_ROOT / "Jules-workspace"
 sys.path.append(str(MODULES_PATH))
+sys.path.append(str(JULES_WORKSPACE_PATH))
 
 # --- LOGGING SETUP ---
 # Redirect logs to file so they don't break the UI
@@ -46,6 +48,16 @@ except ImportError as e:
     logging.critical(f"Failed to import modules: {e}")
     print("❌ Critical Error: Failed to import modules. See system.log for details.")
     sys.exit(1)
+
+# Import Jules Workspace Tools
+try:
+    import id_manager
+    import lint_pages
+    import fix_exam_blocks
+    import smart_replace_haam
+    import smart_color_fixer
+except ImportError as e:
+    print(f"⚠️ Warning: Could not import Jules Workspace tools: {e}")
 
 console = Console()
 
@@ -393,6 +405,127 @@ def run_planning(state_manager):
 
     console.print(f"[bold green]✅ Standard Planning Completed in {format_duration(time.time() - start_time)}![/bold green]")
 
+def run_audit_and_verify(state_manager):
+    console.clear()
+    console.print(Panel("[bold]Running Audit & Verify Pages...[/bold]", style="blue"))
+
+    # Define paths
+    pages_dir = PROJECT_ROOT / "pages"
+    if not pages_dir.exists():
+        console.print("[red]❌ Pages directory not found![/red]")
+        return
+
+    # Define Exclusions
+    excluded_files = {
+        "00.0_blank_page1.html",
+        "99.0_blank_page2.html",
+        "00.1_n01_toc_p1.html",
+        "00.2_n02_toc_p2.html"
+    }
+    excluded_folders = {"cover"}
+
+    # Gather Files
+    target_files = []
+
+    # We use glob to find all HTML files recursively
+    all_html_files = sorted(list(pages_dir.glob("**/*.html")))
+
+    for f in all_html_files:
+        rel_path = f.relative_to(pages_dir)
+
+        # Check specific file exclusion
+        if f.name in excluded_files:
+            continue
+
+        # Check folder exclusion (check parts of the relative path)
+        if any(part in excluded_folders for part in rel_path.parts):
+             continue
+
+        target_files.append(str(f))
+
+    if not target_files:
+        console.print("[yellow]No files to process.[/yellow]")
+        return
+
+    console.print(f"[bold]Processing {len(target_files)} files...[/bold]")
+
+    # 1. ID Manager
+    console.print("\n[cyan]1. Running ID Manager (auto-tag)...[/cyan]")
+    try:
+        # Initialize IDManager with root_dir so it scans ALL files for uniqueness
+        manager = id_manager.IDManager(root_dir=str(pages_dir))
+        # But only auto-tag the target files
+        manager.auto_tag(files=target_files)
+    except Exception as e:
+        console.print(f"[red]Error in ID Manager: {e}[/red]")
+
+    # 2. Fix Exam Blocks
+    console.print("\n[cyan]2. Running Fix Exam Blocks...[/cyan]")
+    for f in target_files:
+        try:
+            fix_exam_blocks.fix_exam_blocks(f)
+        except Exception as e:
+            console.print(f"[red]Error fixing exams in {Path(f).name}: {e}[/red]")
+
+    # 3. Smart Replace Haam
+    console.print("\n[cyan]3. Running Smart Replace Haam...[/cyan]")
+    for f in target_files:
+        try:
+            if smart_replace_haam.process_file(f):
+                console.print(f"  [green]Modified:[/green] {Path(f).name}")
+        except Exception as e:
+            console.print(f"[red]Error replacing Haam in {Path(f).name}: {e}[/red]")
+
+    # 4. Smart Color Fixer
+    console.print("\n[cyan]4. Running Smart Color Fixer...[/cyan]")
+    for f in target_files:
+        try:
+            smart_color_fixer.fix_colors(f)
+        except Exception as e:
+            console.print(f"[red]Error fixing colors in {Path(f).name}: {e}[/red]")
+
+    # 5. Lint Pages
+    console.print("\n[cyan]5. Running Lint Pages...[/cyan]")
+
+    # Pre-load allowed classes once
+    allowed_classes = None
+    styles_path = PROJECT_ROOT / "styles/main.css"
+    if styles_path.exists():
+        try:
+            allowed_classes = lint_pages.parse_allowed_classes(str(styles_path))
+        except Exception:
+            pass
+
+    # We'll use a table to show results
+    table = Table(title="Lint Report", box=box.SIMPLE, show_lines=True)
+    table.add_column("File", style="cyan")
+    table.add_column("Errors", style="red")
+    table.add_column("Warnings", style="yellow")
+
+    files_with_issues = 0
+    total_errors = 0
+
+    for f in target_files:
+        try:
+            errs, warns = lint_pages.lint_file(f, allowed_classes)
+            if errs:
+                files_with_issues += 1
+                total_errors += len(errs)
+
+                # Format for table
+                err_text = "\n".join([f"• {e}" for e in errs])
+                warn_text = "\n".join([f"• {w}" for w in warns]) if warns else "-"
+
+                table.add_row(Path(f).name, err_text, warn_text)
+        except Exception as e:
+             console.print(f"[red]Error linting {Path(f).name}: {e}[/red]")
+
+    if files_with_issues > 0:
+        console.print(table)
+        console.print(f"\n[bold red]❌ Found {total_errors} errors in {files_with_issues} files.[/bold red]")
+    else:
+        console.print("\n[bold green]✅ All checks passed! No lint errors.[/bold green]")
+
 # --- MAIN MENU ---
 
 def main():
@@ -451,9 +584,7 @@ def main():
         elif op == "D":
             run_planning(state_manager)
         elif op == "G":
-            console.clear()
-            console.print("[bold]Running Audit...[/bold]")
-            subprocess.run(["python3", "Jules-workspace/lint_pages.py"], check=False)
+            run_audit_and_verify(state_manager)
         
         if op != "Q":
             console.print(f"\n[dim]Total operation time: {format_duration(time.time() - start_op)}[/dim]")
