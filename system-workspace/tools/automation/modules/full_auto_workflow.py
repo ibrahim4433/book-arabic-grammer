@@ -58,58 +58,132 @@ class FullAutoWorkflow:
             "missing_pages": []
         }
 
+        # Internal State
+        self.existing_lessons = set()
+        self.skip_archive = False
+
+        # Step Definitions
+        self.steps = [
+            {"id": "ARCHIVE", "func": self._step_archive, "label": "Archive Old Files"},
+            {"id": "OCR", "func": self._step_ocr, "label": "OCR Processing"},
+            {"id": "RAW_PROC", "func": self._step_raw_processing, "label": "Raw Text Processing"},
+            {"id": "CHECK_EXIST", "func": self._step_check_existing, "label": "Check Existing Pages"},
+            {"id": "PLAN_GEN", "func": self._step_plan_generation, "label": "Generate Plans"},
+            {"id": "PLAN_SYNC", "func": self._step_sync_plans, "label": "Sync Missing Plans"},
+            {"id": "PAGE_GEN", "func": self._step_page_generation, "label": "Generate Pages"},
+            {"id": "PAGE_SYNC", "func": self._step_sync_pages, "label": "Sync Missing Pages"},
+            {"id": "AUDIT", "func": self._step_audit, "label": "Audit & Verify"}
+        ]
+
+        self.current_step_index = 0
+
+        # Initialize Timings
+        self.step_timings = {}
+        for s in self.steps:
+            self.step_timings[s['id']] = {
+                "status": "PENDING",
+                "start_time": None,
+                "end_time": None,
+                "duration": 0.0
+            }
+
     def _log(self, step, status, message):
         if self.callback:
             self.callback(step, status, message)
         else:
-            print(f"[{step}] {status}: {message}")
+            # Fallback logging if no UI
+            logging.info(f"[{step}] {status}: {message}")
+
+    def get_steps(self):
+        return self.steps
+
+    def get_current_step_name(self):
+        if 0 <= self.current_step_index < len(self.steps):
+            return self.steps[self.current_step_index]['label']
+        return "Finished"
+
+    def jump_to_step(self, step_id_or_label):
+        """Finds step by ID or Label and sets current index."""
+        for i, step in enumerate(self.steps):
+            if step['id'] == step_id_or_label or step['label'] == step_id_or_label:
+                self.current_step_index = i
+                # Reset timings for this and future steps?
+                # Ideally, we only reset the step we are jumping to and maybe subsequent ones?
+                # For now, let's just reset the target step's status to PENDING
+                self.step_timings[step['id']]['status'] = "PENDING"
+                return True
+        return False
+
+    def redo_previous_step(self):
+        """Moves index back to the previously completed step."""
+        if self.current_step_index > 0:
+            self.current_step_index -= 1
+            step_id = self.steps[self.current_step_index]['id']
+            self.step_timings[step_id]['status'] = "PENDING"
+            return True
+        return False
 
     def run(self, skip_archive=False):
         """
-        Executes the full workflow: Archive -> OCR -> Check Local -> Sync Plans -> Sync Pages -> Report.
-        Raises KeyboardInterrupt for pause handling in the main loop.
+        Executes the full workflow.
+        Can be called repeatedly; it continues from self.current_step_index.
         """
-        try:
-            # Step A: Archive
-            if not skip_archive:
-                self._step_archive()
+        self.skip_archive = skip_archive
 
-            # Step B: OCR
-            self._step_ocr()
+        while self.current_step_index < len(self.steps):
+            step_info = self.steps[self.current_step_index]
+            step_id = step_info['id']
 
-            # Step C: Raw Processing (Merge & Index)
-            self._step_raw_processing()
+            # Start Timing
+            self.step_timings[step_id]['start_time'] = time.time()
+            self.step_timings[step_id]['status'] = "RUNNING"
+            self._log(step_id, "START", f"Starting {step_info['label']}...")
 
-            # Step Check: Exclude existing pages (User logic)
-            existing_lessons = self._step_check_existing()
+            try:
+                # Execute Function
+                step_info['func']()
 
-            # Step E: Plan Generation (With Exclusions)
-            self._step_plan_generation(existing_lessons)
+                # Success
+                self.step_timings[step_id]['status'] = "SUCCESS"
+                self._log(step_id, "SUCCESS", f"Finished {step_info['label']}")
 
-            # Step E-Verify: Sync Missing Plans
-            self._step_sync_plans(existing_lessons)
+            except KeyboardInterrupt:
+                self.step_timings[step_id]['status'] = "PAUSED"
+                # Calculate partial duration
+                end = time.time()
+                self.step_timings[step_id]['end_time'] = end
+                self.step_timings[step_id]['duration'] = end - self.step_timings[step_id]['start_time']
+                raise # Re-raise to let system.py handle the menu
 
-            # Step F: Page Generation (With Exclusions)
-            self._step_page_generation(existing_lessons)
+            except Exception as e:
+                self.step_timings[step_id]['status'] = "FAILED"
+                self._log(step_id, "ERROR", str(e))
+                # Stop execution on error? Or raise?
+                # Raising allows the UI to catch it.
+                end = time.time()
+                self.step_timings[step_id]['end_time'] = end
+                self.step_timings[step_id]['duration'] = end - self.step_timings[step_id]['start_time']
+                raise e
 
-            # Step F-Verify: Sync Missing Pages
-            self._step_sync_pages(existing_lessons)
+            # End Timing
+            end = time.time()
+            self.step_timings[step_id]['end_time'] = end
+            self.step_timings[step_id]['duration'] = end - self.step_timings[step_id]['start_time']
 
-            # Step G: Audit & Verify
-            self._step_audit()
+            # Move to next
+            self.current_step_index += 1
 
-            # Report handled by caller or returned here
-            return self.stats
+            # Small pause between steps for UI clarity
+            time.sleep(0.5)
 
-        except KeyboardInterrupt:
-            raise
-        except Exception as e:
-            logging.error(f"Workflow Error: {e}")
-            self._log("ERROR", "FAILED", str(e))
-            raise
+        return self.stats
 
     def _step_archive(self):
-        self._log("Step A", "RUNNING", "Archiving old files...")
+        if self.skip_archive:
+            self._log("ARCHIVE", "SKIP", "Skipping Archive as requested.")
+            return
+
+        self._log("ARCHIVE", "RUNNING", "Archiving old files...")
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         target_dir = self.archive_dir / timestamp
         target_dir.mkdir(parents=True, exist_ok=True)
@@ -126,11 +200,10 @@ class FullAutoWorkflow:
                 shutil.move(str(f), str(target_dir / f.name))
                 self.stats["archived_files"] += 1
 
-        self._log("Step A", "SUCCESS", f"Archived {self.stats['archived_files']} files to {target_dir.name}")
-        time.sleep(1) # Visual pause
+        self._log("ARCHIVE", "SUCCESS", f"Archived {self.stats['archived_files']} files to {target_dir.name}")
 
     def _step_ocr(self):
-        self._log("Step B", "RUNNING", "Verifying Images & Running Jules OCR...")
+        self._log("OCR", "RUNNING", "Verifying Images & Running Jules OCR...")
 
         # Bridge callback for JulesOCR
         def ocr_callback(status, message):
@@ -140,17 +213,17 @@ class FullAutoWorkflow:
             elif status == "WARN": step_status = "WARN"
             elif status == "ERROR": step_status = "ERROR"
 
-            self._log("Step B", step_status, message)
+            self._log("OCR", step_status, message)
 
         try:
             ocr = JulesOCR(self.project_root)
             ocr.run_ocr_batch(update_callback=ocr_callback)
         except Exception as e:
-            self._log("Step B", "ERROR", f"JulesOCR Failed: {e}")
-            return
+            self._log("OCR", "ERROR", f"JulesOCR Failed: {e}")
+            raise e
 
         # Post-Processing: Update State Manager
-        self._log("Step B", "RUNNING", "Updating State Manager for OCR files...")
+        self._log("OCR", "RUNNING", "Updating State Manager for OCR files...")
 
         images = sorted(list(self.input_dir.glob("*.jpg")) +
                         list(self.input_dir.glob("*.png")) +
@@ -166,122 +239,79 @@ class FullAutoWorkflow:
                 self.state_manager.update_lesson_status(f"Image_{img.stem}", "OCR_DONE", {"raw": str(raw_path)})
 
         self.stats["ocr_processed"] = processed_count
-        self._log("Step B", "SUCCESS", f"OCR Complete. Verified {processed_count} raw files.")
-        time.sleep(1)
+        self._log("OCR", "SUCCESS", f"OCR Complete. Verified {processed_count} raw files.")
 
     def _step_raw_processing(self):
-        self._log("Step C", "RUNNING", "Raw Processing (Merge & Index)...")
+        self._log("RAW_PROC", "RUNNING", "Raw Processing (Merge & Index)...")
         if not self.tp.validate_toc():
-             self._log("Step C", "ERROR", "TOC Validation Failed")
-             return
+             raise Exception("TOC Validation Failed")
 
         merged_path = self.tp.merge_raw_text()
         if merged_path:
-             self._log("Step C", "MERGE", f"Merged raw text to {merged_path.name}")
+             self._log("RAW_PROC", "MERGE", f"Merged raw text to {merged_path.name}")
 
         mapping = self.tp.generate_lesson_index()
         if mapping:
-             self._log("Step C", "INDEX", f"Generated Lesson Index ({len(mapping)} lessons)")
+             self._log("RAW_PROC", "INDEX", f"Generated Lesson Index ({len(mapping)} lessons)")
 
-        self._log("Step C", "SUCCESS", "Raw Processing Complete.")
-        time.sleep(1)
+        self._log("RAW_PROC", "SUCCESS", "Raw Processing Complete.")
 
-    def _step_plan_generation(self, excluded_lessons):
-        self._log("Step E", "RUNNING", "Generating Plans (JulesPlanner)...")
+    def _step_check_existing(self):
+        self._log("CHECK_EXIST", "RUNNING", "Checking existing pages...")
+        self.existing_lessons = set() # Reset
+
+        # Check pages folder
+        if self.pages_dir.exists():
+            for f in self.pages_dir.glob("*.html"):
+                match = re.match(r'^(\d+)', f.name)
+                if match:
+                    num = match.group(1)
+                    normalized_num = str(int(num))
+                    if normalized_num in self.toc:
+                        self.existing_lessons.add(normalized_num)
+                        # self._log("CHECK_EXIST", "SKIP", f"Lesson {num} exists.") # Too spammy
+
+        self._log("CHECK_EXIST", "SUCCESS", f"Found {len(self.existing_lessons)} completed lessons.")
+
+    def _step_plan_generation(self):
+        self._log("PLAN_GEN", "RUNNING", "Generating Plans (JulesPlanner)...")
         planner = JulesPlanner(self.project_root)
 
-        # Callback wrapper to bridge JulesPlanner status to our UI
         def bridge_callback(title, status, msg):
-            # Translate internal statuses if needed, or pass through
             if status in ["ERROR", "FAILED"]:
-                self._log("Step E", "WARN", f"{title}: {msg}")
+                self._log("PLAN_GEN", "WARN", f"{title}: {msg}")
             elif status == "SUCCESS":
-                self._log("Step E", "GEN", f"{title}: Plan Generated")
-            else:
-                pass # Too verbose to log every step in main UI history
+                self._log("PLAN_GEN", "GEN", f"{title}: Plan Generated")
 
         try:
             planner.run_batch_planning(
                 max_concurrent=5,
                 update_callback=bridge_callback,
-                excluded_lessons=excluded_lessons
+                excluded_lessons=self.existing_lessons
             )
         except Exception as e:
-            self._log("Step E", "ERROR", f"Planner crashed: {e}")
+            self._log("PLAN_GEN", "ERROR", f"Planner crashed: {e}")
+            raise e
 
-        self._log("Step E", "SUCCESS", "Plan Generation Phase Complete.")
+        self._log("PLAN_GEN", "SUCCESS", "Plan Generation Phase Complete.")
 
-    def _step_page_generation(self, excluded_lessons):
-        self._log("Step F", "RUNNING", "Generating Pages (JulesPageGenerator)...")
-        generator = JulesPageGenerator(self.project_root)
+    def _step_sync_plans(self):
+        self._log("PLAN_SYNC", "RUNNING", "Verifying & Syncing Plans...")
 
-        def bridge_callback(title, status, msg):
-            if status in ["ERROR", "FAILED"]:
-                self._log("Step F", "WARN", f"{title}: {msg}")
-            elif status == "SUCCESS":
-                self._log("Step F", "GEN", f"{title}: Page Generated")
-            elif status == "INTERACT":
-                self._log("Step F", "INFO", f"{title}: Interact - {msg}")
-
-        try:
-            generator.run_batch_generation(
-                max_concurrent=5,
-                update_callback=bridge_callback,
-                excluded_lessons=excluded_lessons
-            )
-        except Exception as e:
-            self._log("Step F", "ERROR", f"Generator crashed: {e}")
-
-        self._log("Step F", "SUCCESS", "Page Generation Phase Complete.")
-
-    def _step_check_existing(self):
-        self._log("Step Check", "RUNNING", "Checking existing pages...")
-        existing_lessons = set()
-
-        # Map TOC to lesson numbers
-        lesson_map = {} # number -> title
-        for key, data in self.toc.items():
-            lesson_map[key] = data['title']
-
-        # Check pages folder
-        if self.pages_dir.exists():
-            for f in self.pages_dir.glob("*.html"):
-                # Extract number from filename (e.g., "09.0_Title.html")
-                match = re.match(r'^(\d+)', f.name)
-                if match:
-                    num = match.group(1)
-                    # Use str(int(num)) to normalize "09" -> "9" to match TOC keys
-                    normalized_num = str(int(num))
-                    if normalized_num in self.toc:
-                        existing_lessons.add(normalized_num)
-                        self._log("Step C", "SKIP", f"Lesson {num} exists (Page found).")
-
-        self._log("Step C", "SUCCESS", f"Found {len(existing_lessons)} completed lessons.")
-        time.sleep(1)
-        return existing_lessons
-
-    def _step_sync_plans(self, existing_lessons):
-        self._log("Step E", "RUNNING", "Verifying & Syncing Plans...")
-
-        # Get open PRs once
+        # Get open PRs
         prs = self.github.list_pull_requests(self.repo_name, author="Jules")
         if not prs:
-             self._log("Step E", "INFO", "No open PRs from Jules found. Checking general PRs...")
-             prs = self.github.list_pull_requests(self.repo_name) # Fallback to all PRs
+             self._log("PLAN_SYNC", "INFO", "No open PRs from Jules found. Checking general PRs...")
+             prs = self.github.list_pull_requests(self.repo_name)
 
         for key, data in self.toc.items():
-            if key in existing_lessons:
+            if key in self.existing_lessons:
                 continue
-
-            lesson_title = data['title']
-            # Expected filename pattern: "{key}-{title}-plan.md" or similar
-            # Since title might vary in cleaning, we look for "{key}-*-plan.md"
 
             # Check Local
             local_plan = None
             if self.plans_dir.exists():
                 candidates = list(self.plans_dir.glob(f"{key}-*-plan.md"))
-                # Also try 0 padded
                 if not candidates:
                     candidates = list(self.plans_dir.glob(f"{int(key):02d}-*-plan.md"))
 
@@ -289,19 +319,10 @@ class FullAutoWorkflow:
                     local_plan = candidates[0]
 
             if local_plan:
-                self._log("Step E", "EXIST", f"Plan for {key} exists.")
                 continue
 
             # Check GitHub
-            self._log("Step E", "FETCH", f"Searching GitHub for Plan {key}...")
-
-            # We search for a file starting with the lesson number in "plans/" directory
-            # Since we don't know the exact title, we might need to list files in PRs?
-            # find_file_in_prs expects a filename.
-            # I need a way to find by pattern.
-            # But github_utils.find_file_in_prs takes exact filename.
-            # I will iterate PRs and list files in "plans/" folder to match pattern.
-
+            self._log("PLAN_SYNC", "FETCH", f"Searching GitHub for Plan {key}...")
             found = False
             for pr in prs:
                 branch = pr['head']['ref']
@@ -311,8 +332,7 @@ class FullAutoWorkflow:
                     for f in files:
                         if f['name'].startswith(f"{key}-") or f['name'].startswith(f"{int(key):02d}-"):
                             if f['name'].endswith("-plan.md"):
-                                # Found match
-                                self._log("Step E", "DOWN", f"Downloading {f['name']}...")
+                                self._log("PLAN_SYNC", "DOWN", f"Downloading {f['name']}...")
                                 local_path = self.plans_dir / f['name']
                                 if self.github.download_file(f['download_url'], local_path):
                                     self.stats["plans_downloaded"] += 1
@@ -324,25 +344,47 @@ class FullAutoWorkflow:
 
             if not found:
                 self.stats["missing_plans"].append(key)
-                self._log("Step E", "MISS", f"Plan for {key} not found.")
+                self._log("PLAN_SYNC", "MISS", f"Plan for {key} not found.")
 
-        self._log("Step E", "SUCCESS", "Plan Sync Complete.")
+        self._log("PLAN_SYNC", "SUCCESS", "Plan Sync Complete.")
 
-    def _step_sync_pages(self, existing_lessons):
-        self._log("Step F", "RUNNING", "Verifying & Syncing Pages...")
+    def _step_page_generation(self):
+        self._log("PAGE_GEN", "RUNNING", "Generating Pages (JulesPageGenerator)...")
+        generator = JulesPageGenerator(self.project_root)
 
-        # Reuse PRs (should optimize to not fetch again, but for now simple call)
+        def bridge_callback(title, status, msg):
+            if status in ["ERROR", "FAILED"]:
+                self._log("PAGE_GEN", "WARN", f"{title}: {msg}")
+            elif status == "SUCCESS":
+                self._log("PAGE_GEN", "GEN", f"{title}: Page Generated")
+            elif status == "INTERACT":
+                self._log("PAGE_GEN", "INFO", f"{title}: Interact - {msg}")
+
+        try:
+            generator.run_batch_generation(
+                max_concurrent=5,
+                update_callback=bridge_callback,
+                excluded_lessons=self.existing_lessons
+            )
+        except Exception as e:
+            self._log("PAGE_GEN", "ERROR", f"Generator crashed: {e}")
+            raise e
+
+        self._log("PAGE_GEN", "SUCCESS", "Page Generation Phase Complete.")
+
+    def _step_sync_pages(self):
+        self._log("PAGE_SYNC", "RUNNING", "Verifying & Syncing Pages...")
+
+        # Reuse PRs
         prs = self.github.list_pull_requests(self.repo_name, author="Jules")
         if not prs:
              prs = self.github.list_pull_requests(self.repo_name)
 
         for key, data in self.toc.items():
-            if key in existing_lessons:
+            if key in self.existing_lessons:
                 continue
 
-            # If we are here, page is missing locally (checked in Step C).
-
-            self._log("Step F", "FETCH", f"Searching GitHub for Page {key}...")
+            self._log("PAGE_SYNC", "FETCH", f"Searching GitHub for Page {key}...")
 
             found = False
             for pr in prs:
@@ -353,8 +395,7 @@ class FullAutoWorkflow:
                     for f in files:
                         if f['name'].startswith(f"{key}.") or f['name'].startswith(f"{int(key):02d}."):
                             if f['name'].endswith(".html"):
-                                # Found match
-                                self._log("Step F", "DOWN", f"Downloading {f['name']}...")
+                                self._log("PAGE_SYNC", "DOWN", f"Downloading {f['name']}...")
                                 local_path = self.pages_dir / f['name']
                                 if self.github.download_file(f['download_url'], local_path):
                                     self.stats["pages_downloaded"] += 1
@@ -366,16 +407,16 @@ class FullAutoWorkflow:
 
             if not found:
                 self.stats["missing_pages"].append(key)
-                self._log("Step F", "MISS", f"Page for {key} not found.")
+                self._log("PAGE_SYNC", "MISS", f"Page for {key} not found.")
 
-        self._log("Step F", "SUCCESS", "Page Sync Complete.")
+        self._log("PAGE_SYNC", "SUCCESS", "Page Sync Complete.")
 
     def _step_audit(self):
-        self._log("Step G", "RUNNING", "Auditing & Verifying Pages...")
+        self._log("AUDIT", "RUNNING", "Auditing & Verifying Pages...")
 
         pages_dir = self.pages_dir
         if not pages_dir.exists():
-            self._log("Step G", "WARN", "Pages directory missing.")
+            self._log("AUDIT", "WARN", "Pages directory missing.")
             return
 
         # Define Exclusions
@@ -395,44 +436,44 @@ class FullAutoWorkflow:
             target_files.append(str(f))
 
         if not target_files:
-            self._log("Step G", "WARN", "No files to audit.")
+            self._log("AUDIT", "WARN", "No files to audit.")
             return
 
         # 1. ID Manager
         try:
-            self._log("Step G", "AUDIT", "Running ID Manager...")
+            self._log("AUDIT", "AUDIT", "Running ID Manager...")
             manager = id_manager.IDManager(root_dir=str(pages_dir))
             manager.auto_tag(files=target_files)
         except Exception as e:
-            self._log("Step G", "ERROR", f"ID Manager failed: {e}")
+            self._log("AUDIT", "ERROR", f"ID Manager failed: {e}")
 
         # 2. Fix Exam Blocks
         try:
-            self._log("Step G", "AUDIT", "Fixing Exam Blocks...")
+            self._log("AUDIT", "AUDIT", "Fixing Exam Blocks...")
             for f in target_files:
                 fix_exam_blocks.fix_exam_blocks(f)
         except Exception as e:
-            self._log("Step G", "ERROR", f"Fix Exam Blocks failed: {e}")
+            self._log("AUDIT", "ERROR", f"Fix Exam Blocks failed: {e}")
 
         # 3. Smart Replace Haam
         try:
-            self._log("Step G", "AUDIT", "Replacing Haam...")
+            self._log("AUDIT", "AUDIT", "Replacing Haam...")
             for f in target_files:
                 smart_replace_haam.process_file(f)
         except Exception as e:
-             self._log("Step G", "ERROR", f"Smart Replace Haam failed: {e}")
+             self._log("AUDIT", "ERROR", f"Smart Replace Haam failed: {e}")
 
         # 4. Smart Color Fixer
         try:
-            self._log("Step G", "AUDIT", "Fixing Colors...")
+            self._log("AUDIT", "AUDIT", "Fixing Colors...")
             for f in target_files:
                 smart_color_fixer.fix_colors(f)
         except Exception as e:
-            self._log("Step G", "ERROR", f"Color Fixer failed: {e}")
+            self._log("AUDIT", "ERROR", f"Color Fixer failed: {e}")
 
         # 5. Lint Pages
         try:
-            self._log("Step G", "AUDIT", "Linting Pages...")
+            self._log("AUDIT", "AUDIT", "Linting Pages...")
             allowed_classes = None
             styles_path = self.project_root / "styles/main.css"
             if styles_path.exists():
@@ -446,11 +487,11 @@ class FullAutoWorkflow:
                 if errs: issues += 1
 
             if issues > 0:
-                self._log("Step G", "WARN", f"Linting found errors in {issues} files.")
+                self._log("AUDIT", "WARN", f"Linting found errors in {issues} files.")
             else:
-                self._log("Step G", "SUCCESS", "All files passed linting.")
+                self._log("AUDIT", "SUCCESS", "All files passed linting.")
 
         except Exception as e:
-            self._log("Step G", "ERROR", f"Linting failed: {e}")
+            self._log("AUDIT", "ERROR", f"Linting failed: {e}")
 
-        self._log("Step G", "SUCCESS", "Audit & Verify Complete.")
+        self._log("AUDIT", "SUCCESS", "Audit & Verify Complete.")
