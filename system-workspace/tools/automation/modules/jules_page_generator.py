@@ -1,5 +1,6 @@
 import sys
 import time
+import random
 import logging
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -61,6 +62,11 @@ class JulesPageGenerator:
             def default_callback(t, s, m):
                 logging.info(f"[{s}] {t}: {m}")
             callback = default_callback
+
+        # API Safety Delay (5-15s) to prevent burst
+        delay = random.uniform(5, 15)
+        callback(plan_path.stem, "RUNNING", f"Safety Delay ({delay:.1f}s)...")
+        time.sleep(delay)
 
         plan_content = plan_path.read_text(encoding='utf-8')
         lesson_title = plan_path.stem
