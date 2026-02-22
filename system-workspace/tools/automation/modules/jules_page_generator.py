@@ -2,6 +2,7 @@ import sys
 import time
 import random
 import logging
+import re
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
