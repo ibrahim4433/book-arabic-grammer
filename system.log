@@ -8,3 +8,4 @@
 2026-02-22 20:20:14,970 - INFO - ✅ JulesClient: Session Created: sessions/16561905654089077211
 2026-02-22 20:20:16,359 - INFO - 🚀 JulesClient: Dispatching Session 'PageGen: 12-الصحيح والمعتل-plan'...
 2026-02-22 20:20:20,122 - INFO - ✅ JulesClient: Session Created: sessions/4702006411468014025
+2026-02-22 20:32:33,872 - ERROR - ❌ JulesClient Error (Get Status): HTTPSConnectionPool(host='jules.googleapis.com', port=443): Max retries exceeded with url: /v1alpha/sessions/13626071446886814432 (Caused by NameResolutionError("HTTPSConnection(host='jules.googleapis.com', port=443): Failed to resolve 'jules.googleapis.com' ([Errno -3] Temporary failure in name resolution)"))
