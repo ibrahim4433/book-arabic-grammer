@@ -101,7 +101,7 @@ class JulesPageGenerator:
             return False
             
         # 3. Pull Result
-        callback(lesson_title, "RUNNING", "Pulling Page...")
+        callback(lesson_title, "RUNNING", "Downloading generated page...")
         details = self.jules_client.get_session_details(session_id)
         
         # Attempt 1: Exact Match Pull using JulesPlanClient logic
@@ -179,6 +179,7 @@ class JulesPageGenerator:
         """
         start_time = time.time()
         timeout = 25 * 60 # 25 minutes
+        last_log_time = start_time
         
         while time.time() - start_time < timeout:
             status_data = self.jules_client.get_session_status(session_id)
@@ -188,8 +189,11 @@ class JulesPageGenerator:
                 
             state = status_data.get('state', 'UNKNOWN')
             
-            # Update Status only if changed? Or just show current state
-            # callback(lesson_title, "RUNNING", f"State: {state}")
+            # Periodic Heartbeat Log (Every 60s)
+            if time.time() - last_log_time > 60:
+                elapsed_min = int((time.time() - start_time) / 60)
+                callback(lesson_title, "RUNNING", f"Still running... ({elapsed_min}m elapsed)")
+                last_log_time = time.time()
 
             if state == 'SUCCEEDED':
                 return "SUCCEEDED"

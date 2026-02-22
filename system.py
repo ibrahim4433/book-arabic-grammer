@@ -396,7 +396,8 @@ def run_full_auto_ui(state_manager):
     if start_choice == "Start from Raw Processing":
         workflow.jump_to_step("RAW_PROC")
     elif start_choice == "Start from Unified Generation":
-        workflow.jump_to_step("UNIFIED_GEN")
+        # Start from CHECK_EXIST to ensure we sync existing plans/pages before generating
+        workflow.jump_to_step("CHECK_EXIST")
 
     # Shared state for UI
     ui_state = {
@@ -441,6 +442,8 @@ def run_full_auto_ui(state_manager):
                 elif st == "DOWN": c = "cyan"
                 elif st == "MISS": c = "magenta"
                 elif st == "START": c = "blue"
+                elif st == "INFO": c = "dim"
+                elif st == "RUNNING": c = "yellow"
                 log_text += f"[{c}]{ts} [{s}] {st}: {m}[/{c}]\n"
 
             layout["footer"].update(Panel(log_text, title="Log History", box=box.SIMPLE))
@@ -470,6 +473,7 @@ def run_full_auto_ui(state_manager):
                 elif status == "FAILED": s_color = "red"
                 elif status == "PAUSED": s_color = "magenta"
                 elif status == "PENDING": s_color = "dim"
+                elif status == "SKIPPED": s_color = "dim green"
 
                 start_s = time.strftime('%H:%M:%S', time.localtime(meta['start_time'])) if meta['start_time'] else "-"
                 end_s = time.strftime('%H:%M:%S', time.localtime(meta['end_time'])) if meta['end_time'] else "-"
@@ -484,7 +488,7 @@ def run_full_auto_ui(state_manager):
 
     def callback(step, status, message):
         with lock:
-            if status in ["SUCCESS", "WARN", "ERROR", "MISS", "DOWN", "START", "MERGE", "INDEX", "GEN", "AUDIT"]:
+            if status in ["SUCCESS", "WARN", "ERROR", "MISS", "DOWN", "START", "MERGE", "INDEX", "GEN", "AUDIT", "INFO", "RUNNING"]:
                 ui_state["history"].append((time.strftime("%H:%M:%S"), step, status, message))
                 if len(ui_state["history"]) > 8:
                     ui_state["history"].pop(0)
