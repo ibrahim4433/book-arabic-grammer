@@ -1,9 +1,11 @@
 import sys
+import os
 import json
 import time
 import subprocess
 import re
 import logging
+import requests
 from pathlib import Path
 
 # Ensure modules are importable
@@ -24,6 +26,101 @@ class JulesPlanClient(JulesClient):
         super().__init__(api_key, project_root)
         self.output_dir = self.project_root / "plans"
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.github_token = self._get_github_token()
+        self.repo_owner = "ibrahim4433"
+        self.repo_name = "book-arabic-grammer"
+
+    def _get_github_token(self):
+        """Loads GitHub Token from secrets/Github_Token.txt."""
+        token_path = self.project_root / "secrets/Github_Token.txt"
+        if token_path.exists():
+            return token_path.read_text().strip()
+        return os.getenv("GITHUB_TOKEN")
+
+    def merge_pr(self, pr_number):
+        """
+        Merges a Pull Request using the GitHub API.
+        """
+        if not self.github_token:
+            logging.error("❌ GitHub Token missing. Cannot merge PR.")
+            return False, "Token Missing"
+
+        url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/pulls/{pr_number}/merge"
+        headers = {
+            "Authorization": f"token {self.github_token}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+        data = {
+            "commit_title": f"Merge PR #{pr_number} (Jules Auto-Merge)",
+            "merge_method": "squash"
+        }
+
+        try:
+            logging.info(f"🔀 Merging PR #{pr_number}...")
+            resp = requests.put(url, headers=headers, json=data, timeout=30)
+
+            if resp.status_code == 200:
+                logging.info(f"✅ PR #{pr_number} merged successfully.")
+                return True, "Merged"
+            elif resp.status_code == 405:
+                logging.error(f"❌ PR #{pr_number} is not mergeable (Conflict?).")
+                return False, "Not Mergeable"
+            elif resp.status_code == 409:
+                logging.error(f"❌ PR #{pr_number} merge conflict.")
+                return False, "Conflict"
+            else:
+                logging.error(f"❌ Merge failed: {resp.status_code} - {resp.text}")
+                return False, f"API Error {resp.status_code}"
+
+        except requests.exceptions.RequestException as e:
+            logging.error(f"❌ Network Error during merge: {e}")
+            return False, "Network Error"
+
+    def finalize_pr_and_pull(self, session_details, file_path, callback=None):
+        """
+        Merges the PR (if available) and then pulls changes to local.
+        Falls back to pulling the branch if merge fails.
+        Args:
+            file_path: Relative path from project root (e.g. 'plans/1-Title.md')
+        """
+        if not callback:
+            def callback(t, s, m): pass
+
+        pr_number = session_details.get('pr_number')
+
+        # 1. Try to Merge
+        merged = False
+        if pr_number:
+            callback(file_path, "MERGING", f"Merging PR #{pr_number}...")
+            success, msg = self.merge_pr(pr_number)
+            if success:
+                merged = True
+                callback(file_path, "PULLING", "Pulling from Main...")
+            else:
+                callback(file_path, "WARN", f"Merge Failed ({msg}). Fetching Branch...")
+
+        # 2. Pull Logic
+        try:
+            if merged:
+                # Checkout main and pull
+                subprocess.run(["git", "checkout", "main"], check=True, cwd=self.project_root, capture_output=True)
+                subprocess.run(["git", "pull", "origin", "main"], check=True, cwd=self.project_root, capture_output=True)
+
+                # Verify file exists
+                if (self.project_root / file_path).exists():
+                     logging.info(f"✅ Finalization complete for {file_path}")
+                     return True
+                else:
+                    logging.warning(f"⚠️ File {file_path} not found after pull.")
+                    return False
+            else:
+                # Fallback: Pull from branch using legacy logic
+                return self.pull_plan_from_github(session_details, file_path)
+
+        except subprocess.CalledProcessError as e:
+            logging.error(f"❌ Git Error during pull: {e}")
+            callback(file_path, "ERROR", "Git Pull Failed")
+            return False
 
     def create_plan_session(self, lesson_title, prompt):
         """
@@ -106,7 +203,9 @@ class JulesPlanClient(JulesClient):
             subprocess.run(fetch_cmd, check=True, cwd=self.project_root, capture_output=True)
 
             # 2. Checkout specific file
-            repo_path = f"plans/{target_filename}"
+            # If target_filename already contains a path separator, use it as is.
+            # Otherwise, assume it's a plan in plans/ directory (Legacy support).
+            repo_path = target_filename if "/" in target_filename else f"plans/{target_filename}"
             checkout_cmd = ["git", "checkout", checkout_ref, "--", repo_path]
             subprocess.run(checkout_cmd, check=True, cwd=self.project_root, capture_output=True)
 
