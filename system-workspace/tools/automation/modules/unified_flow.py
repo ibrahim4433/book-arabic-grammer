@@ -85,10 +85,16 @@ class UnifiedProductionManager:
 
     def run(self):
         max_workers = 5
+        last_status_log = time.time()
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             while not self.stop_event.is_set():
                 with self.lock:
+                    # Periodic Status Log (Every 60s)
+                    if time.time() - last_status_log > 60:
+                        self._log("System", "INFO", f"Status: {len(self.queue)} tasks pending, {len(self.active_futures)} active workers.")
+                        last_status_log = time.time()
+
                     # Check if done: No tasks in queue AND no active futures
                     if not self.queue and not self.active_futures:
                         self._log("System", "SUCCESS", "All tasks completed.")
