@@ -12,6 +12,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
 from jules_client import JulesClient
+from github_utils import GithubClient
 
 class JulesOCRClient(JulesClient):
     """
@@ -29,6 +30,8 @@ class JulesOCRClient(JulesClient):
         self.github_token = self._get_github_token()
         self.repo_owner = "ibrahim4433"
         self.repo_name = "book-arabic-grammer"
+        # Init Github Client for fallback
+        self.github = GithubClient(token_path=self.project_root / "secrets/Github_Token.txt")
 
     def _get_github_token(self):
         """Loads GitHub Token from secrets/Github_Token.txt."""
@@ -84,7 +87,6 @@ class JulesOCRClient(JulesClient):
             def callback(t, s, m): pass
 
         pr_number = session_details.get('pr_number')
-        branch_name = session_details.get('branch')
 
         # 1. Try to Merge
         merged = False
@@ -105,22 +107,67 @@ class JulesOCRClient(JulesClient):
                 subprocess.run(["git", "pull", "origin", "main"], check=True, cwd=self.project_root, capture_output=True)
                 logging.info(f"✅ Finalization complete.")
                 return True
-            elif branch_name:
-                # Fallback: Pull from branch
-                logging.info(f"⬇️ Pulling branch {branch_name}...")
-                subprocess.run(["git", "fetch", "origin", branch_name], check=True, cwd=self.project_root, capture_output=True)
-                subprocess.run(["git", "checkout", f"origin/{branch_name}"], check=True, cwd=self.project_root, capture_output=True)
-
-                # Copy files from checkout to current workspace (if needed, or just leave as checkout)
-                # But usually we want to merge into main.
-                # If merge failed, we at least have the files in the branch.
-                return True
             else:
-                return False
+                # Fallback: Pull from branch using cleaner logic
+                return self.pull_raw_files_from_github(session_details)
 
         except subprocess.CalledProcessError as e:
             logging.error(f"❌ Git Error during pull: {e}")
             callback("OCR Session", "ERROR", "Git Pull Failed")
+            return False
+
+    def pull_raw_files_from_github(self, session_details):
+        """
+        Fetches the raw text files directory from the specified remote context (PR or Branch).
+        """
+        if not session_details:
+            logging.error("❌ No session details provided for pull.")
+            return False
+
+        branch_name = session_details.get('branch')
+        pr_number = session_details.get('pr_number')
+        target_dir = "system-workspace/text-data/raw/"
+
+        logging.info(f"⬇️ Pulling raw files from {branch_name or pr_number}...")
+
+        try:
+            fetch_ref = None
+            checkout_ref = None
+
+            if pr_number:
+                # Fetch PR head directly
+                local_branch = f"pr-ocr-{pr_number}"
+                fetch_ref = f"pull/{pr_number}/head:{local_branch}"
+                checkout_ref = local_branch
+            elif branch_name:
+                fetch_ref = branch_name
+                checkout_ref = f"origin/{branch_name}"
+            else:
+                logging.error("❌ Cannot pull: Missing Branch Name and PR Number.")
+                return False
+
+            # 1. Fetch
+            fetch_cmd = ["git", "fetch", "origin", fetch_ref]
+            subprocess.run(fetch_cmd, check=True, cwd=self.project_root, capture_output=True)
+
+            # 2. Checkout the specific directory
+            # git checkout <tree-ish> -- <pathspec>
+            # This updates the files in the current working tree to match the version in checkout_ref
+            checkout_cmd = ["git", "checkout", checkout_ref, "--", target_dir]
+            subprocess.run(checkout_cmd, check=True, cwd=self.project_root, capture_output=True)
+
+            logging.info(f"✅ Successfully pulled raw files from {checkout_ref}")
+
+            # Clean up local temp branch if created
+            if pr_number:
+                subprocess.run(["git", "branch", "-D", checkout_ref], cwd=self.project_root, capture_output=True)
+
+            return True
+
+        except subprocess.CalledProcessError as e:
+            logging.error(f"❌ Git Error: {e}")
+            if e.stderr:
+                logging.error(f"   Stderr: {e.stderr.decode()}")
             return False
 
     def create_ocr_session(self, prompt):
@@ -133,30 +180,50 @@ class JulesOCRClient(JulesClient):
     def get_session_details(self, session_id):
         """
         Retrieves session details including branch name and PR number if available.
+        Attempts fallback to GitHub API if session status is incomplete.
         """
         status_data = self.get_session_status(session_id)
-        if not status_data:
-            return {}
-
         details = {}
 
-        if 'branch' in status_data:
-            details['branch'] = status_data['branch']
+        if status_data:
+            if 'branch' in status_data:
+                details['branch'] = status_data['branch']
 
-        pr_info = status_data.get('pullRequest', {})
-        if pr_info:
-            if 'number' in pr_info:
-                details['pr_number'] = pr_info['number']
+            pr_info = status_data.get('pullRequest', {})
+            if pr_info:
+                if 'number' in pr_info:
+                    details['pr_number'] = pr_info['number']
 
-            head = pr_info.get('head', {})
-            if 'ref' in head:
-                details['branch'] = head['ref']
+                head = pr_info.get('head', {})
+                if 'ref' in head:
+                    details['branch'] = head['ref']
 
-            html_url = pr_info.get('htmlUrl', '')
-            if html_url and 'pr_number' not in details:
-                match = re.search(r'/pull/(\d+)', html_url)
-                if match:
-                    details['pr_number'] = match.group(1)
+                html_url = pr_info.get('htmlUrl', '')
+                if html_url and 'pr_number' not in details:
+                    match = re.search(r'/pull/(\d+)', html_url)
+                    if match:
+                        details['pr_number'] = match.group(1)
+
+        # Fallback: If no details found, search GitHub for recent open PRs
+        if not details:
+            logging.warning(f"⚠️ Session status missing PR info. Searching GitHub...")
+
+            # Find open PRs from Jules (or anyone really, but assume Jules)
+            # We filter for PRs that touch system-workspace/text-data/raw/
+            # Or just the latest one.
+            prs = self.github.list_pull_requests(f"{self.repo_owner}/{self.repo_name}")
+
+            for pr in prs:
+                # Check if title matches our pattern "Jules OCR Batch"
+                # Or if user is Jules (need to know username, usually "google-jules-bot" or similar but varies)
+                # Let's rely on title mostly or files.
+                title = pr.get('title', '')
+                if "OCR" in title or "Batch" in title or "Jules" in title:
+                     # This is a candidate.
+                     details['pr_number'] = pr['number']
+                     details['branch'] = pr['head']['ref']
+                     logging.info(f"🔍 Found candidate PR #{pr['number']}: {title}")
+                     break
 
         return details
 
