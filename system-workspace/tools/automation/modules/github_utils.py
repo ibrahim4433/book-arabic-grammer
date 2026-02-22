@@ -49,6 +49,20 @@ class GithubClient:
             logging.error(f"Error fetching PRs: {e}")
             return []
 
+    def list_pr_files(self, repo, pr_number):
+        """
+        List all files modified in a PR.
+        Returns a list of dicts: [{'filename': str, 'raw_url': str}, ...]
+        """
+        url = f"{self.api_url}/repos/{repo}/pulls/{pr_number}/files?per_page=100"
+        try:
+            response = requests.get(url, headers=self.headers)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error listing files for PR #{pr_number}: {e}")
+            return []
+
     def get_file_info(self, repo, path, ref):
         """
         Get file metadata (including download_url) from a specific ref (branch/commit).

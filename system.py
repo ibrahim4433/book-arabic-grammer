@@ -184,7 +184,7 @@ def run_jules_planning_ui(state_manager):
     console.clear() # Clear screen for App-like feel
     console.print("[bold cyan]🚀 Starting Jules Batch Planning...[/bold cyan]")
     
-    planner = JulesPlanner(PROJECT_ROOT)
+    planner = JulesPlanner(PROJECT_ROOT, state_manager=state_manager)
     
     tasks = {} # title -> {status, message, start_time, duration}
     lock = threading.Lock()
