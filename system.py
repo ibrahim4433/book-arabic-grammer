@@ -177,6 +177,7 @@ def run_jules_planning_ui(state_manager):
             if status == "SUCCESS": status_color = "green"
             elif status == "FAILED": status_color = "red"
             elif status == "RUNNING": status_color = "yellow"
+            elif status in ["MERGING", "PULLING"]: status_color = "magenta"
 
             # Calculate Duration
             duration_str = "-"
@@ -248,6 +249,7 @@ def run_jules_generation_ui(state_manager):
             elif s == "SUCCESS": color = "green"
             elif s == "FAILED": color = "red"
             elif s == "INTERACT": color = "magenta"
+            elif s in ["MERGING", "PULLING"]: color = "cyan"
             
             # Calculate Duration
             duration_str = "-"

@@ -217,12 +217,21 @@ class JulesPlanner:
             callback(lesson_title, "WARN", "No PR found. Manual check needed.")
             return False
 
-        success = self.client.pull_plan_from_github(details, filename)
+        # Use new Merge & Pull logic
+        # filename is e.g. "01-Intro.md", so we prepend plans/
+        target_path = f"plans/{filename}"
+        success = self.client.finalize_pr_and_pull(details, target_path, callback=callback)
 
         if success:
             callback(lesson_title, "SUCCESS", f"Plan saved: {filename}")
             return True
         else:
+            # Error message might have been set by callback in finalize_pr_and_pull
+            # But we set final status here if not already set?
+            # Actually callback sets status repeatedly.
+            # If success is False, likely ERROR or WARN was set.
+            # But the UI callback logic in system.py overwrites status.
+            # So if finalize returned False, we should explicitly set ERROR if not already.
             callback(lesson_title, "ERROR", "Pull Failed")
             return False
 
