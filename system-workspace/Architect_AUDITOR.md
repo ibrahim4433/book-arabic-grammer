@@ -9,7 +9,7 @@
 3.  `[DESIGN RULES]`: The JSON summary of the "Gold Standard".
 
 **OBJECTIVE:**
-Compare the Plan against the Source and Rules. Detect missing content, weak structure, or rule violations.
+Compare the Plan against the Source and Rules. Detect missing content, weak structure, bad designs , un-balanced coloring or rule violations.
 
 ---
 
