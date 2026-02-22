@@ -49,6 +49,42 @@ except ImportError as e:
 
 console = Console()
 
+# --- TIMING UTILS ---
+
+def format_duration(seconds):
+    """Formats seconds into a human-readable string (e.g., '2m 15s', '45.2s')."""
+    if seconds >= 60:
+        minutes = int(seconds // 60)
+        secs = int(seconds % 60)
+        return f"{minutes}m {secs}s"
+    else:
+        return f"{seconds:.1f}s"
+
+class Timer:
+    """Context manager to measure execution time."""
+    def __init__(self):
+        self.start_time = None
+        self.end_time = None
+
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end_time = time.time()
+
+    @property
+    def duration(self):
+        if self.start_time is None:
+            return 0
+        if self.end_time is None:
+            return time.time() - self.start_time
+        return self.end_time - self.start_time
+
+    @property
+    def formatted_duration(self):
+        return format_duration(self.duration)
+
 # --- UI HELPERS ---
 
 def print_header():
@@ -122,7 +158,7 @@ def run_jules_planning_ui(state_manager):
     
     planner = JulesPlanner(PROJECT_ROOT)
     
-    tasks = {} # title -> {status, message}
+    tasks = {} # title -> {status, message, start_time, duration}
     lock = threading.Lock()
 
     def generate_table():
@@ -130,6 +166,7 @@ def run_jules_planning_ui(state_manager):
         table.add_column("Lesson", style="cyan")
         table.add_column("Status", style="bold")
         table.add_column("Message", style="dim", width=60)
+        table.add_column("Duration", style="yellow", justify="right")
 
         with lock:
             sorted_tasks = sorted(tasks.items()) # Stable sort
@@ -141,21 +178,49 @@ def run_jules_planning_ui(state_manager):
             elif status == "FAILED": status_color = "red"
             elif status == "RUNNING": status_color = "yellow"
 
-            table.add_row(title, f"[{status_color}]{status}[/{status_color}]", data['message'])
+            # Calculate Duration
+            duration_str = "-"
+            if 'duration' in data:
+                duration_str = format_duration(data['duration'])
+            elif 'start_time' in data:
+                duration_str = format_duration(time.time() - data['start_time'])
+
+            table.add_row(
+                title,
+                f"[{status_color}]{status}[/{status_color}]",
+                data['message'],
+                duration_str
+            )
 
         return table
 
     # Initialize Live with the initial table
+    start_all = time.time()
     with Live(generate_table(), refresh_per_second=4) as live:
 
         def callback(title, status, msg):
             with lock:
-                tasks[title] = {"status": status, "message": msg}
+                if title not in tasks:
+                    tasks[title] = {}
+
+                tasks[title]['status'] = status
+                tasks[title]['message'] = msg
+
+                if status == "RUNNING":
+                    if 'start_time' not in tasks[title]:
+                        tasks[title]['start_time'] = time.time()
+                elif status in ["SUCCESS", "FAILED", "SKIP", "WARN", "ERROR"]:
+                    if 'start_time' in tasks[title]:
+                        tasks[title]['duration'] = time.time() - tasks[title]['start_time']
+                    else:
+                        tasks[title]['duration'] = 0.0
+
             live.update(generate_table())
 
         planner.run_batch_planning(max_concurrent=5, update_callback=callback)
     
-    console.print("[bold green]✅ Batch Planning Completed![/bold green]")
+    total_duration = time.time() - start_all
+    console.print(f"[bold green]✅ Batch Planning Completed in {format_duration(total_duration)}![/bold green]")
 
 def run_jules_generation_ui(state_manager):
     console.clear() # Clear screen for App-like feel
@@ -171,6 +236,7 @@ def run_jules_generation_ui(state_manager):
         table.add_column("Lesson", style="cyan")
         table.add_column("Status", style="bold")
         table.add_column("Details", style="dim", width=60)
+        table.add_column("Duration", style="yellow", justify="right")
         
         with lock:
             sorted_tasks = sorted(tasks.items())
@@ -183,20 +249,43 @@ def run_jules_generation_ui(state_manager):
             elif s == "FAILED": color = "red"
             elif s == "INTERACT": color = "magenta"
             
-            table.add_row(title, f"[{color}]{s}[/{color}]", data['message'])
+            # Calculate Duration
+            duration_str = "-"
+            if 'duration' in data:
+                duration_str = format_duration(data['duration'])
+            elif 'start_time' in data:
+                duration_str = format_duration(time.time() - data['start_time'])
+
+            table.add_row(title, f"[{color}]{s}[/{color}]", data['message'], duration_str)
         return table
 
     # Initialize Live with the initial table
+    start_all = time.time()
     with Live(generate_table(), refresh_per_second=4) as live:
 
         def callback(title, status, msg):
             with lock:
-                tasks[title] = {"status": status, "message": msg}
+                if title not in tasks:
+                    tasks[title] = {}
+
+                tasks[title]['status'] = status
+                tasks[title]['message'] = msg
+
+                if status == "RUNNING":
+                    if 'start_time' not in tasks[title]:
+                        tasks[title]['start_time'] = time.time()
+                elif status in ["SUCCESS", "FAILED", "SKIP", "WARN", "ERROR"]:
+                    if 'start_time' in tasks[title]:
+                        tasks[title]['duration'] = time.time() - tasks[title]['start_time']
+                    else:
+                        tasks[title]['duration'] = 0.0
+
             live.update(generate_table())
 
         generator.run_batch_generation(max_concurrent=5, update_callback=callback)
 
-    console.print("[bold green]✅ Batch Generation Completed![/bold green]")
+    total_duration = time.time() - start_all
+    console.print(f"[bold green]✅ Batch Generation Completed in {format_duration(total_duration)}![/bold green]")
 
 # --- LEGACY WRAPPERS ---
 
@@ -214,6 +303,7 @@ def run_ocr(state_manager):
     output_dir = PROJECT_ROOT / "system-workspace/text-data/raw"
     output_dir.mkdir(parents=True, exist_ok=True)
     
+    start_time = time.time()
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -239,10 +329,13 @@ def run_ocr(state_manager):
             
             progress.advance(task)
 
+    console.print(f"[bold green]✅ OCR Completed in {format_duration(time.time() - start_time)}![/bold green]")
+
 def run_raw_processing(state_manager):
     console.clear()
     console.print(Panel("[bold]Running Raw Processing...[/bold]", style="blue"))
     
+    start_time = time.time()
     with console.status("[bold green]Processing...[/bold green]", spinner="dots"):
         tp = TextProcessor()
         if not tp.validate_toc(): return
@@ -254,12 +347,13 @@ def run_raw_processing(state_manager):
         console.print("2. Generating Lesson Index...")
         mapping = tp.generate_lesson_index()
         if mapping:
-            console.print("[bold green]✅ Raw Processing Complete![/bold green]")
+            console.print(f"[bold green]✅ Raw Processing Complete in {format_duration(time.time() - start_time)}![/bold green]")
 
 def run_planning(state_manager):
     console.clear()
     console.print(Panel("[bold]Running Standard Planner...[/bold]", style="blue"))
     
+    start_time = time.time()
     with console.status("[bold green]Initializing...[/bold green]", spinner="dots"):
         tp = TextProcessor(use_headless=True)
         if not tp.validate_toc(): return
@@ -294,6 +388,8 @@ def run_planning(state_manager):
                 progress.console.print(f"[green]✅ Plan: {plan_filename}[/green]")
             
             progress.advance(task)
+
+    console.print(f"[bold green]✅ Standard Planning Completed in {format_duration(time.time() - start_time)}![/bold green]")
 
 # --- MAIN MENU ---
 
@@ -340,6 +436,8 @@ def main():
 
         op = choice[0]
 
+        start_op = time.time()
+
         if op == "E":
             run_jules_planning_ui(state_manager)
         elif op == "F":
@@ -356,6 +454,7 @@ def main():
             subprocess.run(["python3", "Jules-workspace/lint_pages.py"], check=False)
         
         if op != "Q":
+            console.print(f"\n[dim]Total operation time: {format_duration(time.time() - start_op)}[/dim]")
             console.print("\n")
             questionary.press_any_key_to_continue().ask()
 
