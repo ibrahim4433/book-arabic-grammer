@@ -7,12 +7,12 @@ from pathlib import Path
 from datetime import datetime
 
 # Import modules
-from modules.vision import VisionClient
 from modules.text_processing import TextProcessor
 from modules.github_utils import GithubClient
 from modules.state_manager import StateManager
 from modules.jules_planner import JulesPlanner
 from modules.jules_page_generator import JulesPageGenerator
+from modules.jules_ocr import JulesOCR
 
 # Import Jules Workspace Tools (Assuming sys.path is set by system.py)
 try:
@@ -130,28 +130,43 @@ class FullAutoWorkflow:
         time.sleep(1) # Visual pause
 
     def _step_ocr(self):
-        self._log("Step B", "RUNNING", "Verifying Images & Running OCR...")
-        vision = VisionClient()
-        images = sorted(list(self.input_dir.glob("*.jpg")) + list(self.input_dir.glob("*.png")))
+        self._log("Step B", "RUNNING", "Verifying Images & Running Jules OCR...")
 
+        # Bridge callback for JulesOCR
+        def ocr_callback(status, message):
+            step_status = "RUNNING"
+            if status == "SUCCESS": step_status = "SUCCESS"
+            elif status == "FAILED": step_status = "FAILED"
+            elif status == "WARN": step_status = "WARN"
+            elif status == "ERROR": step_status = "ERROR"
+
+            self._log("Step B", step_status, message)
+
+        try:
+            ocr = JulesOCR(self.project_root)
+            ocr.run_ocr_batch(update_callback=ocr_callback)
+        except Exception as e:
+            self._log("Step B", "ERROR", f"JulesOCR Failed: {e}")
+            return
+
+        # Post-Processing: Update State Manager
+        self._log("Step B", "RUNNING", "Updating State Manager for OCR files...")
+
+        images = sorted(list(self.input_dir.glob("*.jpg")) +
+                        list(self.input_dir.glob("*.png")) +
+                        list(self.input_dir.glob("*.jpeg")))
+
+        processed_count = 0
         self.raw_dir.mkdir(parents=True, exist_ok=True)
 
         for img in images:
             raw_path = self.raw_dir / f"raw_{img.stem}.txt"
-            if not raw_path.exists():
-                self._log("Step B", "OCR", f"Processing {img.name}...")
-                text = vision.extract_text([img])
-                if text:
-                    raw_path.write_text(text, encoding='utf-8')
-                    self.stats["ocr_processed"] += 1
-                    self.state_manager.update_lesson_status(f"Image_{img.stem}", "OCR_DONE", {"raw": str(raw_path)})
-                else:
-                    self._log("Step B", "WARN", f"Failed to OCR {img.name}")
-            else:
-                 # Already exists (should not happen if archived, unless OCR failed before)
-                 pass
+            if raw_path.exists():
+                processed_count += 1
+                self.state_manager.update_lesson_status(f"Image_{img.stem}", "OCR_DONE", {"raw": str(raw_path)})
 
-        self._log("Step B", "SUCCESS", f"OCR Complete. Processed {self.stats['ocr_processed']} images.")
+        self.stats["ocr_processed"] = processed_count
+        self._log("Step B", "SUCCESS", f"OCR Complete. Verified {processed_count} raw files.")
         time.sleep(1)
 
     def _step_raw_processing(self):
