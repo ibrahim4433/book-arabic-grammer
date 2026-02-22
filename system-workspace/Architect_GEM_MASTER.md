@@ -29,7 +29,7 @@
     *   Use `TEMPLATE_C_IRAB` for multi-line analysis and `TEMPLATE_C_IRAB_ROW` for concise word-to-role mappings.....
     *   THINK Carefully about how and why to use an element template in the plan and use `Jules-workspace/elements_index.md`for full details about them 
 5.  **Content Integrity:** Preserve ALL Arabic Diacritics (Harakat) exactly as provided.
-6.  **Visual Density:** Mimic the theme and design patterns of existing pages `pages/*.html` (visual density, color coding), Use `Jules-workspace/design_patterns.json` as reference.
+6.  **Visual Density:** Mimic the theme and design patterns of existing pages `pages/*.html` (visual density, color coding), Use `Jules-workspace/design_patterns.json` as reference , must be carfull of smashed text , bad design , non-balanced coloring between theme colors, raw text without an element ...
 
 ---
 
@@ -39,7 +39,7 @@
 2.  **DEFINITION & RULE:** `TEMPLATE_C_BLOCK` (Body text uses `.text-accent`).
 3.  **THE CORE MATRIX:** `TEMPLATE_C_TABLE` (Summary of all lesson rules).
 4.  **DEEP DIVE:** `TEMPLATE_C_SPLIT` , `TEMPLATE_C_BLOCK` , `TEMPLATE_C_LIST.html`, `TEMPLATE_C_CHIPS.html`.
-5.  **EXTRA INFO ( if multi merge them in one section or add them through the lesson ):** `TEMPLATE_C_BENEFIT.html` , `TEMPLATE_C_BENEFIT_WARNING.html` , `TEMPLATE_C_BENEFIT_TIP.html`
+5.  **EXTRA INFO ( if multi merge them in one section or add them through the DEEP DIVE ):** `TEMPLATE_C_BENEFIT.html` , `TEMPLATE_C_BENEFIT_WARNING.html` , `TEMPLATE_C_BENEFIT_TIP.html`
 5.  **EVIDENCE:** `TEMPLATE_C_POEM` followed by `TEMPLATE_C_IRAB_ROW`.
 6.  **EVALUATION:** `TEMPLATE_C_EXAM` (Mandatory at the end of every lesson(without answers!)).
 
@@ -73,7 +73,7 @@ Reference: Follow patterns in design_patterns.json.
     *   `style="margin-top: 2mm"` -> `class="mt-2mm"`
     *   `style="text-align: center"` -> `class="text-center"`
     *   `style="font-weight: bold"` -> `class="font-bold"`
-6. Templates: You are forbidden from inventing new HTML tags or classes. You must map all content strictly using "Jules-workspace/Templates/" components as the STREAM says.
+6. Templates: You are forbidden from inventing new HTML tags or classes or template elements. You must map all content strictly using "Jules-workspace/Templates/" components as the STREAM says.
 7. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). use "Jules-workspace/id_manager.py" to generate or verify them.
 8. **Self-Correction:** Run "Jules-workspace/lint_pages.py" after creating html files. If it fails, you MUST fix the errors (usually inline styles) before submitting.
 9. Do not summarize examples. 
@@ -81,6 +81,8 @@ Reference: Follow patterns in design_patterns.json.
 11. You must preserve the **exact** Tashkeel provided in the input and add any missing Tashkeel needed.  
 12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.
 13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of teal , also use this tool to verify "Jules-workspace/smart_color_fixer.py"
+14. after finishing the pages you must run "Jules-workspace/smart_replace_haam.py" to fix all هام , هامة mistakes !
+15. every text line or raw in the page if it is more than 18 arabic words , you must wrap it into a second line or it will maybe smashed !
 
 [CONTENT STREAM]
 
