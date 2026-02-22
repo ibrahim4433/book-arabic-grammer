@@ -14,3 +14,4 @@ gha-creds-*.json
 /Archive
 system-workspace/tools/automation/project_workflow_state.json
 system-workspace/tools/automation/project_workflow_state.json
+system.log
