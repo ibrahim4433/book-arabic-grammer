@@ -48,6 +48,27 @@ class StateManager:
         self.state["lessons"][lesson_title]["last_updated"] = time.time()
         self.save_state()
 
+    def update_lesson_data(self, lesson_title, data):
+        """Updates arbitrary data for a lesson without changing status."""
+        if lesson_title not in self.state["lessons"]:
+            self.state["lessons"][lesson_title] = {}
+
+        self.state["lessons"][lesson_title].update(data)
+
+        import time
+        self.state["lessons"][lesson_title]["last_updated"] = time.time()
+        self.save_state()
+
+    def get_lesson_data(self, lesson_title, key=None):
+        """Retrieves specific data key or full dict for a lesson."""
+        lesson = self.state["lessons"].get(lesson_title)
+        if not lesson:
+            return None
+
+        if key:
+            return lesson.get(key)
+        return lesson
+
     def get_lesson(self, lesson_title):
         return self.state["lessons"].get(lesson_title)
 

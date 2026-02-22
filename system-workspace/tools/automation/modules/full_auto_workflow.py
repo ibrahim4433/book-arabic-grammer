@@ -73,8 +73,8 @@ class FullAutoWorkflow:
             {"id": "OCR", "func": self._step_ocr, "label": "OCR Processing"},
             {"id": "RAW_PROC", "func": self._step_raw_processing, "label": "Raw Text Processing"},
             {"id": "CHECK_EXIST", "func": self._step_check_existing, "label": "Check Existing Pages"},
-            {"id": "PLAN_SYNC", "func": self._step_sync_plans, "label": "Sync Missing Plans"},
-            {"id": "PAGE_SYNC", "func": self._step_sync_pages, "label": "Sync Missing Pages"},
+            # {"id": "PLAN_SYNC", "func": self._step_sync_plans, "label": "Sync Missing Plans"},
+            # {"id": "PAGE_SYNC", "func": self._step_sync_pages, "label": "Sync Missing Pages"},
             {"id": "UNIFIED_GEN", "func": self._step_unified_production, "label": "Unified Generation"},
             {"id": "AUDIT", "func": self._step_audit, "label": "Audit & Verify"}
         ]
@@ -317,7 +317,7 @@ class FullAutoWorkflow:
 
     def _step_plan_generation(self):
         self._log("PLAN_GEN", "RUNNING", "Generating Plans (JulesPlanner)...")
-        planner = JulesPlanner(self.project_root)
+        planner = JulesPlanner(self.project_root, state_manager=self.state_manager)
 
         def bridge_callback(title, status, msg):
             if status in ["ERROR", "FAILED"]:

@@ -18,10 +18,11 @@ class JulesPlanner:
     Orchestrates the batch generation of plans using Jules Sessions.
     """
 
-    def __init__(self, project_root=None):
+    def __init__(self, project_root=None, state_manager=None):
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
         self.client = JulesPlanClient(project_root=self.project_root)
         self.tp = TextProcessor(project_root=self.project_root)
+        self.state_manager = state_manager
 
         # Load Prompts
         self.architect_prompt = (self.project_root / "system-workspace/Architect_GEM_MASTER.md").read_text(encoding='utf-8')
@@ -166,6 +167,11 @@ class JulesPlanner:
 
         filename = f"{lesson_number}-{clean_title}-plan.md"
 
+        # 0. Check if Plan Exists (Early Exit)
+        if (self.project_root / "plans" / filename).exists():
+             callback(lesson_title, "SUCCESS", f"Plan exists: {filename}")
+             return True
+
         callback(lesson_title, "RUNNING", "Extracting Text...")
 
         # 1. Extract Text
@@ -206,14 +212,42 @@ class JulesPlanner:
             lesson_data, self.architect_prompt, self.auditor_prompt
         )
 
-        # 4. Create Session
-        callback(lesson_title, "RUNNING", "Creating Session...")
-        session = self.client.create_plan_session(lesson_title, mega_prompt)
-        if not session:
-            callback(lesson_title, "ERROR", "Session Creation Failed")
-            return False
+        # 4. Check or Create Session
+        session_id = None
 
-        session_id = session.get('name')
+        # Check State Manager for existing session
+        if self.state_manager:
+            session_id = self.state_manager.get_lesson_data(lesson_title, "session_id")
+            if session_id:
+                callback(lesson_title, "RUNNING", f"Checking Existing Session ({session_id})...")
+                status_data = self.client.get_session_status(session_id)
+                if status_data:
+                    state = status_data.get('state', 'UNKNOWN')
+                    if state in ['SUCCEEDED', 'COMPLETED']:
+                        callback(lesson_title, "RUNNING", f"Existing Session Completed: {state}")
+                        # Skip creation, jump to pull
+                    elif state in ['FAILED', 'CANCELLED', 'ERROR']:
+                        callback(lesson_title, "WARN", f"Previous Session Failed ({state}). Creating New...")
+                        session_id = None # Force new session
+                    else:
+                        # RUNNING or UNKNOWN
+                        callback(lesson_title, "RUNNING", f"Resuming Monitoring ({state})...")
+                        # Keep session_id, proceed to wait
+                else:
+                    callback(lesson_title, "WARN", "Existing Session ID invalid. Creating New...")
+                    session_id = None
+
+        if not session_id:
+            callback(lesson_title, "RUNNING", "Creating Session...")
+            session = self.client.create_plan_session(lesson_title, mega_prompt)
+            if not session:
+                callback(lesson_title, "ERROR", "Session Creation Failed")
+                return False
+
+            session_id = session.get('name')
+            if self.state_manager:
+                self.state_manager.update_lesson_data(lesson_title, {"session_id": session_id})
+
         callback(lesson_title, "RUNNING", f"Monitoring Session ({session_id})...")
 
         # 5. Monitor Session
