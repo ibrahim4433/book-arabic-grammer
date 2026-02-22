@@ -58,12 +58,14 @@ class IDManager:
                 self.existing_ids.add(new_id)
                 return new_id
 
-    def auto_tag(self, dry_run=False):
+    def auto_tag(self, dry_run=False, files=None):
         """Adds IDs to target elements that are missing them."""
         # First, scan existing IDs to ensure uniqueness
         self.scan_existing_ids()
 
-        files = self.get_html_files()
+        if files is None:
+            files = self.get_html_files()
+
         total_added = 0
 
         for filepath in files:
