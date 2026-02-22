@@ -6,8 +6,8 @@ File: `pages/10.0_nXX_معاني صيغ الزيادة.html`
 Reference: Follow patterns in design_patterns.json.
 
 [CONSTRAINTS & PROTOCOLS]
-1. Source of Truth: Adhere strictly to BOOK\_RULES.md and elements\_index.md
-2. Page Breaking: Do NOT estimate length manually , instead Use `Jules-workspace/verify_layout.py` after every block to determine exactly where to cut the content to ensure it fits the A4 constraints perfectly. If page is "FULL", continue in `pages/10.1_...`.
+1. Source of Truth: Adhere strictly to BOOK_RULES.md and elements_index.md
+2. Page Breaking: Do NOT estimate length manually , instead Use `Jules-workspace/verify_layout.py` after every block to determine exactly where to cut the content to ensure it fits the A4 constraints perfectly. If page is "FULL", continue in `pages/[LESSON_NUMBER].1_...` if page have a lot of blank space add exam elements from the lesson.
 3. text Content: 100% Arabic with full Harakat.
 4. Highlighting: Use `.highlight-red` for primary focus words and `.highlight-blue`,`.highlight-green`  for secondary.
 5. Definitions: Must use `.text-accent` class.
@@ -19,15 +19,14 @@ Reference: Follow patterns in design_patterns.json.
     *   `style="margin-top: 2mm"` -> `class="mt-2mm"`
     *   `style="text-align: center"` -> `class="text-center"`
     *   `style="font-weight: bold"` -> `class="font-bold"`
-6. Templates: You are forbidden from inventing new HTML tags or classes or template elements. You must map all content strictly using "Jules-workspace/Templates/" components as the STREAM says.
+6. Templates: You are forbidden from inventing new HTML tags or classes or template elements. You must map all content using "Jules-workspace/Templates/" components as the STREAM says in suitable way.
 7. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). use "Jules-workspace/id_manager.py" to generate or verify them.
 8. **Self-Correction:** Run "Jules-workspace/lint_pages.py" after creating html files. If it fails, you MUST fix the errors (usually inline styles) before submitting.
-9. Do not summarize examples.
+9. Do not summarize examples. 
 10. Do not provide uncompleted text content using (...) .
-11. You must preserve the **exact** Tashkeel provided in the input and add any missing Tashkeel needed.
+11. You must preserve the **exact** Tashkeel provided in the input and add any missing Tashkeel needed if any.  
 12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.
-13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of teal , also use this tool to verify "Jules-workspace/smart_color_fixer.py"
-14. DO Create a temporary Python generation script to help you generate the lesson html pages in the perfect way needed without problems !
+13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of all teal 
 
 [CONTENT STREAM]
 
