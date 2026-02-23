@@ -634,6 +634,7 @@ body {
 .border-light { border: 1px solid #EEE !important; }
 .bg-grey-lighter { background-color: #FAFAFA !important; }
 .separator-dashed { border: 0; border-top: 1px dashed #ddd; margin: 2mm 0 !important; }
+.pt-5mm { padding-top: 5mm !important; }
 .pt-10mm { padding-top: 10mm !important; }
 .toc-level-title { color: var(--color-primary) !important; margin-top: 5mm !important; }
 .toc-category-title { margin-right: 5mm !important; color: #555 !important; }
