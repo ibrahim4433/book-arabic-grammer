@@ -18,7 +18,7 @@ class UnifiedProductionManager:
         self.callback = callback or (lambda t, s, m: logging.info(f"[{s}] {t}: {m}"))
 
         self.planner = JulesPlanner(project_root, state_manager=state_manager)
-        self.generator = JulesPageGenerator(project_root)
+        self.generator = JulesPageGenerator(project_root, state_manager=state_manager)
 
         self.queue = [] # list of tasks: {'type': 'PLAN'|'PAGE', 'id': str, 'info': dict, 'retries': 0}
         self.active_futures = set()
