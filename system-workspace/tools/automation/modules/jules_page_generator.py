@@ -19,8 +19,9 @@ class JulesPageGenerator:
     Handles interactive Q&A with Gemini Headless.
     """
 
-    def __init__(self, project_root=None):
+    def __init__(self, project_root=None, state_manager=None):
         self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
+        self.state_manager = state_manager
         self.jules_client = JulesPlanClient(project_root=self.project_root) # Reuse for PR pulling
         self.gemini_client = GeminiClient(project_root=self.project_root)
         self.github = GithubClient(token_path=self.project_root / "secrets/Github_Token.txt")
@@ -74,33 +75,84 @@ class JulesPageGenerator:
         plan_content = plan_path.read_text(encoding='utf-8')
         lesson_title = plan_path.stem
         
-        # 1. Start Session
-        callback(lesson_title, "RUNNING", "Starting Session...")
+        # Extract Lesson Number
+        match = re.match(r'^(\d+)', lesson_title)
+        lesson_num = match.group(1) if match else None
+
+        # 1. Check Existing Session
+        session_id = None
+        state_key = None # Key used in StateManager
+
+        if self.state_manager and lesson_num:
+            # Try to find matching key in StateManager
+            all_lessons = self.state_manager.get_all_lessons()
+            for key in all_lessons.keys():
+                if key.startswith(f"{lesson_num} -") or key.startswith(f"{str(int(lesson_num))} -"):
+                    state_key = key
+                    break
+
+            if state_key:
+                stored_sid = self.state_manager.get_lesson_data(state_key, "page_session_id")
+                if stored_sid:
+                    callback(lesson_title, "RUNNING", f"Checking Existing Session ({stored_sid})...")
+                    status_data = self.jules_client.get_session_status(stored_sid)
+                    if status_data:
+                        state = status_data.get('state', 'UNKNOWN')
+                        if state in ['SUCCEEDED', 'COMPLETED']:
+                            callback(lesson_title, "RUNNING", "Existing Session Completed. Pulling...")
+                            session_id = stored_sid
+                            # Skip creation & monitoring
+                        elif state in ['FAILED', 'CANCELLED']:
+                            callback(lesson_title, "WARN", f"Previous Session Failed ({state}). Creating New...")
+                            session_id = None
+                        else:
+                            callback(lesson_title, "RUNNING", f"Resuming Session ({state})...")
+                            session_id = stored_sid
         
-        prompt = (
-            f"Generate the HTML page for the following plan.\n"
-            f"Use the templates in `Jules-workspace/Templates/`.\n"
-            f"Follow `GEMINI.md` rules strictly (One-Page Law, Tashkeel, IDs).\n"
-            f"The output file should be `pages/{lesson_title.replace('-plan', '.html')}` (Keep nXX as it is without replaceing XX with numbers !).\n"
-            f"PLAN:\n{plan_content}"
-        )
-        
-        session = self.jules_client.create_session(prompt, f"PageGen: {lesson_title}", automation_mode="AUTO_CREATE_PR")
-        if not session:
-            callback(lesson_title, "ERROR", "Session Create Failed")
-            return False
+        # 2. Start Session (if needed)
+        if not session_id:
+            callback(lesson_title, "RUNNING", "Starting Session...")
             
-        session_id = session.get('name')
+            prompt = (
+                f"Generate the HTML page for the following plan.\n"
+                f"Use the templates in `Jules-workspace/Templates/`.\n"
+                f"Follow `GEMINI.md` rules strictly (One-Page Law, Tashkeel, IDs).\n"
+                f"The output file should be `pages/{lesson_title.replace('-plan', '.html')}` (Keep nXX as it is without replaceing XX with numbers !).\n"
+                f"PLAN:\n{plan_content}"
+            )
+
+            session = self.jules_client.create_session(prompt, f"PageGen: {lesson_title}", automation_mode="AUTO_CREATE_PR")
+            if not session:
+                callback(lesson_title, "ERROR", "Session Create Failed")
+                return False
+
+            session_id = session.get('name')
+
+            # Save Session ID
+            if self.state_manager:
+                if not state_key:
+                     # Create a new key if not found (best guess)
+                     clean_title = lesson_title.replace("-plan", "").replace("-", " ")
+                     state_key = clean_title # Fallback
+                self.state_manager.update_lesson_data(state_key, {"page_session_id": session_id})
+
         callback(lesson_title, "RUNNING", f"Monitoring {session_id}...")
         
-        # 2. Monitor
-        status = self._monitor_and_handle_session(session_id, lesson_title, callback)
+        # 3. Monitor (if not already done)
+        # Check status first to see if we can skip monitoring
+        status_data = self.jules_client.get_session_status(session_id)
+        current_state = status_data.get('state', 'UNKNOWN') if status_data else 'UNKNOWN'
+
+        if current_state in ['SUCCEEDED', 'COMPLETED']:
+             status = "SUCCEEDED"
+        else:
+             status = self._monitor_and_handle_session(session_id, lesson_title, callback)
         
         if status != "SUCCEEDED":
             callback(lesson_title, "FAILED", f"Ended with {status}")
             return False
             
-        # 3. Pull Result
+        # 4. Pull Result
         callback(lesson_title, "RUNNING", "Downloading generated page...")
         details = self.jules_client.get_session_details(session_id)
         
@@ -195,7 +247,7 @@ class JulesPageGenerator:
                 callback(lesson_title, "RUNNING", f"Still running... ({elapsed_min}m elapsed)")
                 last_log_time = time.time()
 
-            if state == 'SUCCEEDED':
+            if state in ['SUCCEEDED', 'COMPLETED']:
                 return "SUCCEEDED"
             if state in ['FAILED', 'CANCELLED']:
                 return state
