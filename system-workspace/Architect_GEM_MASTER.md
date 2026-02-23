@@ -81,6 +81,8 @@ Reference: Follow patterns in design_patterns.json.
 11. You must preserve the **exact** Tashkeel provided in the input and add any missing Tashkeel needed if any.  
 12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.
 13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of all teal 
+14. every html page must have a saperate new starting : div class="force-new-page"
+15. Exam section always be in the end of the lesson ( in the final page of that lesson) ,and without the answers !
 
 [CONTENT STREAM]
 
