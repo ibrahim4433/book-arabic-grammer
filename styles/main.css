@@ -690,3 +690,9 @@ body {
 .block { display: block !important; }
 .gap-1mm { gap: 1mm !important; }
 .border-bottom { border-bottom: 1px solid #EEE !important; }
+
+/* Custom Utilities for generated content */
+.bio-info { flex: 1; }
+.border-primary { border-color: var(--color-primary) !important; }
+.border-accent { border-color: var(--color-accent) !important; }
+.border-r-4 { border-right-width: 4px !important; border-right-style: solid; }
