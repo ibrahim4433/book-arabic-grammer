@@ -1,0 +1,174 @@
+# **SESSION 25.0**
+
+[TASK DEFINITION]
+Objective: Implement علامات الترقيم.
+File: `pages/25.0_nXX_علامات الترقيم.html`
+Reference: Follow patterns in design_patterns.json.
+
+[CONSTRAINTS & PROTOCOLS]
+1. Source of Truth: Adhere strictly to BOOK_RULES.md and elements_index.md
+2. Page Breaking: Do NOT estimate length manually , instead Use `Jules-workspace/verify_layout.py` after every block to determine exactly where to cut the content to ensure it fits the A4 constraints perfectly. If page is "FULL", continue in `pages/25.1_...` if page have a lot of blank space add exam elements from the lesson.
+3. text Content: 100% Arabic with full Harakat.
+4. Highlighting: Use `.highlight-red` for primary focus words and `.highlight-blue`,`.highlight-green`  for secondary.
+5. Definitions: Must use `.text-accent` class.
+6. Mandatory Style Guide:
+*   **Rule:** NO INLINE STYLES.
+*   **Rule:** Irab Words inside `.irab-word` MUST be white. Do NOT use `.highlight-*` classes.
+*   **Mapping:**
+    *   `style="width: 20%"` -> `class="w-20pct"`
+    *   `style="margin-top: 2mm"` -> `class="mt-2mm"`
+    *   `style="text-align: center"` -> `class="text-center"`
+    *   `style="font-weight: bold"` -> `class="font-bold"`
+6. Templates: You are forbidden from inventing new HTML tags or classes or template elements. You must map all content using "Jules-workspace/Templates/" components as the STREAM says in suitable way.
+7. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). use "Jules-workspace/id_manager.py" to generate or verify them.
+8. **Self-Correction:** Run "Jules-workspace/lint_pages.py" after creating html files. If it fails, you MUST fix the errors (usually inline styles) before submitting.
+9. Do not summarize examples.
+10. Do not provide uncompleted text content using (...) .
+11. You must preserve the **exact** Tashkeel provided in the input and add any missing Tashkeel needed if any.
+12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.
+13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of all teal
+
+[CONTENT STREAM]
+
+--- START STREAM ---
+
+=== BLOCK 1: Lesson Header ===
+(Component: TEMPLATE_C_HEADER)
+[LESSON_NUMBER]: 25
+[CHAPTER_TITLE]: علامات الترقيم
+[CATEGORY_HEADER]: الإملاء
+[SECTION_HEADER]: المستوى اللغوي
+[AUTHOR_NAME]: أ. الياس خفيف
+[AUTHOR_PHONE]: 994066850 963+
+
+=== BLOCK 2: Definition ===
+(Component: TEMPLATE_C_BLOCK)
+Title: تعريف علامات الترقيم
+Content: <p class="text-accent">هيَ رموزٌ تُوضَعُ بينَ أجزاءِ الكلامِ تسهيلًا لمواقعِ الفصلِ والوقفِ والابتداءِ، ولتنويعِ النّبراتِ الصَّوتيَّةِ أثناءَ القراءةِ.</p>
+
+=== BLOCK 3: Punctuation Matrix ===
+(Component: TEMPLATE_C_TABLE)
+Title: جدول علامات الترقيم واستخداماتها
+[TABLE_HEADERS]: <th>الرَّمْزُ</th><th>الاسْمُ</th><th>الاسْتِخْدَامُ</th>
+[TABLE_ROWS]:
+<tr>
+  <td class="text-center font-bold text-xl text-accent">.</td>
+  <td class="font-bold">النُّقْطَةُ</td>
+  <td>تُوضَعُ عندَ اكتمالِ المعنى، وتمامِ الجملةِ الكاملةِ التي لا تحمِلُ معنى التعجُّبِ أو الاستفهامِ، ويجبُ وضْعُها في نهايةِ كلِّ فقرةٍ.</td>
+</tr>
+<tr>
+  <td class="text-center font-bold text-xl text-accent">:</td>
+  <td class="font-bold">النُّقْطَتَانِ</td>
+  <td>تُوضَعُ بعدَ القولِ، أو ما في معناه، نحو: (سألَ، أجابَ، هتفَ، ..)، وتُوضَعُ قبلَ التَّفصيلِ الذي يسبقُهُ إجمالٌ، نحو: (الجهاتُ أربعٌ: الشَّرقُ، والغربُ، والجنوبُ، والشِّمالُ).</td>
+</tr>
+<tr>
+  <td class="text-center font-bold text-xl text-accent">...</td>
+  <td class="font-bold">النِّقَاطُ المُتَعَدِّدَةُ</td>
+  <td>تُوضَعُ للدلالةِ على كلامٍ محذوفٍ لا ضرورةَ لِذِكْرِهِ.</td>
+</tr>
+<tr>
+  <td class="text-center font-bold text-xl text-accent">،</td>
+  <td class="font-bold">الفَاصِلَةُ</td>
+  <td>استعمالُها أمرٌ ذوقِيٌّ، فيحسُنُ أنْ تُوضَعَ عندما يحدثُ سكوتٌ يطولُ أو يقصرُ في الجملةِ، وأكثرُ ما يكونُ استعمالُها قبلَ حروفِ العطفِ.</td>
+</tr>
+<tr>
+  <td class="text-center font-bold text-xl text-accent">؛</td>
+  <td class="font-bold">الفَاصِلَةُ المَنْقُوطَةُ</td>
+  <td>تُوضَعُ بين جملتينِ تكونُ إحداهما سببًا في حدوثِ الأخرى.</td>
+</tr>
+<tr>
+  <td class="text-center font-bold text-xl text-accent">!</td>
+  <td class="font-bold">عَلَامَةُ التَّعَجُّبِ</td>
+  <td>بَعْدَ الكَلَامِ المُشْتَمِلِ عَلَى مَعْنَى التَّعَجُّبِ، أَوِ الاسْتِغْرَابِ، أَوِ الاسْتِنْكَارِ.</td>
+</tr>
+<tr>
+  <td class="text-center font-bold text-xl text-accent">؟</td>
+  <td class="font-bold">عَلَامَةُ الاسْتِفْهَامِ</td>
+  <td>تُوْضَعُ بَعْدَ السُّؤَالِ، أَوْ بَعْدَ مَا يَدُلُّ عَلَى الاسْتِفْهَامِ.</td>
+</tr>
+<tr>
+  <td class="text-center font-bold text-xl text-accent">(( ))</td>
+  <td class="font-bold">عَلَامَةُ التَّنْصِيصِ</td>
+  <td>تُوْضَعُ لِحَصْرِ الكَلَامِ النَّثْرِيِّ المَنْقُولِ بِحَرْفِيَّتِهِ.</td>
+</tr>
+<tr>
+  <td class="text-center font-bold text-xl text-accent">- -</td>
+  <td class="font-bold">عَلَامَةُ الاعْتِرَاضِ</td>
+  <td>تُوْضَعُ لِحَصْرِ الجُمْلَةِ الاعْتِرَاضِيَّةِ، الَّتِي تَفْصِلُ بَيْنَ شَيْئَيْنِ مُتَلَازِمَيْنِ.</td>
+</tr>
+
+=== BLOCK 4: Applied Questions Header ===
+(Component: TEMPLATE_C_BENEFIT_TIP)
+[TIP_TITLE]: أَسْئِلَةٌ تَطْبِيقِيَّةٌ حَوْلَ الإِمْلَاءِ وَإِجَابَاتُهَا
+[TIP_TEXT]: مراجعة شاملة لقواعد الهمزة، التاء، والألف اللينة من خلال أسئلة وإجابات نموذجية.
+
+=== BLOCK 5: Applied Questions (Part 1) ===
+(Component: TEMPLATE_C_LIST)
+Title: القِسم الأول: الهمزة والتاء
+[LIST_ITEMS]:
+<li><span class="font-bold text-accent">س١-</span> اذْكُرِ القَاعِدَةَ فِي كِتَابَةِ الهَمْزَةِ فِي كُلِّ كَلِمَةٍ مِنَ الكَلِمَتَيْنِ الآتِيَتَيْنِ: (أُدْرِكُ، سُؤْل).<br><span class="font-bold text-green">ج١-</span> <span class="highlight-red">أُدْرِكُ:</span> هَمْزَةُ قَطْعٍ زَائِدَةٌ لِلْمُضَارَعَةِ. – <span class="highlight-red">سُؤْل:</span> هَمْزَةٌ مُتَوَسِّطَةٌ، سَاكِنَةٌ قَبْلَهَا حَرْفٌ مَضْمُومٌ، وَالضَّمَّةُ أَقْوَى مِنَ السُّكُونِ وَيُنَاسِبُهَا الوَاو.</li>
+<li><span class="font-bold text-accent">س٢-</span> اذْكُرِ القَاعِدَةَ الإِمْلَائِيَّةَ لِلْكَلِمَاتِ الَّتِي تَحْتَهَا خَطٌّ فِيمَا يَأْتِي:<br>وَإِنَّكَ لَا تَدْرِي <span class="highlight-blue">أَنَشْئًا</span> مُهَذَّبًا     تَسُوقُ <span class="highlight-blue">الرَّزَايَا</span> أَمْ تَسُوقُ رُعَاعَا؟<br>وَرُبَّ رُؤُوسٍ <span class="highlight-blue">بَزَّةٍ</span> عَشَّشَتْ بِهَا      <span class="highlight-blue">خُرَافَاتُ</span> جَهْلٍ فَاشْتَكَيْنَ صُدَاعَا<br><span class="font-bold text-green">ج٢-</span> <span class="highlight-red">نَشْئًا:</span> هَمْزَةٌ مُتَطَرِّفَةٌ، اجْتَمَعَتْ مَعَ أَلِفِ تَنْوِينِ النَّصْبِ، وَالحَرْفُ الَّذِي قَبْلَهَا يَتَّصِلُ بِمَا بَعْدَهُ. – <span class="highlight-red">الرَّزَايَا:</span> كُتِبَتِ الأَلِفُ مَمْدُودَةً؛ لأَنَّهَا جَاءَتْ فِي اسْمٍ فَوْقَ الثُّلَاثِيِّ مَسْبُوقَةً بِيَاءٍ. – <span class="highlight-red">بَزَّةٍ:</span> كُتِبَتِ التَّاءُ مَرْبُوطَةً لأَنَّهَا جَاءَتْ فِي اسْمٍ مُفْرَدٍ مُؤَنَّثٍ. – <span class="highlight-red">خُرَافَاتُ:</span> كُتِبَتِ التَّاءُ مَبْسُوطَةً لأَنَّهَا جَاءَتْ فِي جَمْعِ مُؤَنَّثٍ سَالِمٍ.</li>
+<li><span class="font-bold text-accent">س٣-</span> اكْتَبِ الفِعْلَ المَاضِيَ لِفِعْلِ الأَمْرِ (انْطَفِئْ)، ثُمَّ اكْتَبِ المَصْدَرَ، وَاسْمَيِ الفَاعِلِ وَالمَفْعُولِ.<br><span class="font-bold text-green">ج٣-</span> الفِعْلُ المَاضِي: <span class="highlight-red">انْطَفَأَ</span> – المَصْدَرُ: <span class="highlight-red">انْطِفَاءٌ</span> – اسْمُ الفَاعِلِ: <span class="highlight-red">مُنْطَفِئ</span> – اسْمُ المَفْعُولِ: <span class="highlight-red">مُنْطَفَأ</span>.</li>
+<li><span class="font-bold text-accent">س٤-</span> عَلِّلْ كِتَابَةَ الهَمْزَةِ الأَوَّلِيَّةِ عَلَى صُورَتِهَا فِي (أَزْعُمُ، اسْتَفَاقُوا، انْظُرْ).<br><span class="font-bold text-green">ج٤-</span> <span class="highlight-red">أَزْعُمُ:</span> هَمْزَةُ قَطْعٍ زَائِدَةٌ لِلْمُضَارَعَةِ. – <span class="highlight-red">اسْتَفَاقُوا:</span> هَمْزَةُ وَصْلٍ، لأَنَّهَا جَاءَتْ فِي فِعْلٍ مَاضٍ سُدَاسِيٍّ. – <span class="highlight-red">انْظُرْ:</span> هَمْزَةُ وَصْلٍ، لأَنَّهَا جَاءَتْ فِي فِعْلِ أَمْرٍ ثُلَاثِيٍّ.</li>
+<li><span class="font-bold text-accent">س٥-</span> عَلِّلْ رَسْمَ الهَمْزَةِ عَلَى نَبْرَةٍ فِي كَلِمَةِ (شَيْئًا).<br><span class="font-bold text-green">ج٥-</span> <span class="highlight-red">شَيْئًا:</span> هَمْزَةٌ مُتَطَرِّفَةٌ، اجْتَمَعَتْ مَعَ أَلِفِ تَنْوِينِ النَّصْبِ، وَالحَرْفُ الَّذِي قَبْلَهَا يَتَّصِلُ بِمَا بَعْدَهُ.</li>
+
+=== BLOCK 6: Applied Questions (Part 2) ===
+(Component: TEMPLATE_C_LIST)
+Title: القِسم الثاني: التاء المربوطة والمبسوطة والألف اللينة
+[LIST_ITEMS]:
+<li><span class="font-bold text-accent">س٦-</span> عَلِّلْ كِتَابَةَ التَّاءِ مَرْبُوطَةً فِي كَلِمَةِ (الجُنَاة)، وَمَفْتُوحَةً فِي (تَحَدَّثَتْ).<br><span class="font-bold text-green">ج٦-</span> <span class="highlight-red">الجُنَاة:</span> جَاءَتْ فِي جَمْعِ تَكْسِيرٍ، مُفْرَدُهُ غَيْرُ مُنْتَهٍ بَتَاءٍ مَبْسُوطَةٍ. – <span class="highlight-red">تَحَدَّثَتْ:</span> لأَنَّهَا تاءُ التَّأْنِيثِ السَّاكِنَة.</li>
+<li><span class="font-bold text-accent">س٧-</span> عَلِّلْ كِتَابَةَ الأَلِفِ عَلَى صُورَتِهَا فِي كُلٍّ مِنَ الكَلِمَتَيْنِ الآتِيَتَيْنِ: (الرَّدَى، عُلَا).<br><span class="font-bold text-green">ج٧-</span> <span class="highlight-red">الرَّدَى:</span> كُتِبَتِ الأَلِفُ مَقْصُورَةً؛ لأَنَّ أَصْلَهَا يَاءٌ. – <span class="highlight-red">عُلَا:</span> كُتِبَتِ الأَلِفُ مَمْدُودَةً لأَنَّ أَصْلَهَا وَاو.</li>
+<li><span class="font-bold text-accent">س٨-</span> وَضِّحِ الفَرْقَ فِي الحَالَتَيْنِ الإِمْلَائِيَّتَيْنِ الآتِيَتَيْنِ: كِتَابَةِ التَّاءِ مَرْبُوطَةً فِي كُلٍّ مِنَ: (الحَيَاة، الطُّغَاة). وَكِتَابَةِ التَّاءِ مَبْسُوطَةً فِي كُلٍّ مِن: (مَيِّت، مُؤْمِنَات).<br><span class="font-bold text-green">ج٨-</span> <span class="highlight-red">الحَيَاة:</span> اسْمٌ مُفْرَدٌ مُؤَنَّثٌ. – <span class="highlight-red">الطُّغَاة:</span> جَمْعُ تَكْسِيرٍ لا يَنْتَهِي مُفْرَدُهُ بِتَاءٍ مَبْسُوطَةٍ.<br>– <span class="highlight-red">مَيِّت:</span> التَّاءُ مِنْ أَصْلِ الاسْمِ (أَوْ اسْمٌ ثُلَاثِيٌّ سَاكِنُ الوَسَطِ). – <span class="highlight-red">مُؤْمِنَات:</span> جَمْع مُؤَنَّث سَالِم.</li>
+<li><span class="font-bold text-accent">س٩-</span> عَلِّلْ كِتَابَةَ الأَلِفِ مَقْصُورَة فِي كَلِمَةِ: (تَغَنَّى). وَكِتَابَةَ هَمْزَةِ الوَصْلِ فِي كَلِمَةِ: (انْظُر).<br><span class="font-bold text-green">ج٩-</span> الأَلْف مَقْصُورَة فِي كَلِمَةِ <span class="highlight-red">(تَغَنَّى)</span>؛ جَاءَتْ فِي فِعْلٍ فَوْقَ الثُّلَاثِيِّ، وَلَمْ تُسْبَقْ بِيَاء.<br>– هَمْزَة الوَصْل فِي كَلِمَة <span class="highlight-red">(انْظُر)</span>؛ جَاءَتْ فِي أَمْرِ فِعْلٍ ثُلَاثِيٍّ.</li>
+<li><span class="font-bold text-accent">س١٠-</span> اكْتَبِ الكَلِمَاتِ الآتِيَةَ مُنَوَّنَةً تَنْوِينَ نَصْبٍ: (نِدَاء – ظَمَأ – شَيْء) مَعَ التَّعْلِيلِ.<br><span class="font-bold text-green">ج١٠-</span> <span class="highlight-red">نِدَاءً:</span> لأَنَّ الهَمْزَةَ المُتَطَرِّفَةَ سُبِقَتْ بِأَلِفٍ. – <span class="highlight-red">ظَمَأً:</span> لأَنَّ الهَمْزَةَ المُتَطَرِّفَةَ مَرْسُومَةٌ عَلَى أَلِفٍ.<br>– <span class="highlight-red">شَيْئًا:</span> لأَنَّ الهَمْزَةَ المُتَطَرِّفَةَ المُجْتَمِعَةَ مَعَ أَلِفِ تَنْوِينِ النَّصْبِ جَاءَتْ مَسْبُوقَةً بِحَرْفٍ يَقْبَلُ الوِصْلَ بِمَا بَعْدَهُ.</li>
+
+=== BLOCK 7: Applied Questions (Part 3) ===
+(Component: TEMPLATE_C_LIST)
+Title: القِسم الثالث: الاشتقاق وحالات خاصة
+[LIST_ITEMS]:
+<li><span class="font-bold text-accent">س١١-</span> هَاتِ مَصْدَرَ الفِعْلِ (يُطْفِئ)، ثُم ضَعْ مِنَ المَصْدَرِ اسْمَيِ الفَاعِلِ والمَفْعُولِ مُنْتَبِهًا لِكِتَابَةِ الهَمْزَةِ عَلَى صُورَتِهَا الصَّحِيحَةِ.<br><span class="font-bold text-green">ج١١-</span> المَصْدَرُ: <span class="highlight-red">إِطْفَاء</span>. – اسم الفاعل: <span class="highlight-red">مُطْفِئ</span>. – اسم المفعول: <span class="highlight-red">مُطْفَأ</span>.</li>
+<li><span class="font-bold text-accent">س١٢-</span> (عَزَى – تَعَزَّى) كَلِمَتَانِ يُطْلِقُهُمَا جَذْرٌ وَاحِد، وَكُتِبَتِ الأَلِفُ مَقْصُورَةً فِي كِلْتِيهِمَا لِسَبَبَيْنِ مُخْتَلِفَيْنِ. اذْكُرْهُمَا، ثُمَّ مَثِّلْ لَهُمَا بِكَلِمَاتٍ مِن عِنْدِكَ.<br><span class="font-bold text-green">ج١٢-</span> <span class="highlight-red">عَزَى:</span> كُتِبَتِ الأَلِفُ مَقْصُورَةً لأَنَّ أَصْلَهَا يَاءٌ. وَمِثْلُ ذَلِكَ: جَرَى، وَمَشَى،... – <span class="highlight-red">تَعَزَّى:</span> لأَنَّهَا جَاءَتْ فِي فِعْلٍ فَوْقَ الثُّلَاثِيِّ. وَمِثْلُ ذَلِكَ: اسْتَقَى، وارْتَدَى،...</li>
+<li><span class="font-bold text-accent">س١٣-</span> رُدَّ الفِعلَ (فُوجِئ) إلى المبنِيّ للمعلومِ، مُعلّلًا كِتابةَ الهمزةِ فيهِ على صُورتِها.<br><span class="font-bold text-green">ج١٣-</span> الفِعلُ المبنِيُّ للمعلومِ <span class="highlight-red">(فَاجَأ)</span>: همزةٌ مُتطرّفَةٌ سُبِقَتْ بِفتْحٍ.</li>
+<li><span class="font-bold text-accent">س١٤-</span> املأ الفراغَ بما يُناسِب فيما يأتي:<br>الهمزةُ في (زئير): ..... لأنّها ..... - التّاءُ في (أقعَتْ):.....؛ لأنّها ...... - التّاءُ في (بديعةِ): .....؛ لأنّها ......<br><span class="font-bold text-green">ج١٤-</span> الهمزةُ في <span class="highlight-red">(زئير)</span>: متوسّطةٌ؛ لأنّها مكسورةٌ، سُبِقَتْ بِفتْحٍ. - التّاءُ في <span class="highlight-red">(أقعَتْ)</span>: مبسوطةٌ؛ لأنّها تاءُ التّأنيثِ السّاكنةِ. - التّاءُ في <span class="highlight-red">(بديعةِ)</span>: مربوطةٌ؛ لأنّها جاءتْ في اسمٍ مُفرَدٍ مُؤَنَّثٍ.</li>
+<li><span class="font-bold text-accent">س١٥-</span> اكتُبِ الفِعلينِ (أقعَتْ - شدَتْ) مُجرَّدَينِ من تاءِ التّأنيثِ السّاكنةِ، ثُمّ مَثِّل لهما بِمُفرداتٍ مُمَاثلةٍ في الحالةِ الإملائيّةِ.<br><span class="font-bold text-green">ج١٥-</span> <span class="highlight-red">أقعَتْ:</span> أقعَى. ومثلُها: أهدَى (أهدَتْ)، أضفَى (أضفَتْ)، أمسَى (أمسَتْ)، ...<br>- <span class="highlight-red">شدَتْ:</span> شدا. ومثلُها: سما (سمَتْ)، دعا (دعَتْ)، علا (علَتْ)، ...</li>
+
+=== BLOCK 8: Applied Questions (Part 4) ===
+(Component: TEMPLATE_C_LIST)
+Title: القِسم الرابع: المزيد من التدريبات
+[LIST_ITEMS]:
+<li><span class="font-bold text-accent">س١٦-</span> اذكُرْ ماضيَ الفِعلِ المُضارع (يُضيءُ)، ومَصدَرَهُ، مُعلّلاً كِتابةَ الهمزةِ على صُورتِها في كُلٍّ منها.<br><span class="font-bold text-green">ج١٦-</span> الفِعلُ الماضي: <span class="highlight-red">أضاءَ</span>، المصدَرُ: <span class="highlight-red">إضاءَة</span>.<br>- أضاءَ: كُتِبتِ الهمزةُ همزةَ قَطْعٍ؛ لأنّها جاءَتْ في أوّلِ فعلٍ ماضٍ رُباعيٍّ. - أضاءَ: كُتِبتِ الهمزةُ المُتطرّفَةُ على السّطرِ؛ لأنّها سُبِقَتْ بحرْفٍ ساكنٍ. - إضاءَة: كُتِبتِ الهمزةُ همزةَ قَطْعٍ؛ لأنّها جاءَتْ في أوّلِ مصدرِ الفِعلِ الرُّباعيِّ. - إضاءَة: كُتِبتِ الهمزةُ المتوسّطَةُ على السّطرِ؛ لأنّها جاءَتْ مفتوحةً بعد ألفٍ ساكنةٍ، وهي حالةٌ شاذّةٌ.</li>
+<li><span class="font-bold text-accent">س١٧-</span> علّلْ كِتابة همزةِ القَطعِ في: (أخّرَ، إثراء)، وكتابةِ (الألف) مقصورة في: غِنى.<br><span class="font-bold text-green">ج١٧-</span> <span class="highlight-red">أخّرَ:</span> لأنّها جاءَتْ في فعلٍ ماضٍ، رِباعيٍّ. - <span class="highlight-red">إثراء:</span> لأنّها جاءَتْ في مَصدَرِ فعلٍ رِباعيٍّ. - <span class="highlight-red">غِنى:</span> جاءَتْ في اسمٍ ثُلاثِيٍّ وأصلُها ياءٌ.</li>
+<li><span class="font-bold text-accent">س١٨-</span> علّل كِتابة همزة (إن) مكسورة في البيتِ الآتي: إنّـهـا عــالَــمُ الحَقــائِق يَحيــا ... بيـــن خَفْقِ الرُّؤى وذَوْبِ الخَيـال<br><span class="font-bold text-green">ج١٨-</span> <span class="highlight-red">إن:</span> لأنّها وقعَتْ في بِدايةِ الجملةِ.</li>
+<li><span class="font-bold text-accent">س١٩-</span> علّل كِتابة الهمزة على صُورتِها في الكلماتِ الآتيةِ: (تَمتلِئان - الحِذاء - تثاؤُب - نأكُل - أفــدَ).<br><span class="font-bold text-green">ج١٩-</span> <span class="highlight-red">تَمتلِئان:</span> همزةٌ مُتوسّطَةٌ، حركتُها الفتحة، سُبِقَتْ بِكسْرٍ. - <span class="highlight-red">الحِذاء:</span> همزة متطرفة، سُبِقت بساكِن. - <span class="highlight-red">تثاؤُب:</span> همزة مُتوسّطَةٌ، مضمومةٌ، سُبِقَتْ بِساكِنٍ. - <span class="highlight-red">نأكُل:</span> همزةٌ مُتوسّطَةٌ، ساكنةٌ، سُبِقَتْ بِفتْحٍ. - <span class="highlight-red">أفــدَ:</span> همزةُ قَطعٍ، جاءت في فعلٍ ماضٍ رِباعِيٍّ.</li>
+
+=== BLOCK 9: Applied Questions (Part 5) ===
+(Component: TEMPLATE_C_LIST)
+Title: القِسم الخامس: الأسئلة الختامية
+[LIST_ITEMS]:
+<li><span class="font-bold text-accent">س٢٠-</span> علّلْ كِتَابَة الألفِ ممدودةً في (الخَطايا)، ومقصورة في (صرعَى).<br><span class="font-bold text-green">ج٢٠-</span> <span class="highlight-red">الخَطايا:</span> لأنّها جاءَتْ في اسمٍ فوق الثُّلاثي، مسبوقة بياء. - <span class="highlight-red">صرعَى:</span> لأنّها جاءَتْ في اسمٍ فوق الثُّلاثِيّ، لم تُسبَقْ بياء.</li>
+<li><span class="font-bold text-accent">س٢١-</span> علّلْ كِتابة التّاء مبسوطةً في: بائعات، الحوانيت.<br><span class="font-bold text-green">ج٢١-</span> <span class="highlight-red">بائعات:</span> لأنّها جاءَتْ في جَمْع المُؤنَّثِ السّالِمِ. - <span class="highlight-red">الحوانيت:</span> لأنّها جاءَتْ في جَمْع تكسير مُفردُهُ مُنتهٍ بِتاءٍ مبسوطةٍ.</li>
+<li><span class="font-bold text-accent">س٢٢-</span> علّلْ كِتابة (ما) مُنفصِلةً في قوله: (إنّما تفعلُهُ جميلٌ).<br><span class="font-bold text-green">ج٢٢-</span> كُتِبتْ (ما) مُنْفصلَةً عن الحرفِ المُشبّهِ بالفعلِ (إنْ)؛ لأنّها جاءَتْ بمعنى الاسم الموصول.</li>
+<li><span class="font-bold text-accent">س٢٣-</span> خاطِبْ بالجملة الآتية جماعةَ الإناثِ مُبيّنًا القاعِدةَ في كتابةِ ماتحتَهُ خطٌّ: (ها أنتِ يا زرقاءُ وحيدةٌ عمياءُ).<br><span class="font-bold text-green">ج٢٣-</span> ها أنْتُنَّ يا زرقاواتُ وحيداتٌ عمياواتٌ. - <span class="highlight-red">زرقاء:</span> عندَ الجَمْعِ أصبحتْ (زرقاواتٌ)، قُلِبتِ الهمزةُ واوًا؛ لأنَّ الهمزةَ زائدةٌ للتأنيثِ. - <span class="highlight-red">وحيدة:</span> عند الجمعِ أصبَحتْ (وحيداتٌ)، حُذِفتِ التّاءُ المربوطةُ، وزِيدَتْ علامةُ جَمْعِ المُؤنّثِ السّالم (ات).</li>
+<li><span class="font-bold text-accent">س٢٤-</span> علّلْ الزّيادة في (صاحِبُوا)، وإثباتَ الياء في كِلِمة (صافي) في قولِهِ: (صافي الزُّلال)، وحذْف الياء في كِلِمة (غالٍ) في قولِهِ: (كُل غالٍ).<br><span class="font-bold text-green">ج٢٤-</span> الحرفُ الزّائِدُ ألفُ التّفريقِ، جاءتْ زيادتُهُ للتّفريقِ بينَ واوِ الجَمَاعَة، والواوِ الأصليّةِ. - <span class="highlight-red">صافي:</span> ثَبتتْ ياءُ الاسم المنقوصِ (صافي)؛ لأنّهُ جاءَ مُضافًا. - <span class="highlight-red">غالٍ:</span> حُذِفَتْ ياءُ الاسم المنقوص (غالٍ)؛ لأنّهُ جاءَ نَكِرَةً مجرورةً غيرَ مُضافةٍ أو مُعرَّفَةٍ بِـ أل.</li>
+
+=== BLOCK 10: Previous Exams ===
+(Component: TEMPLATE_C_LIST)
+Title: أسئلة الإملاء الواردة في الدورات الامتحانية السابقة
+[LIST_ITEMS]:
+<li><span class="font-bold text-accent">٢٠١٣ علمي:</span> علّل كتابة التّاء على صورتها في (دهشة - أخرِجَتْ).<br><span class="font-bold text-green">ج:</span> <span class="highlight-red">دهشة:</span> تاء مربوطة؛ جاءتْ في اسمٍ مفرد مُؤَنَّث. - <span class="highlight-red">أخرِجَتْ:</span> تاء مبسوطة؛ تاء الرّفع المُتحرّكة.</li>
+<li><span class="font-bold text-accent">٢٠١٣ علمي (٢):</span> علّل كتابة التّاء على صورتها في (غصّتْ - عالية).<br><span class="font-bold text-green">ج:</span> <span class="highlight-red">غصّتْ:</span> تاء مبسوطة؛ لأنّها تاء التّأنيث السّاكنة. - <span class="highlight-red">عالية:</span> تاء مربوطة؛ لأنّها جاءتْ في اسمٍ مفرد مُؤَنَّث.</li>
+<li><span class="font-bold text-accent">٢٠١٤ علمي:</span> علّل كتابة الهمزة على صورتها في كلمة (قدماء)، والتاء مربوطة في كلمة (كثيرة).<br><span class="font-bold text-green">ج:</span> <span class="highlight-red">قدماء:</span> كتبت الهمزة على السطر؛ لأنها همزة متطرفة، سبقت بساكن. - <span class="highlight-red">كثيرة:</span> كتبت التاء مربوطة؛ لأنها جاءت في اسم مفرد مؤنّث.</li>
+<li><span class="font-bold text-accent">٢٠١٤ علمي (٢):</span> علّل كتابة الهمزة على صورتها في الكلمتين الآتيتين: (زعماء، اجتماع).<br><span class="font-bold text-green">ج:</span> <span class="highlight-red">زعماء:</span> همزة مُتطرّفة، كُتبتْ على السطر لأنّها سُبقتْ بحرفِ ساكن، أو بساكن. - <span class="highlight-red">اجتماع:</span> همزةُ وصلٍ؛ جاءتْ في مصدر الفعل الخماسيّ، أو مصدر الخماسيّ.</li>
+<li><span class="font-bold text-accent">٢٠١٥ علمي:</span> علّل كتابة الهمزة على صورتها في كلمة (أخرجت)، والتاء مربوطة في كلمة (المرآة).<br><span class="font-bold text-green">ج:</span> <span class="highlight-red">أخرجت:</span> همزةُ قطعٍ؛ لأنّها جاءت في ماضي الفعل الرّباعي. - <span class="highlight-red">المرآة:</span> تاءٌ مربوطةٌ؛ لأنّها جاءت في اسم مفرد مؤنّث.</li>
+<li><span class="font-bold text-accent">٢٠١٥ علمي (٢):</span> علّل كتابة الهمزة على صورتها في كلمة (إقامة)، والألف مقصورة في كلمة (القرى).<br><span class="font-bold text-green">ج:</span> <span class="highlight-red">إقامة:</span> همزة قطعٍ؛ لأنّها مصدر الفعل الرّباعي. - <span class="highlight-red">القرى:</span> ألفٌ مقصورةٌ؛ لأنّها وقعت في الاسم الثّلاثي وأصلها ياء.</li>
+<li><span class="font-bold text-accent">٢٠١٦ علمي:</span> علّل كتابة الهمزة على صورتها في كلمة (نشأة)، والتاء مربوطة في كلمة (براعة).<br><span class="font-bold text-green">ج:</span> <span class="highlight-red">نشأة:</span> همزةٌ متوسطةٌ؛ مفتوحةٌ وما قبلها ساكن. - <span class="highlight-red">براعة:</span> تاءٌ مربوطةٌ؛ لأنّها جاءت في اسم مفرد مؤنّث.</li>
+<li><span class="font-bold text-accent">٢٠١٦ علمي (٢):</span> علّل كتابة الهمزة المتطرفة على صورتها في كلمة (قدماء)، والهمزة الأوّليّة في كلمة (إعادة).<br><span class="font-bold text-green">ج:</span> <span class="highlight-red">قدماء:</span> همزةٌ متطرّفةٌ؛ لأنَّ ما قبلها ساكن. - <span class="highlight-red">إعادة:</span> همزةُ قطعٍ؛ مصدرُ الفِعْلِ الرّباعيّ.</li>
+
+=== BLOCK 11: Exam ===
+(Component: TEMPLATE_C_EXAM)
+Number: ١
+Question: ضَعْ عَلَامَاتِ التَّرْقِيمِ المُنَاسِبَةَ فِي الفَرَاغَاتِ الآتِيَةِ:<br>قَالَ المُعَلِّمُ لِتِلْمِيذِهِ (...) مَا أَجْمَلَ العِلْمَ (...) وَهَلْ يُوجَدُ أَفْضَلُ مِنْهُ (...) إِنَّهُ نُورُ العُقُولِ (...) فَاحْرِصْ عَلَيْهِ (...)
+Number: ٢
+Question: بَيِّنْ سَبَبَ وَضْعِ الفَاصِلَةِ بَيْنَ الجُمْلَتَيْنِ فِي قَوْلِنَا: (العِلْمُ نُورٌ، وَالجَهْلُ ظَلَامٌ).
+
+--- END STREAM ---
