@@ -257,7 +257,7 @@ class JulesPlanner:
 
         status = self.client.wait_for_completion(session_id, timeout_minutes=20, status_callback=status_update)
 
-        if status != "SUCCEEDED":
+        if status not in ["SUCCEEDED", "COMPLETED"]:
             callback(lesson_title, "FAILED", f"Session ended: {status}")
             return False
 
