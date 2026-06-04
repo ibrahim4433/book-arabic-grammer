@@ -9,7 +9,7 @@ A modern, high-quality Arabic Grammar book project built with **HTML**, **CSS Pa
 * **GTK3 libraries** (CRITICAL: Required for WeasyPrint rendering).
     * *Linux:* `sudo apt-get install libpango-1.0-0`
     * *Mac:* `brew install pango`
-    * *Windows:* Follow WeasyPrint docs carefully.
+   * *Windows:* Install the GTK/Pango runtime from the WeasyPrint docs; `pip install weasyprint` is not enough by itself.
 
 ### Installation
 1. Clone the repository.
@@ -19,6 +19,8 @@ A modern, high-quality Arabic Grammar book project built with **HTML**, **CSS Pa
 ### Building the Book
 Run the build script:
 `python build.py`
+
+If you see `libgobject-2.0-0` / `libpango` errors on Windows, the Python package is installed but the native GTK runtime is missing.
 
 ## **📂 Project Structure**
 

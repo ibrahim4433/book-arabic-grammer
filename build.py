@@ -1,9 +1,23 @@
 import os
 import glob
 import re
-from weasyprint import HTML
 
 def main():
+    try:
+        from weasyprint import HTML
+    except ImportError as exc:
+        print("WeasyPrint is not installed in the active Python environment.")
+        print("Run: python -m pip install -r requirements.txt")
+        print(f"Details: {exc}")
+        return
+    except OSError as exc:
+        print("WeasyPrint is installed, but its native libraries are missing.")
+        print("On Windows, install the GTK/Pango runtime required by WeasyPrint, then restart the terminal.")
+        print("See: https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation")
+        print("See: https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#troubleshooting")
+        print(f"Details: {exc}")
+        return
+
     # Ensure output directory exists
     output_dir = 'output/export'
     if not os.path.exists(output_dir):
