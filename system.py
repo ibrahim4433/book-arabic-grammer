@@ -871,6 +871,72 @@ def run_audit_and_verify(state_manager):
     else:
         console.print("\n[bold green]✅ All checks passed! No lint errors.[/bold green]")
 
+def run_youtube_to_text():
+    console.clear()
+    console.print(Panel("[bold]📺 YouTube-to-Text Pipeline (Jules Dispatcher)[/bold]", style="blue"))
+    
+    url = questionary.text("Enter YouTube Video or Playlist URL:").ask()
+    if not url:
+        return
+
+    from modules.jules_youtube_dispatcher import JulesYouTubeDispatcher
+    try:
+        dispatcher = JulesYouTubeDispatcher(PROJECT_ROOT)
+    except Exception as e:
+        console.print(f"[red]❌ Error initializing dispatcher: {e}[/red]")
+        return
+
+    with console.status("[bold cyan]Resolving YouTube URL...[/bold cyan]") as status:
+        try:
+            urls_to_process, is_playlist = dispatcher.resolve_urls(url)
+        except Exception as e:
+            console.print(f"[red]❌ Error resolving YouTube URL: {e}[/red]")
+            return
+
+    if not urls_to_process:
+        console.print("[yellow]⚠️ No videos found or resolved from URL.[/yellow]")
+        return
+
+    console.print(f"[green]✓ Resolved {len(urls_to_process)} video(s) to process.[/green]")
+    
+    # Process sequentially
+    total_videos = len(urls_to_process)
+    
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TextColumn("{task.percentage:>3.0f}%"),
+        console=console
+    ) as progress:
+        overall_task = progress.add_task("[cyan]Dispatching Jules Sessions...", total=total_videos)
+        
+        for idx, (video_url, video_title) in enumerate(urls_to_process):
+            seq_n = (idx + 1) if is_playlist else None
+            clean_title = video_title[:50] + "..." if len(video_title) > 53 else video_title
+            
+            progress.console.print(f"\n[bold yellow]({idx+1}/{total_videos}) Dispatching: {clean_title}[/bold yellow]")
+            progress.console.print(f"[dim]{video_url}[/dim]")
+            
+            def update_status(msg):
+                progress.update(overall_task, description=f"[cyan]{msg} ({clean_title})[/cyan]")
+                
+            try:
+                session_name = dispatcher.dispatch_session(
+                    video_url=video_url,
+                    video_title=video_title,
+                    seq_num=seq_n,
+                    progress_callback=update_status
+                )
+                progress.console.print(f"[green]✅ Successfully dispatched Jules Session: {session_name}[/green]")
+            except Exception as e:
+                progress.console.print(f"[red]❌ Failed to dispatch '{video_title}': {e}[/red]")
+                
+            progress.advance(overall_task)
+            
+    console.print("\n[bold green]🏁 YouTube-to-Text Pipeline Dispatch Completed![/bold green]")
+    console.print("[italic]You can monitor the sessions in the 'B) Monitor PR Auto-Merges' menu.[/italic]")
+
 # --- MAIN MENU ---
 
 def main():
@@ -895,6 +961,7 @@ def main():
                 "F) Page Generation (Jules Batch)",
                 "G) Audit & Verify Pages",
                 "H) OCR Only by Jules (Images -> Raw)",
+                "I) YouTube to Text (Video -> Raw Text)",
                 "Q) Quit"
             ],
             style=questionary.Style([
@@ -935,6 +1002,8 @@ def main():
             run_audit_and_verify(state_manager)
         elif op == "H":
             run_jules_ocr_ui(state_manager)
+        elif op == "I":
+            run_youtube_to_text()
         
         if op != "Q":
             console.print(f"\n[dim]Total operation time: {format_duration(time.time() - start_op)}[/dim]")
