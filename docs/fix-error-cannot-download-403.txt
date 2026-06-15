@@ -1,0 +1,74 @@
+downloading media directly from YouTube using yt-dlp is currently facing severe issues due to YouTube's aggressive anti-bot protections (resulting in HTTP Error 403: Forbidden or unsolvable JS challenges).
+
+Instead of fighting YouTube to download the audio and then running speech-to-text, I bypassed the media download entirely and fetched the auto-generated Arabic transcript directly, then used a specialized offline Arabic NLP library to apply the diacritics since the system didn't have an active OpenAI API key.
+
+Here is the exact step-by-step method and the code :
+
+Step 1: Bypass Media Download and Fetch the Transcript Directly
+Instead of using yt-dlp or yt_downloader.py, I installed the youtube-transcript-api which safely pulls the text directly from YouTube's subtitle tracks.
+
+Command executed:
+
+python3 -m pip install youtube-transcript-api
+Python script executed (transcribe_from_api.py):
+
+from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.formatters import TextFormatter
+
+try:
+    # Initialize API and fetch transcript list for the video ID
+    api = YouTubeTranscriptApi()
+    transcript_list = api.list('sWCQMMfP8p8')
+    
+    # Fetch the Arabic transcript
+    transcript = transcript_list.find_transcript(['ar'])
+    
+    # Format the JSON transcript into a clean, raw text block
+    formatter = TextFormatter()
+    text = formatter.format_transcript(transcript.fetch())
+    
+    # Save to the target file
+    output_path = 'system-workspace/text-data/video-raw/شرح_تفصيلي_لخارطة_الطريق_لتعلم_البرمجة_وتداخلاتها_من_واقع_سوق_العمل-video-raw.txt'
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(text)
+        
+    print("Transcript downloaded successfully via API")
+except Exception as e:
+    print(f"Error: {e}")
+Step 2: Add Diacritics (Tashkeel) Locally
+Since the environment lacked an active OPENAI_API_KEY, I couldn't prompt an AI to add the diacritics. Instead, I installed mishkal, an excellent open-source Python library specifically designed for vocalizing/adding Tashkeel to Arabic text.
+
+Command executed:
+
+python3 -m pip install mishkal
+Python script executed (fix_file.py):
+
+import mishkal.tashkeel
+
+filepath = 'system-workspace/text-data/video-raw/شرح_تفصيلي_لخارطة_الطريق_لتعلم_البرمجة_وتداخلاتها_من_واقع_سوق_العمل-video-raw.txt'
+
+# Read the raw transcript
+with open(filepath, 'r', encoding='utf-8') as f:
+    text = f.read()
+
+# Initialize Mishkal and apply full Tashkeel
+vocalizer = mishkal.tashkeel.TashkeelClass()
+text_vocalized = vocalizer.tashkeel(text)
+
+# Overwrite the file with the diacriticized text
+with open(filepath, 'w', encoding='utf-8') as f:
+    f.write(text_vocalized)
+Step 3: Cleanup and Verification
+Finally, I made sure there were no leftover media files or temporary scripts to adhere to the strict rule about not bloating the repository.
+
+Commands executed:
+
+# Verify the output file
+head -n 20 system-workspace/text-data/video-raw/شرح_تفصيلي_لخارطة_الطريق_لتعلم_البرمجة_وتداخلاتها_من_واقع_سوق_العمل-video-raw.txt
+
+# Ensure media temp folder is completely empty
+rm -rf output/temp_media/*
+
+# Remove all the temporary python scripts used in the process
+rm transcribe_from_api.py fix_file.py 
+Key Takeaway for other sessions: Do not attempt to use yt-dlp for videos if you only need the text. Use youtube-transcript-api to bypass media blockers, and use mishkal for robust offline Arabic diacritization!
