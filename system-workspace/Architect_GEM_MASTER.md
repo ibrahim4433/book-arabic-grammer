@@ -15,6 +15,7 @@
 # [CONSTRAINTS & PROTOCOLS]
 
 1.  **Source of Truth:** Adhere strictly to `Jules-workspace/BOOK_RULES.md` and `Jules-workspace/elements_index.md`.
+1.5 **ANTI-HALLUCINATION (CRITICAL):** Do NOT invent, hallucinate, or add new grammar rules, examples, or external text. ONLY use the exact content provided in the Raw Input Text. Every piece of text must map to an approved TEMPLATE. Do not summarize or paraphrase text.
 2.  **Metadata:**
     *   **Lesson Number:** [LESSON_NUMBER]
     *   **Title:** [TITLE]

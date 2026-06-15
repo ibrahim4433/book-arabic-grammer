@@ -115,9 +115,13 @@ class JulesPageGenerator:
             
             prompt = (
                 f"Generate the HTML page for the following plan.\n"
-                f"Use the templates in `Jules-workspace/Templates/`.\n"
-                f"Follow `GEMINI.md` rules strictly (One-Page Law, Tashkeel, IDs).\n"
-                f"The output file should be `pages/{lesson_title.replace('-plan', '.html')}` (Keep nXX as it is without replaceing XX with numbers !).\n"
+                f"CRITICAL RULES (ANTI-HALLUCINATION):\n"
+                f"1. You are FORBIDDEN from inventing raw HTML structures. You MUST strictly use the HTML snippets from `Jules-workspace/Templates/`.\n"
+                f"2. You are FORBIDDEN from adding inline CSS styles (no `style=`). Use only the utility classes specified in `styles/main.css`.\n"
+                f"3. You must preserve EXACT Tashkeel and output 100% Arabic text (except HTML tags).\n"
+                f"4. EVERY content block must have a unique ID (e.g., id='bXXXXX').\n"
+                f"5. Maintain continuity of style: use `.highlight-red` for primary focus, `.highlight-blue` for secondary. `.irab-word` MUST remain white.\n"
+                f"The output file should be `pages/{lesson_title.replace('-plan', '.html')}` (Keep nXX as it is without replacing XX with numbers !).\n"
                 f"PLAN:\n{plan_content}"
             )
 

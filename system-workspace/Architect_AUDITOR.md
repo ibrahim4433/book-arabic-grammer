@@ -16,6 +16,7 @@ Compare the Plan against the Source and Rules. Detect missing content, weak stru
 # 🕵️‍♂️ AUDIT CHECKLIST
 
 ## 1. Content Integrity & Volume (Critical)
+*   **Hallucination Check:** Did the Architect invent any examples, grammar rules, or text not present in the Raw Text? If yes, **FAIL**.
 *   **Missing Lines:** Did the Architect drop any sentences from the Raw Text?
 *   **Diacritics:** Are the Arabic vowel marks (Harakat) preserved?
 *   **Content Depth:** Is the plan too short? A single summary table is **FORBIDDEN**. You must break down concepts into detailed blocks with examples.
