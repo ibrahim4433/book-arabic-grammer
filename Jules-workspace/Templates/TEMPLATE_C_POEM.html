@@ -1,18 +1,25 @@
-<section class="poem-container">
+<section class="poem-container" id="[UNIQUE_ID]">
     <div class="block-header poem-header">
-        <span>[SECTION_TITLE]</span>
+        <span>[POEM_TITLE]</span>
     </div>
-
-    <div class="bio-card">
+    
+    <!-- Optional Poet Bio -->
+    <div class="bio-card" id="[UNIQUE_ID_BIO]">
         <div class="bio-info">
             <h4 class="m-0 text-dark">[POET_NAME]</h4>
-            <p class="mt-2mm text-sm text-grey">[POET_BIO]</p>
         </div>
     </div>
-
-    <h3 class="text-center text-primary mb-4mm">[POEM_TITLE]</h3>
-
+    
+    <!-- Verses -->
     <div class="poem-verses">
-        [POEM_VERSES]
+        <div class="poem-line">
+            <span class="hemistich">[RIGHT_HEMISTICH]</span>
+            <span class="hemistich">[LEFT_HEMISTICH]</span>
+        </div>
+        <!-- Alternative flex layout often used -->
+        <div class="poem-line flex justify-between items-center mb-2mm">
+            <div class="hemistich w-45pct text-center font-bold">[RIGHT_HEMISTICH]</div>
+            <div class="hemistich w-45pct text-center font-bold">[LEFT_HEMISTICH]</div>
+        </div>
     </div>
 </section>
