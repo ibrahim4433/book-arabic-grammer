@@ -30,7 +30,7 @@ class JulesPageGenerator:
         self.context_files = [
             "GEMINI.md",
             "CODING_STANDARDS.md",
-            "Jules-workspace/Templates/TEMPLATE_C_BASE.html"
+            "Jules-workspace/elements_index.md"
         ]
         self.project_context = self._load_context()
 
@@ -113,16 +113,22 @@ class JulesPageGenerator:
         if not session_id:
             callback(lesson_title, "RUNNING", "Starting Session...")
             
+            # Inject elements_index.md
+            elements_text = ""
+            elements_path = self.project_root / "Jules-workspace/elements_index.md"
+            if elements_path.exists():
+                elements_text = f"\n\n--- ELEMENTS INDEX DICTIONARY ---\n{elements_path.read_text(encoding='utf-8')}\n"
+
             prompt = (
                 f"Generate the HTML page for the following plan.\n"
                 f"CRITICAL RULES (ANTI-HALLUCINATION):\n"
-                f"1. You are FORBIDDEN from inventing raw HTML structures. You MUST strictly use the HTML snippets from `Jules-workspace/Templates/`.\n"
+                f"1. You are FORBIDDEN from inventing raw HTML structures. You MUST strictly use the HTML snippets from `Jules-workspace/Templates/` as defined in `elements_index.md`.\n"
                 f"2. You are FORBIDDEN from adding inline CSS styles (no `style=`). Use only the utility classes specified in `styles/main.css`.\n"
                 f"3. You must preserve EXACT Tashkeel and output 100% Arabic text (except HTML tags).\n"
                 f"4. EVERY content block must have a unique ID (e.g., id='bXXXXX').\n"
                 f"5. Maintain continuity of style: use `.highlight-red` for primary focus, `.highlight-blue` for secondary. `.irab-word` MUST remain white.\n"
-                f"The output file should be `pages/{lesson_title.replace('-plan', '.html')}` (Keep nXX as it is without replacing XX with numbers !).\n"
-                f"PLAN:\n{plan_content}"
+                f"The output file should follow the strict naming convention: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html`.\n"
+                f"PLAN:\n{plan_content}{elements_text}"
             )
 
             session = self.jules_client.create_session(prompt, f"PageGen: {lesson_title}", automation_mode="AUTO_CREATE_PR")
@@ -160,19 +166,6 @@ class JulesPageGenerator:
         callback(lesson_title, "RUNNING", "Downloading generated page...")
         details = self.jules_client.get_session_details(session_id)
         
-        # Attempt 1: Exact Match Pull using JulesPlanClient logic
-        target_file = f"{lesson_title.replace('-plan', '')}.html"
-        target_path = f"pages/{target_file}"
-
-        success = self.jules_client.finalize_pr_and_pull(details, target_path, callback=callback)
-        
-        if success:
-            callback(lesson_title, "SUCCESS", f"Page Saved: {target_file}")
-            return True
-
-        # Attempt 2: Smart Search in Branch (Fallback)
-        callback(lesson_title, "WARN", "Exact Pull Failed. Searching Branch...")
-
         branch = details.get('branch')
         if not branch:
              callback(lesson_title, "ERROR", "No Branch info found.")
@@ -180,52 +173,38 @@ class JulesPageGenerator:
 
         repo_full_name = f"{self.jules_client.repo_owner}/{self.jules_client.repo_name}"
 
+        # Attempt 1: Smart Search to find exact filename
+        found_name = None
         try:
-            # List files in pages/ directory of the branch
             files = self.github.get_file_info(repo_full_name, "pages", branch)
-
-            found_url = None
-            found_name = None
-
             if files and isinstance(files, list):
-                # Try to find a file that matches the lesson number
                 match = re.search(r'^(\d+)', lesson_title)
                 lesson_num = match.group(1) if match else None
 
                 for f in files:
-                    if not f['name'].endswith(".html"):
-                        continue
-
-                    # If we have a number, check if file starts with it
-                    if lesson_num:
-                        if f['name'].startswith(lesson_num) or f['name'].startswith(str(int(lesson_num))):
-                            found_url = f['download_url']
-                            found_name = f['name']
-                            break
-                    else:
-                        # Fallback: Check if file name is similar to target?
-                        # Or just take the first HTML if we assume 1-to-1 session?
-                        # Let's match stem at least partially
-                        if lesson_title.replace('-plan', '') in f['name']:
-                             found_url = f['download_url']
-                             found_name = f['name']
-                             break
-
-            if found_url:
-                 callback(lesson_title, "DOWN", f"Found alternative: {found_name}")
-                 local_path = self.project_root / "pages" / found_name
-                 if self.github.download_file(found_url, local_path):
-                      callback(lesson_title, "SUCCESS", f"Page Saved: {found_name}")
-                      return True
-                 else:
-                      callback(lesson_title, "ERROR", "Download Failed")
-                      return False
-            else:
-                 callback(lesson_title, "ERROR", "File not found in branch.")
-                 return False
-
+                    if not f['name'].endswith(".html"): continue
+                    if lesson_num and (f['name'].startswith(lesson_num) or f['name'].startswith(str(int(lesson_num)))):
+                        found_name = f['name']
+                        break
+                    elif not lesson_num and lesson_title.replace('-plan', '') in f['name']:
+                        found_name = f['name']
+                        break
         except Exception as e:
-            callback(lesson_title, "ERROR", f"Search Exception: {e}")
+            callback(lesson_title, "WARN", f"Branch search failed: {e}")
+
+        # If we couldn't find it dynamically, guess it
+        if not found_name:
+            found_name = f"{lesson_title.replace('-plan', '')}.html"
+            callback(lesson_title, "WARN", f"Could not determine exact filename. Guessing: {found_name}")
+
+        target_path = f"pages/{found_name}"
+        success = self.jules_client.finalize_pr_and_pull(details, target_path, callback=callback)
+        
+        if success:
+            callback(lesson_title, "SUCCESS", f"Page Saved: {found_name}")
+            return True
+        else:
+            callback(lesson_title, "ERROR", "Pull Failed")
             return False
 
     def _monitor_and_handle_session(self, session_id, lesson_title, callback):

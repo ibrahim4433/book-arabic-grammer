@@ -189,7 +189,7 @@ def verify_layout(filepath):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python tools/verify_layout.py <filepath>")
+        print("Usage: python Jules-workspace/verify_layout.py <filepath>")
         sys.exit(1)
     else:
         verify_layout(sys.argv[1])

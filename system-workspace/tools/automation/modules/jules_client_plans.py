@@ -6,7 +6,11 @@ import subprocess
 import re
 import logging
 import requests
+import threading
 from pathlib import Path
+
+# Global lock for git operations to prevent .git/index.lock collisions during concurrent pulls
+GIT_LOCK = threading.Lock()
 
 # Ensure modules are importable
 sys.path.append(str(Path(__file__).parent))
@@ -103,8 +107,9 @@ class JulesPlanClient(JulesClient):
         try:
             if merged:
                 # Checkout main and pull
-                subprocess.run(["git", "checkout", "main"], check=True, cwd=self.project_root, capture_output=True)
-                subprocess.run(["git", "pull", "origin", "main"], check=True, cwd=self.project_root, capture_output=True)
+                with GIT_LOCK:
+                    subprocess.run(["git", "checkout", "main"], check=True, cwd=self.project_root, capture_output=True)
+                    subprocess.run(["git", "pull", "origin", "main"], check=True, cwd=self.project_root, capture_output=True)
 
                 # Verify file exists
                 if (self.project_root / file_path).exists():
@@ -198,22 +203,24 @@ class JulesPlanClient(JulesClient):
                 logging.error("❌ Cannot pull: Missing Branch Name and PR Number.")
                 return False
 
-            # 1. Fetch
-            fetch_cmd = ["git", "fetch", "origin", fetch_ref]
-            subprocess.run(fetch_cmd, check=True, cwd=self.project_root, capture_output=True)
+            # 1. Fetch and Checkout
+            with GIT_LOCK:
+                fetch_cmd = ["git", "fetch", "origin", fetch_ref]
+                subprocess.run(fetch_cmd, check=True, cwd=self.project_root, capture_output=True)
 
-            # 2. Checkout specific file
-            # If target_filename already contains a path separator, use it as is.
-            # Otherwise, assume it's a plan in plans/ directory (Legacy support).
-            repo_path = target_filename if "/" in target_filename else f"plans/{target_filename}"
-            checkout_cmd = ["git", "checkout", checkout_ref, "--", repo_path]
-            subprocess.run(checkout_cmd, check=True, cwd=self.project_root, capture_output=True)
+                # 2. Checkout specific file
+                # If target_filename already contains a path separator, use it as is.
+                # Otherwise, assume it's a plan in plans/ directory (Legacy support).
+                repo_path = target_filename if "/" in target_filename else f"plans/{target_filename}"
+                checkout_cmd = ["git", "checkout", checkout_ref, "--", repo_path]
+                subprocess.run(checkout_cmd, check=True, cwd=self.project_root, capture_output=True)
 
             logging.info(f"✅ Successfully pulled {target_filename}")
 
             # Clean up local temp branch if created
             if pr_number:
-                subprocess.run(["git", "branch", "-D", checkout_ref], cwd=self.project_root, capture_output=True)
+                with GIT_LOCK:
+                    subprocess.run(["git", "branch", "-D", checkout_ref], cwd=self.project_root, capture_output=True)
 
             # 3. Verify file exists locally
             local_path = self.project_root / repo_path

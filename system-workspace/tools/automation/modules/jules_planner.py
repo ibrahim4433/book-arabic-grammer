@@ -26,6 +26,13 @@ class JulesPlanner:
 
         # Load Prompts
         self.architect_prompt = (self.project_root / "system-workspace/Architect_GEM_MASTER.md").read_text(encoding='utf-8')
+        
+        # Inject elements_index.md to prevent Context Starvation
+        elements_index_path = self.project_root / "Jules-workspace/elements_index.md"
+        if elements_index_path.exists():
+            elements_text = elements_index_path.read_text(encoding='utf-8')
+            self.architect_prompt += f"\n\n--- ELEMENTS INDEX DICTIONARY ---\n{elements_text}\n"
+
         self.auditor_prompt = (self.project_root / "system-workspace/Architect_AUDITOR.md").read_text(encoding='utf-8')
 
         # Load Raw Text Index

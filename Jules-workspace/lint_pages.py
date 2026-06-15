@@ -148,10 +148,23 @@ def lint_file(filepath, allowed_classes=None):
         if 'structured-list' not in attrs and 'toc-list' not in attrs:
             errors.append(f"Generic <ul> found without 'structured-list' class.")
 
+    # Check 3.5: Anti-Bloat Structural Checks
+    if re.search(r'<hr[^>]*>', content, re.IGNORECASE):
+        errors.append("STRICT VIOLATION: Forbidden tag <hr> found. Do not hallucinate dividers.")
+    
+    # Simple check for nested benefit boxes (this checks if a benefit box contains another benefit box string within it, simplified using regex)
+    # Actually, a simpler way is to use BeautifulSoup below.
+
     # Check 4: BeautifulSoup Semantic Checks
     try:
         soup = BeautifulSoup(content, 'html.parser')
         check_exam_compliance(soup, errors)
+        
+        # Anti-Bloat: Nested benefit boxes
+        for box in soup.find_all(class_='benefit-box'):
+            if box.find(class_='benefit-box'):
+                errors.append("STRICT VIOLATION: Nested benefit-box found. Do not nest them.")
+                
     except Exception as e:
         warnings.append(f"Could not parse HTML for semantic checks: {e}")
 

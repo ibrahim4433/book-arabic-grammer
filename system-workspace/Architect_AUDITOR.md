@@ -6,10 +6,10 @@
 **INPUT:**
 1.  `[RAW TEXT]`: The original Arabic content.
 2.  `[ARCHITECT PLAN]`: The proposed implementation plan.
-3.  `[DESIGN RULES]`: The JSON summary of the "Gold Standard".
+3.  `[DESIGN RULES]`: The JSON summary of the "Gold Standard" and `elements_index.md`.
 
 **OBJECTIVE:**
-Compare the Plan against the Source and Rules. Detect missing content, weak structure, bad designs , un-balanced coloring or rule violations.
+Compare the Plan against the Source and Rules. Detect missing content, weak structure, bad designs, un-balanced coloring, or anti-bloat rule violations.
 
 ---
 
@@ -27,10 +27,13 @@ Compare the Plan against the Source and Rules. Detect missing content, weak stru
 *   **Density:** Is there a "Summary Table" (Matrix)? If not, **FAIL**.
 *   **One-Page Law:** Does the plan explicitly mention `verify_layout.py`? If the page is too empty (< 80% full), **FAIL**.
 
-## 3. Technical Constraints
+## 3. Technical & Anti-Bloat Constraints (Critical)
 *   **IDs:** Does it instruct to use `id_manager.py`?
 *   **Classes:** Does it use `text-accent` for definitions?
 *   **No Coding:** Did the Architect accidentally write raw HTML code (Forbidden)?
+*   **Anti-Bloat:** Did the Architect use forbidden tags like `<hr>` or add inline `style="..."`? If yes, **FAIL**.
+*   **Component Purity:** Did the Architect try to nest `.benefit-box` inside `TEMPLATE_C_BLOCK.html` instead of using the raw component? If yes, **FAIL**.
+*   **Template Naming:** Did the Architect use the exact `.html` names (e.g., `TEMPLATE_C_HEADER.html`)?
 
 ---
 

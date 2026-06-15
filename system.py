@@ -180,6 +180,19 @@ def display_status_table(state_manager):
 
 # --- WORKFLOW HANDLERS ---
 
+def run_template_lint():
+    console.print("\n[cyan]Running Pre-Flight Template Lint...[/cyan]")
+    lint_script = PROJECT_ROOT / "Jules-workspace" / "lint_templates.py"
+    if lint_script.exists():
+        result = subprocess.run([sys.executable, str(lint_script)], capture_output=True, text=True)
+        if result.returncode != 0:
+            console.print(f"[red]❌ PRE-FLIGHT FAILED: Template bloat detected![/red]")
+            console.print(result.stdout)
+            return False
+        console.print("[green]✅ Templates are clean.[/green]")
+    return True
+
+
 def run_jules_planning_ui(state_manager):
     console.clear() # Clear screen for App-like feel
     console.print("[bold cyan]🚀 Starting Jules Batch Planning...[/bold cyan]")
@@ -253,6 +266,10 @@ def run_jules_planning_ui(state_manager):
 
 def run_jules_generation_ui(state_manager):
     console.clear() # Clear screen for App-like feel
+    
+    if not run_template_lint():
+        return
+        
     console.print("[bold cyan]🚀 Starting Jules Page Generation...[/bold cyan]")
     
     generator = JulesPageGenerator(PROJECT_ROOT)
@@ -316,6 +333,36 @@ def run_jules_generation_ui(state_manager):
 
     total_duration = time.time() - start_all
     console.print(f"[bold green]✅ Batch Generation Completed in {format_duration(total_duration)}![/bold green]")
+    
+    # Run post-flight lint on generated pages
+    console.print("\n[cyan]Running Post-Flight Page Lint...[/cyan]")
+    try:
+        import lint_pages
+        # Define allowed classes to avoid parsing css multiple times
+        allowed_classes = None
+        styles_path = PROJECT_ROOT / "styles/main.css"
+        if styles_path.exists():
+            try:
+                allowed_classes = lint_pages.parse_allowed_classes(str(styles_path))
+            except: pass
+            
+        target_files = []
+        pages_dir = PROJECT_ROOT / "pages"
+        if pages_dir.exists():
+            for f in pages_dir.glob("*.html"):
+                target_files.append(str(f))
+                
+        issues = 0
+        for f in target_files:
+            errs, warns = lint_pages.lint_file(f, allowed_classes)
+            if errs: issues += 1
+            
+        if issues > 0:
+            console.print(f"[red]⚠️ POST-FLIGHT WARNING: {issues} pages have bloat/errors. Run Audit & Verify (G) for details.[/red]")
+        else:
+            console.print("[green]✅ Post-Flight Success: All generated pages are clean.[/green]")
+    except Exception as e:
+        console.print(f"[red]Error running post-flight lint: {e}[/red]")
 
 def run_jules_ocr_ui(state_manager):
     console.clear()

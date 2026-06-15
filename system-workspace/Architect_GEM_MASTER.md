@@ -19,15 +19,15 @@
 2.  **Metadata:**
     *   **Lesson Number:** [LESSON_NUMBER]
     *   **Title:** [TITLE]
-    *   **Header Data (MANDATORY):** You must populate the `TEMPLATE_C_HEADER` component with the specific metadata provided in the prompt:
+    *   **Header Data (MANDATORY):** You must populate the `TEMPLATE_C_HEADER.html` component with the specific metadata provided in the prompt:
         *   `[CATEGORY_HEADER]` <- Use `LESSON_LEVEL`
         *   `[SECTION_HEADER]` <- Use `LESSON_UNIT`
         *   `[AUTHOR_NAME]` <- Use `LESSON_AUTHOR`
         *   `[AUTHOR_PHONE]` <- Use `LESSON_AUTHOR_NUMBER`
 
 4.  **Templates:** Use strictly the `Jules-workspace/Templates/` components. 
-    *   NEVER use generic `<ul>`. Map to `TEMPLATE_C_LIST`.
-    *   Use `TEMPLATE_C_IRAB` for multi-line analysis and `TEMPLATE_C_IRAB_ROW` for concise word-to-role mappings.....
+    *   NEVER use generic `<ul>`. Map to `TEMPLATE_C_LIST.html`.
+    *   Use `TEMPLATE_C_IRAB.html` for multi-line analysis and `TEMPLATE_C_IRAB_ROW.html` for concise word-to-role mappings.....
     *   THINK Carefully about how and why to use an element template in the plan and use `Jules-workspace/elements_index.md`for full details about them 
 5.  **Content Integrity:** Preserve ALL Arabic Diacritics (Harakat) exactly as provided.
 6.  **Visual Density:** Mimic the theme and design patterns of existing pages `pages/*.html` (visual density, color coding), Use `Jules-workspace/design_patterns.json` as reference , must be carfull of smashed text , bad design , non-balanced coloring between theme colors, raw text without an element ...
@@ -36,13 +36,13 @@
 
 # 🎨 THE STREAM "GOLDEN FLOW" :
 
-1.  **HEADER STRIP:** `TEMPLATE_C_HEADER`.
-2.  **DEFINITION & RULE:** `TEMPLATE_C_BLOCK` (Body text uses `.text-accent`).
-3.  **THE CORE MATRIX:** `TEMPLATE_C_TABLE` (Summary of all lesson rules).
-4.  **DEEP DIVE:** `TEMPLATE_C_SPLIT` , `TEMPLATE_C_BLOCK` , `TEMPLATE_C_LIST.html`, `TEMPLATE_C_CHIPS.html`.
+1.  **HEADER STRIP:** `TEMPLATE_C_HEADER.html`.
+2.  **DEFINITION & RULE:** `TEMPLATE_C_BLOCK.html` (Body text uses `.text-accent`).
+3.  **THE CORE MATRIX:** `TEMPLATE_C_TABLE.html` (Summary of all lesson rules).
+4.  **DEEP DIVE:** `TEMPLATE_C_SPLIT.html` , `TEMPLATE_C_BLOCK.html` , `TEMPLATE_C_LIST.html`, `TEMPLATE_C_CHIPS.html`.
 5.  **EXTRA INFO ( if multi merge them in one section or add them through the DEEP DIVE ):** `TEMPLATE_C_BENEFIT.html` , `TEMPLATE_C_BENEFIT_WARNING.html` , `TEMPLATE_C_BENEFIT_TIP.html`
-5.  **EVIDENCE:** `TEMPLATE_C_POEM` followed by `TEMPLATE_C_IRAB_ROW`.
-6.  **EVALUATION:** `TEMPLATE_C_EXAM` (Mandatory at the end of every lesson(without answers!)).
+5.  **EVIDENCE:** `TEMPLATE_C_POEM.html` followed by `TEMPLATE_C_IRAB_ROW.html`.
+6.  **EVALUATION:** `TEMPLATE_C_EXAM.html` (Mandatory at the end of every lesson(without answers!)).
 
 ---
 
@@ -57,7 +57,7 @@
 
 [TASK DEFINITION]
 Objective: Implement [LESSON_TITLE].
-File: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html`
+File: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html` (Note: `nXX` must remain exactly as `nXX`. It represents the absolute lesson index and will be replaced later by the system.)
 Reference: Follow patterns in design_patterns.json.
 
 [CONSTRAINTS & PROTOCOLS]
@@ -82,7 +82,7 @@ Reference: Follow patterns in design_patterns.json.
 11. You must preserve the **exact** Tashkeel provided in the input and add any missing Tashkeel needed if any.  
 12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.
 13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of all teal 
-14. every html page must have a saperate new starting : div class="force-new-page"
+14. Every HTML page content must be wrapped using `TEMPLATE_C_PAGE_WRAPPER.html` (which provides `.force-new-page`) as defined in `elements_index.md`.
 15. Exam section always be in the end of the lesson ( in the final page of that lesson) ,and without the answers !
 
 [CONTENT STREAM]
@@ -90,7 +90,7 @@ Reference: Follow patterns in design_patterns.json.
 --- START STREAM ---
 
 === BLOCK 1: Lesson Header ===
-(Component: TEMPLATE_C_HEADER)
+(Component: TEMPLATE_C_HEADER.html)
 [LESSON_NUMBER]: [Number]
 [CHAPTER_TITLE]: [Title]
 [CATEGORY_HEADER]: [Level]
@@ -99,14 +99,14 @@ Reference: Follow patterns in design_patterns.json.
 [AUTHOR_PHONE]: [Phone]
 
 === BLOCK 2: [Topic] ===
-(Component: TEMPLATE_C_BLOCK)
+(Component: TEMPLATE_C_BLOCK.html)
 Title: [Arabic Title]
 Content: [Text with classes]
 
 ... [More Blocks] ...
 
 === BLOCK N: Exam ===
-(Component: TEMPLATE_C_EXAM)
+(Component: TEMPLATE_C_EXAM.html)
 Number: ١
 Question: [Arabic Question]
 ....

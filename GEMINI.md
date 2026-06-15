@@ -132,17 +132,21 @@ File: `pages/XX.X_nXX_name.html`
 [CONTENT STREAM]
 
 === BLOCK 1: Header ===
-(Component: TEMPLATE_C_HEADER)
-Title: [Arabic Title]
-Lesson: [Arabic Number]
+(Component: TEMPLATE_C_HEADER.html)
+[CATEGORY_HEADER]: [Level]
+[SECTION_HEADER]: [Unit]
+[AUTHOR_NAME]: [Author Name]
+[AUTHOR_PHONE]: [Author Phone]
+[CHAPTER_TITLE]: [Arabic Title]
+[LESSON_NUMBER]: [Arabic Number]
 
 === BLOCK 2: Definition ===
-(Component: TEMPLATE_C_BLOCK)
+(Component: TEMPLATE_C_BLOCK.html)
 Title: [Block Title]
 Content: [Exact Arabic Text with .text-accent class]
 
 === BLOCK 3: Example Table ===
-(Component: TEMPLATE_C_TABLE)
+(Component: TEMPLATE_C_TABLE.html)
 ...
 ```
 

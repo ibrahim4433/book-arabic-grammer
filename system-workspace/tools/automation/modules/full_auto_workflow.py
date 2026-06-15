@@ -14,6 +14,8 @@ from modules.jules_planner import JulesPlanner
 from modules.jules_page_generator import JulesPageGenerator
 from modules.jules_client_plans import JulesPlanClient
 from modules.jules_ocr import JulesOCR
+import subprocess
+import sys
 
 try:
     from .unified_flow import UnifiedProductionManager
@@ -299,6 +301,14 @@ class FullAutoWorkflow:
         # Refresh existing lessons to account for Sync steps
         self._step_check_existing()
 
+        self._log("UNIFIED_GEN", "RUNNING", "Running Pre-Flight Template Lint...")
+        lint_script = self.project_root / "Jules-workspace" / "lint_templates.py"
+        if lint_script.exists():
+            result = subprocess.run([sys.executable, str(lint_script)], capture_output=True, text=True)
+            if result.returncode != 0:
+                self._log("UNIFIED_GEN", "ERROR", "Pre-Flight Failed: Template bloat detected!")
+                raise Exception(f"Template bloat detected:\n{result.stdout}")
+        
         self._log("UNIFIED_GEN", "RUNNING", "Starting Unified Production Manager...")
 
         def bridge_callback(title, status, msg):
