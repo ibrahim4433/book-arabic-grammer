@@ -706,6 +706,31 @@ def run_raw_processing(state_manager):
 
         console.print("2. Generating Lesson Index...")
         mapping = tp.generate_lesson_index()
+        
+        if not mapping:
+            console.print("[yellow]⚠️ Gemini API and CLI failed. Falling back to Antigravity CLI Headless Agent...[/yellow]")
+            try:
+                import json
+                prompt = (
+                    "Please read input/TOC.json and system-workspace/text-data/full_raw_indexed.txt. "
+                    "Then, act as an expert Arabic book editor to identify the exact start and end line markers "
+                    "for every lesson/topic found in that text based on the TOC. "
+                    "Create a JSON mapping where keys are the exact TOC titles and values are objects "
+                    "with 'start' and 'end' line indicators (e.g., 'raw_1.txt:5'). "
+                    "Save this EXACT JSON structure to system-workspace/text-data/raw_to_lesson_index.json."
+                )
+                cmd = ["agy", "-p", prompt, "--dangerously-skip-permissions"]
+                subprocess.run(cmd, check=True)
+                
+                if tp.index_file.exists():
+                    with open(tp.index_file, "r", encoding="utf-8") as f:
+                        mapping = json.load(f)
+                    console.print("[green]✅ Antigravity CLI successfully generated the index mapping![/green]")
+                else:
+                    console.print("[red]❌ Antigravity CLI ran, but the index file was not created.[/red]")
+            except Exception as e:
+                console.print(f"[red]❌ Antigravity CLI Fallback failed: {e}[/red]")
+
         if mapping:
             console.print(f"[bold green]✅ Raw Processing Complete in {format_duration(time.time() - start_time)}![/bold green]")
 
