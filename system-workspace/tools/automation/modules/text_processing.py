@@ -147,15 +147,18 @@ Your task is to extract the Table of Contents (TOC) from this text and output it
 CRITICAL RULES:
 1. Identify all the main lessons or topics.
 2. The output MUST be a JSON object where the keys are lesson numbers (e.g., "01", "02").
-3. Each value must be an object with the exact following fields: 'title', 'level', 'Unit', 'author', 'author_number'. You must infer or supply these details logically, or leave them blank if truly unknown.
-4. Output ONLY a valid JSON object. No explanations.
+3. Each value must be an object with the exact following fields: 'title', 'level', 'Unit', 'author', 'author_number'.
+4. You MUST logically infer an appropriate 'level' (المستوى) and 'Unit' (الوحدة) for each lesson by analyzing its topic and depth in the text (e.g., Level: 'المستوى التأسيسي', Unit: 'علم النحو' or similar classifications). Do NOT leave them blank.
+5. For 'author', use exactly: "{author}".
+6. For 'author_number', use exactly: "{author_number}".
+7. Output ONLY a valid JSON object. No explanations.
 
 === OUTPUT FORMAT ===
 {{
   "01": {{
     "title": "Exact Arabic Title 1",
-    "level": "فوائد",
-    "Unit": "المستوى الفني",
+    "level": "المستوى المبتدئ",
+    "Unit": "قواعد النحو",
     "author": "{author}",
     "author_number": "{author_number}"
   }}

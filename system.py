@@ -777,8 +777,9 @@ def run_raw_processing(state_manager):
                         prompt = (
                             "Please read system-workspace/text-data/full_raw_indexed.txt. "
                             "Act as an expert Arabic book editor to extract the Table of Contents (TOC) from this text and output it as a JSON object. "
-                            "The output MUST be a JSON object where the keys are lesson numbers (e.g., '01', '02') "
-                            f"and the values are objects with exactly these fields: 'title', 'level', 'Unit', 'author' (set to '{author}'), and 'author_number' (set to '{author_number}'). "
+                            "The output MUST be a JSON object where the keys are lesson numbers (e.g., '01', '02'). "
+                            f"Each value must be an object with exactly these fields: 'title', 'level', 'Unit', 'author' (set to '{author}'), and 'author_number' (set to '{author_number}'). "
+                            "You MUST logically infer an appropriate 'level' (المستوى) and 'Unit' (الوحدة) for each lesson by analyzing its topic and depth in the text (e.g., Level: 'المستوى التأسيسي', Unit: 'علم النحو'). Do NOT leave them blank. "
                             "Save this EXACT JSON structure to input/TOC.json."
                         )
                         cmd = ["agy", "-p", prompt, "--dangerously-skip-permissions"]
@@ -1082,7 +1083,7 @@ def run_settings():
     
     new_author_number = questionary.text("Author Number:", default=settings.get("author_number", "994066850 963+")).ask()
     if new_author_number is None: return
-    
+
     settings["author"] = new_author
     settings["author_number"] = new_author_number
     
