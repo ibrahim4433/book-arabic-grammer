@@ -123,6 +123,75 @@ class TextProcessor:
         print(f"📄 Merged {len(files)} files into {output_path}")
         return output_path
 
+    def generate_toc(self, merged_path):
+        """
+        Uses Gemini to generate the TOC.json from the merged raw text.
+        """
+        print("🔍 Generating TOC from raw text via Gemini...")
+        # Load settings
+        settings_file = self.project_root / "system-workspace" / "settings.json"
+        author = "أ. الياس خفيف"
+        author_number = "994066850 963+"
+        if settings_file.exists():
+            try:
+                with open(settings_file, "r", encoding="utf-8") as f:
+                    settings = json.load(f)
+                    author = settings.get("author", author)
+                    author_number = settings.get("author_number", author_number)
+            except Exception as e:
+                print(f"⚠️ Could not load settings: {e}")
+
+        system_instruction = f"""You are an expert Arabic book editor.
+I have a file containing transcribed Arabic grammar text.
+Your task is to extract the Table of Contents (TOC) from this text and output it as a JSON object.
+CRITICAL RULES:
+1. Identify all the main lessons or topics.
+2. The output MUST be a JSON object where the keys are lesson numbers (e.g., "01", "02").
+3. Each value must be an object with the exact following fields: 'title', 'level', 'Unit', 'author', 'author_number'. You must infer or supply these details logically, or leave them blank if truly unknown.
+4. Output ONLY a valid JSON object. No explanations.
+
+=== OUTPUT FORMAT ===
+{{
+  "01": {{
+    "title": "Exact Arabic Title 1",
+    "level": "فوائد",
+    "Unit": "المستوى الفني",
+    "author": "{author}",
+    "author_number": "{author_number}"
+  }}
+}}
+"""
+        user_content = merged_path.read_text(encoding='utf-8')
+
+        resp_text = self.client.generate_content(
+            system_instruction=system_instruction,
+            user_content=user_content
+        )
+        
+        if not resp_text:
+            print("❌ Failed to generate TOC.")
+            return False
+            
+        try:
+            cleaned_json = resp_text.replace("```json", "").replace("```", "").strip()
+            match = re.search(r'\{.*\}', cleaned_json, re.DOTALL)
+            if match:
+                cleaned_json = match.group(0)
+
+            toc_data = json.loads(cleaned_json)
+            
+            # Save the TOC
+            self.toc_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.toc_path, "w", encoding="utf-8") as f:
+                json.dump(toc_data, f, ensure_ascii=False, indent=2)
+            
+            print(f"✅ TOC created at {self.toc_path}")
+            return True
+            
+        except json.JSONDecodeError:
+            print(f"❌ Failed to parse JSON response for TOC: {resp_text[:100]}...")
+            return False
+
     def generate_lesson_index(self):
         """
         Uses Gemini to map the merged raw text to the TOC.

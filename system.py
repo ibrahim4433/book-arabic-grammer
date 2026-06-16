@@ -720,45 +720,113 @@ def run_ocr(state_manager):
 def run_raw_processing(state_manager):
     console.clear()
     console.print(Panel("[bold]Running Raw Processing...[/bold]", style="blue"))
+    tp = TextProcessor()
     
+    toc_choice = questionary.select(
+        "How would you like to provide the TOC.json?",
+        choices=[
+            "1. Manually select/use existing input/TOC.json",
+            "2. Auto-generate new TOC.json using AI from raw text"
+        ]
+    ).ask()
+    
+    if not toc_choice: return
+
     start_time = time.time()
-    with console.status("[bold green]Processing...[/bold green]", spinner="dots"):
-        tp = TextProcessor()
-        if not tp.validate_toc(): return
+    
+    from rich.spinner import Spinner
+    from rich.text import Text
+    def generate_raw_view(status_text):
+        return Group(
+            Panel(Spinner("dots", text=Text(status_text, style="bold green")), border_style="blue"),
+            generate_log_panel()
+        )
 
-        console.print("1. Merging Raw Text...")
-        merged_path = tp.merge_raw_text()
-        if not merged_path: return
+    original_stdout = sys.stdout
+    sys.stdout = StreamLogger(logging.getLogger(), logging.INFO)
+    
+    try:
+        with Live(generate_raw_view("Processing..."), console=console, refresh_per_second=4) as live:
+            def log_step(text):
+                console.print(text)
+                live.update(generate_raw_view(text))
 
-        console.print("2. Generating Lesson Index...")
-        mapping = tp.generate_lesson_index()
-        
-        if not mapping:
-            console.print("[yellow]⚠️ Gemini API and CLI failed. Falling back to Antigravity CLI Headless Agent...[/yellow]")
-            try:
-                import json
-                prompt = (
-                    "Please read input/TOC.json and system-workspace/text-data/full_raw_indexed.txt. "
-                    "Then, act as an expert Arabic book editor to identify the exact start and end line markers "
-                    "for every lesson/topic found in that text based on the TOC. "
-                    "Create a JSON mapping where keys are the exact TOC titles and values are objects "
-                    "with 'start' and 'end' line indicators (e.g., 'raw_1.txt:5'). "
-                    "Save this EXACT JSON structure to system-workspace/text-data/raw_to_lesson_index.json."
-                )
-                cmd = ["agy", "-p", prompt, "--dangerously-skip-permissions"]
-                subprocess.run(cmd, check=True)
-                
-                if tp.index_file.exists():
-                    with open(tp.index_file, "r", encoding="utf-8") as f:
-                        mapping = json.load(f)
-                    console.print("[green]✅ Antigravity CLI successfully generated the index mapping![/green]")
-                else:
-                    console.print("[red]❌ Antigravity CLI ran, but the index file was not created.[/red]")
-            except Exception as e:
-                console.print(f"[red]❌ Antigravity CLI Fallback failed: {e}[/red]")
+            log_step("1. Merging Raw Text...")
+            merged_path = tp.merge_raw_text()
+            if not merged_path: return
+            
+            if toc_choice.startswith("2"):
+                log_step("2. Generating TOC.json via AI...")
+                toc_success = tp.generate_toc(merged_path)
+                if not toc_success:
+                    console.print("[yellow]⚠️ Gemini API and CLI failed to generate TOC. Falling back to Antigravity CLI Headless Agent...[/yellow]")
+                    try:
+                        import json
+                        settings_file = PROJECT_ROOT / "system-workspace" / "settings.json"
+                        author = "أ. الياس خفيف"
+                        author_number = "994066850 963+"
+                        if settings_file.exists():
+                            try:
+                                with open(settings_file, "r", encoding="utf-8") as f:
+                                    settings = json.load(f)
+                                    author = settings.get("author", author)
+                                    author_number = settings.get("author_number", author_number)
+                            except Exception as e:
+                                console.print(f"⚠️ Could not load settings: {e}")
 
-        if mapping:
-            console.print(f"[bold green]✅ Raw Processing Complete in {format_duration(time.time() - start_time)}![/bold green]")
+                        prompt = (
+                            "Please read system-workspace/text-data/full_raw_indexed.txt. "
+                            "Act as an expert Arabic book editor to extract the Table of Contents (TOC) from this text and output it as a JSON object. "
+                            "The output MUST be a JSON object where the keys are lesson numbers (e.g., '01', '02') "
+                            f"and the values are objects with exactly these fields: 'title', 'level', 'Unit', 'author' (set to '{author}'), and 'author_number' (set to '{author_number}'). "
+                            "Save this EXACT JSON structure to input/TOC.json."
+                        )
+                        cmd = ["agy", "-p", prompt, "--dangerously-skip-permissions"]
+                        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+                        if result.returncode != 0:
+                            console.print(f"[red]❌ Antigravity CLI Error:[/red] {result.stderr}")
+                        if tp.toc_path.exists():
+                            console.print("[green]✅ Antigravity CLI successfully generated the TOC![/green]")
+                        else:
+                            console.print("[red]❌ Antigravity CLI ran, but TOC was not created.[/red]")
+                    except Exception as e:
+                        console.print(f"[red]❌ Antigravity CLI Fallback failed: {e}[/red]")
+                        
+            if not tp.validate_toc(): return
+
+            log_step("3. Generating Lesson Index...")
+            mapping = tp.generate_lesson_index()
+            
+            if not mapping:
+                console.print("[yellow]⚠️ Gemini API and CLI failed. Falling back to Antigravity CLI Headless Agent...[/yellow]")
+                try:
+                    import json
+                    prompt = (
+                        "Please read input/TOC.json and system-workspace/text-data/full_raw_indexed.txt. "
+                        "Then, act as an expert Arabic book editor to identify the exact start and end line markers "
+                        "for every lesson/topic found in that text based on the TOC. "
+                        "Create a JSON mapping where keys are the exact TOC titles and values are objects "
+                        "with 'start' and 'end' line indicators (e.g., 'raw_1.txt:5'). "
+                        "Save this EXACT JSON structure to system-workspace/text-data/raw_to_lesson_index.json."
+                    )
+                    cmd = ["agy", "-p", prompt, "--dangerously-skip-permissions"]
+                    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+                    if result.returncode != 0:
+                        console.print(f"[red]❌ Antigravity CLI Error:[/red] {result.stderr}")
+                    
+                    if tp.index_file.exists():
+                        with open(tp.index_file, "r", encoding="utf-8") as f:
+                            mapping = json.load(f)
+                        console.print("[green]✅ Antigravity CLI successfully generated the index mapping![/green]")
+                    else:
+                        console.print("[red]❌ Antigravity CLI ran, but the index file was not created.[/red]")
+                except Exception as e:
+                    console.print(f"[red]❌ Antigravity CLI Fallback failed: {e}[/red]")
+
+            if mapping:
+                console.print(f"[bold green]✅ Raw Processing Complete in {format_duration(time.time() - start_time)}![/bold green]")
+    finally:
+        sys.stdout = original_stdout
 
 def run_planning(state_manager):
     console.clear()
@@ -991,6 +1059,40 @@ def run_youtube_to_text():
 
 # --- MAIN MENU ---
 
+def run_settings():
+    console.clear()
+    console.print(Panel("[bold]System Settings[/bold]", style="magenta"))
+    settings_file = PROJECT_ROOT / "system-workspace" / "settings.json"
+    
+    settings = {
+        "author": "أ. الياس خفيف",
+        "author_number": "994066850 963+"
+    }
+    
+    import json
+    if settings_file.exists():
+        try:
+            with open(settings_file, "r", encoding="utf-8") as f:
+                settings.update(json.load(f))
+        except Exception as e:
+            console.print(f"[red]Failed to load settings: {e}[/red]")
+            
+    new_author = questionary.text("Author Name:", default=settings.get("author", "أ. الياس خفيف")).ask()
+    if new_author is None: return
+    
+    new_author_number = questionary.text("Author Number:", default=settings.get("author_number", "994066850 963+")).ask()
+    if new_author_number is None: return
+    
+    settings["author"] = new_author
+    settings["author_number"] = new_author_number
+    
+    try:
+        with open(settings_file, "w", encoding="utf-8") as f:
+            json.dump(settings, f, ensure_ascii=False, indent=4)
+        console.print("[green]✅ Settings saved successfully![/green]")
+    except Exception as e:
+        console.print(f"[red]❌ Failed to save settings: {e}[/red]")
+
 def main():
     state_manager = StateManager(PROJECT_ROOT)
 
@@ -1014,6 +1116,7 @@ def main():
                 "G) Audit & Verify Pages",
                 "H) OCR Only by Jules (Images -> Raw)",
                 "I) YouTube to Text (Video -> Raw Text)",
+                "S) Settings",
                 "Q) Quit"
             ],
             style=questionary.Style([
@@ -1056,6 +1159,8 @@ def main():
             run_jules_ocr_ui(state_manager)
         elif op == "I":
             run_jules_youtube_ui(state_manager)
+        elif op == "S":
+            run_settings()
         
         if op != "Q":
             console.print(f"\n[dim]Total operation time: {format_duration(time.time() - start_op)}[/dim]")

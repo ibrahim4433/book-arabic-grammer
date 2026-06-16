@@ -105,11 +105,15 @@ class JulesPlanClient(JulesClient):
 
         # 2. Pull Logic
         try:
+            import os
+            git_env = os.environ.copy()
+            git_env["GIT_TERMINAL_PROMPT"] = "0"
+
             if merged:
                 # Checkout main and pull
                 with GIT_LOCK:
-                    subprocess.run(["git", "checkout", "main"], check=True, cwd=self.project_root, capture_output=True)
-                    subprocess.run(["git", "pull", "origin", "main"], check=True, cwd=self.project_root, capture_output=True)
+                    subprocess.run(["git", "checkout", "main"], check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
+                    subprocess.run(["git", "pull", "origin", "main"], check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
 
                 # Verify file exists
                 if (self.project_root / file_path).exists():
@@ -122,6 +126,10 @@ class JulesPlanClient(JulesClient):
                 # Fallback: Pull from branch using legacy logic
                 return self.pull_plan_from_github(session_details, file_path)
 
+        except subprocess.TimeoutExpired as e:
+            logging.error(f"❌ Git Timeout during pull: {e}")
+            callback(file_path, "ERROR", "Git Pull Timed Out")
+            return False
         except subprocess.CalledProcessError as e:
             logging.error(f"❌ Git Error during pull: {e}")
             callback(file_path, "ERROR", "Git Pull Failed")
@@ -145,30 +153,48 @@ class JulesPlanClient(JulesClient):
 
         details = {}
 
-        # Check for direct branch field
-        if 'branch' in status_data:
-            details['branch'] = status_data['branch']
+        def extract_info(obj):
+            if isinstance(obj, dict):
+                # Check for direct branch field
+                if 'branch' in obj and isinstance(obj['branch'], str) and 'branch' not in details:
+                    details['branch'] = obj['branch']
 
-        # Check for pull request info
-        pr_info = status_data.get('pullRequest', {})
-        if pr_info:
-            if 'number' in pr_info:
-                details['pr_number'] = pr_info['number']
+                # Check for pull request info
+                if 'pullRequest' in obj:
+                    pr_info = obj['pullRequest']
+                    if 'number' in pr_info and 'pr_number' not in details:
+                        details['pr_number'] = pr_info['number']
+                    
+                    head = pr_info.get('head', {})
+                    if 'ref' in head and 'branch' not in details:
+                        details['branch'] = head['ref']
 
-            head = pr_info.get('head', {})
-            if 'ref' in head:
-                details['branch'] = head['ref']
+                    html_url = pr_info.get('htmlUrl', '')
+                    if html_url and 'pr_number' not in details:
+                        import re
+                        match = re.search(r'/pull/(\d+)', html_url)
+                        if match:
+                            details['pr_number'] = match.group(1)
+                            
+                for v in obj.values():
+                    extract_info(v)
+            elif isinstance(obj, list):
+                for item in obj:
+                    extract_info(item)
 
-            # Extract number from htmlUrl if not present directly
-            # "https://github.com/user/repo/pull/123"
-            html_url = pr_info.get('htmlUrl', '')
-            if html_url and 'pr_number' not in details:
-                match = re.search(r'/pull/(\d+)', html_url)
-                if match:
-                    details['pr_number'] = match.group(1)
+        extract_info(status_data)
+        
+        # Ultimate fallback: regex search on the raw JSON string
+        if not details.get('pr_number'):
+            import json
+            import re
+            raw_str = json.dumps(status_data)
+            match = re.search(r'github\.com/[^/]+/[^/]+/pull/(\d+)', raw_str)
+            if match:
+                details['pr_number'] = match.group(1)
 
         if not details:
-            logging.warning(f"⚠️ Could not identify branch/PR for session {session_id}. Data: {status_data.keys()}")
+            logging.warning(f"⚠️ Could not identify branch/PR for session {session_id}. Data: {status_data.keys()} -> Outputs: {status_data.get('outputs')}")
 
         return details
 
@@ -186,6 +212,10 @@ class JulesPlanClient(JulesClient):
         logging.info(f"⬇️ Pulling {target_filename} (Branch: {branch_name}, PR: {pr_number})...")
 
         try:
+            import os
+            git_env = os.environ.copy()
+            git_env["GIT_TERMINAL_PROMPT"] = "0"
+
             fetch_ref = None
             checkout_ref = None
 
@@ -206,21 +236,21 @@ class JulesPlanClient(JulesClient):
             # 1. Fetch and Checkout
             with GIT_LOCK:
                 fetch_cmd = ["git", "fetch", "origin", fetch_ref]
-                subprocess.run(fetch_cmd, check=True, cwd=self.project_root, capture_output=True)
+                subprocess.run(fetch_cmd, check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
 
                 # 2. Checkout specific file
                 # If target_filename already contains a path separator, use it as is.
                 # Otherwise, assume it's a plan in plans/ directory (Legacy support).
                 repo_path = target_filename if "/" in target_filename else f"plans/{target_filename}"
                 checkout_cmd = ["git", "checkout", checkout_ref, "--", repo_path]
-                subprocess.run(checkout_cmd, check=True, cwd=self.project_root, capture_output=True)
+                subprocess.run(checkout_cmd, check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
 
             logging.info(f"✅ Successfully pulled {target_filename}")
 
             # Clean up local temp branch if created
             if pr_number:
                 with GIT_LOCK:
-                    subprocess.run(["git", "branch", "-D", checkout_ref], cwd=self.project_root, capture_output=True)
+                    subprocess.run(["git", "branch", "-D", checkout_ref], cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
 
             # 3. Verify file exists locally
             local_path = self.project_root / repo_path
@@ -230,10 +260,13 @@ class JulesPlanClient(JulesClient):
                 logging.error(f"❌ File not found locally after checkout: {local_path}")
                 return False
 
+        except subprocess.TimeoutExpired as e:
+            logging.error(f"❌ Git Timeout during fetch/checkout: {e}")
+            return False
         except subprocess.CalledProcessError as e:
-            logging.error(f"❌ Git Error: {e}")
-            if e.stderr:
-                logging.error(f"   Stderr: {e.stderr.decode()}")
+            logging.error(f"❌ Git Error during pull fallback: {e}")
+            logging.error(f"   Stdout: {e.stdout.decode() if e.stdout else ''}")
+            logging.error(f"   Stderr: {e.stderr.decode() if e.stderr else ''}")
             return False
 
     def construct_mega_prompt(self, lesson_data, architect_prompt, auditor_prompt):

@@ -101,16 +101,25 @@ class JulesOCRClient(JulesClient):
 
         # 2. Pull Logic
         try:
+            import os
+            git_env = os.environ.copy()
+            git_env["GIT_TERMINAL_PROMPT"] = "0"
+
             if merged:
-                # Checkout main and pull
-                subprocess.run(["git", "checkout", "main"], check=True, cwd=self.project_root, capture_output=True)
-                subprocess.run(["git", "pull", "origin", "main"], check=True, cwd=self.project_root, capture_output=True)
+                with GIT_LOCK:
+                    subprocess.run(["git", "checkout", "main"], check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
+                    subprocess.run(["git", "pull", "origin", "main"], check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
+
+                # Assuming success since checkout/pull didn't throw
                 logging.info(f"✅ Finalization complete.")
                 return True
             else:
-                # Fallback: Pull from branch using cleaner logic
                 return self.pull_raw_files_from_github(session_details)
 
+        except subprocess.TimeoutExpired as e:
+            logging.error(f"❌ Git Timeout during pull: {e}")
+            callback("OCR Session", "ERROR", "Git Pull Timed Out")
+            return False
         except subprocess.CalledProcessError as e:
             logging.error(f"❌ Git Error during pull: {e}")
             callback("OCR Session", "ERROR", "Git Pull Failed")
@@ -131,6 +140,10 @@ class JulesOCRClient(JulesClient):
         logging.info(f"⬇️ Pulling raw files from {branch_name or pr_number}...")
 
         try:
+            import os
+            git_env = os.environ.copy()
+            git_env["GIT_TERMINAL_PROMPT"] = "0"
+
             fetch_ref = None
             checkout_ref = None
 
@@ -146,24 +159,26 @@ class JulesOCRClient(JulesClient):
                 logging.error("❌ Cannot pull: Missing Branch Name and PR Number.")
                 return False
 
-            # 1. Fetch
-            fetch_cmd = ["git", "fetch", "origin", fetch_ref]
-            subprocess.run(fetch_cmd, check=True, cwd=self.project_root, capture_output=True)
+            with GIT_LOCK:
+                # 1. Fetch
+                fetch_cmd = ["git", "fetch", "origin", fetch_ref]
+                subprocess.run(fetch_cmd, check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
 
-            # 2. Checkout the specific directory
-            # git checkout <tree-ish> -- <pathspec>
-            # This updates the files in the current working tree to match the version in checkout_ref
-            checkout_cmd = ["git", "checkout", checkout_ref, "--", target_dir]
-            subprocess.run(checkout_cmd, check=True, cwd=self.project_root, capture_output=True)
+                # 2. Checkout the specific directory
+                checkout_cmd = ["git", "checkout", checkout_ref, "--", target_dir]
+                subprocess.run(checkout_cmd, check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
 
-            logging.info(f"✅ Successfully pulled raw files from {checkout_ref}")
+                logging.info(f"✅ Successfully pulled raw files from {checkout_ref}")
 
-            # Clean up local temp branch if created
-            if pr_number:
-                subprocess.run(["git", "branch", "-D", checkout_ref], cwd=self.project_root, capture_output=True)
+                # Clean up local temp branch if created
+                if pr_number:
+                    subprocess.run(["git", "branch", "-D", checkout_ref], cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
 
             return True
 
+        except subprocess.TimeoutExpired as e:
+            logging.error(f"❌ Git Timeout during fetch/checkout: {e}")
+            return False
         except subprocess.CalledProcessError as e:
             logging.error(f"❌ Git Error: {e}")
             if e.stderr:
@@ -188,23 +203,45 @@ class JulesOCRClient(JulesClient):
         details = {}
 
         if status_data:
-            if 'branch' in status_data:
-                details['branch'] = status_data['branch']
+            def extract_info(obj):
+                if isinstance(obj, dict):
+                    # Check for direct branch field
+                    if 'branch' in obj and isinstance(obj['branch'], str) and 'branch' not in details:
+                        details['branch'] = obj['branch']
 
-            pr_info = status_data.get('pullRequest', {})
-            if pr_info:
-                if 'number' in pr_info:
-                    details['pr_number'] = pr_info['number']
+                    # Check for pull request info
+                    if 'pullRequest' in obj:
+                        pr_info = obj['pullRequest']
+                        if 'number' in pr_info and 'pr_number' not in details:
+                            details['pr_number'] = pr_info['number']
+                        
+                        head = pr_info.get('head', {})
+                        if 'ref' in head and 'branch' not in details:
+                            details['branch'] = head['ref']
 
-                head = pr_info.get('head', {})
-                if 'ref' in head:
-                    details['branch'] = head['ref']
+                        html_url = pr_info.get('htmlUrl', '')
+                        if html_url and 'pr_number' not in details:
+                            import re
+                            match = re.search(r'/pull/(\d+)', html_url)
+                            if match:
+                                details['pr_number'] = match.group(1)
+                                
+                    for v in obj.values():
+                        extract_info(v)
+                elif isinstance(obj, list):
+                    for item in obj:
+                        extract_info(item)
 
-                html_url = pr_info.get('htmlUrl', '')
-                if html_url and 'pr_number' not in details:
-                    match = re.search(r'/pull/(\d+)', html_url)
-                    if match:
-                        details['pr_number'] = match.group(1)
+            extract_info(status_data)
+            
+            # Ultimate fallback: regex search on the raw JSON string
+            if not details.get('pr_number'):
+                import json
+                import re
+                raw_str = json.dumps(status_data)
+                match = re.search(r'github\.com/[^/]+/[^/]+/pull/(\d+)', raw_str)
+                if match:
+                    details['pr_number'] = match.group(1)
 
         # Fallback: If no details found, search GitHub for recent open PRs
         if not details:
