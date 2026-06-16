@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 # Configuration
 PAGES_DIR = 'pages/'
-STYLES_FILE = 'styles/main.css'
+STYLES_FILE = '../styles/main.css'
 
 # Specific forbidden patterns even if they exist in CSS (Design System Rules)
 FORBIDDEN_CLASSES = ['list-disc', 'list-decimal', 'list-reset', 'list-none']
