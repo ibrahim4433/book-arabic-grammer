@@ -47,6 +47,7 @@ try:
     from modules.jules_page_generator import JulesPageGenerator
     from modules.full_auto_workflow import FullAutoWorkflow
     from modules.jules_ocr import JulesOCR
+    from modules.youtube_ui import run_jules_youtube_ui
 except ImportError as e:
     logging.critical(f"Failed to import modules: {e}")
     print("❌ Critical Error: Failed to import modules. See system.log for details.")
@@ -1003,7 +1004,7 @@ def main():
         elif op == "H":
             run_jules_ocr_ui(state_manager)
         elif op == "I":
-            run_youtube_to_text()
+            run_jules_youtube_ui(state_manager)
         
         if op != "Q":
             console.print(f"\n[dim]Total operation time: {format_duration(time.time() - start_op)}[/dim]")
