@@ -743,12 +743,14 @@ def run_raw_processing(state_manager):
         )
 
     original_stdout = sys.stdout
+    original_stderr = sys.stderr
     sys.stdout = StreamLogger(logging.getLogger(), logging.INFO)
+    sys.stderr = StreamLogger(logging.getLogger(), logging.ERROR)
     
     try:
-        with Live(generate_raw_view("Processing..."), console=console, refresh_per_second=4) as live:
+        with Live(generate_raw_view("Processing..."), console=console, refresh_per_second=4, redirect_stdout=False, redirect_stderr=False) as live:
             def log_step(text):
-                console.print(text)
+                logging.info(text)
                 live.update(generate_raw_view(text))
 
             log_step("1. Merging Raw Text...")
@@ -759,7 +761,7 @@ def run_raw_processing(state_manager):
                 log_step("2. Generating TOC.json via AI...")
                 toc_success = tp.generate_toc(merged_path)
                 if not toc_success:
-                    console.print("[yellow]⚠️ Gemini API and CLI failed to generate TOC. Falling back to Antigravity CLI Headless Agent...[/yellow]")
+                    logging.info("[yellow]⚠️ Gemini API and CLI failed to generate TOC. Falling back to Antigravity CLI Headless Agent...[/yellow]")
                     try:
                         import json
                         settings_file = PROJECT_ROOT / "system-workspace" / "settings.json"
@@ -772,7 +774,7 @@ def run_raw_processing(state_manager):
                                     author = settings.get("author", author)
                                     author_number = settings.get("author_number", author_number)
                             except Exception as e:
-                                console.print(f"⚠️ Could not load settings: {e}")
+                                logging.info(f"⚠️ Could not load settings: {e}")
 
                         prompt = (
                             "Please read system-workspace/text-data/full_raw_indexed.txt. "
@@ -785,13 +787,13 @@ def run_raw_processing(state_manager):
                         cmd = ["agy", "-p", prompt, "--dangerously-skip-permissions"]
                         result = subprocess.run(cmd, capture_output=True, text=True, check=False)
                         if result.returncode != 0:
-                            console.print(f"[red]❌ Antigravity CLI Error:[/red] {result.stderr}")
+                            logging.info(f"[red]❌ Antigravity CLI Error:[/red] {result.stderr}")
                         if tp.toc_path.exists():
-                            console.print("[green]✅ Antigravity CLI successfully generated the TOC![/green]")
+                            logging.info("[green]✅ Antigravity CLI successfully generated the TOC![/green]")
                         else:
-                            console.print("[red]❌ Antigravity CLI ran, but TOC was not created.[/red]")
+                            logging.info("[red]❌ Antigravity CLI ran, but TOC was not created.[/red]")
                     except Exception as e:
-                        console.print(f"[red]❌ Antigravity CLI Fallback failed: {e}[/red]")
+                        logging.info(f"[red]❌ Antigravity CLI Fallback failed: {e}[/red]")
                         
             if not tp.validate_toc(): return
 
@@ -799,7 +801,7 @@ def run_raw_processing(state_manager):
             mapping = tp.generate_lesson_index()
             
             if not mapping:
-                console.print("[yellow]⚠️ Gemini API and CLI failed. Falling back to Antigravity CLI Headless Agent...[/yellow]")
+                logging.info("[yellow]⚠️ Gemini API and CLI failed. Falling back to Antigravity CLI Headless Agent...[/yellow]")
                 try:
                     import json
                     prompt = (
@@ -813,21 +815,22 @@ def run_raw_processing(state_manager):
                     cmd = ["agy", "-p", prompt, "--dangerously-skip-permissions"]
                     result = subprocess.run(cmd, capture_output=True, text=True, check=False)
                     if result.returncode != 0:
-                        console.print(f"[red]❌ Antigravity CLI Error:[/red] {result.stderr}")
+                        logging.info(f"[red]❌ Antigravity CLI Error:[/red] {result.stderr}")
                     
                     if tp.index_file.exists():
                         with open(tp.index_file, "r", encoding="utf-8") as f:
                             mapping = json.load(f)
-                        console.print("[green]✅ Antigravity CLI successfully generated the index mapping![/green]")
+                        logging.info("[green]✅ Antigravity CLI successfully generated the index mapping![/green]")
                     else:
-                        console.print("[red]❌ Antigravity CLI ran, but the index file was not created.[/red]")
+                        logging.info("[red]❌ Antigravity CLI ran, but the index file was not created.[/red]")
                 except Exception as e:
-                    console.print(f"[red]❌ Antigravity CLI Fallback failed: {e}[/red]")
+                    logging.info(f"[red]❌ Antigravity CLI Fallback failed: {e}[/red]")
 
-            if mapping:
-                console.print(f"[bold green]✅ Raw Processing Complete in {format_duration(time.time() - start_time)}![/bold green]")
+        if mapping:
+            console.print(f"[bold green]✅ Raw Processing Complete in {format_duration(time.time() - start_time)}![/bold green]")
     finally:
         sys.stdout = original_stdout
+        sys.stderr = original_stderr
 
 def run_planning(state_manager):
     console.clear()
