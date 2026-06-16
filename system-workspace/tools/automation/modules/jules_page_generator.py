@@ -198,7 +198,10 @@ class JulesPageGenerator:
             callback(lesson_title, "WARN", f"Could not determine exact filename. Guessing: {found_name}")
 
         target_path = f"pages/{found_name}"
-        success = self.jules_client.finalize_pr_and_pull(details, target_path, callback=callback)
+        def pr_callback(ignored_path, state, msg):
+            callback(lesson_title, state, msg)
+
+        success = self.jules_client.finalize_pr_and_pull(details, target_path, callback=pr_callback)
         
         if success:
             callback(lesson_title, "SUCCESS", f"Page Saved: {found_name}")
