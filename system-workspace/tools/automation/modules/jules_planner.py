@@ -275,10 +275,11 @@ class JulesPlanner:
             callback(lesson_title, "WARN", "No PR found. Manual check needed.")
             return False
 
-        # Use new Merge & Pull logic
-        # filename is e.g. "01-Intro.md", so we prepend plans/
         target_path = f"plans/{filename}"
-        success = self.client.finalize_pr_and_pull(details, target_path, callback=callback)
+        def pr_callback(ignored_path, state, msg):
+            callback(lesson_title, state, msg)
+            
+        success = self.client.finalize_pr_and_pull(details, target_path, callback=pr_callback)
 
         if success:
             callback(lesson_title, "SUCCESS", f"Plan saved: {filename}")
