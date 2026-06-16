@@ -9,7 +9,7 @@ from pathlib import Path
 
 # --- RICH & UI IMPORTS ---
 try:
-    from rich.console import Console
+    from rich.console import Console, Group
     from rich.table import Table
     from rich.panel import Panel
     from rich.live import Live
@@ -28,6 +28,8 @@ JULES_WORKSPACE_PATH = PROJECT_ROOT / "Jules-workspace"
 sys.path.append(str(MODULES_PATH))
 sys.path.append(str(JULES_WORKSPACE_PATH))
 
+from collections import deque
+
 # --- LOGGING SETUP ---
 # Redirect logs to file so they don't break the UI
 logging.basicConfig(
@@ -36,6 +38,25 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     filemode='w'
 )
+
+class UILogHandler(logging.Handler):
+    def __init__(self, maxlen=6):
+        super().__init__()
+        self.log_messages = deque(maxlen=maxlen)
+
+    def emit(self, record):
+        msg = self.format(record)
+        self.log_messages.append(msg)
+
+ui_log_handler = UILogHandler(maxlen=6)
+ui_log_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%H:%M:%S'))
+logging.getLogger().addHandler(ui_log_handler)
+
+def generate_log_panel():
+    log_text = "\n".join(ui_log_handler.log_messages)
+    if not log_text:
+        log_text = "[dim]No logs yet...[/dim]"
+    return Panel(log_text, title="[bold dim]Verbose System Logs[/bold dim]", style="dim", border_style="green", box=box.ROUNDED)
 
 # --- MODULE IMPORTS ---
 try:
@@ -239,7 +260,7 @@ def run_jules_planning_ui(state_manager):
 
     # Initialize Live with the initial table
     start_all = time.time()
-    with Live(generate_table(), refresh_per_second=4) as live:
+    with Live(Group(generate_table(), generate_log_panel()), refresh_per_second=4) as live:
 
         def callback(title, status, msg):
             with lock:
@@ -258,7 +279,7 @@ def run_jules_planning_ui(state_manager):
                     else:
                         tasks[title]['duration'] = 0.0
 
-            live.update(generate_table())
+            live.update(Group(generate_table(), generate_log_panel()))
 
         planner.run_batch_planning(max_concurrent=5, update_callback=callback)
     
@@ -309,7 +330,7 @@ def run_jules_generation_ui(state_manager):
 
     # Initialize Live with the initial table
     start_all = time.time()
-    with Live(generate_table(), refresh_per_second=4) as live:
+    with Live(Group(generate_table(), generate_log_panel()), refresh_per_second=4) as live:
 
         def callback(title, status, msg):
             with lock:
@@ -328,7 +349,7 @@ def run_jules_generation_ui(state_manager):
                     else:
                         tasks[title]['duration'] = 0.0
 
-            live.update(generate_table())
+            live.update(Group(generate_table(), generate_log_panel()))
 
         generator.run_batch_generation(max_concurrent=5, update_callback=callback)
 
@@ -396,13 +417,16 @@ def run_jules_ocr_ui(state_manager):
         )
 
     start_time = time.time()
-    with Live(generate_display(), refresh_per_second=4) as live:
+    
+    with Live(Group(generate_display(), generate_log_panel()), refresh_per_second=4) as live:
 
         def callback(status, msg):
             with lock:
+                msg_type, msg_text = msg
+                status_messages.append(f"[{msg_type}]{msg_text}[/{msg_type}]")
                 ui_state["status"] = status
-                ui_state["message"] = msg
-            live.update(generate_display())
+                ui_state["message"] = msg_text
+            live.update(Group(generate_display(), generate_log_panel()))
 
         ocr.run_ocr_batch(update_callback=callback)
 
@@ -466,7 +490,8 @@ def run_full_auto_ui(state_manager):
             layout.split(
                 Layout(name="header", size=3),
                 Layout(name="main", ratio=1),
-                Layout(name="footer", size=10)
+                Layout(name="footer", size=10),
+                Layout(name="verbose_logs", size=8)
             )
 
             current_step = self.workflow.get_current_step_name()
@@ -495,6 +520,7 @@ def run_full_auto_ui(state_manager):
                 log_text += f"[{c}]{ts} [{s}] {st}: {m}[/{c}]\n"
 
             layout["footer"].update(Panel(log_text, title="Log History", box=box.SIMPLE))
+            layout["verbose_logs"].update(generate_log_panel())
             return layout
 
         def generate_timeline(self):
