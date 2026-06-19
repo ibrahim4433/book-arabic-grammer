@@ -224,7 +224,7 @@ def run_jules_planning_ui(state_manager):
     tasks = {} # title -> {status, message, start_time, duration}
     lock = threading.Lock()
 
-    def generate_table():
+    def generate_table(full=False):
         table = Table(title="Planning Progress", box=box.ROUNDED, expand=True)
         table.add_column("Lesson", style="cyan")
         table.add_column("Status", style="bold")
@@ -233,6 +233,9 @@ def run_jules_planning_ui(state_manager):
 
         with lock:
             sorted_tasks = sorted(tasks.items()) # Stable sort
+
+        skipped_count = 0
+        success_count = 0
 
         for title, data in sorted_tasks:
             status = data['status']
@@ -249,6 +252,11 @@ def run_jules_planning_ui(state_manager):
             elif 'start_time' in data:
                 duration_str = format_duration(time.time() - data['start_time'])
 
+            if not full and status in ["SKIP", "SUCCESS"]:
+                if status == "SKIP": skipped_count += 1
+                if status == "SUCCESS": success_count += 1
+                continue
+
             table.add_row(
                 title,
                 f"[{status_color}]{status}[/{status_color}]",
@@ -256,11 +264,19 @@ def run_jules_planning_ui(state_manager):
                 duration_str
             )
 
+        if not full and (skipped_count > 0 or success_count > 0):
+            table.add_row(
+                "[dim]...[/dim]",
+                "[dim]COMPLETED[/dim]",
+                f"[dim]Hidden from Live View: {skipped_count} Skipped, {success_count} Success[/dim]",
+                "-"
+            )
+
         return table
 
     # Initialize Live with the initial table
     start_all = time.time()
-    with Live(Group(generate_table(), generate_log_panel()), refresh_per_second=4) as live:
+    with Live(Group(generate_table(), generate_log_panel()), refresh_per_second=4, vertical_overflow="crop") as live:
 
         def callback(title, status, msg):
             with lock:
@@ -284,6 +300,7 @@ def run_jules_planning_ui(state_manager):
         planner.run_batch_planning(max_concurrent=5, update_callback=callback)
     
     total_duration = time.time() - start_all
+    console.print(generate_table(full=True))
     console.print(f"[bold green]✅ Batch Planning Completed in {format_duration(total_duration)}![/bold green]")
 
 def run_jules_generation_ui(state_manager):
@@ -299,7 +316,7 @@ def run_jules_generation_ui(state_manager):
     tasks = {}
     lock = threading.Lock()
 
-    def generate_table():
+    def generate_table(full=False):
         table = Table(title="Generation Progress", box=box.ROUNDED, expand=True)
         table.add_column("Lesson", style="cyan")
         table.add_column("Status", style="bold")
@@ -308,6 +325,9 @@ def run_jules_generation_ui(state_manager):
         
         with lock:
             sorted_tasks = sorted(tasks.items())
+
+        skipped_count = 0
+        success_count = 0
 
         for title, data in sorted_tasks:
             s = data['status']
@@ -325,12 +345,26 @@ def run_jules_generation_ui(state_manager):
             elif 'start_time' in data:
                 duration_str = format_duration(time.time() - data['start_time'])
 
+            if not full and s in ["SKIP", "SUCCESS"]:
+                if s == "SKIP": skipped_count += 1
+                if s == "SUCCESS": success_count += 1
+                continue
+
             table.add_row(title, f"[{color}]{s}[/{color}]", data['message'], duration_str)
+            
+        if not full and (skipped_count > 0 or success_count > 0):
+            table.add_row(
+                "[dim]...[/dim]",
+                "[dim]COMPLETED[/dim]",
+                f"[dim]Hidden from Live View: {skipped_count} Skipped, {success_count} Success[/dim]",
+                "-"
+            )
+
         return table
 
     # Initialize Live with the initial table
     start_all = time.time()
-    with Live(Group(generate_table(), generate_log_panel()), refresh_per_second=4) as live:
+    with Live(Group(generate_table(), generate_log_panel()), refresh_per_second=4, vertical_overflow="crop") as live:
 
         def callback(title, status, msg):
             with lock:
@@ -354,6 +388,7 @@ def run_jules_generation_ui(state_manager):
         generator.run_batch_generation(max_concurrent=5, update_callback=callback)
 
     total_duration = time.time() - start_all
+    console.print(generate_table(full=True))
     console.print(f"[bold green]✅ Batch Generation Completed in {format_duration(total_duration)}![/bold green]")
     
     # Run post-flight lint on generated pages
@@ -418,7 +453,7 @@ def run_jules_ocr_ui(state_manager):
 
     start_time = time.time()
     
-    with Live(Group(generate_display(), generate_log_panel()), refresh_per_second=4) as live:
+    with Live(Group(generate_display(), generate_log_panel()), refresh_per_second=4, vertical_overflow="visible") as live:
 
         def callback(status, msg):
             with lock:
@@ -585,7 +620,7 @@ def run_full_auto_ui(state_manager):
 
             try:
                 # Pass console explicitly to ensure Live uses the terminal (original stdout)
-                with Live(display_instance, refresh_per_second=4, console=console) as live:
+                with Live(display_instance, refresh_per_second=4, console=console, vertical_overflow="visible") as live:
                     # Start workflow
                     stats = workflow.run(skip_archive=skip_archive)
 
@@ -748,7 +783,7 @@ def run_raw_processing(state_manager):
     sys.stderr = StreamLogger(logging.getLogger(), logging.ERROR)
     
     try:
-        with Live(generate_raw_view("Processing..."), console=console, refresh_per_second=4, redirect_stdout=False, redirect_stderr=False) as live:
+        with Live(generate_raw_view("Processing..."), console=console, refresh_per_second=4, redirect_stdout=False, redirect_stderr=False, vertical_overflow="visible") as live:
             def log_step(text):
                 logging.info(text)
                 live.update(generate_raw_view(text))
