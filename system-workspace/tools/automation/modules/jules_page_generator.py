@@ -173,37 +173,50 @@ class JulesPageGenerator:
 
         repo_full_name = f"{self.jules_client.repo_owner}/{self.jules_client.repo_name}"
 
-        # Attempt 1: Smart Search to find exact filename
+        # Attempt 1: Smart Search to find exact filename in multiple dirs
         found_name = None
+        found_path = None
+        search_dirs = ["pages", "Jules-workspace/pages"]
+        
         try:
-            files = self.github.get_file_info(repo_full_name, "pages", branch)
-            if files and isinstance(files, list):
-                match = re.search(r'^(\d+)', lesson_title)
-                lesson_num = match.group(1) if match else None
-
-                for f in files:
-                    if not f['name'].endswith(".html"): continue
-                    if lesson_num and (f['name'].startswith(lesson_num) or f['name'].startswith(str(int(lesson_num)))):
-                        found_name = f['name']
-                        break
-                    elif not lesson_num and lesson_title.replace('-plan', '') in f['name']:
-                        found_name = f['name']
-                        break
+            for d in search_dirs:
+                files = self.github.get_file_info(repo_full_name, d, branch)
+                if files and isinstance(files, list):
+                    for f in files:
+                        if not f['name'].endswith(".html"): continue
+                        if lesson_num and (f['name'].startswith(lesson_num) or f['name'].startswith(str(int(lesson_num)))):
+                            found_name = f['name']
+                            found_path = f"{d}/{found_name}"
+                            break
+                        elif not lesson_num and lesson_title.replace('-plan', '') in f['name']:
+                            found_name = f['name']
+                            found_path = f"{d}/{found_name}"
+                            break
+                if found_path:
+                    break
         except Exception as e:
             callback(lesson_title, "WARN", f"Branch search failed: {e}")
 
         # If we couldn't find it dynamically, guess it
-        if not found_name:
+        if not found_path:
             found_name = f"{lesson_title.replace('-plan', '')}.html"
-            callback(lesson_title, "WARN", f"Could not determine exact filename. Guessing: {found_name}")
+            found_path = f"pages/{found_name}"
+            callback(lesson_title, "WARN", f"Could not determine exact filename. Guessing: {found_path}")
 
-        target_path = f"pages/{found_name}"
         def pr_callback(ignored_path, state, msg):
             callback(lesson_title, state, msg)
 
-        success = self.jules_client.finalize_pr_and_pull(details, target_path, callback=pr_callback)
+        success = self.jules_client.finalize_pr_and_pull(details, found_path, callback=pr_callback)
         
         if success:
+            import shutil
+            # If it downloaded to Jules-workspace/pages, move it to pages
+            if found_path.startswith("Jules-workspace/pages/"):
+                source_file = self.project_root / found_path
+                dest_file = self.project_root / "pages" / found_name
+                if source_file.exists():
+                    dest_file.parent.mkdir(exist_ok=True, parents=True)
+                    shutil.move(str(source_file), str(dest_file))
             callback(lesson_title, "SUCCESS", f"Page Saved: {found_name}")
             return True
         else:
@@ -275,16 +288,27 @@ class JulesPageGenerator:
             return
 
         to_process = []
+        pages_dir = self.project_root / "pages"
+        pages_dir.mkdir(exist_ok=True, parents=True)
+        
         for plan in all_plans:
-            # Check if output exists
-            html_name = plan.name.replace("-plan.md", ".html")
-            html_path = self.project_root / "pages" / html_name
-
             # Check Lesson Number (Assuming "09-Title-plan.md")
             match = re.match(r'^(\d+)', plan.name)
             lesson_num = match.group(1) if match else None
 
-            if html_path.exists():
+            # Smart check if output exists (Jules uses dynamic names like 09.0_nXX_title.html)
+            html_exists = False
+            if lesson_num:
+                for f in pages_dir.glob("*.html"):
+                    if f.name.startswith(f"{lesson_num}.") or f.name.startswith(f"{lesson_num}_"):
+                        html_exists = True
+                        break
+            else:
+                html_name = plan.name.replace("-plan.md", ".html")
+                if (pages_dir / html_name).exists():
+                    html_exists = True
+
+            if html_exists:
                 update_callback(plan.stem, "SKIP", "HTML exists")
                 continue
 
