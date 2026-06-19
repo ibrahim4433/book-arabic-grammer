@@ -291,6 +291,15 @@ class JulesPageGenerator:
         pages_dir = self.project_root / "pages"
         pages_dir.mkdir(exist_ok=True, parents=True)
         
+        # Smart Recovery: Move any stray files from Jules-workspace/pages into the main pages/ dir
+        jules_pages_dir = self.project_root / "Jules-workspace" / "pages"
+        if jules_pages_dir.exists() and jules_pages_dir.is_dir():
+            import shutil
+            for stray_file in jules_pages_dir.glob("*.html"):
+                target_file = pages_dir / stray_file.name
+                shutil.move(str(stray_file), str(target_file))
+                update_callback("System", "INFO", f"Moved stray file: {stray_file.name} -> pages/")
+
         for plan in all_plans:
             # Check Lesson Number (Assuming "09-Title-plan.md")
             match = re.match(r'^(\d+)', plan.name)
