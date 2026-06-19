@@ -5,7 +5,7 @@ import json
 from bs4 import BeautifulSoup
 
 PAGES_DIR = "pages/"
-VERIFY_SCRIPT = "Jules-workspace/verify_layout.py"
+VERIFY_SCRIPT = "verify_layout.py"
 
 def get_blank_space(filepath):
     """Runs verify_layout.py and returns the blank space percentage."""
@@ -58,9 +58,9 @@ def inject_content(filepath, blank_pct):
                 <span>ملاحظات إضافية</span>
             </div>
             <div class="block-body">
-                <div class="benefit-box mt-0 p-2mm border-dashed">
+                <div class="benefit-box mt-0 p-2mm border">
                     <p class="m-0 text-grey-dark">مساحة لتدوين الملاحظات والفوائد الإضافية...</p>
-                    <div class="h-20mm"></div>
+                    <div class="h-8mm"></div>
                 </div>
             </div>
         </section>

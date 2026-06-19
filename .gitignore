@@ -16,3 +16,4 @@ system.log
 system.log
 system.log
 *.log
+node_modules/
