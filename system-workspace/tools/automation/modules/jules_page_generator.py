@@ -268,7 +268,7 @@ class JulesPageGenerator:
             
         return "TIMEOUT"
 
-    def run_batch_generation(self, max_concurrent=5, update_callback=None, excluded_lessons=None):
+    def run_batch_generation(self, max_concurrent=5, update_callback=None, excluded_lessons=None, only_lessons=None):
         """
         Main entry point.
         """
@@ -321,9 +321,12 @@ class JulesPageGenerator:
                 update_callback(plan.stem, "SKIP", "HTML exists")
                 continue
 
-            if lesson_num and (lesson_num in excluded_lessons or str(int(lesson_num)) in excluded_lessons):
+            if lesson_num and excluded_lessons and (lesson_num in excluded_lessons or str(int(lesson_num)) in excluded_lessons):
                 update_callback(plan.stem, "SKIP", "Excluded (Page exists)")
                 continue
+
+            if lesson_num and only_lessons and (lesson_num not in only_lessons and str(int(lesson_num)) not in only_lessons):
+                continue # Skip if we only want specific lessons
 
             to_process.append(plan)
 

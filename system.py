@@ -328,6 +328,27 @@ def run_jules_planning_ui(state_manager):
     console.print(generate_table(full=True))
     console.print(f"[bold green]✅ Batch Planning Completed in {format_duration(total_duration)}![/bold green]")
 
+    # Identify Failed Tasks for Auto-Recovery
+    failed_lessons = []
+    with lock:
+        for title, data in tasks.items():
+            if data.get('status') in ["FAILED", "ERROR", "WARN"]:
+                match = re.match(r'^(\d+)', title)
+                if match:
+                    failed_lessons.append(match.group(1))
+
+    if failed_lessons:
+        console.print(f"\n[bold red]⚠️ {len(failed_lessons)} plans failed to generate or pull from PRs.[/bold red]")
+        console.print(f"Failed lessons: {', '.join(failed_lessons)}")
+        recover = questionary.confirm("Would you like to auto-recover and force-regenerate these missing plans now?").ask()
+        if recover:
+            console.print("[cyan]Force-regenerating failed plans...[/cyan]")
+            with lock:
+                tasks.clear()
+            with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
+                planner.run_batch_planning(max_concurrent=5, update_callback=callback, only_lessons=failed_lessons)
+            console.print("[bold green]✅ Recovery Completed![/bold green]")
+
 def run_jules_generation_ui(state_manager):
     console.clear() # Clear screen for App-like feel
     
@@ -452,6 +473,89 @@ def run_jules_generation_ui(state_manager):
             console.print("[green]✅ Post-Flight Success: All generated pages are clean.[/green]")
     except Exception as e:
         console.print(f"[red]Error running post-flight lint: {e}[/red]")
+
+def run_retry_planning_and_generation_ui(state_manager):
+    console.clear()
+    console.print("[bold cyan]🔄 Retry Batch Jules Planning / Page Making[/bold cyan]")
+    
+    lesson_input = questionary.text("Enter lesson numbers to re-make (comma separated, e.g. 3, 5, 6):").ask()
+    if not lesson_input: return
+
+    # Parse inputs to padded string format used in TOC
+    only_lessons = []
+    for item in lesson_input.split(","):
+        item = item.strip()
+        if item.isdigit():
+            only_lessons.append(f"{int(item):02d}")
+        else:
+            only_lessons.append(item)
+
+    if not only_lessons: return
+
+    console.print(f"[yellow]Will re-make lessons: {', '.join(only_lessons)}[/yellow]")
+    confirm = questionary.confirm("This will delete old plans and pages for these lessons. Continue?").ask()
+    if not confirm: return
+
+    # Delete old plans and pages
+    plans_dir = PROJECT_ROOT / "plans"
+    pages_dir = PROJECT_ROOT / "pages"
+    
+    deleted = 0
+    if plans_dir.exists():
+        for plan in plans_dir.glob("*.md"):
+            match = re.match(r'^(\d+)', plan.name)
+            if match and match.group(1) in only_lessons:
+                plan.unlink()
+                deleted += 1
+                console.print(f"[dim]Deleted {plan.name}[/dim]")
+                
+    if pages_dir.exists():
+        for page in pages_dir.glob("*.html"):
+            match = re.match(r'^(\d+)', page.name)
+            if match and match.group(1) in only_lessons:
+                page.unlink()
+                deleted += 1
+                console.print(f"[dim]Deleted {page.name}[/dim]")
+                
+    console.print(f"[green]Deleted {deleted} old files.[/green]")
+
+    # Run Planning
+    console.print("\n[bold cyan]Step 1: Planning[/bold cyan]")
+    planner = JulesPlanner(PROJECT_ROOT, state_manager=state_manager)
+    tasks = {}
+    lock = threading.Lock()
+    
+    def callback_plan(title, status, msg):
+        with lock:
+            if title not in tasks: tasks[title] = {'status': status, 'message': msg}
+            else:
+                tasks[title]['status'] = status
+                tasks[title]['message'] = msg
+        if status in ["ERROR", "FAILED", "WARN"]:
+            console.print(f"[red][{status}] {title}: {msg}[/red]")
+        elif status == "SUCCESS":
+            console.print(f"[green]✅ {title} planned![/green]")
+
+    planner.run_batch_planning(max_concurrent=5, update_callback=callback_plan, only_lessons=only_lessons)
+
+    # Run Generation
+    console.print("\n[bold cyan]Step 2: Generation[/bold cyan]")
+    generator = JulesPageGenerator(PROJECT_ROOT)
+    
+    def callback_gen(title, status, msg):
+        with lock:
+            if title not in tasks: tasks[title] = {'status': status, 'message': msg}
+            else:
+                tasks[title]['status'] = status
+                tasks[title]['message'] = msg
+        if status in ["ERROR", "FAILED", "WARN"]:
+            console.print(f"[red][{status}] {title}: {msg}[/red]")
+        elif status == "SUCCESS":
+            console.print(f"[green]✅ {title} generated![/green]")
+
+    generator.run_batch_generation(max_concurrent=5, update_callback=callback_gen, only_lessons=only_lessons)
+    
+    console.print("\n[bold green]✅ Retry Workflow Completed![/bold green]")
 
 def run_jules_ocr_ui(state_manager):
     console.clear()
@@ -1201,6 +1305,7 @@ def main():
                 "G) Audit & Verify Pages",
                 "H) OCR Only by Jules (Images -> Raw)",
                 "I) YouTube to Text (Video -> Raw Text)",
+                "R) Retry batch planning / generation to selected lessons",
                 "S) Settings",
                 "Q) Quit"
             ],
@@ -1244,6 +1349,8 @@ def main():
             run_jules_ocr_ui(state_manager)
         elif op == "I":
             run_jules_youtube_ui(state_manager)
+        elif op == "R":
+            run_retry_planning_and_generation_ui(state_manager)
         elif op == "S":
             run_settings()
         
