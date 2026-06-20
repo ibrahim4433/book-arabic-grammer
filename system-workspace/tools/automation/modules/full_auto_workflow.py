@@ -23,14 +23,22 @@ except ImportError:
     pass
 
 # Import Jules Workspace Tools (Assuming sys.path is set by system.py)
-try:
-    import id_manager
-    import lint_pages
-    import fix_exam_blocks
-    import smart_replace_haam
-    import smart_color_fixer
-except ImportError:
-    pass # Will be handled if missing during execution
+id_manager = None
+lint_pages = None
+fix_exam_blocks = None
+smart_replace_haam = None
+smart_color_fixer = None
+
+try: import id_manager
+except ImportError: pass
+try: import lint_pages
+except ImportError: pass
+try: import fix_exam_blocks
+except ImportError: pass
+try: import smart_replace_haam
+except ImportError: pass
+try: import smart_color_fixer
+except ImportError: pass
 
 class FullAutoWorkflow:
     def __init__(self, project_root, state_manager, console_callback=None):
@@ -572,51 +580,64 @@ class FullAutoWorkflow:
             return
 
         # 1. ID Manager
-        try:
-            self._log("AUDIT", "AUDIT", "Running ID Manager...")
-            manager = id_manager.IDManager(root_dir=str(pages_dir))
-            manager.auto_tag(files=target_files)
-        except Exception as e:
-            self._log("AUDIT", "ERROR", f"ID Manager failed: {e}")
+        if id_manager:
+            try:
+                self._log("AUDIT", "AUDIT", "Running ID Manager...")
+                manager = id_manager.IDManager(root_dir=str(pages_dir))
+                manager.auto_tag(files=target_files)
+            except Exception as e:
+                self._log("AUDIT", "ERROR", f"ID Manager failed: {e}")
+        else:
+            self._log("AUDIT", "WARN", "Skipping ID Manager (module not found)")
 
         # 2. Fix Exam Blocks
-        try:
-            self._log("AUDIT", "AUDIT", "Fixing Exam Blocks...")
-            for f in target_files:
-                fix_exam_blocks.fix_exam_blocks(f)
-        except Exception as e:
-            self._log("AUDIT", "ERROR", f"Fix Exam Blocks failed: {e}")
+        if fix_exam_blocks:
+            try:
+                self._log("AUDIT", "AUDIT", "Fixing Exam Blocks...")
+                for f in target_files:
+                    fix_exam_blocks.fix_exam_blocks(f)
+            except Exception as e:
+                self._log("AUDIT", "ERROR", f"Fix Exam Blocks failed: {e}")
+        else:
+            self._log("AUDIT", "WARN", "Skipping Fix Exam Blocks (module not found)")
 
         # 3. Smart Replace Haam
-        try:
-            self._log("AUDIT", "AUDIT", "Replacing Haam...")
-            for f in target_files:
-                smart_replace_haam.process_file(f)
-        except Exception as e:
-             self._log("AUDIT", "ERROR", f"Smart Replace Haam failed: {e}")
+        if smart_replace_haam:
+            try:
+                self._log("AUDIT", "AUDIT", "Replacing Haam...")
+                for f in target_files:
+                    smart_replace_haam.process_file(f)
+            except Exception as e:
+                 self._log("AUDIT", "ERROR", f"Smart Replace Haam failed: {e}")
+        else:
+            self._log("AUDIT", "WARN", "Skipping Smart Replace Haam (module not found)")
 
         # 4. Smart Color Fixer
-        try:
-            self._log("AUDIT", "AUDIT", "Fixing Colors...")
-            for f in target_files:
-                smart_color_fixer.fix_colors(f)
-        except Exception as e:
-            self._log("AUDIT", "ERROR", f"Color Fixer failed: {e}")
+        if smart_color_fixer:
+            try:
+                self._log("AUDIT", "AUDIT", "Fixing Colors...")
+                for f in target_files:
+                    smart_color_fixer.fix_colors(f)
+            except Exception as e:
+                self._log("AUDIT", "ERROR", f"Color Fixer failed: {e}")
+        else:
+            self._log("AUDIT", "WARN", "Skipping Smart Color Fixer (module not found)")
 
         # 5. Lint Pages
-        try:
-            self._log("AUDIT", "AUDIT", "Linting Pages...")
-            allowed_classes = None
-            styles_path = self.project_root / "styles/main.css"
-            if styles_path.exists():
-                try:
-                    allowed_classes = lint_pages.parse_allowed_classes(str(styles_path))
-                except: pass
+        if lint_pages:
+            try:
+                self._log("AUDIT", "AUDIT", "Linting Pages...")
+                allowed_classes = None
+                styles_path = self.project_root / "styles/main.css"
+                if styles_path.exists():
+                    try:
+                        allowed_classes = lint_pages.parse_allowed_classes(str(styles_path))
+                    except: pass
 
-            issues = 0
-            for f in target_files:
-                errs, warns = lint_pages.lint_file(f, allowed_classes)
-                if errs: issues += 1
+                issues = 0
+                for f in target_files:
+                    errs, warns = lint_pages.lint_file(f, allowed_classes)
+                    if errs: issues += 1
 
             if issues > 0:
                 self._log("AUDIT", "WARN", f"Linting found errors in {issues} files.")

@@ -10,6 +10,7 @@ from pathlib import Path
 # --- RICH & UI IMPORTS ---
 try:
     from rich.console import Console, Group
+    from rich.columns import Columns
     from rich.table import Table
     from rich.panel import Panel
     from rich.live import Live
@@ -48,7 +49,7 @@ class UILogHandler(logging.Handler):
         msg = self.format(record)
         self.log_messages.append(msg)
 
-ui_log_handler = UILogHandler(maxlen=6)
+ui_log_handler = UILogHandler(maxlen=15)
 ui_log_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%H:%M:%S'))
 logging.getLogger().addHandler(ui_log_handler)
 
@@ -75,14 +76,22 @@ except ImportError as e:
     sys.exit(1)
 
 # Import Jules Workspace Tools
-try:
-    import id_manager
-    import lint_pages
-    import fix_exam_blocks
-    import smart_replace_haam
-    import smart_color_fixer
-except ImportError as e:
-    print(f"⚠️ Warning: Could not import Jules Workspace tools: {e}")
+id_manager = None
+lint_pages = None
+fix_exam_blocks = None
+smart_replace_haam = None
+smart_color_fixer = None
+
+try: import id_manager
+except ImportError: pass
+try: import lint_pages
+except ImportError: pass
+try: import fix_exam_blocks
+except ImportError: pass
+try: import smart_replace_haam
+except ImportError: pass
+try: import smart_color_fixer
+except ImportError: pass
 
 console = Console(file=sys.stdout)
 
@@ -231,8 +240,17 @@ def run_jules_planning_ui(state_manager):
         table.add_column("Message", style="dim", width=60)
         table.add_column("Duration", style="yellow", justify="right")
 
+        def get_sort_key(item):
+            title, data = item
+            s = data['status']
+            if s == "RUNNING": return 0
+            if s == "INTERACT": return 1
+            if s in ["MERGING", "PULLING"]: return 2
+            if s in ["ERROR", "FAILED"]: return 3
+            return 4
+
         with lock:
-            sorted_tasks = sorted(tasks.items()) # Stable sort
+            sorted_tasks = sorted(tasks.items(), key=get_sort_key) # Stable sort by status
 
         skipped_count = 0
         success_count = 0
@@ -274,9 +292,16 @@ def run_jules_planning_ui(state_manager):
 
         return table
 
+    def generate_layout():
+        layout = Table.grid(expand=True)
+        layout.add_column(ratio=7)
+        layout.add_column(ratio=3)
+        layout.add_row(generate_table(), generate_log_panel())
+        return layout
+
     # Initialize Live with the initial table
     start_all = time.time()
-    with Live(Group(generate_table(), generate_log_panel()), refresh_per_second=4, vertical_overflow="crop") as live:
+    with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
 
         def callback(title, status, msg):
             with lock:
@@ -295,7 +320,7 @@ def run_jules_planning_ui(state_manager):
                     else:
                         tasks[title]['duration'] = 0.0
 
-            live.update(Group(generate_table(), generate_log_panel()))
+            live.update(generate_layout())
 
         planner.run_batch_planning(max_concurrent=5, update_callback=callback)
     
@@ -362,9 +387,16 @@ def run_jules_generation_ui(state_manager):
 
         return table
 
+    def generate_layout():
+        layout = Table.grid(expand=True)
+        layout.add_column(ratio=7)
+        layout.add_column(ratio=3)
+        layout.add_row(generate_table(), generate_log_panel())
+        return layout
+
     # Initialize Live with the initial table
     start_all = time.time()
-    with Live(Group(generate_table(), generate_log_panel()), refresh_per_second=4, vertical_overflow="crop") as live:
+    with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
 
         def callback(title, status, msg):
             with lock:
@@ -383,7 +415,7 @@ def run_jules_generation_ui(state_manager):
                     else:
                         tasks[title]['duration'] = 0.0
 
-            live.update(Group(generate_table(), generate_log_panel()))
+            live.update(generate_layout())
 
         generator.run_batch_generation(max_concurrent=5, update_callback=callback)
 
@@ -955,80 +987,94 @@ def run_audit_and_verify(state_manager):
 
     # 1. ID Manager
     console.print("\n[cyan]1. Running ID Manager (auto-tag)...[/cyan]")
-    try:
-        # Initialize IDManager with root_dir so it scans ALL files for uniqueness
-        manager = id_manager.IDManager(root_dir=str(pages_dir))
-        # But only auto-tag the target files
-        manager.auto_tag(files=target_files)
-    except Exception as e:
-        console.print(f"[red]Error in ID Manager: {e}[/red]")
+    if id_manager:
+        try:
+            # Initialize IDManager with root_dir so it scans ALL files for uniqueness
+            manager = id_manager.IDManager(root_dir=str(pages_dir))
+            # But only auto-tag the target files
+            manager.auto_tag(files=target_files)
+        except Exception as e:
+            console.print(f"[red]Error in ID Manager: {e}[/red]")
+    else:
+        console.print("[yellow]Skipping ID Manager (module not found)[/yellow]")
 
     # 2. Fix Exam Blocks
     console.print("\n[cyan]2. Running Fix Exam Blocks...[/cyan]")
-    for f in target_files:
-        try:
-            fix_exam_blocks.fix_exam_blocks(f)
-        except Exception as e:
-            console.print(f"[red]Error fixing exams in {Path(f).name}: {e}[/red]")
+    if fix_exam_blocks:
+        for f in target_files:
+            try:
+                fix_exam_blocks.fix_exam_blocks(f)
+            except Exception as e:
+                console.print(f"[red]Error fixing exams in {Path(f).name}: {e}[/red]")
+    else:
+        console.print("[yellow]Skipping Fix Exam Blocks (module not found)[/yellow]")
 
     # 3. Smart Replace Haam
     console.print("\n[cyan]3. Running Smart Replace Haam...[/cyan]")
-    for f in target_files:
-        try:
-            if smart_replace_haam.process_file(f):
-                console.print(f"  [green]Modified:[/green] {Path(f).name}")
-        except Exception as e:
-            console.print(f"[red]Error replacing Haam in {Path(f).name}: {e}[/red]")
+    if smart_replace_haam:
+        for f in target_files:
+            try:
+                if smart_replace_haam.process_file(f):
+                    console.print(f"  [green]Modified:[/green] {Path(f).name}")
+            except Exception as e:
+                console.print(f"[red]Error replacing Haam in {Path(f).name}: {e}[/red]")
+    else:
+        console.print("[yellow]Skipping Smart Replace Haam (module not found)[/yellow]")
 
     # 4. Smart Color Fixer
     console.print("\n[cyan]4. Running Smart Color Fixer...[/cyan]")
-    for f in target_files:
-        try:
-            smart_color_fixer.fix_colors(f)
-        except Exception as e:
-            console.print(f"[red]Error fixing colors in {Path(f).name}: {e}[/red]")
+    if smart_color_fixer:
+        for f in target_files:
+            try:
+                smart_color_fixer.fix_colors(f)
+            except Exception as e:
+                console.print(f"[red]Error fixing colors in {Path(f).name}: {e}[/red]")
+    else:
+        console.print("[yellow]Skipping Smart Color Fixer (module not found)[/yellow]")
 
     # 5. Lint Pages
     console.print("\n[cyan]5. Running Lint Pages...[/cyan]")
+    if lint_pages:
+        # Pre-load allowed classes once
+        allowed_classes = None
+        styles_path = PROJECT_ROOT / "styles/main.css"
+        if styles_path.exists():
+            try:
+                allowed_classes = lint_pages.parse_allowed_classes(str(styles_path))
+            except Exception:
+                pass
 
-    # Pre-load allowed classes once
-    allowed_classes = None
-    styles_path = PROJECT_ROOT / "styles/main.css"
-    if styles_path.exists():
-        try:
-            allowed_classes = lint_pages.parse_allowed_classes(str(styles_path))
-        except Exception:
-            pass
+        # We'll use a table to show results
+        table = Table(title="Lint Report", box=box.SIMPLE, show_lines=True)
+        table.add_column("File", style="cyan")
+        table.add_column("Errors", style="red")
+        table.add_column("Warnings", style="yellow")
 
-    # We'll use a table to show results
-    table = Table(title="Lint Report", box=box.SIMPLE, show_lines=True)
-    table.add_column("File", style="cyan")
-    table.add_column("Errors", style="red")
-    table.add_column("Warnings", style="yellow")
+        files_with_issues = 0
+        total_errors = 0
 
-    files_with_issues = 0
-    total_errors = 0
+        for f in target_files:
+            try:
+                errs, warns = lint_pages.lint_file(f, allowed_classes)
+                if errs:
+                    files_with_issues += 1
+                    total_errors += len(errs)
 
-    for f in target_files:
-        try:
-            errs, warns = lint_pages.lint_file(f, allowed_classes)
-            if errs:
-                files_with_issues += 1
-                total_errors += len(errs)
+                    # Format for table
+                    err_text = "\n".join([f"• {e}" for e in errs])
+                    warn_text = "\n".join([f"• {w}" for w in warns]) if warns else "-"
 
-                # Format for table
-                err_text = "\n".join([f"• {e}" for e in errs])
-                warn_text = "\n".join([f"• {w}" for w in warns]) if warns else "-"
+                    table.add_row(Path(f).name, err_text, warn_text)
+            except Exception as e:
+                 console.print(f"[red]Error linting {Path(f).name}: {e}[/red]")
 
-                table.add_row(Path(f).name, err_text, warn_text)
-        except Exception as e:
-             console.print(f"[red]Error linting {Path(f).name}: {e}[/red]")
-
-    if files_with_issues > 0:
-        console.print(table)
-        console.print(f"\n[bold red]❌ Found {total_errors} errors in {files_with_issues} files.[/bold red]")
+        if files_with_issues > 0:
+            console.print(table)
+            console.print(f"\n[bold red]❌ Found {total_errors} errors in {files_with_issues} files.[/bold red]")
+        else:
+            console.print("\n[bold green]✅ All checks passed! No lint errors.[/bold green]")
     else:
-        console.print("\n[bold green]✅ All checks passed! No lint errors.[/bold green]")
+        console.print("[yellow]Skipping Lint Pages (module not found)[/yellow]")
 
 def run_youtube_to_text():
     console.clear()
