@@ -230,9 +230,6 @@ def smart_recover_hidden_plans(failed_lessons_data, project_root, console):
     recovered = []
     
     for file_path in plans_dir.rglob("*.md"):
-        if file_path.parent == plans_dir and re.match(r'^\d{2}-', file_path.name):
-            continue
-            
         content = ""
         try:
             content = file_path.read_text(encoding='utf-8')
@@ -240,6 +237,9 @@ def smart_recover_hidden_plans(failed_lessons_data, project_root, console):
             
         for l_num, l_title, expected_path in failed_lessons_data:
             if l_num in recovered: continue
+            
+            target = project_root / expected_path
+            if file_path == target: continue
             
             clean_t = re.sub(r'^\d+\s*-\s*', '', l_title).strip()
             loose_t = re.sub(r'[^\w\s]', '', clean_t)
@@ -394,26 +394,19 @@ def run_jules_planning_ui(state_manager):
     console.print(f"[bold green]✅ Batch Planning Completed in {format_duration(total_duration)}![/bold green]")
 
     # Identify Failed Tasks for Auto-Recovery
-    failed_lessons = []
+    failed_data = []
     with lock:
         for title, data in tasks.items():
             if data.get('status') in ["FAILED", "ERROR", "WARN"]:
                 lesson_num = planner.tp.get_lesson_number(title)
                 if lesson_num:
-                    failed_lessons.append(lesson_num)
+                    clean_t = re.sub(r'^\d+\s*-\s*', '', title).strip()
+                    expected_path = f"plans/{lesson_num}-{clean_t}-plan.md"
+                    failed_data.append((lesson_num, title, expected_path))
 
-    if failed_lessons:
-        failed_data = []
-        try:
-            mapping = json.loads((PROJECT_ROOT / "system-workspace/text-data/raw_to_lesson_index.json").read_text(encoding='utf-8'))
-            for l_num in failed_lessons:
-                title = next((t for t, info in mapping.items() if planner.tp.get_lesson_number(t) == l_num), f"Lesson {l_num}")
-                clean_t = re.sub(r'^\d+\s*-\s*', '', title).strip()
-                expected_path = f"plans/{l_num}-{clean_t}-plan.md"
-                failed_data.append((l_num, title, expected_path))
-        except:
-            failed_data = [(l_num, f"Lesson {l_num}", f"plans/{l_num}-plan.md") for l_num in failed_lessons]
+    failed_lessons = [d[0] for d in failed_data]
 
+    if failed_data:
         console.print(f"\n[bold red]⚠️ {len(failed_lessons)} plans failed to generate or pull from PRs.[/bold red]")
         console.print(f"Failed lessons: {', '.join(failed_lessons)}")
         
@@ -441,12 +434,20 @@ def run_jules_planning_ui(state_manager):
                     regen = questionary.confirm("Would you like to regenerate the remaining missing plans?").ask()
                     if regen:
                         with lock: tasks.clear()
+                        if planner.state_manager:
+                            for l_num, l_title, _ in failed_data:
+                                if l_num in still_failed:
+                                    planner.state_manager.update_lesson_data(l_title, {"session_id": None})
                         with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
                             planner.run_batch_planning(max_concurrent=5, update_callback=callback, only_lessons=still_failed)
 
         elif choice and choice.startswith("2"):
             console.print("[cyan]Force-regenerating failed plans...[/cyan]")
             with lock: tasks.clear()
+            if planner.state_manager:
+                for l_num, l_title, _ in failed_data:
+                    if l_num in failed_lessons:
+                        planner.state_manager.update_lesson_data(l_title, {"session_id": None})
             with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
                 planner.run_batch_planning(max_concurrent=5, update_callback=callback, only_lessons=failed_lessons)
             console.print("[bold green]✅ Recovery Completed![/bold green]")
