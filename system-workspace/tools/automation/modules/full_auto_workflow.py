@@ -639,12 +639,12 @@ class FullAutoWorkflow:
                     errs, warns = lint_pages.lint_file(f, allowed_classes)
                     if errs: issues += 1
 
-            if issues > 0:
-                self._log("AUDIT", "WARN", f"Linting found errors in {issues} files.")
-            else:
-                self._log("AUDIT", "SUCCESS", "All files passed linting.")
+                if issues > 0:
+                    self._log("AUDIT", "WARN", f"Linting found errors in {issues} files.")
+                else:
+                    self._log("AUDIT", "SUCCESS", "All files passed linting.")
 
-        except Exception as e:
-            self._log("AUDIT", "ERROR", f"Linting failed: {e}")
+            except Exception as e:
+                self._log("AUDIT", "ERROR", f"Linting failed: {e}")
 
         self._log("AUDIT", "SUCCESS", "Audit & Verify Complete.")
