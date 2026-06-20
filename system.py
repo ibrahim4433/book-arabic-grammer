@@ -398,9 +398,9 @@ def run_jules_planning_ui(state_manager):
     with lock:
         for title, data in tasks.items():
             if data.get('status') in ["FAILED", "ERROR", "WARN"]:
-                match = re.match(r'^(\d+)', title)
-                if match:
-                    failed_lessons.append(match.group(1))
+                lesson_num = planner.tp.get_lesson_number(title)
+                if lesson_num:
+                    failed_lessons.append(lesson_num)
 
     if failed_lessons:
         failed_data = []
