@@ -224,6 +224,71 @@ def run_template_lint():
     return True
 
 
+def smart_recover_hidden_plans(failed_lessons_data, project_root, console):
+    console.print("\n[cyan]🔍 Starting Smart Recovery Search in Local Folders...[/cyan]")
+    plans_dir = project_root / "plans"
+    recovered = []
+    
+    for file_path in plans_dir.rglob("*.md"):
+        if file_path.parent == plans_dir and re.match(r'^\d{2}-', file_path.name):
+            continue
+            
+        content = ""
+        try:
+            content = file_path.read_text(encoding='utf-8')
+        except: pass
+            
+        for l_num, l_title, expected_path in failed_lessons_data:
+            if l_num in recovered: continue
+            
+            clean_t = re.sub(r'^\d+\s*-\s*', '', l_title).strip()
+            loose_t = re.sub(r'[^\w\s]', '', clean_t)
+            loose_file = re.sub(r'[^\w\s]', '', file_path.name)
+            
+            if (loose_t and loose_t in loose_file) or (clean_t and clean_t in file_path.name) or (clean_t and clean_t in content):
+                console.print(f"[green]✅ Found hidden plan for Lesson {l_num} at: {file_path.relative_to(project_root)}[/green]")
+                target = project_root / expected_path
+                import shutil
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(str(file_path), str(target))
+                recovered.append(l_num)
+                break
+                
+    return recovered
+
+def extract_from_pr_branches(failed_lessons_data, project_root, console):
+    if not failed_lessons_data: return []
+    console.print("\n[cyan]🔍 Searching Local PR Branches...[/cyan]")
+    recovered = []
+    try:
+        branches_out = subprocess.check_output(["git", "branch", "--list", "pr-*"], cwd=project_root, text=True)
+        branches = [b.strip().replace("*", "").strip() for b in branches_out.splitlines() if b.strip()]
+        
+        for branch in branches:
+            diff_out = subprocess.check_output(["git", "diff", "--name-only", f"main..{branch}"], cwd=project_root, text=True)
+            files = [f.strip() for f in diff_out.splitlines() if f.strip().endswith(".md")]
+            
+            for f in files:
+                for l_num, l_title, expected_path in failed_lessons_data:
+                    if l_num in recovered: continue
+                    clean_t = re.sub(r'^\d+\s*-\s*', '', l_title).strip()
+                    loose_t = re.sub(r'[^\w\s]', '', clean_t)
+                    loose_f = re.sub(r'[^\w\s]', '', f)
+                    
+                    if (loose_t and loose_t in loose_f) or (clean_t and clean_t in f):
+                        console.print(f"[green]✅ Found plan for Lesson {l_num} inside hidden branch {branch}: {f}[/green]")
+                        subprocess.run(["git", "checkout", branch, "--", f], cwd=project_root, check=True, capture_output=True)
+                        local_f = project_root / f
+                        target = project_root / expected_path
+                        if local_f != target:
+                            target.parent.mkdir(exist_ok=True, parents=True)
+                            import shutil
+                            shutil.move(str(local_f), str(target))
+                        recovered.append(l_num)
+    except Exception as e:
+        console.print(f"[red]Error searching branches: {e}[/red]")
+    return recovered
+
 def run_jules_planning_ui(state_manager):
     console.clear() # Clear screen for App-like feel
     console.print("[bold cyan]🚀 Starting Jules Batch Planning...[/bold cyan]")
@@ -338,16 +403,69 @@ def run_jules_planning_ui(state_manager):
                     failed_lessons.append(match.group(1))
 
     if failed_lessons:
+        failed_data = []
+        try:
+            mapping = json.loads((PROJECT_ROOT / "system-workspace/text-data/raw_to_lesson_index.json").read_text(encoding='utf-8'))
+            for l_num in failed_lessons:
+                title = next((t for t, info in mapping.items() if planner.tp.get_lesson_number(t) == l_num), f"Lesson {l_num}")
+                clean_t = re.sub(r'^\d+\s*-\s*', '', title).strip()
+                expected_path = f"plans/{l_num}-{clean_t}-plan.md"
+                failed_data.append((l_num, title, expected_path))
+        except:
+            failed_data = [(l_num, f"Lesson {l_num}", f"plans/{l_num}-plan.md") for l_num in failed_lessons]
+
         console.print(f"\n[bold red]⚠️ {len(failed_lessons)} plans failed to generate or pull from PRs.[/bold red]")
         console.print(f"Failed lessons: {', '.join(failed_lessons)}")
-        recover = questionary.confirm("Would you like to auto-recover and force-regenerate these missing plans now?").ask()
-        if recover:
+        
+        choice = questionary.select(
+            "How would you like to handle the failed plans?",
+            choices=[
+                "1. Smart Search & Auto-Recover (Search hidden folders and local PR branches)",
+                "2. Regenerate them using new Jules sessions",
+                "3. Show me how to check and fix them manually",
+                "4. Skip for now"
+            ]
+        ).ask()
+        
+        if choice and choice.startswith("1"):
+            rec1 = smart_recover_hidden_plans(failed_data, PROJECT_ROOT, console)
+            rec2 = extract_from_pr_branches([d for d in failed_data if d[0] not in rec1], PROJECT_ROOT, console)
+            total_rec = rec1 + rec2
+            if len(total_rec) == len(failed_lessons):
+                console.print("[bold green]✅ All failed plans were successfully recovered![/bold green]")
+            else:
+                console.print(f"[yellow]⚠️ Recovered {len(total_rec)} out of {len(failed_lessons)} plans.[/yellow]")
+                still_failed = [d[0] for d in failed_data if d[0] not in total_rec]
+                if still_failed:
+                    console.print(f"Still missing: {', '.join(still_failed)}")
+                    regen = questionary.confirm("Would you like to regenerate the remaining missing plans?").ask()
+                    if regen:
+                        with lock: tasks.clear()
+                        with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
+                            planner.run_batch_planning(max_concurrent=5, update_callback=callback, only_lessons=still_failed)
+
+        elif choice and choice.startswith("2"):
             console.print("[cyan]Force-regenerating failed plans...[/cyan]")
-            with lock:
-                tasks.clear()
+            with lock: tasks.clear()
             with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
                 planner.run_batch_planning(max_concurrent=5, update_callback=callback, only_lessons=failed_lessons)
             console.print("[bold green]✅ Recovery Completed![/bold green]")
+            
+        elif choice and choice.startswith("3"):
+            console.print("\n[bold cyan]--- MANUAL RECOVERY GUIDE ---[/bold cyan]")
+            console.print("When Jules fails to merge a PR or places a file incorrectly, the files are downloaded to your local computer but hidden inside Git branches.")
+            console.print("\n[yellow]Steps to manually recover:[/yellow]")
+            console.print("1. Find the PR branch name from `system.log` (e.g., [bold]pr-230[/bold]).")
+            console.print("2. Switch to that branch in your terminal:")
+            console.print("   [bold]git checkout pr-230[/bold]")
+            console.print("3. Look inside the [bold]plans/[/bold] folder or its subfolders (like [bold]plans/Archives/[/bold]) to find the misnamed file.")
+            console.print("4. Move or rename the file to exactly match the expected name (e.g., [bold]plans/03-عَلَاَّمَاتُ الْاِسْمِ-plan.md[/bold]).")
+            console.print("5. Commit your changes and switch back to main:")
+            console.print("   [bold]git add plans/[/bold]")
+            console.print("   [bold]git commit -m 'Recovered plan'[/bold]")
+            console.print("   [bold]git checkout main[/bold]")
+            console.print("   [bold]git merge pr-230[/bold]")
+            console.print("--------------------------------------\n")
 
 def run_jules_generation_ui(state_manager):
     console.clear() # Clear screen for App-like feel
