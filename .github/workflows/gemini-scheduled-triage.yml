@@ -79,7 +79,7 @@ jobs:
             --repo "${GITHUB_REPOSITORY}"
           )"
 
-          echo '📝 Setting output for GitHub Actions...'
+          echo ' Setting output for GitHub Actions...'
           echo "issues_to_triage=${ISSUES}" >> "${GITHUB_OUTPUT}"
 
           ISSUE_COUNT="$(echo "${ISSUES}" | jq 'length')"

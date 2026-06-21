@@ -104,7 +104,7 @@ Content:
 
 === BLOCK 8: Exam Section ===
 (Component: TEMPLATE_C_BLOCK.html)
-Title: 📝 اخْتَبِرْ نَفْسَكَ (معاني صيغ الزيادة)
+Title:  اخْتَبِرْ نَفْسَكَ (معاني صيغ الزيادة)
 Content:
 (Component: TEMPLATE_C_EXAM.html)
 Number: ١

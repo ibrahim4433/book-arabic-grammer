@@ -37,7 +37,7 @@ Compare the Plan against the Source and Rules. Detect missing content, weak stru
 
 ---
 
-# 📝 OUTPUT FORMAT
+#  OUTPUT FORMAT
 
 You must output a JSON block **ONLY**.
 

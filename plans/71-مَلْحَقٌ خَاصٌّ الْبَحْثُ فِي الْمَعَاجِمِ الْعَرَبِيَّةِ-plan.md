@@ -111,7 +111,7 @@ Content:
 === BLOCK 7: Exam Section ===
 (Component: TEMPLATE_C_BLOCK.html)
 Header Classes: `block-header bg-dark`
-Title: 📝 اخْتِبِرْ نَفْسَكَ
+Title:  اخْتِبِرْ نَفْسَكَ
 Content:
 (Component: TEMPLATE_C_EXAM.html)
 Number: ١

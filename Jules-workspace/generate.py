@@ -49,7 +49,7 @@ html_content = """<!DOCTYPE html>
 
         <!-- BLOCK 3: Benefit Tip -->
         <div class="benefit-box tip">
-            <strong>🌟 تَلْميحٌ - كَيْف تَكْتَشِفُ الْفَاعِلُ فِي الْجُمْلَةِ ؟:</strong> قِفْ قَبْل الْفِعْلِ وَاِسْأَلْ : ( <span class="font-bold">مَنْ ؟</span> ). الْإِجَابَةَ هِي الْفَاعِلِ. مِثَالَ : شَرِبَ الدَّوَاءَ <span class="highlight-red">الْمَرِيضُ</span> . ( مَنُّ شَرِبَ ؟ <span class="highlight-red">الْمَرِيضَ</span> ). إِذَن ( <span class="highlight-red">الْمَرِيضَ</span> ) هُو الْفَاعِلِ ، بُغْضَ النَّظَرِ عَن تَأَخُّرِهِ فِي الْجُمْلَةِ
+            <strong> تَلْميحٌ - كَيْف تَكْتَشِفُ الْفَاعِلُ فِي الْجُمْلَةِ ؟:</strong> قِفْ قَبْل الْفِعْلِ وَاِسْأَلْ : ( <span class="font-bold">مَنْ ؟</span> ). الْإِجَابَةَ هِي الْفَاعِلِ. مِثَالَ : شَرِبَ الدَّوَاءَ <span class="highlight-red">الْمَرِيضُ</span> . ( مَنُّ شَرِبَ ؟ <span class="highlight-red">الْمَرِيضَ</span> ). إِذَن ( <span class="highlight-red">الْمَرِيضَ</span> ) هُو الْفَاعِلِ ، بُغْضَ النَّظَرِ عَن تَأَخُّرِهِ فِي الْجُمْلَةِ
         </div>
 
         <!-- BLOCK 4: The Core Matrix -->

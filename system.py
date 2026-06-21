@@ -179,7 +179,7 @@ def display_status_table(state_manager):
         # Determine artifacts icons
         artifacts = []
         if files.get("raw"): artifacts.append("📄 Raw")
-        if files.get("plan"): artifacts.append("📝 Plan")
+        if files.get("plan"): artifacts.append(" Plan")
         if files.get("html"): artifacts.append("🌐 HTML")
         
         # Format timestamp

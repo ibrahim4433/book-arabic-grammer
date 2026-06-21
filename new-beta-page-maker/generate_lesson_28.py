@@ -474,7 +474,7 @@ def render_block(block):
         t = re.sub(r'<div class="benefit-box[^>]*>.*?\[BENEFIT_TITLE\].*?</div>', '', t, flags=re.DOTALL)
 
         t = t.replace("[BLOCK_ID]", block.get("id", ""))
-        t = t.replace("[BLOCK_TITLE]", f"📝 اخْتَبِرْ نَفْسَكَ ({block.get('topic', '')})")
+        t = t.replace("[BLOCK_TITLE]", f" اخْتَبِرْ نَفْسَكَ ({block.get('topic', '')})")
         t = t.replace('class="block-header"', 'class="block-header bg-dark"')
         t = t.replace("[CONTENT_TEXT]", questions_html)
 

@@ -159,7 +159,7 @@ def main():
     # Removing ID attributes so id_manager.py can auto-tag them.
     exam_content = """<section class="content-block">
     <div class="block-header bg-dark">
-        <span>📝 اخْتَبِرْ نَفْسَكَ (الإِبْدَال)</span>
+        <span> اخْتَبِرْ نَفْسَكَ (الإِبْدَال)</span>
     </div>
     <div class="block-body">
         <!-- Question 1 -->

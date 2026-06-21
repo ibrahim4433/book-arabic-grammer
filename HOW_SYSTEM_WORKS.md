@@ -35,7 +35,7 @@ Understanding where things live is half the battle.
 | `│   └── project_workflow_state.json` | 🗄️ **Database.** Tracks the status of every lesson. |
 | `├── text-data/` | Stores `raw_*.txt` (OCR output) and `full_raw_indexed.txt`. |
 | **`input/`** | 📥 **Source Material.** Put images here. Contains `TOC.json`. |
-| **`plans/`** | 📝 **Blueprints.** Generated Markdown lesson plans. |
+| **`plans/`** |  **Blueprints.** Generated Markdown lesson plans. |
 | **`pages/`** | 🌐 **Final Output.** The HTML pages ready for the book. |
 | **`styles/`** | 🎨 **Design System.** Contains `main.css`. |
 

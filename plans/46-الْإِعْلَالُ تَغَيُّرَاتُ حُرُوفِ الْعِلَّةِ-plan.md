@@ -86,7 +86,7 @@ Content: تَذَكَّرْ دَائِماً أَنَّ الْأَلِفَ ال�
 
 === BLOCK 8: Exam Header Block ===
 (Component: TEMPLATE_C_BLOCK.html)
-Title: 📝 اخْتَبِرْ نَفْسَكَ (الْإِعْلَالُ)
+Title:  اخْتَبِرْ نَفْسَكَ (الْإِعْلَالُ)
 Content:
 
 === BLOCK 9: Exam 1 ===

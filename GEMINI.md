@@ -116,7 +116,7 @@ Always use the templates in `/Jules-workspace/Templates/`.
 
 ---
 
-## 📝 Planning Protocol (The "Stream" Method)
+##  Planning Protocol (The "Stream" Method)
 
 When asked to create a plan, **DO NOT** write a generic list. You must generate a **Content Stream** that maps the lesson content directly to templates.
 

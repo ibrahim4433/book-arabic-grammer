@@ -103,7 +103,7 @@ def inject_content(filepath, blank_pct):
             exam_html = """
             <section class="content-block" id="b_auto_exam">
                 <div class="block-header bg-dark">
-                    <span>📝 اختبر نفسك</span>
+                    <span> اختبر نفسك</span>
                 </div>
                 <div class="block-body">
                     <div class="exam-question">

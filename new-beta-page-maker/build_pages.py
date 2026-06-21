@@ -47,7 +47,7 @@ TEMPLATE_BLOCK = """<section class="content-block">
 </section>"""
 
 TEMPLATE_BENEFIT_TIP = """<div class="benefit-box tip">
-    <strong>🌟 {title}:</strong> {content}
+    <strong> {title}:</strong> {content}
 </div>"""
 
 TEMPLATE_TABLE = """<div class="block-body p-0">

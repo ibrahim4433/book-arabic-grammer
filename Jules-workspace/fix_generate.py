@@ -160,7 +160,7 @@ exam3 = exam_tpl.replace("[QUESTION_NUMBER]", "٣").replace("[QUESTION_TEXT]", "
 exam_block = f"""
 <section class="content-block">
     <div class="block-header bg-dark">
-        <span>📝 اخْتِبِرْ نَفْسَكَ</span>
+        <span> اخْتِبِرْ نَفْسَكَ</span>
     </div>
     <div class="block-body">
         {remove_ids(exam1)}

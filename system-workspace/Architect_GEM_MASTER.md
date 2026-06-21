@@ -46,7 +46,7 @@
 
 ---
 
-# 📝 YOUR "OUTPUT" FORMAT :
+#  YOUR "OUTPUT" FORMAT :
 * is a file named : [LESSON_NUMBER]-[LESSON_TITLE]-plan.md 
 * output it in address : `plans` folder
 * you must only type your plan in the STREAM section , leave everything else as it is .

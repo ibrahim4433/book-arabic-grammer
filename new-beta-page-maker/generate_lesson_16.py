@@ -338,7 +338,7 @@ def generate_page():
     # Easier: Construct the block header and wrap body.
     block11 = f'''<section class="content-block" id="b_exam">
     <div class="block-header bg-dark">
-        <span>📝 اخْتَبِرْ نَفْسَكَ (المنقوص والمقصور والممدود)</span>
+        <span> اخْتَبِرْ نَفْسَكَ (المنقوص والمقصور والممدود)</span>
     </div>
     <div class="block-body">
         {exam_body}
