@@ -224,12 +224,13 @@ def run_template_lint():
     return True
 
 
-def smart_recover_hidden_plans(failed_lessons_data, project_root, console):
+def smart_recover_hidden_plans(failed_lessons_data, project_root, console, is_pages=False):
     console.print("\n[cyan]🔍 Starting Smart Recovery Search in Local Folders...[/cyan]")
-    plans_dir = project_root / "plans"
+    search_dir = project_root / ("pages" if is_pages else "plans")
+    extension = "*.html" if is_pages else "*.md"
     recovered = []
     
-    for file_path in plans_dir.rglob("*.md"):
+    for file_path in search_dir.rglob(extension):
         content = ""
         try:
             content = file_path.read_text(encoding='utf-8')
@@ -241,13 +242,13 @@ def smart_recover_hidden_plans(failed_lessons_data, project_root, console):
             target = project_root / expected_path
             if file_path == target: continue
             
-            clean_t = re.sub(r'^\d+\s*-\s*', '', l_title).strip()
+            clean_t = re.sub(r'^\d+\s*-\s*', '', l_title).replace('-plan', '').strip()
             loose_t = re.sub(r'[^\w\s]', '', clean_t)
             loose_file = re.sub(r'[^\w\s]', '', file_path.name)
             
             if (loose_t and loose_t in loose_file) or (clean_t and clean_t in file_path.name) or (clean_t and clean_t in content):
                 console.print(f"[green]✅ Found hidden plan for Lesson {l_num} at: {file_path.relative_to(project_root)}[/green]")
-                target = project_root / expected_path
+                target = project_root / ("pages" if is_pages else "plans") / file_path.name
                 import shutil
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.move(str(file_path), str(target))
@@ -256,22 +257,23 @@ def smart_recover_hidden_plans(failed_lessons_data, project_root, console):
                 
     return recovered
 
-def extract_from_pr_branches(failed_lessons_data, project_root, console):
+def extract_from_pr_branches(failed_lessons_data, project_root, console, is_pages=False):
     if not failed_lessons_data: return []
     console.print("\n[cyan]🔍 Searching Local PR Branches...[/cyan]")
     recovered = []
+    extension = ".html" if is_pages else ".md"
     try:
         branches_out = subprocess.check_output(["git", "branch", "--list", "pr-*"], cwd=project_root, text=True)
         branches = [b.strip().replace("*", "").strip() for b in branches_out.splitlines() if b.strip()]
         
         for branch in branches:
             diff_out = subprocess.check_output(["git", "diff", "--name-only", f"main..{branch}"], cwd=project_root, text=True)
-            files = [f.strip() for f in diff_out.splitlines() if f.strip().endswith(".md")]
+            files = [f.strip() for f in diff_out.splitlines() if f.strip().endswith(extension)]
             
             for f in files:
                 for l_num, l_title, expected_path in failed_lessons_data:
                     if l_num in recovered: continue
-                    clean_t = re.sub(r'^\d+\s*-\s*', '', l_title).strip()
+                    clean_t = re.sub(r'^\d+\s*-\s*', '', l_title).replace('-plan', '').strip()
                     loose_t = re.sub(r'[^\w\s]', '', clean_t)
                     loose_f = re.sub(r'[^\w\s]', '', f)
                     
@@ -279,7 +281,7 @@ def extract_from_pr_branches(failed_lessons_data, project_root, console):
                         console.print(f"[green]✅ Found plan for Lesson {l_num} inside hidden branch {branch}: {f}[/green]")
                         subprocess.run(["git", "checkout", branch, "--", f], cwd=project_root, check=True, capture_output=True)
                         local_f = project_root / f
-                        target = project_root / expected_path
+                        target = project_root / ("pages" if is_pages else "plans") / Path(f).name
                         if local_f != target:
                             target.parent.mkdir(exist_ok=True, parents=True)
                             import shutil
@@ -562,6 +564,85 @@ def run_jules_generation_ui(state_manager):
     total_duration = time.time() - start_all
     console.print(generate_table(full=True))
     console.print(f"[bold green]✅ Batch Generation Completed in {format_duration(total_duration)}![/bold green]")
+
+    # Identify Failed Tasks for Auto-Recovery
+    failed_data = []
+    with lock:
+        for title, data in tasks.items():
+            if data.get('status') in ["FAILED", "ERROR", "WARN"]:
+                match = re.match(r'^(\d+)', title)
+                lesson_num = match.group(1) if match else None
+                if lesson_num:
+                    clean_t = re.sub(r'^\d+\s*-\s*', '', title).replace('-plan', '').strip()
+                    expected_path = f"pages/{lesson_num}.0_nXX_{clean_t.replace(' ', '_')}.html"
+                    failed_data.append((lesson_num, title, expected_path))
+
+    failed_lessons = [d[0] for d in failed_data]
+
+    if failed_data:
+        console.print(f"\n[bold red]⚠️ {len(failed_lessons)} pages failed to generate or pull from PRs.[/bold red]")
+        console.print(f"Failed lessons: {', '.join(failed_lessons)}")
+        
+        choice = questionary.select(
+            "How would you like to handle the failed pages?",
+            choices=[
+                "1. Smart Search & Auto-Recover (Search hidden folders and local PR branches)",
+                "2. Regenerate them using new Jules sessions",
+                "3. Show me how to check and fix them manually",
+                "4. Skip for now"
+            ]
+        ).ask()
+        
+        if choice and choice.startswith("1"):
+            rec1 = smart_recover_hidden_plans(failed_data, PROJECT_ROOT, console, is_pages=True)
+            rec2 = extract_from_pr_branches([d for d in failed_data if d[0] not in rec1], PROJECT_ROOT, console, is_pages=True)
+            total_rec = rec1 + rec2
+            if len(total_rec) == len(failed_lessons):
+                console.print("[bold green]✅ All failed pages were successfully recovered![/bold green]")
+            else:
+                console.print(f"[yellow]⚠️ Recovered {len(total_rec)} out of {len(failed_lessons)} pages.[/yellow]")
+                still_failed = [d[0] for d in failed_data if d[0] not in total_rec]
+                if still_failed:
+                    console.print(f"Still missing: {', '.join(still_failed)}")
+                    regen = questionary.confirm("Would you like to regenerate the remaining missing pages?").ask()
+                    if regen:
+                        console.print("[cyan]Force-regenerating remaining missing pages...[/cyan]")
+                        with lock: tasks.clear()
+                        if state_manager:
+                            for l_num, l_title, _ in failed_data:
+                                if l_num in still_failed:
+                                    state_manager.update_lesson_data(l_title, {"page_session_id": None})
+                        with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
+                            generator.run_batch_generation(max_concurrent=5, update_callback=callback, only_lessons=still_failed)
+                        console.print("[bold green]✅ Recovery Completed![/bold green]")
+
+        elif choice and choice.startswith("2"):
+            console.print("[cyan]Force-regenerating failed pages...[/cyan]")
+            with lock: tasks.clear()
+            if state_manager:
+                for l_num, l_title, _ in failed_data:
+                    if l_num in failed_lessons:
+                        state_manager.update_lesson_data(l_title, {"page_session_id": None})
+            with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
+                generator.run_batch_generation(max_concurrent=5, update_callback=callback, only_lessons=failed_lessons)
+            console.print("[bold green]✅ Recovery Completed![/bold green]")
+            
+        elif choice and choice.startswith("3"):
+            console.print("\n[bold cyan]--- MANUAL RECOVERY GUIDE ---[/bold cyan]")
+            console.print("When Jules fails to merge a PR or places a file incorrectly, the files are downloaded to your local computer but hidden inside Git branches.")
+            console.print("\n[yellow]Steps to manually recover:[/yellow]")
+            console.print("1. Find the PR branch name from `system.log` (e.g., [bold]pr-230[/bold]).")
+            console.print("2. Switch to that branch in your terminal:")
+            console.print("   [bold]git checkout pr-230[/bold]")
+            console.print("3. Look for the file in the `pages/` or `Jules-workspace/pages/` folder.")
+            console.print("4. Move the file into the `pages/` folder:")
+            console.print("   [bold]mv Jules-workspace/pages/07.0_nXX_title.html pages/[/bold]")
+            console.print("5. Switch back to the main branch:")
+            console.print("   [bold]git checkout main[/bold]")
+            console.print("6. Your file will now be successfully recovered!\n")
+            
+        elif choice and choice.startswith("4"):
+            console.print("[dim]Skipping recovery for now.[/dim]")
     
     # Run post-flight lint on generated pages
     console.print("\n[cyan]Running Post-Flight Page Lint...[/cyan]")
