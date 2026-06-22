@@ -40,8 +40,8 @@ Reference: Follow patterns in design_patterns.json.
 [CHAPTER_TITLE]: عِلْمُ الْمَعَانِي الْأُسْلُوبُ الْخَبَرِيُّ وَالْإِنْشَائِيُّ
 [CATEGORY_HEADER]: المستوى المتقدم
 [SECTION_HEADER]: علم البلاغة
-[AUTHOR_NAME]: أ. الياس خفيف
-[AUTHOR_PHONE]: 994066850 963+
+[AUTHOR_NAME]: أ. حنا خفيف
+[AUTHOR_PHONE]:  
 
 === BLOCK 2: تَمْهِيدٌ لِعِلْمِ الْبَلَاغَةِ ===
 (Component: TEMPLATE_C_BLOCK.html)

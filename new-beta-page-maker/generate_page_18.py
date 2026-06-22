@@ -43,8 +43,8 @@ def main():
                      .replace('[CHAPTER_TITLE]', 'الهمزة المتوسطة') \
                      .replace('[CATEGORY_HEADER]', 'الإملاء') \
                      .replace('[SECTION_HEADER]', 'المستوى اللغوي') \
-                     .replace('[AUTHOR_NAME]', 'أ. الياس خفيف') \
-                     .replace('[AUTHOR_PHONE]', '994066850 963+')
+                     .replace('[AUTHOR_NAME]', 'أ. حنا خفيف') \
+                     .replace('[AUTHOR_PHONE]', ' ')
     content_blocks.append(header)
 
     # 2. Definition

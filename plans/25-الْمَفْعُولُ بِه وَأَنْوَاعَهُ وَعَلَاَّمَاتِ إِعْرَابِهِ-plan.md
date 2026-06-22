@@ -40,8 +40,8 @@ Reference: Follow patterns in design_patterns.json.
 [CHAPTER_TITLE]: الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ
 [CATEGORY_HEADER]:
 [SECTION_HEADER]:
-[AUTHOR_NAME]: أ. الياس خفيف
-[AUTHOR_PHONE]: 994066850 963+
+[AUTHOR_NAME]: أ. حنا خفيف
+[AUTHOR_PHONE]:  
 
 === BLOCK 2: Introduction & Definition ===
 (Component: TEMPLATE_C_BLOCK.html)

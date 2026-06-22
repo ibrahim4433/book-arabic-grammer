@@ -38,8 +38,8 @@ Reference: Follow patterns in design_patterns.json.
 [CHAPTER_TITLE]: العاطفة
 [CATEGORY_HEADER]: فوائد
 [SECTION_HEADER]: المستوى الفني
-[AUTHOR_NAME]: أ. الياس خفيف
-[AUTHOR_PHONE]: 994066850 963+
+[AUTHOR_NAME]: أ. حنا خفيف
+[AUTHOR_PHONE]:  
 
 === BLOCK 2: Concept of Emotion ===
 (Component: TEMPLATE_C_BLOCK)

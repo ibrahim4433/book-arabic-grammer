@@ -17,8 +17,8 @@ def test_plan():
     assert 'class="text-accent"' in content, "Missing .text-accent in definitions"
 
     # 4. Correct Metadata
-    assert "[AUTHOR_NAME]: أ. الياس خفيف" in content, "Incorrect author name"
-    assert "[AUTHOR_PHONE]: 994066850 963+" in content, "Incorrect author phone"
+    assert "[AUTHOR_NAME]: أ. حنا خفيف" in content, "Incorrect author name"
+    assert "[AUTHOR_PHONE]:  " in content, "Incorrect author phone"
 
     print("All tests passed.")
 

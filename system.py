@@ -1136,8 +1136,8 @@ def run_raw_processing(state_manager):
                     try:
                         import json
                         settings_file = PROJECT_ROOT / "system-workspace" / "settings.json"
-                        author = "أ. الياس خفيف"
-                        author_number = "994066850 963+"
+                        author = "أ. حنا خفيف"
+                        author_number = " "
                         if settings_file.exists():
                             try:
                                 with open(settings_file, "r", encoding="utf-8") as f:
@@ -1454,8 +1454,8 @@ def run_settings():
     settings_file = PROJECT_ROOT / "system-workspace" / "settings.json"
     
     settings = {
-        "author": "أ. الياس خفيف",
-        "author_number": "994066850 963+"
+        "author": "أ. حنا خفيف",
+        "author_number": " "
     }
     
     import json
@@ -1466,10 +1466,10 @@ def run_settings():
         except Exception as e:
             console.print(f"[red]Failed to load settings: {e}[/red]")
             
-    new_author = questionary.text("Author Name:", default=settings.get("author", "أ. الياس خفيف")).ask()
+    new_author = questionary.text("Author Name:", default=settings.get("author", "أ. حنا خفيف")).ask()
     if new_author is None: return
     
-    new_author_number = questionary.text("Author Number:", default=settings.get("author_number", "994066850 963+")).ask()
+    new_author_number = questionary.text("Author Number:", default=settings.get("author_number", " ")).ask()
     if new_author_number is None: return
 
     settings["author"] = new_author

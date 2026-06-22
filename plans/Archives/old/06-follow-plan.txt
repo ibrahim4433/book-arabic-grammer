@@ -33,7 +33,7 @@ Process the following blocks starting in `pages/06.0_nxx_follow.html`.
 
 Lesson Number: ٦
 Lesson Subtitle 1: التَّوَابِعُ
-Author Name: أ. الياس خفيف
+Author Name: أ. حنا خفيف
 Author Phone: 963994066850+
 
 === BLOCK 2: Tawkeed Literal  ===

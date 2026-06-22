@@ -130,8 +130,8 @@ class TextProcessor:
         print("🔍 Generating TOC from raw text via Gemini...")
         # Load settings
         settings_file = self.project_root / "system-workspace" / "settings.json"
-        author = "أ. الياس خفيف"
-        author_number = "994066850 963+"
+        author = "أ. حنا خفيف"
+        author_number = " "
         if settings_file.exists():
             try:
                 with open(settings_file, "r", encoding="utf-8") as f:

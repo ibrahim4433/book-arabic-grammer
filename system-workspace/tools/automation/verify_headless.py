@@ -46,7 +46,7 @@ def verify_layout(file_path):
 <body>
     <div class="global-background-layer"></div>
     <div class="global-watermark-layer">
-        <span class="watermark-text">أ. الياس خفيف</span>
+        <span class="watermark-text">أ. حنا خفيف</span>
     </div>
     {body_inner}
 </body>

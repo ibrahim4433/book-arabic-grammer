@@ -40,8 +40,8 @@ Reference: Follow patterns in design_patterns.json.
 [CHAPTER_TITLE]: الْبَدَلُ
 [CATEGORY_HEADER]: المستوى المتوسط
 [SECTION_HEADER]: علم النحو
-[AUTHOR_NAME]: أ. الياس خفيف
-[AUTHOR_PHONE]: 994066850 963+
+[AUTHOR_NAME]: أ. حنا خفيف
+[AUTHOR_PHONE]:  
 
 === BLOCK 2: Definition and Intro ===
 (Component: TEMPLATE_C_BLOCK.html)

@@ -228,8 +228,8 @@ for idx, chunk in enumerate(chunks):
                 <h1 class="header-title">فِهْرِسُ الْمَوْضُوعَاتِ (الْجُزْءُ {to_arabic_indic(idx+1)})</h1>
             </div>
             <div class="header-section left">
-                <div class="author-info">أ. الياس خفيف</div>
-                <div class="author-info">994066850 963+</div>
+                <div class="author-info">أ. حنا خفيف</div>
+                <div class="author-info"> </div>
             </div>
         </header>
         

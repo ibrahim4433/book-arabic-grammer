@@ -44,7 +44,7 @@ blocks = [
             "[CATEGORY_HEADER]": "فَوَائِدُ",
             "[SECTION_HEADER]": "المُسْتَوَى الفَنِّيُّ",
             "[AUTHOR_NAME]": "أ. اليَاس خَفِيف",
-            "[AUTHOR_PHONE]": "994066850 963+"
+            "[AUTHOR_PHONE]": " "
         }
     },
     # Block 2: Definition of Imagery

@@ -95,7 +95,7 @@ def main():
 
     <!-- Global Fixed Watermark -->
     <div class="global-watermark-layer">
-        <span class="watermark-text">أ. الياس خفيف</span>
+        <span class="watermark-text">أ. حنا خفيف</span>
     </div>
 
     <!-- Content -->

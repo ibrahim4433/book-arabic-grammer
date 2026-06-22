@@ -35,8 +35,8 @@ def generate_page():
                      .replace("[CHAPTER_TITLE]", "المنقوص والمقصور والممدود") \
                      .replace("[CATEGORY_HEADER]", "الصرف") \
                      .replace("[SECTION_HEADER]", "المستوى اللغوي") \
-                     .replace("[AUTHOR_NAME]", "أ. الياس خفيف") \
-                     .replace("[AUTHOR_PHONE]", "994066850 963+")
+                     .replace("[AUTHOR_NAME]", "أ. حنا خفيف") \
+                     .replace("[AUTHOR_PHONE]", " ")
     blocks.append(block1)
 
     # === BLOCK 2: Definitions (Split View) ===
@@ -380,8 +380,8 @@ def generate_page():
                         .replace("[CHAPTER_TITLE]", "المنقوص والمقصور والممدود ") \
                         .replace("[CATEGORY_HEADER]", "الصرف") \
                         .replace("[SECTION_HEADER]", "المستوى اللغوي") \
-                        .replace("[AUTHOR_NAME]", "أ. الياس خفيف") \
-                        .replace("[AUTHOR_PHONE]", "994066850 963+")
+                        .replace("[AUTHOR_NAME]", "أ. حنا خفيف") \
+                        .replace("[AUTHOR_PHONE]", " ")
 
     page2_blocks = [header_p2] + page2_blocks_content + [benefit_tip]
 

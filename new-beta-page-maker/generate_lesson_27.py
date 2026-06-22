@@ -36,8 +36,8 @@ def generate_html():
     header = header.replace("[CHAPTER_TITLE]", "المحسنات البديعية")
     header = header.replace("[CATEGORY_HEADER]", "فوائد")
     header = header.replace("[SECTION_HEADER]", "المستوى الفني")
-    header = header.replace("[AUTHOR_NAME]", "أ. الياس خفيف")
-    header = header.replace("[AUTHOR_PHONE]", "994066850 963+")
+    header = header.replace("[AUTHOR_NAME]", "أ. حنا خفيف")
+    header = header.replace("[AUTHOR_PHONE]", " ")
     blocks_page_1.append(header)
 
     # Block 2: Introduction
@@ -115,8 +115,8 @@ def generate_html():
     header2 = header2.replace("[CHAPTER_TITLE]", "المحسنات البديعية ")
     header2 = header2.replace("[CATEGORY_HEADER]", "فوائد")
     header2 = header2.replace("[SECTION_HEADER]", "المستوى الفني")
-    header2 = header2.replace("[AUTHOR_NAME]", "أ. الياس خفيف")
-    header2 = header2.replace("[AUTHOR_PHONE]", "994066850 963+")
+    header2 = header2.replace("[AUTHOR_NAME]", "أ. حنا خفيف")
+    header2 = header2.replace("[AUTHOR_PHONE]", " ")
     blocks_page_2.append(header2)
 
     # Block 8: Tip

@@ -173,8 +173,8 @@ def main():
         section="المستوى الفني",
         category="فوائد",
         number=26,
-        author_name="أ. الياس خفيف",
-        author_phone="994066850 963+"
+        author_name="أ. حنا خفيف",
+        author_phone=" "
     ))
 
     # --- BLOCK 2 ---
@@ -326,8 +326,8 @@ def main():
         section="تطبيقات",
         category="شواهد",
         number=26,
-        author_name="أ. الياس خفيف",
-        author_phone="994066850 963+"
+        author_name="أ. حنا خفيف",
+        author_phone=" "
     ))
 
     # --- BLOCK 11 ---
@@ -516,8 +516,8 @@ def main():
         "section": "المستوى الفني",
         "category": "فوائد",
         "number": 26,
-        "author_name": "أ. الياس خفيف",
-        "author_phone": "994066850 963+"
+        "author_name": "أ. حنا خفيف",
+        "author_phone": " "
     }
 
     def extract_header_info(block_html):
@@ -544,8 +544,8 @@ def main():
                 "section": section,
                 "category": category,
                 "number": 26, # Assuming constant
-                "author_name": "أ. الياس خفيف", # Assuming constant
-                "author_phone": "994066850 963+" # Assuming constant
+                "author_name": "أ. حنا خفيف", # Assuming constant
+                "author_phone": " " # Assuming constant
             }
         return None
 

@@ -40,8 +40,8 @@ Reference: Follow patterns in design_patterns.json.
 [CHAPTER_TITLE]: تَتِمَّةُ الْهَمْزَةِ الْأَوَّلِيَّةِ
 [CATEGORY_HEADER]: المستوى التأسيسي
 [SECTION_HEADER]: علم الإملاء
-[AUTHOR_NAME]: أ. الياس خفيف
-[AUTHOR_PHONE]: 994066850 963+
+[AUTHOR_NAME]: أ. حنا خفيف
+[AUTHOR_PHONE]:  
 
 === BLOCK 2: Introduction to Hamzat Al-Istifham ===
 (Component: TEMPLATE_C_BLOCK.html)

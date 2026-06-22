@@ -52,8 +52,8 @@ BLOCKS_DATA = [
             '[CHAPTER_TITLE]': 'الإبدال',
             '[CATEGORY_HEADER]': 'الصرف',
             '[SECTION_HEADER]': 'المستوى اللغوي',
-            '[AUTHOR_NAME]': 'أ. الياس خفيف',
-            '[AUTHOR_PHONE]': '994066850 963+'
+            '[AUTHOR_NAME]': 'أ. حنا خفيف',
+            '[AUTHOR_PHONE]': ' '
         }
     },
     # BLOCK 2: Definition

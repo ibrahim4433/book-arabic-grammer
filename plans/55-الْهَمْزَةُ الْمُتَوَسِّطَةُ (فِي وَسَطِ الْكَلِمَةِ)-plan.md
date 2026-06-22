@@ -40,8 +40,8 @@ Reference: Follow patterns in design_patterns.json.
 [CHAPTER_TITLE]: الْهَمْزَةُ الْمُتَوَسِّطَةُ (فِي وَسَطِ الْكَلِمَةِ)
 [CATEGORY_HEADER]: المستوى التأسيسي
 [SECTION_HEADER]: علم الإملاء
-[AUTHOR_NAME]: أ. الياس خفيف
-[AUTHOR_PHONE]: 994066850 963+
+[AUTHOR_NAME]: أ. حنا خفيف
+[AUTHOR_PHONE]:  
 
 === BLOCK 2: Definition ===
 (Component: TEMPLATE_C_BLOCK.html)

@@ -81,8 +81,8 @@ header_content = TEMPLATE_HEADER.replace('[LESSON_NUMBER]', '23')
 header_content = header_content.replace('[CHAPTER_TITLE]', 'أشهر مواطن الزيادة والحذف')
 header_content = header_content.replace('[CATEGORY_HEADER]', 'الإملاء')
 header_content = header_content.replace('[SECTION_HEADER]', 'المستوى اللغوي')
-header_content = header_content.replace('[AUTHOR_NAME]', 'أ. الياس خفيف')
-header_content = header_content.replace('[AUTHOR_PHONE]', '994066850 963+')
+header_content = header_content.replace('[AUTHOR_NAME]', 'أ. حنا خفيف')
+header_content = header_content.replace('[AUTHOR_PHONE]', ' ')
 
 # Block 2: Definition
 block2_content = """

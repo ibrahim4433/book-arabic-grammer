@@ -26,8 +26,8 @@ def main():
     header = header.replace("[CHAPTER_TITLE]", "الإبدال")
     header = header.replace("[CATEGORY_HEADER]", "الصرف")
     header = header.replace("[SECTION_HEADER]", "المستوى اللغوي")
-    header = header.replace("[AUTHOR_NAME]", "أ. الياس خفيف")
-    header = header.replace("[AUTHOR_PHONE]", "994066850 963+")
+    header = header.replace("[AUTHOR_NAME]", "أ. حنا خفيف")
+    header = header.replace("[AUTHOR_PHONE]", " ")
 
     # 2. Definition Block
     block_def = read_template("TEMPLATE_C_BLOCK.html")
@@ -197,8 +197,8 @@ def main():
     header_p2 = header_p2.replace("[CHAPTER_TITLE]", "الإبدال ")
     header_p2 = header_p2.replace("[CATEGORY_HEADER]", "الصرف")
     header_p2 = header_p2.replace("[SECTION_HEADER]", "المستوى اللغوي")
-    header_p2 = header_p2.replace("[AUTHOR_NAME]", "أ. الياس خفيف")
-    header_p2 = header_p2.replace("[AUTHOR_PHONE]", "994066850 963+")
+    header_p2 = header_p2.replace("[AUTHOR_NAME]", "أ. حنا خفيف")
+    header_p2 = header_p2.replace("[AUTHOR_PHONE]", " ")
 
     content_p2 = (
         header_p2 + "\n" +

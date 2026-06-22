@@ -38,8 +38,8 @@ Reference: Follow patterns in design_patterns.json.
 [CHAPTER_TITLE]: الأسلوب الخبري والأسلوب الإنشائي
 [CATEGORY_HEADER]: فوائد
 [SECTION_HEADER]: المستوى الفني
-[AUTHOR_NAME]: أ. الياس خفيف
-[AUTHOR_PHONE]: 994066850 963+
+[AUTHOR_NAME]: أ. حنا خفيف
+[AUTHOR_PHONE]:  
 
 === BLOCK 2: Introduction (Khabar vs Insha) ===
 (Component: TEMPLATE_C_BLOCK)
@@ -193,8 +193,8 @@ Title: ثانيًا - الأسلوب الإنشائي
 [CHAPTER_TITLE]: أمثلة تطبيقية
 [CATEGORY_HEADER]: شواهد
 [SECTION_HEADER]: تطبيقات
-[AUTHOR_NAME]: أ. الياس خفيف
-[AUTHOR_PHONE]: 994066850 963+
+[AUTHOR_NAME]: أ. حنا خفيف
+[AUTHOR_PHONE]:  
 
 === BLOCK 11: Example 1 (Poem) ===
 (Component: TEMPLATE_C_POEM)

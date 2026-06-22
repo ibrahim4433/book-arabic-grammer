@@ -61,8 +61,8 @@ def create_page(blocks, lesson_number, chapter_title):
     header = header.replace('[CHAPTER_TITLE]', chapter_title)
     header = header.replace('[SECTION_HEADER]', 'المستوى الفني')
     header = header.replace('[CATEGORY_HEADER]', 'فوائد')
-    header = header.replace('[AUTHOR_NAME]', 'أ. الياس خفيف')
-    header = header.replace('[AUTHOR_PHONE]', '994066850 963+')
+    header = header.replace('[AUTHOR_NAME]', 'أ. حنا خفيف')
+    header = header.replace('[AUTHOR_PHONE]', ' ')
 
     content_html = header + "\n" + "\n".join(blocks)
 
