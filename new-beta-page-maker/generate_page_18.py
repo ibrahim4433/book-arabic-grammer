@@ -18,8 +18,8 @@ def generate_id():
     return f"b{random.randint(10000, 99999)}"
 
 def clean_block(content):
-    content = re.sub(r'<div class="benefit-box">\s*<strong>💡 \[BENEFIT_TITLE\]:</strong> \[BENEFIT_TEXT\]\s*</div>', '', content)
-    content = re.sub(r'<hr class="separator-dashed">\s*<div class="benefit-box">\s*<strong>💡 \[NOTE_TITLE\]:</strong> \[NOTE_TEXT\]\s*</div>', '', content)
+    content = re.sub(r'<div class="benefit-box">\s*<strong> \[BENEFIT_TITLE\]:</strong> \[BENEFIT_TEXT\]\s*</div>', '', content)
+    content = re.sub(r'<hr class="separator-dashed">\s*<div class="benefit-box">\s*<strong> \[NOTE_TITLE\]:</strong> \[NOTE_TEXT\]\s*</div>', '', content)
     return content
 
 def main():

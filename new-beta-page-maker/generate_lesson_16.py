@@ -62,7 +62,7 @@ def generate_page():
     # For now, I'll just replace with empty string and clean up manually or with regex later.
     # Actually, the template is:
     # <div class="benefit-box">
-    #     <strong>💡 [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]
+    #     <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]
     # </div>
     # I can replace the whole div with empty string if I don't use it.
     # Also, TEMPLATE_C_BLOCK wraps content in <p>, but content3 has its own <p>.

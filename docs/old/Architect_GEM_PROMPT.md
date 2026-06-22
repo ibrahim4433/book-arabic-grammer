@@ -20,7 +20,7 @@ Every lesson must follow this "Golden Flow" to ensure consistency and profession
 
 2.  **DEFINITION BLOCK:** A `TEMPLATE_C_BLOCK` containing the core definition.
     *   The definition paragraph MUST use `class="text-accent"`.
-    *   Inject a `benefit-box` (Rule/💡) immediately after the definition for the "Golden Rule".
+    *   Inject a `benefit-box` (Rule/) immediately after the definition for the "Golden Rule".
 
 3.  **THE CORE MATRIX (SUMMARY TABLE):** This is the "Soul" of the page. You MUST design a `dense-table` that summarizes the *entire* lesson's rules, types, and examples in one high-density view.
     *   Use `bg-grey-light` for header cells.

@@ -75,7 +75,7 @@ def generate_html():
     jinas = tpl_block.replace("[BLOCK_TITLE]", "أَوْجُهُ الِاخْتِلَافِ فِي الْجِنَاسِ النَّاقِصِ")
     jinas_content = '<p class="text-accent text-right mt-1mm">يَكُونُ الْجِنَاسُ نَاقِصًا عِنْدَمَا يَخْتَلِفُ اللَّفْظَانِ الْمُتَجَانِسَانِ فِي وَاحِدٍ مِنَ الْوُجُوهِ الْأَرْبَعَةِ، عَلَى النَّحْوِ الْآتِي:</p>'
     jinas = replace_block_content(jinas, jinas_content)
-    jinas = jinas.replace('<div class="benefit-box">\n                <strong>💡 [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
+    jinas = jinas.replace('<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
     blocks_page_1.append(jinas)
 
     # Block 5: Conditions Chips
@@ -93,7 +93,7 @@ def generate_html():
     sem_content = """<p class="text-accent mb-2mm text-justify mt-1mm">١- الطِّبَاقُ (الْمُطَابَقَةُ): مُحسِّنٌ معنويٌّ، يجمعُ بين لفظينِ مُتضادَّينِ في المعنى، فيولِّدُ حركةً داخليَّةً في النَّفسِ تُبرِزُ الفارقَ بينهما.</p>
 <p class="text-accent mb-2mm text-justify">٢- الْمُقَابَلَةُ: مُحسِّنٌ معنويٌّ، وهو أنْ يُؤتى بمعنينِ متوافقينِ، أو عدَّةِ معانٍ مُتوافِقةٍ، ثم يُؤتَى بضِدِّها على ترتيبِها. (هي الجمعُ بين طِباقينِ، فأكثر في الكلامِ على الترتيبِ).</p>"""
     sem = replace_block_content(sem, sem_content)
-    sem = sem.replace('<div class="benefit-box">\n                <strong>💡 [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
+    sem = sem.replace('<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
     blocks_page_1.append(sem)
 
     # Block 7: Aesthetic Values
@@ -105,7 +105,7 @@ def generate_html():
 <li><span class="font-bold text-primary">٤- تَحْدِيدُ الرُّؤْيَةِ (الْمَوْقِفُ).</span></li>
 """
     aes = aes.replace("[LIST_ITEMS]", aes_items)
-    aes = aes.replace('<hr class="separator-dashed">\n            <div class="benefit-box">\n                <strong>💡 [NOTE_TITLE]:</strong> [NOTE_TEXT]\n            </div>', '')
+    aes = aes.replace('<hr class="separator-dashed">\n            <div class="benefit-box">\n                <strong> [NOTE_TITLE]:</strong> [NOTE_TEXT]\n            </div>', '')
     blocks_page_1.append(aes)
 
     # --- Page 2 Content ---
@@ -154,7 +154,7 @@ def generate_html():
 <li><span class="font-bold text-primary">تَحْدِيدُ الرُّؤْيَةِ (الْمَوْقِفِ):</span> تَمَكَّنَتْ هَذِهِ الْمُقَابَلَةُ مِنَ الْكَشْفِ عَنْ مَوْقِفِ الشَّاعِرِ حَيْثُ أَظْهَرَتْ وُقُوفَهُ إِلَى جَانِبِ عُقَلَاءِ الْمُجْتَمَعِ الَّذِينَ هُضِمَتْ حُقُوقُهُمْ فِي ظِلِّ سِيَاسَةِ الدَّوْلَةِ الْعُثْمَانِيَّةِ.</li>
 """
     anl = anl.replace("[LIST_ITEMS]", anl_items)
-    anl = anl.replace('<hr class="separator-dashed">\n            <div class="benefit-box">\n                <strong>💡 [NOTE_TITLE]:</strong> [NOTE_TEXT]\n            </div>', '')
+    anl = anl.replace('<hr class="separator-dashed">\n            <div class="benefit-box">\n                <strong> [NOTE_TITLE]:</strong> [NOTE_TEXT]\n            </div>', '')
     blocks_page_2.append(anl)
 
     # Block 11: Exam

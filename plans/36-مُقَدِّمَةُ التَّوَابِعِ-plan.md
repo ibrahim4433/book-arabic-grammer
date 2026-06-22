@@ -100,7 +100,7 @@ Content:
 
 === BLOCK 5: Examples of Sifah ===
 (Component: TEMPLATE_C_BENEFIT_WARNING.html)
-Title: 💡 أَمْثِلَةٌ عَلَى الْمُطَابَقَةِ التَّامَّةِ
+Title:  أَمْثِلَةٌ عَلَى الْمُطَابَقَةِ التَّامَّةِ
 Content:
 (Component: TEMPLATE_C_LIST.html)
 [LIST_ITEM_CONTENT]: (صَاحِبْ إِنسَانًا <span class="highlight-red">صَادِقًا</span> ) كِلَاهُمَا مُفْرَدٌ مُذَكَّرٌ نَكِرَةٌ مَنْصُوبٌ.

@@ -71,7 +71,7 @@ List Items:
 (Component: TEMPLATE_C_SPLIT.html)
 Title: ٢. الضَّمَائِرُ الْمُتَّصِلَةُ بِالتَّفْصِيلِ
 LeftSide (Component: TEMPLATE_C_BLOCK.html inside split grid):
-Title: أَوَّلاً: 🅰️ مَجْمُوعَةُ (تَوَانِينَا) لِلرَّفْعِ
+Title: أَوَّلاً:  مَجْمُوعَةُ (تَوَانِينَا) لِلرَّفْعِ
 Content:
 تَتَّصِلُ بِالْفِعْلِ فَقَطْ وَتُعْرَبُ (فِي مَحَلِّ رَفْعِ فَاعِلٍ):
 (Inject TEMPLATE_C_LIST.html here)

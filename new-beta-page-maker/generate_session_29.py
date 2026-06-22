@@ -85,7 +85,7 @@ def get_blocks():
     b2 = b2.replace('[BLOCK_TITLE]', 'وَظِيفَةُ الْجُمْلَةِ الْاسْمِيَّةِ')
     b2 = clean_replace_content(b2, '<p class="text-accent text-justify">تَدُلُّ الْجُمْلَةُ الْاسْمِيَّةُ عَلَى <span class="highlight-red">الثَّبَاتِ وَالِاسْتِقْرَارِ وَالدَّيْمُومَةِ</span>؛ وَذَلِكَ مِنْ جِهَةِ ثَبَاتِ الْحَالِ، وَثَبَاتِ الْمَوْقِفِ، وَدَيْمُومَةِ الصِّفَةِ، وَاسْتِقْرَارِ الْعَاطِفَةِ. وَيَنْبَغِي لِلطَّالِبِ أَنْ يَعِيَ أَنَّ الْجُمْلَةَ الْاسْمِيَّةَ كُلُّ جُمْلَةٍ تَبْدَأُ بِمُبْتَدَأٍ (سَوَاءٌ أَكَانَ اسْمًا أَمْ ضَمِيرًا)، أَوْ تَبْدَأُ بِحَرْفٍ مُشَبَّهٍ بِالْفِعْلِ. وَتَبْقَى هَذِهِ الْجُمْلَةُ اسْمِيَّةً سَوَاءٌ أَكَانَ خَبَرُهَا مُفْرَدًا (اسْمًا)، أَوْ جُمْلَةً فِعْلِيَّةً أَوْ جُمْلَةً اسْمِيَّةً.</p>')
     # Remove benefit placeholders
-    b2 = b2.replace('<div class="benefit-box">\n                <strong>💡 [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
+    b2 = b2.replace('<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
     b2 = b2.replace('id="[BLOCK_ID]"', '')
     blocks.append(b2)
 
@@ -99,7 +99,7 @@ def get_blocks():
     b4 = get_template('TEMPLATE_C_BLOCK.html')
     b4 = b4.replace('[BLOCK_TITLE]', 'الْقَالِبُ النَّظَرِيُّ لِلْإِجَابَةِ')
     b4 = clean_replace_content(b4, '<p class="text-justify mb-2mm">حَاوَلَ الشَّاعِرُ مِنْ خِلَالِ اسْتِعْمَالِ الْجُمْلَةِ الْاسْمِيَّةِ أَنْ يَعْرِضَ الْمَعَانِيَ بِصُورَةِ <span class="highlight-red">الثَّبَاتِ وَالِاسْتِقْرَارِ وَالدَّيْمُومَةِ</span>. فَهَذَا الِاسْتِعْمَالُ مَكَّنَهُ مِنَ الْإِشَارَةِ إِلَى ثَبَاتِ .... [ نَذْكُرُ هُنَا الْمَعْنَى أَوِ الْمَعَانِي الَّتِي دَلَّتْ عَلَيْهَا الْجُمْلَةُ الْاسْمِيَّةُ] .... .</p><p class="text-justify">وَبِمَقْدُورِ الطَّالِبِ أَنْ يُشِيرَ إِلَى ثَبَاتِ الشُّعُورِ الْعَاطِفِيِّ، فَيَقُولُ: .....، كَمَا أَسْهَمَتِ الْجُمْلَةُ الْاسْمِيَّةُ، بِالتَّأْكِيدِ عَلَى ثَبَاتِ الْعَاطِفَةِ، فَ..... [نَذْكُرُ هُنَا الشُّعُورَ الْعَاطِفِيَّ] .... ثَابِتٌ دَائِمٌ لَا يَتَبَدَّلُ.</p>')
-    b4 = b4.replace('<div class="benefit-box">\n                <strong>💡 [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
+    b4 = b4.replace('<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
     b4 = b4.replace('id="[BLOCK_ID]"', '')
     blocks.append(b4)
 
@@ -109,7 +109,7 @@ def get_blocks():
     b5_header = b5_header.replace('[BLOCK_TITLE]', 'الْمِثَالُ التَّطْبِيقِيُّ الْأَوَّلُ')
     # Remove content
     b5_header = b5_header.replace('<p class="mt-1mm text-accent">\n                [CONTENT_TEXT]\n            </p>', '')
-    b5_header = b5_header.replace('<div class="benefit-box">\n                <strong>💡 [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
+    b5_header = b5_header.replace('<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
     b5_header = b5_header.replace('id="[BLOCK_ID]"', '')
     # Remove empty body to avoid whitespace?
     # Actually, keep it for consistent spacing structure, or remove it.
@@ -140,7 +140,7 @@ def get_blocks():
     b6_header = get_template('TEMPLATE_C_BLOCK.html')
     b6_header = b6_header.replace('[BLOCK_TITLE]', 'الْمِثَالُ التَّطْبِيقِيُّ الثَّانِي')
     b6_header = b6_header.replace('<p class="mt-1mm text-accent">\n                [CONTENT_TEXT]\n            </p>', '')
-    b6_header = b6_header.replace('<div class="benefit-box">\n                <strong>💡 [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
+    b6_header = b6_header.replace('<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
     b6_header = b6_header.replace('id="[BLOCK_ID]"', '')
     blocks.append(b6_header)
 
@@ -165,7 +165,7 @@ def get_blocks():
     b7 = get_template('TEMPLATE_C_BLOCK.html')
     b7 = b7.replace('[BLOCK_TITLE]', 'وَظِيفَةُ الْجُمْلَةِ الْفِعْلِيَّةِ')
     b7 = clean_replace_content(b7, '<p class="text-accent text-justify">تَدُلُّ الْجُمْلَةُ الْفِعْلِيَّةُ عَلَى <span class="highlight-red">التَّغَيُّرِ وَالْحَرَكَةِ</span> فَتَبْعَثُ فِي النَّصِّ الْحَيَوِيَّةَ؛ ذَلِكَ أَنَّ أَزْمِنَةَ الْأَفْعَالِ الْمُخْتَلِفَةَ تَظْهَرُ فِي النَّصِّ سِيَاقَاتٍ زَمَنِيَّةً وَفَضَاءَاتٍ حَرَكِيَّةً مُخْتَلِفَةً، وَهَذَا يُؤَدِّي إِلَى تَبَدِّي الْحَرَكَةِ وَالتَّغَيُّرِ وَالْحَيَوِيَّةِ فِي النَّصِّ.</p>')
-    b7 = b7.replace('<div class="benefit-box">\n                <strong>💡 [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
+    b7 = b7.replace('<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
     b7 = b7.replace('id="[BLOCK_ID]"', '')
     blocks.append(b7)
 
@@ -300,7 +300,7 @@ def main():
         </div>
         """
         extra_ex = clean_replace_content(extra_ex, q3_html)
-        extra_ex = extra_ex.replace('<div class="benefit-box">\n                <strong>💡 [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
+        extra_ex = extra_ex.replace('<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
         extra_ex = extra_ex.replace('id="[BLOCK_ID]"', '')
 
         page_2_blocks.insert(4, extra_ex)

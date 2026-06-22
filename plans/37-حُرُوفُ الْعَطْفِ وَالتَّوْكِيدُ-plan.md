@@ -94,7 +94,7 @@ Content:
 
 === BLOCK 7: Evidence - Parsing (I'rab) ===
 (Component: TEMPLATE_C_BLOCK.html)
-Title: 💡 أَمْثِلَةٌ تَطْبِيقِيَّةٌ
+Title:  أَمْثِلَةٌ تَطْبِيقِيَّةٌ
 Content:
 (Component: TEMPLATE_C_IRAB_ROW.html)
 Row 1:

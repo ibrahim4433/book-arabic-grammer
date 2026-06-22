@@ -38,7 +38,7 @@ def main():
     block_def = block_def.replace("[CONTENT_TEXT]", '<p class="text-accent text-center font-bold text-primary p-2mm">هُوَ جَعْلُ حَرْفٍ مَكَانَ حَرْفٍ، سَوَاءٌ أَكَانَ الحَرْفُ صَحِيحًا أَمْ مُعْتَلًّا.</p>')
 
     # Remove benefit box as it's not used here
-    block_def = block_def.replace('<div class="benefit-box">\n                <strong>💡 [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
+    block_def = block_def.replace('<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
 
     # 3. Hamza Substitution Rules (Split)
     split_hamza = read_template("TEMPLATE_C_SPLIT.html")
@@ -96,7 +96,7 @@ def main():
     </li>
 </ul>""")
     # Remove benefit box
-    block_plural = block_plural.replace('<div class="benefit-box">\n                <strong>💡 [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
+    block_plural = block_plural.replace('<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
 
 
     # 5. Ifti'āl Rules Matrix (Table)
