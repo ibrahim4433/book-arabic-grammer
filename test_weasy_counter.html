@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@page { @bottom-center { content: counter(page); } }
+</style>
+</head>
+<body>
+<div style="page-break-after: always;">Page A</div>
+<div style="page-break-after: always; counter-reset: page 1;">Page B (Should be 1)</div>
+<div>Page C (Should be 2)</div>
+</body>
+</html>
