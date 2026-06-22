@@ -1,8 +1,8 @@
 # **SESSION 26.0**
 
 [TASK DEFINITION]
-Objective: Implement الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).
-File: `pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).html` (Note: `nXX` must remain exactly as `nXX`. It represents the absolute lesson index and will be replaced later by the system.)
+Objective: Implement الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .
+File: `pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .html` (Note: `nXX` must remain exactly as `nXX`. It represents the absolute lesson index and will be replaced later by the system.)
 Reference: Follow patterns in design_patterns.json.
 
 [CONSTRAINTS & PROTOCOLS]
@@ -37,7 +37,7 @@ Reference: Follow patterns in design_patterns.json.
 === BLOCK 1: Lesson Header ===
 (Component: TEMPLATE_C_HEADER.html)
 [LESSON_NUMBER]: 26
-[CHAPTER_TITLE]: الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع)
+[CHAPTER_TITLE]: الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ 
 [CATEGORY_HEADER]: المستوى التأسيسي
 [SECTION_HEADER]: علم النحو
 [AUTHOR_NAME]: أ. الياس خفيف

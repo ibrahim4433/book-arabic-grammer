@@ -350,7 +350,7 @@ def write_and_check(content_blocks, page_num):
     header = render_template(header, header_data)
 
     # If not page 0, maybe mark header as continuation?
-    # Plan says "header of the continuation page(s) must include an indicator like (تابع)".
+    # Plan says "header of the continuation page(s) must include an indicator like ".
     if page_num > 0:
         header = header.replace(header_data["CHAPTER_TITLE"], header_data["CHAPTER_TITLE"] + " (تابِع)")
 

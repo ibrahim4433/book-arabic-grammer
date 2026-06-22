@@ -377,7 +377,7 @@ def generate_page():
 
     # Create Page 2 Header
     header_p2 = t_header.replace("[LESSON_NUMBER]", "16") \
-                        .replace("[CHAPTER_TITLE]", "المنقوص والمقصور والممدود (تابع)") \
+                        .replace("[CHAPTER_TITLE]", "المنقوص والمقصور والممدود ") \
                         .replace("[CATEGORY_HEADER]", "الصرف") \
                         .replace("[SECTION_HEADER]", "المستوى اللغوي") \
                         .replace("[AUTHOR_NAME]", "أ. الياس خفيف") \

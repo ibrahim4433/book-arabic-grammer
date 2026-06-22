@@ -203,7 +203,7 @@ def main():
                 new_header['data'] = header_block['data'].copy()
                 title = new_header['data'].get('CHAPTER_TITLE', '')
                 if 'تابع' not in title:
-                    new_header['data']['CHAPTER_TITLE'] = title + " (تابع)"
+                    new_header['data']['CHAPTER_TITLE'] = title + " "
                 header_html = generate_block_html(new_header)
                 current_page_blocks.append(header_html)
 

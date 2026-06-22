@@ -1,8 +1,8 @@
 # **SESSION 17.0**
 
 [TASK DEFINITION]
-Objective: Implement الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع).
-File: `pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع).html` (Note: `nXX` must remain exactly as `nXX`. It represents the absolute lesson index and will be replaced later by the system.)
+Objective: Implement الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا .
+File: `pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا .html` (Note: `nXX` must remain exactly as `nXX`. It represents the absolute lesson index and will be replaced later by the system.)
 Reference: Follow patterns in design_patterns.json.
 
 [CONSTRAINTS & PROTOCOLS]
@@ -37,7 +37,7 @@ Reference: Follow patterns in design_patterns.json.
 === BLOCK 1: Lesson Header ===
 (Component: TEMPLATE_C_HEADER.html)
 [LESSON_NUMBER]: 17
-[CHAPTER_TITLE]: الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع)
+[CHAPTER_TITLE]: الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا 
 [CATEGORY_HEADER]: المستوى التأسيسي
 [SECTION_HEADER]: علم النحو
 [AUTHOR_NAME]: أ. الياس خفيف

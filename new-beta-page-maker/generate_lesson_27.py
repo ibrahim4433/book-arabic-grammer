@@ -112,7 +112,7 @@ def generate_html():
 
     # Header for Page 2
     header2 = tpl_header.replace("[LESSON_NUMBER]", "27")
-    header2 = header2.replace("[CHAPTER_TITLE]", "المحسنات البديعية (تابع)")
+    header2 = header2.replace("[CHAPTER_TITLE]", "المحسنات البديعية ")
     header2 = header2.replace("[CATEGORY_HEADER]", "فوائد")
     header2 = header2.replace("[SECTION_HEADER]", "المستوى الفني")
     header2 = header2.replace("[AUTHOR_NAME]", "أ. الياس خفيف")

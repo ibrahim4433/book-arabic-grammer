@@ -191,10 +191,10 @@ def main():
         f.write(final_html_p1)
 
     # 9. Assembly Page 2
-    # Create header for p2 with (تابع) suffix
+    # Create header for p2 with  suffix
     header_p2 = read_template("TEMPLATE_C_HEADER.html")
     header_p2 = header_p2.replace("[LESSON_NUMBER]", "١١")
-    header_p2 = header_p2.replace("[CHAPTER_TITLE]", "الإبدال (تابع)")
+    header_p2 = header_p2.replace("[CHAPTER_TITLE]", "الإبدال ")
     header_p2 = header_p2.replace("[CATEGORY_HEADER]", "الصرف")
     header_p2 = header_p2.replace("[SECTION_HEADER]", "المستوى اللغوي")
     header_p2 = header_p2.replace("[AUTHOR_NAME]", "أ. الياس خفيف")

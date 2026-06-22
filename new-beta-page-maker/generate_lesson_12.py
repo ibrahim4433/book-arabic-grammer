@@ -332,7 +332,7 @@ for i, block in enumerate(BLOCKS_DATA):
         # Add header with continuation title if page > 0
         if current_page_idx > 0:
             h_data = BLOCKS_DATA[0]['data'].copy()
-            h_data['[CHAPTER_TITLE]'] += ' (تابع)'
+            h_data['[CHAPTER_TITLE]'] += ' '
             cont_header = render_block_html({'type': 'HEADER', 'data': h_data})
             test_blocks = [cont_header, rendered]
         else:
@@ -369,7 +369,7 @@ for i, block in enumerate(BLOCKS_DATA):
 
         # Add header for new page
         h_data = BLOCKS_DATA[0]['data'].copy()
-        h_data['[CHAPTER_TITLE]'] += ' (تابع)'
+        h_data['[CHAPTER_TITLE]'] += ' '
         cont_header = render_block_html({'type': 'HEADER', 'data': h_data})
         current_blocks_html.append(cont_header)
 
@@ -382,7 +382,7 @@ for i, block in enumerate(BLOCKS_DATA):
              # Logic for first block on new page if it wasn't header (already handled in test_blocks logic but need to apply to current_blocks_html)
              if current_page_idx > 0:
                 h_data = BLOCKS_DATA[0]['data'].copy()
-                h_data['[CHAPTER_TITLE]'] += ' (تابع)'
+                h_data['[CHAPTER_TITLE]'] += ' '
                 cont_header = render_block_html({'type': 'HEADER', 'data': h_data})
                 current_blocks_html.append(cont_header)
 

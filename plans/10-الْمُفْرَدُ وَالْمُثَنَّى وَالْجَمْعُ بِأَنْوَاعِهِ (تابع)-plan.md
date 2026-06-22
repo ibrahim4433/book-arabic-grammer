@@ -1,8 +1,8 @@
 # **SESSION 10.0**
 
 [TASK DEFINITION]
-Objective: Implement الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ (تابع).
-File: `pages/10.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ (تابع).html`
+Objective: Implement الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ .
+File: `pages/10.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ .html`
 Reference: Follow patterns in design_patterns.json.
 
 [CONSTRAINTS & PROTOCOLS]
@@ -37,7 +37,7 @@ Reference: Follow patterns in design_patterns.json.
 === BLOCK 1: Lesson Header ===
 (Component: TEMPLATE_C_HEADER.html)
 [LESSON_NUMBER]: 10
-[CHAPTER_TITLE]: الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ (تابع)
+[CHAPTER_TITLE]: الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ 
 [CATEGORY_HEADER]: المستوى التأسيسي
 [SECTION_HEADER]: علم النحو
 [AUTHOR_NAME]: أ. الياس خفيف

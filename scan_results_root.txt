@@ -18,14 +18,14 @@ NON-ARABIC in pages/00.0_blank_page1.html: /* Force no header/footer and ensure 
             break-after: page;
         }
 NON-ARABIC in pages/01.0_nXX_أَقْسَامُ الْكَلَاَمِ.html: html
-NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ (تابع).html: html
-NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ (تابع).html: 02.0_nXX_أَقْسَامُ الْكَلَاَمِ (تابع)
-NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ (تابع).html: BLOCK 1: Lesson Header
-NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ (تابع).html: BLOCK 2: Definition of الْقَوْل
-NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ (تابع).html: BLOCK 3: Detailed Breakdown of Examples (Deep Dive)
-NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ (تابع).html: BLOCK 4: The Core Matrix
-NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ (تابع).html: BLOCK 5: Warning Box
-NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ (تابع).html: BLOCK 6: Evaluation (Exam)
+NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ .html: html
+NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ .html: 02.0_nXX_أَقْسَامُ الْكَلَاَمِ 
+NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ .html: BLOCK 1: Lesson Header
+NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ .html: BLOCK 2: Definition of الْقَوْل
+NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ .html: BLOCK 3: Detailed Breakdown of Examples (Deep Dive)
+NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ .html: BLOCK 4: The Core Matrix
+NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ .html: BLOCK 5: Warning Box
+NON-ARABIC in pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ .html: BLOCK 6: Evaluation (Exam)
 NON-ARABIC in pages/03.0_nXX_عَلَاَّمَاتُ الْاِسْمِ.html: html
 NON-ARABIC in pages/03.0_nXX_عَلَاَّمَاتُ الْاِسْمِ.html: Right: Lesson Number + Lesson Details
 NON-ARABIC in pages/03.0_nXX_عَلَاَّمَاتُ الْاِسْمِ.html: Center: Title
@@ -33,17 +33,17 @@ NON-ARABIC in pages/03.0_nXX_عَلَاَّمَاتُ الْاِسْمِ.html: L
 NON-ARABIC in pages/04.0_nXX_عَلَاَّمَاتُ الْاِسْمِ.html: html
 NON-ARABIC in pages/05.0_nXX_أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ.html: html
 NON-ARABIC in pages/05.0_nXX_أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ.html: 03.0_nXX_أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ
-NON-ARABIC in pages/06.0_nXX_أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ(تابع).html: html
-NON-ARABIC in pages/06.0_nXX_أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ(تابع).html: 03.1_nXX_أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ
-NON-ARABIC in pages/06.0_nXX_أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ(تابع).html: يُعْتَبَرُ تَمْيِيزُ أَنْوَاعِ الْفِعْلِ مِنْ أَهَمِّ مَبَادِئِ النَّحْوِ الْعَرَبِيِّ، حَيْثُ يُسَاعِدُ عَلَى فَهْمِ صِيَاغَةِ الْجُمَلِ وَتَحْدِيدِ الأَزْمِنَةِ بِشَكْلٍ دَقِيقٍ. الْمُدَاوَمَةُ عَلَى اسْتِخْرَاجِ الأَفْعَالِ مِنَ النُّصُوصِ الْقُرْآنِيَّةِ وَالْأַدְبִيָّةِ يُرَاﺳִخُ هَاذَا الْقَا عِدَاةً فِي ذَا هٍ الطًّالب.
+NON-ARABIC in pages/06.0_nXX_أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ.html: html
+NON-ARABIC in pages/06.0_nXX_أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ.html: 03.1_nXX_أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ
+NON-ARABIC in pages/06.0_nXX_أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ.html: يُعْتَبَرُ تَمْيِيزُ أَنْوَاعِ الْفِعْلِ مِنْ أَهَمِّ مَبَادِئِ النَّحْوِ الْعَرَبِيِّ، حَيْثُ يُسَاعِدُ عَلَى فَهْمِ صِيَاغَةِ الْجُمَلِ وَتَحْدِيدِ الأَزْمِنَةِ بِشَكْلٍ دَقِيقٍ. الْمُدَاوَمَةُ عَلَى اسْتِخْرَاجِ الأَفْعَالِ مِنَ النُّصُوصِ الْقُرْآنِيَّةِ وَالْأַدְبִيָّةِ يُرَاﺳִخُ هَاذَا الْقَا عِدَاةً فِي ذَا هٍ الطًّالب.
 NON-ARABIC in pages/07.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ.html: html
-NON-ARABIC in pages/08.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ (تابع).html: html
-RELIGIOUS (مكة) in pages/08.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ (تابع).html: ( سَافَرْتُ إِلَى مَكَّةَ ثُمَّ الْمَدِينَةِ ).
-RELIGIOUS (الله) in pages/08.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ (تابع).html: بِمَا أَنَّ الْحُروفَ لَا يَتَغَيَّرُ شَكْلُ آخِرِهَا (مَبْنِيَّةٌ)، فَإِنَّ إِعْرَابَهَا يَكُونُ ثَابِتًا وَسَهْلًا، إِذْ يَكْفِي أَنْ نَقُولَ فِي إِعْرَابِ أَيِّ حَرْفٍ: (حَرْفُ كَذَا.. مَبْنِيٌّ عَلَى كَذَا.. لَا مَحَلَّ لَهُ مِنَ الْإِعْرَابِ).
+NON-ARABIC in pages/08.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ .html: html
+RELIGIOUS (مكة) in pages/08.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ .html: ( سَافَرْتُ إِلَى مَكَّةَ ثُمَّ الْمَدِينَةِ ).
+RELIGIOUS (الله) in pages/08.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ .html: بِمَا أَنَّ الْحُروفَ لَا يَتَغَيَّرُ شَكْلُ آخِرِهَا (مَبْنِيَّةٌ)، فَإِنَّ إِعْرَابَهَا يَكُونُ ثَابِتًا وَسَهْلًا، إِذْ يَكْفِي أَنْ نَقُولَ فِي إِعْرَابِ أَيِّ حَرْفٍ: (حَرْفُ كَذَا.. مَبْنِيٌّ عَلَى كَذَا.. لَا مَحَلَّ لَهُ مِنَ الْإِعْرَابِ).
         مِثَالٌ: حَرْفُ الْجَرِّ (فِي) يُعْرَبُ كَالتَّالِي: حَرْفُ جَرٍّ مَبْنِيٌّ عَلَى السُّكُونِ، لَا مَحَلَّ لَهُ مِنَ الْإِعْرَابِ. وَسَنَتَعَلَّمُ تَفَاصِيلَ الْبِنَاءِ فِي الدُّرُوسِ الْمُخَصَّصَةِ لِذَلِكَ إِنْ شَاءَ اللَّهُ.
-NON-ARABIC in pages/08.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ (تابع).html: BLOCK 8: Exam Question 1
-NON-ARABIC in pages/08.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ (تابع).html: BLOCK 9: Exam Question 2
-NON-ARABIC in pages/08.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ (تابع).html: BLOCK 10: Exam Question 3
+NON-ARABIC in pages/08.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ .html: BLOCK 8: Exam Question 1
+NON-ARABIC in pages/08.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ .html: BLOCK 9: Exam Question 2
+NON-ARABIC in pages/08.0_nXX_الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ .html: BLOCK 10: Exam Question 3
 NON-ARABIC in pages/09.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ.html: html
 NON-ARABIC in pages/09.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ.html: BLOCK 1: Header
 NON-ARABIC in pages/09.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ.html: BLOCK 2: مُقَدَّمَةً
@@ -57,15 +57,15 @@ NON-ARABIC in pages/09.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى �
 NON-ARABIC in pages/09.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ.html: BLOCK 8: أ. جَمَعَ الْمُذَكَّرُ السَّالِمُ
 NON-ARABIC in pages/09.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ.html: BLOCK 9: سُمِّيَ سَالِمَا
 NON-ARABIC in pages/09.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ.html: BLOCK 10: ب. جَمَعَ الْمُؤَنَّثُ السَّالِمُ
-NON-ARABIC in pages/10.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ (تابع).html: html
-NON-ARABIC in pages/10.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ (تابع).html: BLOCK 17: السُّؤَالَ الرَّابِعَ
-NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ (تابع).html: html
-NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ (تابع).html: Right: Lesson Number + Lesson Details
-NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ (تابع).html: Center: Title
-NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ (تابع).html: Left: Author Info
-NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ (تابع).html: Regular Question
-NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ (تابع).html: Regular Question
-NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ (تابع).html: Regular Question
+NON-ARABIC in pages/10.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ .html: html
+NON-ARABIC in pages/10.0_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ .html: BLOCK 17: السُّؤَالَ الرَّابِعَ
+NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ .html: html
+NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ .html: Right: Lesson Number + Lesson Details
+NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ .html: Center: Title
+NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ .html: Left: Author Info
+NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ .html: Regular Question
+NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ .html: Regular Question
+NON-ARABIC in pages/10.1_nXX_الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ .html: Regular Question
 NON-ARABIC in pages/11.0_nXX_الضَّمَائِرُ.html: html
 NON-ARABIC in pages/11.0_nXX_الضَّمَائِرُ.html: First Box
 NON-ARABIC in pages/11.0_nXX_الضَّمَائِرُ.html: Second Box
@@ -106,10 +106,10 @@ NON-ARABIC in pages/14.1_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْ�
 NON-ARABIC in pages/14.1_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا.html: BLOCK 10: Exam 1
 NON-ARABIC in pages/14.1_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا.html: BLOCK 11: Exam 2
 NON-ARABIC in pages/14.1_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا.html: BLOCK 12: Exam 3
-NON-ARABIC in pages/15.0_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا (تابع).html: html
-NON-ARABIC in pages/15.0_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا (تابع).html: Right: Lesson Number + Lesson Details
-NON-ARABIC in pages/15.0_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا (تابع).html: Center: Title
-NON-ARABIC in pages/15.0_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا (تابع).html: Left: Author Info
+NON-ARABIC in pages/15.0_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا .html: html
+NON-ARABIC in pages/15.0_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا .html: Right: Lesson Number + Lesson Details
+NON-ARABIC in pages/15.0_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا .html: Center: Title
+NON-ARABIC in pages/15.0_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا .html: Left: Author Info
 NON-ARABIC in pages/16.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا.html: html
 NON-ARABIC in pages/16.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا.html: BLOCK 1: Lesson Header
 NON-ARABIC in pages/16.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا.html: BLOCK 2: Definition
@@ -125,16 +125,16 @@ NON-ARABIC in pages/16.1_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (
 NON-ARABIC in pages/16.1_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا.html: Spacer to solve underflow
 NON-ARABIC in pages/16.1_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا.html: BLOCK 11: Special Cases List
 NON-ARABIC in pages/16.1_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا.html: BLOCK 12: Irab Parsing 5 (Special Case)
-NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع).html: html
-NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع).html: BLOCK 1: Lesson Header
-NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع).html: BLOCK 2: Definition & Rule
-NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع).html: BLOCK 3: Deep Dive
-NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع).html: BLOCK 4: Extra Info (Orange Alert)
-NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع).html: BLOCK 5: Core Matrix
-NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع).html: BLOCK 6: I'rab Details (Row 1)
-NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع).html: BLOCK 7: I'rab Details (Row 2)
-NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع).html: BLOCK 8: Exam
-RELIGIOUS (الله) in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا (تابع).html: أَعْرِبِ الْجُمْلَةَ التَّالِيَةَ إِعْرَابًا تَامًّا: "اللَّهُ غَفُورٌ رَحِيمٌ".
+NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا .html: html
+NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا .html: BLOCK 1: Lesson Header
+NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا .html: BLOCK 2: Definition & Rule
+NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا .html: BLOCK 3: Deep Dive
+NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا .html: BLOCK 4: Extra Info (Orange Alert)
+NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا .html: BLOCK 5: Core Matrix
+NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا .html: BLOCK 6: I'rab Details (Row 1)
+NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا .html: BLOCK 7: I'rab Details (Row 2)
+NON-ARABIC in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا .html: BLOCK 8: Exam
+RELIGIOUS (الله) in pages/17.0_nXX_الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا .html: أَعْرِبِ الْجُمْلَةَ التَّالِيَةَ إِعْرَابًا تَامًّا: "اللَّهُ غَفُورٌ رَحِيمٌ".
 NON-ARABIC in pages/18.0_nXX_الْمُبْتَدَأُ وَالْخَبَرُ (مُتَقَدِّمٌ الجزء الأول).html: html
 RELIGIOUS (رب) in pages/18.0_nXX_الْمُبْتَدَأُ وَالْخَبَرُ (مُتَقَدِّمٌ الجزء الأول).html: نَعَمْ، فِي حَالَاتٍ نَادِرَةٍ جِدّاً لِأَسْبَابٍ بَلَاغِيَّةٍ، يُجَرُّ المبتدأُ بحَرْفَي الجَرِّ (الزَّائدَيْن) اللَّذَيْنِ لَا مَحَلَّ لَهُمَا إِلَّا التَّوْكِيدُ: (الباء) و(مِنْ) ، أو يُجَرُّ بحَرفِ الجَرِّ الشَّبيهِ بالزَّائِدِ (رُبَّ).
 RELIGIOUS (رب) in pages/18.0_nXX_الْمُبْتَدَأُ وَالْخَبَرُ (مُتَقَدِّمٌ الجزء الأول).html: رُبَّ
@@ -195,21 +195,21 @@ NON-ARABIC in pages/24.0_nXX_الْفَاعِلُ وَأَنْوَاعُهُ و�
 NON-ARABIC in pages/24.0_nXX_الْفَاعِلُ وَأَنْوَاعُهُ وَعَلَاَّمَاتُ إِعْرَابِهِ.html: BLOCK 8: Evaluation (Exam)
 NON-ARABIC in pages/25.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ.html: html
 NON-ARABIC in pages/25.1_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ.html: html
-NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).html: html
-NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).html: BLOCK 1: Lesson Header
-NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).html: Right: Lesson Number + Lesson Details
-NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).html: Center: Title
-NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).html: Left: Author Info
-NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).html: BLOCK 2: Definition and Rule
-NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).html: BLOCK 3: Core Matrix - Accusative Signs
-NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).html: BLOCK 4: Deep Dive - Types of Maf'ul Bihi
-NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).html: BLOCK 5: Extra Info - Warning
-NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).html: BLOCK 6: Parsing Models
-RELIGIOUS (الله) in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ (تابع).html: أَعْرِبْ مَا تَحْتَهُ خَطٌّ: "يُحِبُّ اللَّهُ
+NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .html: html
+NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .html: BLOCK 1: Lesson Header
+NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .html: Right: Lesson Number + Lesson Details
+NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .html: Center: Title
+NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .html: Left: Author Info
+NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .html: BLOCK 2: Definition and Rule
+NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .html: BLOCK 3: Core Matrix - Accusative Signs
+NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .html: BLOCK 4: Deep Dive - Types of Maf'ul Bihi
+NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .html: BLOCK 5: Extra Info - Warning
+NON-ARABIC in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .html: BLOCK 6: Parsing Models
+RELIGIOUS (الله) in pages/26.0_nXX_الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ .html: أَعْرِبْ مَا تَحْتَهُ خَطٌّ: "يُحِبُّ اللَّهُ
 NON-ARABIC in pages/27.0_nXX_حُروفُ الْجَرِّ وَعَلَاَّمَاتِ الْإِعْرَابِ الْمَجْرُورَةِ.html: html
 NON-ARABIC in pages/27.1_nXX_حُروفُ الْجَرِّ وَعَلَاَّمَاتِ الْإِعْرَابِ الْمَجْرُورَةِ.html: html
 RELIGIOUS (الله) in pages/27.1_nXX_حُروفُ الْجَرِّ وَعَلَاَّمَاتِ الْإِعْرَابِ الْمَجْرُورَةِ.html: اِسْتَخْرِجْ الأَسْمَاءَ المَجْرُورَةَ وَبَيِّنْ عَلَامَةَ إِعْرَابِهَا فِي قَوْلِهِ تَعَالَى: (إِلَى اللَّهِ مَرْجِعُكُمْ جَمِيعًا).
-NON-ARABIC in pages/28.0_nXX_حُروفُ الْجَرِّ وَعَلَاَّمَاتِ الْإِعْرَابِ الْمَجْرُورَةِ (تابع).html: html
+NON-ARABIC in pages/28.0_nXX_حُروفُ الْجَرِّ وَعَلَاَّمَاتِ الْإِعْرَابِ الْمَجْرُورَةِ .html: html
 NON-ARABIC in pages/29.0_nXX_الْمَنْصُوبَاتُ الْحَالُ.html: html
 NON-ARABIC in pages/30.0_nXX_الْمَنْصُوبَاتُ التَّمْيِيزُ.html: html
 NON-ARABIC in pages/31.0_nXX_الْمَنْصُوبَاتُ الْمَفْعُولُ فِيهِ (الظَّرْفُ).html: html

@@ -1,8 +1,8 @@
 # **SESSION 15.0**
 
 [TASK DEFINITION]
-Objective: Implement أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا (تابع).
-File: `pages/15.0_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا (تابع).html` (Note: `nXX` must remain exactly as `nXX`. It represents the absolute lesson index and will be replaced later by the system.)
+Objective: Implement أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا .
+File: `pages/15.0_nXX_أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا .html` (Note: `nXX` must remain exactly as `nXX`. It represents the absolute lesson index and will be replaced later by the system.)
 Reference: Follow patterns in design_patterns.json.
 
 [CONSTRAINTS & PROTOCOLS]
@@ -37,7 +37,7 @@ Reference: Follow patterns in design_patterns.json.
 === BLOCK 1: Lesson Header ===
 (Component: TEMPLATE_C_HEADER.html)
 [LESSON_NUMBER]: 15
-[CHAPTER_TITLE]: أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا (تابع)
+[CHAPTER_TITLE]: أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا 
 [CATEGORY_HEADER]: المستوى التأسيسي
 [SECTION_HEADER]: علم النحو
 [AUTHOR_NAME]: أ. الياس خفيف

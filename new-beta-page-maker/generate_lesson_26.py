@@ -604,9 +604,9 @@ def main():
             popped_block_is_header = extract_header_info(block) is not None
 
             if not popped_block_is_header:
-                # Add header with (تابع)
+                # Add header with 
                 header_تابع = get_header(
-                    title=f"{current_header['title']} (تابع)",
+                    title=f"{current_header['title']} ",
                     section=current_header['section'],
                     category=current_header['category'],
                     number=current_header['number'],

@@ -1,8 +1,8 @@
 # **SESSION 02.0**
 
 [TASK DEFINITION]
-Objective: Implement أَقْسَامُ الْكَلَاَمِ (تابع).
-File: `pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ (تابع).html` (Note: `nXX` must remain exactly as `nXX`. It represents the absolute lesson index and will be replaced later by the system.)
+Objective: Implement أَقْسَامُ الْكَلَاَمِ .
+File: `pages/02.0_nXX_أَقْسَامُ الْكَلَاَمِ .html` (Note: `nXX` must remain exactly as `nXX`. It represents the absolute lesson index and will be replaced later by the system.)
 Reference: Follow patterns in design_patterns.json.
 
 [CONSTRAINTS & PROTOCOLS]
@@ -37,7 +37,7 @@ Reference: Follow patterns in design_patterns.json.
 === BLOCK 1: Lesson Header ===
 (Component: TEMPLATE_C_HEADER.html)
 [LESSON_NUMBER]: 02
-[CHAPTER_TITLE]: أَقْسَامُ الْكَلَاَمِ (تابع)
+[CHAPTER_TITLE]: أَقْسَامُ الْكَلَاَمِ 
 [CATEGORY_HEADER]: المستوى التأسيسي
 [SECTION_HEADER]: علم النحو
 [AUTHOR_NAME]: أ. الياس خفيف

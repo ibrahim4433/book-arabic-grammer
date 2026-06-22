@@ -196,7 +196,7 @@ def save_page(idx, content_blocks):
     filename = f"Jules-workspace/pages/02.{idx}_nXX_عَلَاَّمَاتُ الْاِسْمِ.html"
     if idx > 0 and 'class="page-header-strip"' not in content_blocks[0]:
         # Add a continued header
-        continued_header = TEMPLATE_HEADER.replace("عَلَاَّمَاتُ الْاِسْمِ", "عَلَاَّمَاتُ الْاِسْمِ (تابع)")
+        continued_header = TEMPLATE_HEADER.replace("عَلَاَّمَاتُ الْاِسْمِ", "عَلَاَّمَاتُ الْاِسْمِ ")
         html = TEMPLATE_BASE.format(content="\n".join([continued_header] + content_blocks))
     else:
         html = TEMPLATE_BASE.format(content="\n".join(content_blocks))

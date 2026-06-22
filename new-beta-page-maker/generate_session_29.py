@@ -312,7 +312,7 @@ def main():
 
         page_2_blocks.insert(5, summary)
 
-        p2_html = create_page(page_2_blocks, 29, 'وظائف عناصر المستوى التركيبي (تابع)')
+        p2_html = create_page(page_2_blocks, 29, 'وظائف عناصر المستوى التركيبي ')
         with open(OUTPUT_FILE_2, 'w', encoding='utf-8') as f:
             f.write(p2_html)
         print(f"Saved {OUTPUT_FILE_2}")
