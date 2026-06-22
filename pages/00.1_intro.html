@@ -1,64 +1,63 @@
 <!DOCTYPE html>
-
 <html dir="rtl" lang="ar">
 <head>
-<meta charset="utf-8"/>
-<title>مُقَدِّمَةُ الْكِتَابِ</title>
-<link href="../styles/main.css" rel="stylesheet"/>
-<style>
-    .intro-poetic-block {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 240mm;
-        border: none;
-        background: transparent;
-        text-align: center;
-    }
-    .intro-poetic-text {
-        font-size: 22pt;
-        line-height: 2.0;
-        font-weight: 900;
-        color: #006064;
-    }
-</style>
+    <meta charset="utf-8"/>
+    <title>مُقَدِّمَةُ الْكِتَابِ</title>
+    <style>
+        /* 1. Reset body and html */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 2. Use CSS Tables for maximum compatibility in PDF engines */
+        .force-new-page {
+            display: table;
+            width: 100%;
+            height: 297mm; /* Falls back to the full page height */
+        }
+
+        /* 3. The table-cell property unlocks vertical-align: middle */
+        .intro-container {
+            display: table-cell;
+            vertical-align: middle; /* Centers vertically */
+            text-align: center;     /* Centers horizontally */
+        }
+
+        .intro-poetic-text {
+            font-size: 20pt !important;
+            line-height: 2 !important;
+            font-weight: 700 !important;
+            color: #006064 !important;
+            margin: 0 auto !important;
+        }
+
+        .m-0 {
+            margin: 0 !important;
+        }
+    </style>
 </head>
 <body>
-<div class="force-new-page">
-<header class="page-header-strip" id="b02799">
-<div class="header-section right">
-<div class="lesson-number">00</div>
-<div class="lesson-details">
-<div>المستوى التأسيسي</div>
-<div>مُقَدِّمَةٌ</div>
-</div>
-</div>
-<div class="header-section center">
-<h1 class="header-title">مُقَدِّمَةُ الْكِتَابِ</h1>
-</div>
-<div class="header-section left">
-<div class="author-info">أ. حنا خفيف</div>
-<div class="author-info"> </div>
-</div>
-</header>
-<section class="intro-poetic-block" id="b63585">
-<div class="intro-poetic-text">
-<p class="m-0">مِفْتَاحٌ إِلَى فَهْمِ اللُّغَةِ العَرَبِيَّةِ.</p>
-<p class="m-0">رِحْلَةٌ فِي أُسُسِ اللُّغَةِ العَرَبِيَّةِ.</p>
-<p class="m-0">تَعَلُّمُ العَرَبِيَّةِ مِنْ جُذُورِهَا.</p>
-<p class="m-0">حَيْثُ تَبْدَأُ العَرَبِيَّةُ الصَّحِيحَةُ.</p>
-<p class="m-0">خُطْوَتُكَ نَحْوَ إِتْقَانِ العَرَبِيَّةِ.</p>
-<p class="m-0">بِنَاءُ اللُّغَةِ يَبْدَأُ مِنْ أُصُولِهَا.</p>
-<p class="m-0">لِأَنَّ قُوَّةَ اللُّغَةِ فِي أُسُسِهَا.</p>
-<p class="m-0">مِنَ القَاعِدَةِ إِلَى الإِبْدَاعِ اللُّغَوِيِّ.</p>
-<p class="m-0">أُسُسٌ رَاسِخَةٌ لِلُّغَةٍ مُتْقَنَةٍ.</p>
-<p class="m-0">دَلِيلُكَ إِلَى فَهْمِ قَوَاعِدِ العَرَبِيَّةِ.</p>
-<p class="m-0">لُغَتُنَا تَبْدَأُ مِنْ أُصُولِهَا.</p>
-<p class="m-0">تَعَلَّمِ العَرَبِيَّةَ بِفَهْمٍ وَإِتْقَانٍ.</p>
-<p class="m-0">لِكُلِّ قَاعِدَةٍ أَصْلٌ، وَلِكُلِّ أَصْلٍ مَعْرِفَةٌ.</p>
-<p class="m-0">نَبْنِي اللُّغَةَ عَلَى أُسُسٍ رَاسِخَةٍ.</p>
-</div>
-</section>
-</div>
+    <div class="force-new-page">
+        <div class="intro-container">
+            <div class="intro-poetic-text">
+                <p class="m-0">مِفْتَاحٌ إِلَى فَهْمِ اللُّغَةِ العَرَبِيَّةِ.</p>
+                <p class="m-0">رِحْلَةٌ فِي أُسُسِ اللُّغَةِ العَرَبِيَّةِ.</p>
+                <p class="m-0">تَعَلُّمُ العَرَبِيَّةِ مِنْ جُذُورِهَا.</p>
+                <p class="m-0">حَيْثُ تَبْدَأُ العَرَبِيَّةُ الصَّحِيحَةُ.</p>
+                <p class="m-0">خُطْوَتُكَ نَحْوَ إِتْقَانِ العَرَبِيَّةِ.</p>
+                <p class="m-0">بِنَاءُ اللُّغَةِ يَبْدَأُ مِنْ أُصُولِهَا.</p>
+                <p class="m-0">لِأَنَّ قُوَّةَ اللُّغَةِ فِي أُسُسِهَا.</p>
+                <p class="m-0">مِنَ القَاعِدَةِ إِلَى الإِبْدَاعِ اللُّغَوِيِّ.</p>
+                <p class="m-0">أُسُسٌ رَاسِخَةٌ لِلُّغَةٍ مُتْقَنَةٍ.</p>
+                <p class="m-0">دَلِيلُكَ إِلَى فَهْمِ قَوَاعِدِ العَرَبِيَّةِ.</p>
+                <p class="m-0">لُغَتُنَا تَبْدَأُ مِنْ أُصُولِهَا.</p>
+                <p class="m-0">تَعَلَّمِ العَرَبِيَّةَ بِفَهْمٍ وَإِتْقَانٍ.</p>
+                <p class="m-0">لِكُلِّ قَاعِدَةٍ أَصْلٌ، وَلِكُلِّ أَصْلٍ مَعْرِفَةٌ.</p>
+                <p class="m-0">نَبْنِي اللُّغَةَ عَلَى أُسُسٍ رَاسِخَةٍ.</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
