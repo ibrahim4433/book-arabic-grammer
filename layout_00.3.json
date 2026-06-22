@@ -1,0 +1,8 @@
+{
+  "status": "UNDERFLOW",
+  "remaining_height_mm": 84.42,
+  "blank_space_percentage": 28.4,
+  "recommendation": "FIT_ANOTHER_SECTION",
+  "details": "Page has 28.4% (84.4mm) empty space. Fill it.",
+  "split_recommendation": null
+}
