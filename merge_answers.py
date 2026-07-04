@@ -1,61 +1,30 @@
-import glob
 import os
 from bs4 import BeautifulSoup
 
-def merge():
-    files = sorted(glob.glob('pages/98.*_Answers.html'))
-    
-    all_sections = []
-    for file in files:
-        with open(file, 'r', encoding='utf-8') as f:
-            soup = BeautifulSoup(f.read(), 'html.parser')
-            sections = soup.find_all('section', class_='content-block')
-            all_sections.extend(sections)
-            
-    header = """<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-<meta charset="utf-8"/>
-<title>مُلْحَقُ الْإِجَابَاتِ</title>
-<link href="../styles/main.css" rel="stylesheet"/>
-</head>
-<body>
-<div class="force-new-page">
-<header class="page-header-strip">
-<div class="header-section right">
-<div class="lesson-number">٩٨</div>
-<div class="lesson-details">
-<div>المستوى التأسيسي</div>
-<div>مُلْحَقُ الْإِجَابَاتِ</div>
-</div>
-</div>
-<div class="header-section center">
-<h1 class="header-title">حَلُّ تَدْرِيبَاتِ الْكِتَابِ</h1>
-</div>
-<div class="header-section left">
-<div class="author-info">أ. حنا خفيف</div>
-<div class="author-info"> </div>
-</div>
-</header>
-"""
-    footer = """
-</div>
-</body>
-</html>
-"""
+with open('pages/98.00_p120_Answers.html', encoding='utf-8') as f:
+    soup1 = BeautifulSoup(f.read(), 'html.parser')
 
-    with open('pages/98.00_p120_Answers.html', 'w', encoding='utf-8') as f:
-        f.write(header)
-        for section in all_sections:
-            f.write(str(section) + "\n")
-        f.write(footer)
-        
-    print(f"Merged {len(all_sections)} sections into one file.")
-    
-    for file in files:
-        if file != 'pages/98.00_p120_Answers.html':
-            os.remove(file)
-            print(f"Deleted {file}")
+with open('pages/98.43_p163_Answers.html', encoding='utf-8') as f:
+    soup2 = BeautifulSoup(f.read(), 'html.parser')
 
-if __name__ == '__main__':
-    merge()
+# Get the container in soup1 where we should append.
+# The answers are inside <div class="force-new-page">
+container1 = soup1.find('div', class_='force-new-page')
+
+# We want to extract the answers from soup2 (ignore header and body/html tags)
+# Basically, any <div class="block-header"> and <div class="block-body"> and <div class="exam-question">
+# Actually, everything inside <div class="force-new-page"> EXCEPT the <header>
+container2 = soup2.find('div', class_='force-new-page')
+
+if container2:
+    for child in container2.find_all(recursive=False):
+        if child.name == 'header':
+            continue # Skip the header because we don't want parts!
+        container1.append(child)
+
+with open('pages/98.00_p120_Answers.html', 'w', encoding='utf-8') as f:
+    f.write(str(soup1))
+
+# Delete the merged file
+os.remove('pages/98.43_p163_Answers.html')
+print('Merged successfully')

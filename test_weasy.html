@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  .dynamic-page::after { content: target-counter(attr(href), page, arabic-indic); }
+</style>
+</head>
+<body>
+  <div>Page of section 2: <a class="dynamic-page" href="#sec2"></a></div>
+  <div style="page-break-before: always;">Page 2</div>
+  <div style="page-break-before: always;" id="sec2">Page 3</div>
+</body>
+</html>
