@@ -89,17 +89,17 @@ Title: أولًا - الأسلوب الخبري
 <tr>
     <td class="font-bold text-primary">١- الخبرُ الابتدائيُّ</td>
     <td>هو الخبرُ الخالي من المُؤكِّدات</td>
-    <td>نجَحَ خالدٌ</td>
+    <td>نجَحَ رامزٌ</td>
 </tr>
 <tr>
     <td class="font-bold text-primary">٢- الخبرُ الطَّلبيُّ</td>
     <td>هو الخبرُ الذي ورد فيهِ مُؤكِّدٌ واحدٌ</td>
-    <td>واللهِ نَجَحَ خالدٌ</td>
+    <td>واللهِ نَجَحَ رامزٌ</td>
 </tr>
 <tr>
     <td class="font-bold text-primary">٣- الخبرُ الإنكاريُّ</td>
     <td>هو الخبرُ الذي ورد فيهِ مُؤكِّدان، أو أكثر</td>
-    <td>واللهِ قد نَجَحَ خالدٌ</td>
+    <td>واللهِ قد نَجَحَ رامزٌ</td>
 </tr>
 
 === BLOCK 6: Emphasis Particles (Chips/Tip) ===

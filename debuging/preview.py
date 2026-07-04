@@ -22,8 +22,8 @@ def get_chapter_map():
         # 2. STANDARD CASE: Detect Numbered Chapters
         try:
             prefix = filename.split('_')[0]
-            number = int(prefix) # Converts "02" to 2
-            chapter_map[str(number)] = filename # Store as string keys
+            number = float(prefix)
+            chapter_map[str(prefix)] = filename # Store as string keys
         except ValueError:
             continue # Skip files that don't match the pattern
             
@@ -49,7 +49,7 @@ def main():
         print(f"   [t] 🎨 {chapter_map['t']} (THE MASTER TEMPLATE)")
     
     # Print numbered chapters sorted
-    numeric_keys = sorted([k for k in chapter_map.keys() if k.isdigit()], key=int)
+    numeric_keys = sorted([k for k in chapter_map.keys() if k.replace('.','',1).isdigit()], key=float)
     for key in numeric_keys:
         print(f"   [{key}]    {chapter_map[key]}")
         
