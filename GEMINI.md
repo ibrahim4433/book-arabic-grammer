@@ -77,6 +77,10 @@ Every HTML file in `/pages/` must render to **exactly one A4 page**.
 - **`.text-accent`**: **Definitions**. Used for the main text inside a concept definition block.
 - **`.irab-word`**: Text inside I'rab boxes must remain **White** (`#FFFFFF`). Do not apply colors here.
 
+### 6. Background-Driven Design & Typography
+- **Theme Priority:** Background images dictate the CSS color palette, not the other way around. CSS themes must be generated to perfectly complement the provided A4 background image.
+- **Mandatory Bold Typography:** All structural Arabic text must use bold weights (`font-weight: 700` or `900`). Normal or medium weights (`400`, `500`) are strictly forbidden.
+
 ---
 
 ## 🧩 Design System: Atomic Components
@@ -177,3 +181,6 @@ Content: [Exact Arabic Text with .text-accent class]
 *   **No English:** Content must be 100% Arabic (except for code attributes).
 *   **No Empty IDs:** Every content block must have a `bXXXXX` ID.
 *   **No Broken Diacritics:** Missing Tashkeel is a critical failure.
+*   **No Single-Use Scripts:** When automating fixes or refactoring, do NOT write hardcoded, single-use scripts (e.g., `fix_hr_tags.py`). Always build or utilize generalized, argument-driven tools (e.g., `batch_refactor.py` or `lint_autofixer.py`).
+*   **Safe Reorganization (No Deletions):** Do not aggressively delete legacy workspaces, scripts, or markdown files. Move unused but potentially valuable files to `docs/` or `Archive/` rather than permanently deleting them, and always ask for explicit confirmation before removing files.
+

@@ -1,0 +1,93 @@
+0: 
+1: أَقْسَامُ الْكَلَاَمِ الْمُفِيدِ فِي اللُّغَةَ الْعَرَبِيَّةَ
+2: أَقْسَامُ الْكَلَاَمِ الْمُفِيدِ فِي اللُّغَةَ الْعَرَبِيَّةَ 
+3: 02.0_nXX_عَلَاَّمَاتُ الْاِسْمِ
+4: 02.1_nXX_عَلَاَّمَاتُ الْاِسْمِ 
+5: أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ
+6: أَنْوَاعُ الْفِعْلِ وَعَلَاَّمَاتِهِ
+7: الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ
+8: الْحَرْفُ وَعَلَاَّمَاتُهُ وَأَنْوَاعُهُ
+9: الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ
+10: الْمُفْرَدُ وَالْمُثَنَّى وَالْجَمْعُ بِأَنْوَاعِهِ 
+11: كَيْف تُعْرِبُ ؟( خَطْوَاتِ الْإِعْرَابِ الصَّحِيحِ )
+12: أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا
+13: أَنْوَاعُ الْجَمَلِ وَكَيْفِيَّةِ التَّمْييزِ بَيْنهَا 
+14: حُروفُ الْجَرِّ وَعَلَاَّمَاتِ الْإِعْرَابِ الْمَجْرُورَةِ
+15: حُروفُ الْجَرِّ وَعَلَاَّمَاتِ الْإِعْرَابِ الْمَجْرُورَةِ 
+16: الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا
+17: الْجُمْلَةُ الِاسْمِيَّةُ (الْمُبْتَدَأُ وَالْخَبَرُ) وَإِعْرَابُهُمَا 
+18: الْفَاعِلُ وَأَنْوَاعُهُ وَعَلَاَّمَاتُ إِعْرَابِهِ
+19: الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ
+20: الْمَفْعُولُ بِه وَأَنْوَاعَهُ وَعَلَاَّمَاتِ إِعْرَابِهِ 
+21: lesson 1: Past Verbs
+22: lesson 1: Present Verbs
+23: lesson 1: Command Verbs
+24: lesson 2: Pronouns
+25: lesson 2: Pronouns Part 2
+26: lesson 4: Mubtada Part 1
+27: lesson 4: Mubtada Part 2
+28: Lesson 4: Mubtada Advanced
+29: Lesson 4: Mubtada Parsing
+30: Lesson 5.0: Followers Intro
+31: Lesson 5.1: Conjunction Particles
+32: Badal Intro
+33: Lesson 5: Al-Mansubat
+34: Lesson 5.1: Al-Mansubat (Tamyeez)
+35: Al-Mansubat Part 3
+36: Al-Mansubat Part 4
+37: Al-Mansubat Part 5
+38: The Diptote
+39: lesson 8: Munada
+40: lesson 8: Munada Part 2
+41: إعراب الجمل
+42: إعراب الجمل
+43: إعراب الجمل - تابع
+44: Lesson 11: Irab Jumal (No Place)
+45: Lesson 11: Irab Jumal (No Place) - Part 2
+46: lesson Template
+47: lesson Template
+48: الصحيح والمعتل
+49: lesson Template
+50: lesson Template
+51: lesson Template
+52: lesson Template
+53: lesson Template
+54: lesson Template
+55: lesson Template
+56: lesson Template
+57: lesson Template
+58: lesson Template
+59: lesson Template
+60: lesson Template
+61: lesson Template
+62: lesson Template
+63: lesson Template
+64: lesson Template
+65: lesson Template
+66: 19.0_n47_الهمزة_المتطرفة.html
+67: 19.1_n48_الهمزة_المتطرفة.html
+68: lesson Template
+69: lesson Template
+70: lesson Template
+71: lesson Template
+72: lesson Template
+73: lesson Template
+74: lesson Template
+75: lesson Template
+76: lesson Template
+77: lesson Template
+78: lesson Template
+79: lesson Template
+80: lesson Template
+81: lesson Template
+82: lesson Template
+83: lesson Template
+84: lesson Template
+85: lesson Template
+86: lesson Template
+87: lesson Template
+88: lesson Template
+89: lesson Template
+90: lesson Template
+91: lesson Template
+92: lesson Template

@@ -1,0 +1,145 @@
+
+# **SESSION 06.0**
+
+[TASK DEFINITION]
+
+Role: HTML5 Specialist & Arabic Book Designer.
+
+Objective: create the lesson pages  (التَّوَابِعُ) . Ensure high visual density and logical flow across pages.
+
+Context: Creating files `06.0_nxx_follow.html` and up ..( 06.1 , 06.2 , ... as needed)
+
+[CONSTRAINTS & PROTOCOLS]
+
+1. Source of Truth: Adhere strictly to BOOK_RULES.md and elements_index.md.
+2. Page Breaking Logic:
+   *  use tools/verify_layout.py after every major block.
+   * If the status is "FULL" or "OVERFLOW", close the file and move to the next sequential filename.
+3. Templates: Use strictly the Jules-workspace/Templates/ components. 
+   * NEVER use generic `<ul>`. Map to `TEMPLATE_C_LIST`.
+   * Use `TEMPLATE_C_IRAB` for multi-line analysis and `TEMPLATE_C_IRAB_ROW` for concise word-to-role mappings.
+4. Content Integrity: Preserve ALL Arabic Diacritics (Harakat) exactly as provided.
+5. see how other pages in the book made and try to memic the theme and desgn patterns..
+
+[CONTENT STREAM]
+
+Process the following blocks starting in `pages/06.0_nxx_follow.html`.
+
+--- START STREAM ---
+
+=== BLOCK 1: Lesson Header ===
+
+(Component: TEMPLATE_C_HEADER)
+
+Lesson Number: ٦
+Lesson Subtitle 1: التَّوَابِعُ
+Author Name: أ. حنا خفيف
+Author Phone: 963994066850+
+
+=== BLOCK 2: Tawkeed Literal  ===
+
+(Component: TEMPLATE_C_BLOCK)
+
+Title: 💠  التَّوْكِيدِ اللَّفْظِيِّ
+
+Content: يَكُونُ التَّوْكِيدُ اللَّفْظِيُّ بِإِعَادَةِ اللَّفْظِ نَفْسِهِ لِتَقْرِيرِ الْمَعْنَى فِي نَفْسِ السَّامِعِ:
+
+(Component: TEMPLATE_C_LIST)
+
+List Title: صُوَرُ التَّوْكِيدِ اللَّفْظِيِّ
+
+Bullet Point 1: **تَوْكِيدُ الْحَرْفِ**: نَحْوُ: (**لَا لَا** أُخْذِلُ وَالِدِي). [لَا الثَّانِيَةُ: تَوْكِيدٌ لَفْظِيٌّ].
+Bullet Point 2: **تَوْكِيدُ الْجُمْلَةِ**: نَحْوُ: (**أَنْتَ الْأَمَلُ أَنْتَ الْأَمَلُ**). [الْجُمْلَةُ الثَّانِيَةُ: تَوْكِيدٌ لَفْظِيٌّ لِلْأُولَى].
+
+=== BLOCK 3: Moral Emphasis (Tawkeed Ma'nawi) ===
+
+(Component: TEMPLATE_C_BLOCK)
+
+Title: 💠 ثَانِيًا: التَّوْكِيدُ الْمَعْنَوِيُّ
+
+Content: تُذْكَرُ بَعْدَ الْمُؤَكَّدِ إِحْدَى الْكَلِمَاتِ: (**نَفْس، عَيْن، كِلَا، كِلْتَا، جَمِيع، كُلّ**) مُضَافَةً إِلَى ضَمِيرٍ مُنَاسِبٍ لِلْمُؤَكَّدِ.
+
+(Component: TEMPLATE_C_BENEFIT)
+
+Benefit Title: أَمْثِلَةٌ تَطْبِيقِيَّةٌ
+Benefit Text: (جَاءَ الرَّجُلُ **عَيْنُهُ**)، (رَأَيْتُ الْفَتَاةَ **نَفْسَهَا**)، (جَاءَ الطَّالِبَانِ **كِلَاهُمَا**)، (قَرَأْتُ الْأَمْثِلَةَ **كُلَّهَا**).
+
+(Component: TEMPLATE_C_IRAB)
+
+IRAB Title: نَمَاذِجُ إِعْرَابِ التَّوْكِيدِ الْمَعْنَوِيِّ
+Word 1: عَيْنُهُ
+Parsing Details 1: تَوْكِيدٌ مَعْنَوِيٌّ مَرْفُوعٌ وَعَلَامَةُ رَفْعِهِ الضَّمَّةُ الظَّاهِرَةُ، وَالْهَاءُ ضَمِيرٌ مُتَّصِلٌ فِي مَحَلِّ جَرٍّ مُضَافٌ إِلَيْهِ.
+Word 2: نَفْسَهَا
+Parsing Details 2: تَوْكِيدٌ مَعْنَوِيٌّ مَنْصُوبٌ وَعَلَامَةُ نَصْبِهِ الْفَتْحَةُ الظَّاهِرَةُ، وَهَا ضَمِيرٌ مُتَّصِلٌ فِي مَحَلِّ جَرٍّ مُضَافٌ إِلَيْهِ.
+Word 3: كِلَاهُمَا
+Parsing Details 3: تَوْكِيدٌ مَعْنَوِيٌّ مَرْفُوعٌ وَعَلَامَةُ رَفْعِهِ الْأَلِفُ لِأَنَّهُ مُلْحَقٌ بِالْمُثَنَّى، وَالْهَاءُ مُضَافٌ إِلَيْهِ، وَمَا لِلتَّثْنِيَةِ.
+
+=== BLOCK 4: Poetic Evidence for Tawkeed ===
+
+(Component: TEMPLATE_C_POEM)
+
+Poem Title: شَوَاهِدُ التَّوْكِيدِ
+Hemistich 1: هَا هُنَا وَارَيْتُ أَجْدَادِي ... هُنَا
+Hemistich 2: وَهُمُ اخْتَارُوا ثَرَاهَا كَفَنَا
+Hemistich 3: وَأَحْلُمُ أَحْلُمُ لَا أَسْتَفِيـــــــ
+Hemistich 4: ــــــقُ إِلَّا لِأَحْلُمَ حُلْمًا جَدِيدْ
+Hemistich 5: لَوْلَا الْمَشَقَّةُ سَادَ النَّاسُ كُلُّهُمُ
+Hemistich 6: الْجُودُ يُفْقِرُ، وَالْإِقْدَامُ قَتَّالُ
+
+(Component: TEMPLATE_C_IRAB_ROW)
+
+Box 1 Word: هُنَا / أَحْلُمُ (الثَّانِيَةُ)
+Box 1 Details: تَوْكِيدٌ لَفْظِيٌّ مَبْنِيٌّ لِلْكَلِمَةِ الْأُولَى.
+Box 2 Word: كُلُّهُمُ
+Box 2 Details: تَوْكِيدٌ مَعْنَوِيٌّ مَرْفُوعٌ بِالضَّمَّةِ، وَالْهَاءُ مُضَافٌ إِلَيْهِ.
+
+=== BLOCK 5: Substitution (Badal) Intro ===
+
+(Component: TEMPLATE_C_BLOCK)
+
+Title: ٤- الْبَدَلُ
+
+Content: هُوَ تَابِعٌ مَقْصُودٌ بِالْحُكْمِ لَا يَرْتَبِطُ بِمَتْبُوعِهِ بِرَابِطٍ.
+مِثَالٌ: (جَاءَ الطَّالِبُ **أَحْمَدُ**). أَحْمَدُ هُوَ الْبَدَلُ (الْمَقْصُودُ بِالْمَجِيءِ)، وَالطَّالِبُ مَتْبُوعُهُ (مُبْدَلٌ مِنْهُ).
+
+(Component: TEMPLATE_C_LIST)
+
+List Title: أَنْوَاعُ الْبَدَلِ
+
+Bullet Point 1: **بَدَلُ كُلٍّ مِنْ كُلٍّ (مُطَابِقٌ)**: الْبَدَلُ هُوَ الْمُبْدَلُ مِنْهُ نَفْسُهُ.
+Bullet Point 2: **بَدَلُ بَعْضٍ مِنْ كُلٍّ**: الْبَدَلُ جُزْءٌ حَقِيقِيٌّ مِنَ الْمُبْدَلِ مِنْهُ (يَحْتَاجُ ضَمِيرًا).
+Bullet Point 3: **بَدَلُ اشْتِمَالٍ**: الْبَدَلُ صِفَةٌ أَوْ أَمْرٌ مَعْنَوِيٌّ يَشْتَمِلُ عَلَيْهِ الْمُبْدَلُ مِنْهُ.
+
+=== BLOCK 6: Badal Examples & Irab (Detailed) ===
+
+(Component: TEMPLATE_C_SPLIT)
+
+Right Title: بَدَلُ كُلٍّ مِنْ كُلٍّ
+Right Content: (رَأَيْتُ هَذَا **الْمُحَارِبَ**). الْمُحَارِبَ: بَدَلٌ مَنْصُوبٌ بِالْفَتْحَةِ.
+Left Title: بَدَلُ بَعْضٍ مِنْ كُلٍّ
+Left Content: (قَرَأْتُ الْقِصَّةَ **نِصْفَهَا**). نِصْفَهَا: بَدَلٌ مَنْصُوبٌ، وَهَا: مُضَافٌ إِلَيْهِ.
+
+(Component: TEMPLATE_C_BENEFIT_TIP)
+
+Tip Title: بَدَلُ الِاشْتِمَالِ
+Tip Text: نَحْوُ: (يُعْجِبُنِي الْخَلِيفَةُ **عَدْلُهُ**). عَدْلُهُ: بَدَلٌ مَرْفُوعٌ بِالضَّمَّةِ (أَمْرٌ مَعْنَوِيٌّ).
+
+=== BLOCK 7: Poetic Evidence for Badal ===
+
+(Component: TEMPLATE_C_POEM)
+
+Poem Title: شَوَاهِدُ الْبَدَلِ فِي الشِّعْرِ
+Hemistich 1: مَدَى هَذِي الْحَيَاةِ لِنَقْلٍ أَوْ لِتَصْنِيــفِ
+Hemistich 2: أَنِفْتُ لِهَذَا النَّشْءِ يَبْنَا تَوِيـــدُهُ
+Hemistich 3: مِنْ سِــــرِّ هَذَا الْعَالَمِ الْمَسْتُـــورِ
+Hemistich 4: تَظُنُّ أَنَّكَ جُزْتَ الْبَحْرَ مُعْظَمَهُ
+
+(Component: TEMPLATE_C_IRAB)
+
+IRAB Title: إِعْرَابُ الْبَدَلِ مِنَ الشَّوَاهِدِ
+Word 1: الْحَيَاةِ / النَّشْءِ / الْعَالِمِ
+Parsing Details 1: بَدَلٌ مَجْرُورٌ، وَعَلَامَةُ جَرِّهِ الْكَسْرَةُ الظَّاهِرَةُ (بَدَلُ كُلٍّ مِنْ كُلٍّ بَعْدَ اسْمِ الْإِشَارَةِ).
+Word 2: مُعْظَمَهُ
+Parsing Details 2: بَدَلٌ مَنْصُوبٌ، وَعَلَامَةُ نَصْبِهِ الْفَتْحَةُ الظَّاهِرَةُ، وَالْهَاءُ ضَمِيرٌ مُتَّصِلٌ فِي مَحَلِّ جَرٍّ مُضَافٌ إِلَيْهِ (بَدَلُ بَعْضٍ مِنْ كُلٍّ).
+
+--- END STREAM ---
