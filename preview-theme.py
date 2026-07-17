@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""build.py — Arabic Grammar Book PDF Builder.
+"""preview-theme.py — Arabic Grammar Book Theme Preview Generator.
 
-Compiles all pages in /pages/ into a single A4 PDF using WeasyPrint.
+Compiles all pages into a single A4 PDF using a specified theme from new-style-options.
 
 Usage:
-    python build.py
-    python build.py --output output/export/my_book.pdf
-    python build.py --pages-dir pages/ --dry-run
+    python preview-theme.py --theme v1
+    python preview-theme.py --all
 """
 
 from __future__ import annotations
@@ -24,13 +23,20 @@ from pathlib import Path
 class BuildConfig:
     """Immutable build configuration."""
 
+    theme_name: str
     pages_dir: Path = Path("pages")
-    output_pdf: Path = Path("output/export/book.pdf")
     front_cover: Path = Path("pages/cover/front-cover.jpg")
     back_cover: Path = Path("pages/cover/back-cover.jpg")
-    stylesheet: Path = Path("styles/main.css")
     watermark_text: str = "أ. حنا خفيف"
     dry_run: bool = False
+
+    @property
+    def stylesheet(self) -> Path:
+        return Path(f"new-style-options/{self.theme_name}/main.css")
+
+    @property
+    def output_pdf(self) -> Path:
+        return Path(f"new-style-options/{self.theme_name}/book.pdf")
 
 
 @dataclass
@@ -131,6 +137,9 @@ def build_book(config: BuildConfig) -> BuildResult:
     result = BuildResult()
     start_time = time.perf_counter()
 
+    if not config.stylesheet.exists():
+        raise BuildError(f"Stylesheet not found: {config.stylesheet}")
+
     # ── Validate WeasyPrint import ─────────────────────────────────────────
     try:
         from weasyprint import HTML
@@ -155,10 +164,6 @@ def build_book(config: BuildConfig) -> BuildResult:
     # ── Detect covers ─────────────────────────────────────────────────────
     has_front = config.front_cover.exists()
     has_back = config.back_cover.exists()
-    if has_front:
-        print(f"🖼  Front cover: {config.front_cover}")
-    if has_back:
-        print(f"🖼  Back cover:  {config.back_cover}")
 
     # ── Accumulate body content ────────────────────────────────────────────
     body_parts: list[str] = []
@@ -167,7 +172,6 @@ def build_book(config: BuildConfig) -> BuildResult:
         body_parts.append(_build_cover_html(config.front_cover))
 
     for page_file in pages:
-        print(f"  ⚙  Processing {page_file.name}...")
         try:
             content = page_file.read_text(encoding="utf-8")
             body_parts.append(_extract_body(content, page_file))
@@ -195,7 +199,7 @@ def build_book(config: BuildConfig) -> BuildResult:
 
     # ── Render PDF ─────────────────────────────────────────────────────────
     config.output_pdf.parent.mkdir(parents=True, exist_ok=True)
-    print(f"\n🖨  Rendering PDF → {config.output_pdf} ...")
+    print(f"\n🖨  Rendering PDF for theme '{config.theme_name}' → {config.output_pdf} ...")
     try:
         HTML(string=full_html, base_url=".").write_pdf(str(config.output_pdf))
     except Exception as exc:
@@ -210,34 +214,19 @@ def build_book(config: BuildConfig) -> BuildResult:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        prog="build.py",
-        description="Compile Arabic Grammar book pages into a single PDF.",
+        prog="preview-theme.py",
+        description="Compile Arabic Grammar book pages into a single PDF for a specific theme.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--pages-dir",
-        type=Path,
-        default=Path("pages"),
-        metavar="DIR",
-        help="Directory containing page HTML files (default: pages/)",
+        "--theme",
+        type=str,
+        help="The name of the theme folder to build (e.g., v1, v2). If not provided, you will be prompted."
     )
     parser.add_argument(
-        "--output",
-        type=Path,
-        default=Path("output/export/book.pdf"),
-        metavar="PATH",
-        help="Output PDF path (default: output/export/book.pdf)",
-    )
-    parser.add_argument(
-        "--watermark",
-        default="أ. حنا خفيف",
-        metavar="TEXT",
-        help="Watermark text (default: 'أ. حنا خفيف')",
-    )
-    parser.add_argument(
-        "--dry-run",
+        "--all",
         action="store_true",
-        help="Validate and collect pages without rendering the PDF",
+        help="Build all themes in new-style-options."
     )
     return parser.parse_args()
 
@@ -245,35 +234,47 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
-    config = BuildConfig(
-        pages_dir=args.pages_dir,
-        output_pdf=args.output,
-        watermark_text=args.watermark,
-        dry_run=args.dry_run,
-    )
+    themes_to_build = []
 
-    try:
-        result = build_book(config)
-    except BuildError as exc:
-        print(f"\n❌ Build failed: {exc}", file=sys.stderr)
-        sys.exit(1)
-
-    if result.errors:
-        print(f"\n⚠  Build completed with {len(result.errors)} error(s):")
-        for err in result.errors:
-            print(f"   • {err}")
-        sys.exit(1)
-
-    if result.output_path:
-        size_kb = result.output_path.stat().st_size / 1024
-        print(
-            f"\n✅ PDF generated: {result.output_path} "
-            f"({size_kb:.1f} KB, {result.pages_processed} pages, "
-            f"{result.duration_seconds:.1f}s)"
-        )
+    if args.all:
+        import glob
+        themes = sorted([Path(p).name for p in glob.glob("new-style-options/v*") if Path(p).is_dir()])
+        themes_to_build.extend(themes)
+    elif args.theme:
+        themes_to_build.append(args.theme)
     else:
-        print(f"\n✅ Dry-run complete. {result.pages_processed} page(s) validated.")
+        theme = input("Enter the theme name (e.g., v1, v2, v3): ").strip()
+        if not theme:
+            print("No theme specified. Exiting.")
+            sys.exit(1)
+        themes_to_build.append(theme)
 
+    for theme_name in themes_to_build:
+        print(f"\n===========================================")
+        print(f"🏗  BUILDING THEME: {theme_name}")
+        print(f"===========================================\n")
+
+        config = BuildConfig(theme_name=theme_name)
+
+        try:
+            result = build_book(config)
+        except BuildError as exc:
+            print(f"\n❌ Build failed for {theme_name}: {exc}", file=sys.stderr)
+            continue
+
+        if result.errors:
+            print(f"\n⚠  Build completed with {len(result.errors)} error(s):")
+            for err in result.errors:
+                print(f"   • {err}")
+            continue
+
+        if result.output_path:
+            size_kb = result.output_path.stat().st_size / 1024
+            print(
+                f"\n✅ PDF generated: {result.output_path} "
+                f"({size_kb:.1f} KB, {result.pages_processed} pages, "
+                f"{result.duration_seconds:.1f}s)"
+            )
 
 if __name__ == "__main__":
     main()

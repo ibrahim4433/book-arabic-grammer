@@ -1,161 +1,260 @@
 #!/usr/bin/env python3
-import os
-import random
-import string
+"""id_manager.py — Unique ID Manager for Arabic Grammar Book HTML pages.
+
+Manages the bXXXXX ID system used on every significant content block.
+
+Commands:
+    auto-tag   Automatically add IDs to elements that are missing them.
+    verify     Check for duplicate IDs across all pages.
+    next-id    Print a single new unique ID (useful for manual editing).
+
+Usage:
+    python Jules-workspace/id_manager.py auto-tag
+    python Jules-workspace/id_manager.py auto-tag --dry-run
+    python Jules-workspace/id_manager.py auto-tag --files pages/01.0_intro.html
+    python Jules-workspace/id_manager.py verify
+    python Jules-workspace/id_manager.py next-id
+"""
+
+from __future__ import annotations
+
 import argparse
-from bs4 import BeautifulSoup
+import secrets
 import sys
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from bs4 import BeautifulSoup, Tag
+
+# ── Constants ─────────────────────────────────────────────────────────────────
+
+PAGES_DIR = Path("pages")
+
+#: CSS selectors for elements that MUST have a bXXXXX ID.
+TARGET_SELECTORS: tuple[str, ...] = (
+    "header",
+    ".content-block",
+    ".benefit-box",
+    ".irab-box",
+    ".poem-container",
+    ".bio-card",
+    ".exam-question",
+    ".split-grid > *",
+)
+
+
+# ── Data Models ───────────────────────────────────────────────────────────────
+
+@dataclass
+class DuplicateID:
+    filepath: Path
+    id_value: str
+
+    def __str__(self) -> str:
+        return f"  • '{self.id_value}' — duplicate found in {self.filepath}"
+
+
+@dataclass
+class TagResult:
+    filepath: Path
+    ids_added: int
+
+
+@dataclass
+class AutoTagReport:
+    results: list[TagResult] = field(default_factory=list)
+    total_added: int = 0
+    dry_run: bool = False
+
+    def print_summary(self) -> None:
+        mode = "[DRY RUN] " if self.dry_run else ""
+        for r in self.results:
+            action = "Would update" if self.dry_run else "Updated"
+            print(f"  {mode}{action} {r.filepath}: +{r.ids_added} ID(s)")
+        print(f"\n{'🔍 Dry-run:' if self.dry_run else '✅'} Total IDs added: {self.total_added}")
+
+
+# ── Core Manager ──────────────────────────────────────────────────────────────
 
 class IDManager:
-    def __init__(self, root_dir="pages"):
+    """Manages unique bXXXXX IDs across all HTML pages."""
+
+    def __init__(self, root_dir: Path = PAGES_DIR) -> None:
         self.root_dir = root_dir
-        self.existing_ids = set()
-        self.selectors = [
-            'header',
-            '.content-block',
-            '.benefit-box',
-            '.irab-box',
-            '.poem-container',
-            '.bio-card',
-            '.exam-question',
-            '.split-grid > *' # Direct children of split-grid often act as columns
-        ]
+        self.existing_ids: set[str] = set()
 
-    def get_html_files(self):
-        html_files = []
-        for root, dirs, files in os.walk(self.root_dir):
-            for file in files:
-                if file.endswith(".html"):
-                    html_files.append(os.path.join(root, file))
-        return sorted(html_files)
+    # ── File Discovery ────────────────────────────────────────────────────
 
-    def scan_existing_ids(self):
-        """Scans all HTML files to populate self.existing_ids"""
+    def get_html_files(self) -> list[Path]:
+        """Return sorted list of HTML files under root_dir (recursive)."""
+        return sorted(self.root_dir.rglob("*.html"))
+
+    # ── ID Scanning ───────────────────────────────────────────────────────
+
+    def scan_existing_ids(self) -> list[DuplicateID]:
+        """Populate self.existing_ids from all HTML files. Returns duplicates."""
         self.existing_ids.clear()
-        files = self.get_html_files()
-        duplicates = []
+        duplicates: list[DuplicateID] = []
 
-        for filepath in files:
+        for filepath in self.get_html_files():
             try:
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    soup = BeautifulSoup(f, 'html.parser')
-                    for tag in soup.find_all(id=True):
-                        if tag['id'] in self.existing_ids:
-                            duplicates.append((filepath, tag['id']))
-                        self.existing_ids.add(tag['id'])
-            except Exception as e:
-                print(f"Error reading {filepath}: {e}", file=sys.stderr)
+                soup = BeautifulSoup(filepath.read_text(encoding="utf-8"), "html.parser")
+                for tag in soup.find_all(id=True):
+                    tag_id: str = tag["id"]
+                    if tag_id in self.existing_ids:
+                        duplicates.append(DuplicateID(filepath=filepath, id_value=tag_id))
+                    self.existing_ids.add(tag_id)
+            except OSError as exc:
+                print(f"⚠  Error reading {filepath}: {exc}", file=sys.stderr)
 
         return duplicates
 
-    def generate_id(self):
-        """Generates a unique ID in the format bXXXXX"""
+    # ── ID Generation ─────────────────────────────────────────────────────
+
+    def generate_id(self) -> str:
+        """Generate a cryptographically random unique ID in format bXXXXX."""
         while True:
-            # Generate random 5-digit number
-            digits = ''.join(random.choices(string.digits, k=5))
+            # 5 decimal digits → 100_000 possibilities, collision-safe via set
+            digits = "".join(str(secrets.randbelow(10)) for _ in range(5))
             new_id = f"b{digits}"
             if new_id not in self.existing_ids:
                 self.existing_ids.add(new_id)
                 return new_id
 
-    def auto_tag(self, dry_run=False, files=None):
-        """Adds IDs to target elements that are missing them."""
-        # First, scan existing IDs to ensure uniqueness
+    # ── Auto-Tag ──────────────────────────────────────────────────────────
+
+    def _collect_unique_candidates(self, soup: BeautifulSoup) -> list[Tag]:
+        """Return deduplicated list of Tags matching TARGET_SELECTORS."""
+        seen: set[int] = set()
+        candidates: list[Tag] = []
+        for selector in TARGET_SELECTORS:
+            for tag in soup.select(selector):
+                if id(tag) not in seen:
+                    seen.add(id(tag))
+                    candidates.append(tag)
+        return candidates
+
+    def auto_tag(
+        self,
+        *,
+        dry_run: bool = False,
+        files: list[Path] | None = None,
+    ) -> AutoTagReport:
+        """Add bXXXXX IDs to target elements that are missing them.
+
+        Args:
+            dry_run: If True, report changes without writing files.
+            files:   Specific files to process (defaults to all pages).
+        """
         self.scan_existing_ids()
+        target_files = files if files is not None else self.get_html_files()
+        report = AutoTagReport(dry_run=dry_run)
 
-        if files is None:
-            files = self.get_html_files()
-
-        total_added = 0
-
-        for filepath in files:
-            changed = False
+        for filepath in target_files:
             try:
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    content = f.read()
+                content = filepath.read_text(encoding="utf-8")
+                soup = BeautifulSoup(content, "html.parser")
+                candidates = self._collect_unique_candidates(soup)
 
-                soup = BeautifulSoup(content, 'html.parser')
-
-                # Find all candidates
-                candidates = []
-                for selector in self.selectors:
-                    candidates.extend(soup.select(selector))
-
-                # Deduplicate candidates (same element might match multiple selectors)
-                # We use a set of python object ids to deduplicate
-                unique_candidates = []
-                seen_ids = set()
+                ids_added = 0
                 for tag in candidates:
-                    if id(tag) not in seen_ids:
-                        seen_ids.add(id(tag))
-                        unique_candidates.append(tag)
+                    if not tag.has_attr("id"):
+                        tag["id"] = self.generate_id()
+                        ids_added += 1
 
-                file_added_count = 0
-                for tag in unique_candidates:
-                    if not tag.has_attr('id'):
-                        new_id = self.generate_id()
-                        tag['id'] = new_id
-                        changed = True
-                        file_added_count += 1
-
-                if changed:
-                    total_added += file_added_count
+                if ids_added > 0:
+                    report.total_added += ids_added
+                    tag_result = TagResult(filepath=filepath, ids_added=ids_added)
+                    report.results.append(tag_result)
                     if not dry_run:
-                        with open(filepath, 'w', encoding='utf-8') as f:
-                            # Use minimal formatting to preserve as much as possible
-                            f.write(str(soup))
-                        print(f"Updated {filepath}: Added {file_added_count} IDs")
-                    else:
-                        print(f"[Dry Run] would update {filepath}: Add {file_added_count} IDs")
+                        filepath.write_text(str(soup), encoding="utf-8")
 
-            except Exception as e:
-                print(f"Error processing {filepath}: {e}", file=sys.stderr)
+            except OSError as exc:
+                print(f"⚠  Error processing {filepath}: {exc}", file=sys.stderr)
 
-        print(f"Total IDs added: {total_added}")
+        return report
 
-    def verify(self):
-        """Checks for duplicate IDs."""
+    # ── Verify ────────────────────────────────────────────────────────────
+
+    def verify(self) -> None:
+        """Check for duplicate IDs. Exits with non-zero code on failure."""
         duplicates = self.scan_existing_ids()
         if duplicates:
             print("❌ Verification Failed! Duplicate IDs found:")
-            for filepath, id_val in duplicates:
-                print(f"  - ID '{id_val}' duplicate found in {filepath}")
+            for dup in duplicates:
+                print(dup)
             sys.exit(1)
-        else:
-            print(f"✅ Verification Passed. {len(self.existing_ids)} unique IDs found.")
-            sys.exit(0)
+        print(f"✅ Verification Passed. {len(self.existing_ids)} unique IDs found.")
 
-    def next_id(self):
-        """Prints a single new unique ID."""
+    # ── Next ID ───────────────────────────────────────────────────────────
+
+    def next_id(self) -> str:
+        """Scan existing IDs and print a single new unique ID."""
         self.scan_existing_ids()
-        print(self.generate_id())
+        new_id = self.generate_id()
+        print(new_id)
+        return new_id
 
-def main():
-    parser = argparse.ArgumentParser(description="Manage unique IDs for HTML content blocks.")
-    subparsers = parser.add_subparsers(dest='command', help='Command to run')
 
-    # auto-tag command
-    parser_tag = subparsers.add_parser('auto-tag', help='Automatically add IDs to elements missing them')
-    parser_tag.add_argument('--dry-run', action='store_true', help='Show what would be done without modifying files')
+# ── CLI ───────────────────────────────────────────────────────────────────────
 
-    # verify command
-    parser_verify = subparsers.add_parser('verify', help='Check for duplicate IDs')
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="id_manager.py",
+        description="Manage unique bXXXXX IDs for HTML content blocks.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--root",
+        type=Path,
+        default=PAGES_DIR,
+        metavar="DIR",
+        help=f"Root pages directory (default: {PAGES_DIR})",
+    )
 
-    # next-id command
-    parser_next = subparsers.add_parser('next-id', help='Generate a new unique ID')
+    subparsers = parser.add_subparsers(dest="command", metavar="COMMAND")
 
-    args = parser.parse_args()
+    # auto-tag
+    sp_tag = subparsers.add_parser("auto-tag", help="Add IDs to elements missing them")
+    sp_tag.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would change without writing files",
+    )
+    sp_tag.add_argument(
+        "--files",
+        nargs="+",
+        type=Path,
+        metavar="FILE",
+        help="Target specific HTML files instead of all pages",
+    )
 
-    manager = IDManager()
+    # verify
+    subparsers.add_parser("verify", help="Check for duplicate IDs across all pages")
 
-    if args.command == 'auto-tag':
-        manager.auto_tag(dry_run=args.dry_run)
-    elif args.command == 'verify':
-        manager.verify()
-    elif args.command == 'next-id':
-        manager.next_id()
-    else:
-        parser.print_help()
+    # next-id
+    subparsers.add_parser("next-id", help="Generate and print one new unique ID")
+
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    manager = IDManager(root_dir=args.root)
+
+    match args.command:
+        case "auto-tag":
+            report = manager.auto_tag(dry_run=args.dry_run, files=args.files)
+            report.print_summary()
+        case "verify":
+            manager.verify()
+        case "next-id":
+            manager.next_id()
+        case _:
+            # No subcommand given — print help
+            print("No command specified. Use --help for usage.", file=sys.stderr)
+            sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

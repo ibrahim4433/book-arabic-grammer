@@ -1,0 +1,57 @@
+[project]
+name = "book-arabic-grammer"
+version = "1.0.0"
+description = "Premium Arabic Grammar book builder using WeasyPrint"
+requires-python = ">=3.13"
+dependencies = [
+    "weasyprint>=69.0",
+    "beautifulsoup4>=4.15.0",
+    "lxml>=5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.9.0",
+    "mypy>=1.14.0",
+]
+
+# ─── Ruff ────────────────────────────────────────────────────────────────────
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = [".", "Jules-workspace"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "SIM", # flake8-simplify
+    "PTH", # use pathlib
+    "RUF", # ruff-specific rules
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "N802",  # function name should be lowercase (keeps existing names)
+    "N806",  # variable in function should be lowercase
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["Jules-workspace"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ─── Mypy ────────────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.13"
+strict = false
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

@@ -1,195 +1,302 @@
-import sys
-import os
-import logging
-import json
-import re
-from weasyprint import HTML
+#!/usr/bin/env python3
+"""verify_layout.py — One-Page Law Verifier for Arabic Grammar Book.
 
-# Add current directory to path to allow importing lint_pages
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+Checks that an HTML page renders to exactly one A4 page and is not
+significantly underfilled. Integrates with the linter for full compliance.
+
+Exit codes:
+    0  — Layout check ran successfully (inspect JSON for PASS/FAIL status).
+    1  — Critical failure (file not found, render error, linter errors).
+
+Usage:
+    python Jules-workspace/verify_layout.py pages/01.0_intro.html
+    python Jules-workspace/verify_layout.py pages/01.0_intro.html --skip-lint
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import logging
+import re
+import sys
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Literal
+
+# Mute WeasyPrint's verbose logging
+logging.getLogger("weasyprint").setLevel(logging.ERROR)
+logging.getLogger("fonttools").setLevel(logging.ERROR)
+
+# Add Jules-workspace to path so lint_pages can be imported
+sys.path.insert(0, str(Path(__file__).parent))
 
 try:
     import lint_pages
+    _LINT_AVAILABLE = True
 except ImportError:
-    lint_pages = None
+    _LINT_AVAILABLE = False
 
-# Mute WeasyPrint logging
-logging.getLogger('weasyprint').setLevel(logging.ERROR)
 
-def verify_layout(filepath):
-    result = {
-        "status": "UNKNOWN",
-        "remaining_height_mm": 0.0,
-        "blank_space_percentage": 0.0,
-        "recommendation": "NONE",
-        "details": "",
-        "split_recommendation": None
-    }
+# ── Constants ─────────────────────────────────────────────────────────────────
 
-    if not os.path.exists(filepath):
-        result["status"] = "FAIL"
-        result["details"] = f"File not found: {filepath}"
-        print(json.dumps(result, indent=2))
-        sys.exit(1)
+#: WeasyPrint renders at 96 DPI
+PX_TO_MM: float = 25.4 / 96.0
 
-    # CHECK 0: Linter (Atomic Design Compliance)
-    if lint_pages:
-        l_errors, l_warnings = lint_pages.lint_file(filepath)
-        if l_errors:
-            result["status"] = "FAIL"
-            result["details"] = "Linter Errors: " + "; ".join(l_errors)
-            print(json.dumps(result, indent=2))
-            sys.exit(1)
+#: A4 page height
+PAGE_HEIGHT_MM: float = 297.0
 
-        # Warnings don't fail the layout check, but could be noted
-        if l_warnings:
-             result["details"] = "Linter Warnings: " + "; ".join(l_warnings)
+#: Bottom margin in CSS is 9 mm
+PRINTABLE_BOTTOM_MM: float = PAGE_HEIGHT_MM - 9.0
 
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-    except Exception as e:
-        result["status"] = "FAIL"
-        result["details"] = f"Error reading file: {e}"
-        print(json.dumps(result, indent=2))
-        sys.exit(1)
+#: If blank space exceeds this % of page height, it's UNDERFLOW
+UNDERFLOW_THRESHOLD_PCT: float = 10.0
 
-    # Extract body content (robust)
-    match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL | re.IGNORECASE)
-    if match:
-        body_inner = match.group(1)
-    else:
-        body_inner = content
+#: CSS classes to skip during geometry analysis (non-content layers)
+SKIP_CLASSES: frozenset[str] = frozenset(
+    {"global-background-layer", "global-watermark-layer", "watermark-text", "force-new-page"}
+)
 
-    # Master Template for verification
-    html_content = f"""<!DOCTYPE html>
+#: HTML tags to skip
+SKIP_TAGS: frozenset[str] = frozenset({"html", "body"})
+
+#: WeasyPrint box types to skip
+SKIP_BOX_TYPES: frozenset[str] = frozenset({"MarginBox", "PageBox"})
+
+
+# ── Data Models ───────────────────────────────────────────────────────────────
+
+LayoutStatus = Literal["PASS", "FAIL", "OVERFLOW", "UNDERFLOW", "UNKNOWN"]
+LayoutRecommendation = Literal[
+    "NONE", "GO_TO_NEXT_PAGE", "SPLIT_PAGE_OR_CONDENSE", "FIT_ANOTHER_SECTION"
+]
+
+
+@dataclass
+class ElementInfo:
+    tag: str
+    id: str
+    css_class: str
+    bottom_mm: float
+
+
+@dataclass
+class LayoutResult:
+    status: LayoutStatus = "UNKNOWN"
+    remaining_height_mm: float = 0.0
+    blank_space_percentage: float = 0.0
+    recommendation: LayoutRecommendation = "NONE"
+    details: str = ""
+    split_recommendation: ElementInfo | None = None
+
+    def to_dict(self) -> dict:  # type: ignore[type-arg]
+        d = asdict(self)
+        # Convert ElementInfo to plain dict (asdict handles nested dataclasses)
+        return d
+
+    def print(self) -> None:
+        print(json.dumps(self.to_dict(), indent=2, ensure_ascii=False))
+
+
+# ── HTML Utilities ────────────────────────────────────────────────────────────
+
+def _extract_body(content: str) -> str:
+    match = re.search(r"<body[^>]*>(.*?)</body>", content, re.DOTALL | re.IGNORECASE)
+    return match.group(1) if match else content
+
+
+def _build_verification_html(body_inner: str, stylesheet: Path = Path("styles/main.css")) -> str:
+    return f"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <title>Verify</title>
-    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="{stylesheet.as_posix()}">
     <style>
-        /* Remove footer for verification to avoid measuring it */
+        /* Remove footer during verification to avoid measuring it */
         @page {{ @bottom-center {{ content: none; }} }}
     </style>
 </head>
 <body>
-    <!-- Fixed layers removed for layout verification to avoid interference -->
     {body_inner}
 </body>
 </html>
 """
 
-    # Render
-    try:
-        doc = HTML(string=html_content, base_url='.').render()
-    except Exception as e:
-        result["status"] = "FAIL"
-        result["details"] = f"Rendering error: {e}"
-        print(json.dumps(result, indent=2))
-        sys.exit(1)
 
-    page_count = len(doc.pages)
+# ── Geometry Analysis ─────────────────────────────────────────────────────────
 
-    if page_count == 0:
-         result["status"] = "FAIL"
-         result["details"] = "No pages generated."
-         print(json.dumps(result, indent=2))
-         sys.exit(1)
+def _find_content_bottom(page: object) -> tuple[float, ElementInfo | None]:  # type: ignore[type-arg]
+    """Walk all boxes on the page to find the lowest content boundary."""
+    max_y: float = 0.0
+    last_element: ElementInfo | None = None
 
-    # WeasyPrint pixels (96 DPI)
-    px_to_mm = 25.4 / 96.0
+    page_box = getattr(page, "_page_box", None)
+    if page_box is None:
+        return max_y, last_element
 
-    # Layout Constants
-    PAGE_HEIGHT_MM = 297.0
-    # Printable limit based on 9mm bottom margin (CSS)
-    printable_bottom_limit = PAGE_HEIGHT_MM - 9.0
-
-    # Analyze Page 1
-    page = doc.pages[0]
-    max_y = 0
-    last_element_info = None
-
-    # Iterate through all boxes on the page to find the lowest point
-    for box in page._page_box.descendants():
-        if type(box).__name__ in ['MarginBox', 'PageBox']:
+    for box in page_box.descendants():
+        if type(box).__name__ in SKIP_BOX_TYPES:
             continue
 
-        if box.element is not None:
-            classes = box.element.get('class', '').split() if box.element.get('class') else []
-            # Skip fixed layers
-            if 'global-background-layer' in classes: continue
-            if 'global-watermark-layer' in classes: continue
-            if 'watermark-text' in classes: continue
-            # Skip root containers
-            if box.element.tag in ['html', 'body']: continue
-            # Skip layout wrappers that might force full height
-            if 'force-new-page' in classes: continue
+        element = getattr(box, "element", None)
+        if element is None:
+            continue
 
-            # Check geometry (border box)
-            # box.position_y is from top of page
-            bottom = box.position_y + box.height
+        # Skip non-content layers and root containers
+        el_classes: list[str] = (
+            element.get("class", "").split() if element.get("class") else []
+        )
+        if any(c in SKIP_CLASSES for c in el_classes):
+            continue
+        if element.tag in SKIP_TAGS:
+            continue
 
-            if bottom > max_y:
-                max_y = bottom
+        bottom: float = getattr(box, "position_y", 0) + getattr(box, "height", 0)
+        if bottom > max_y:
+            max_y = bottom
+            last_element = ElementInfo(
+                tag=element.tag,
+                id=element.get("id", ""),
+                css_class=element.get("class", ""),
+                bottom_mm=round(bottom * PX_TO_MM, 2),
+            )
 
-                # Capture info about this element for split suggestions
-                el_id = box.element.get('id', '')
-                el_class = box.element.get('class', '')
-                el_tag = box.element.tag
+    return max_y, last_element
 
-                last_element_info = {
-                    "tag": el_tag,
-                    "id": el_id,
-                    "class": el_class,
-                    "bottom_mm": round(bottom * px_to_mm, 2)
-                }
 
-    max_y_mm = max_y * px_to_mm
+# ── Core Verifier ─────────────────────────────────────────────────────────────
 
-    # Remaining height relative to the bottom margin
-    remaining_height_mm = printable_bottom_limit - max_y_mm
+def verify_layout(filepath: Path, *, skip_lint: bool = False) -> LayoutResult:
+    """Verify that a page renders to exactly one A4 page."""
+    result = LayoutResult()
 
-    result["remaining_height_mm"] = round(remaining_height_mm, 2)
+    if not filepath.exists():
+        result.status = "FAIL"
+        result.details = f"File not found: {filepath}"
+        return result
 
-    # Calculate Blank Space Percentage (Relative to full page height)
-    blank_percentage = (remaining_height_mm / PAGE_HEIGHT_MM) * 100
-    result["blank_space_percentage"] = round(blank_percentage, 1)
+    # ── Linter Check ──────────────────────────────────────────────────────
+    if not skip_lint and _LINT_AVAILABLE:
+        lint_result = lint_pages.lint_file(filepath)
+        # Support both old tuple API and new LintResult API
+        if isinstance(lint_result, tuple):
+            l_errors, l_warnings = lint_result
+            if l_errors:
+                result.status = "FAIL"
+                result.details = "Linter errors: " + "; ".join(l_errors[:5])
+                return result
+            if l_warnings:
+                result.details = "Linter warnings: " + "; ".join(l_warnings[:3])
+        else:
+            # New LintResult dataclass
+            if not lint_result.passed:
+                result.status = "FAIL"
+                result.details = "Linter errors: " + "; ".join(
+                    i.message for i in lint_result.errors[:5]
+                )
+                return result
 
-    # CHECK 1: One-Page Law (Overflow)
+    # ── Read file ──────────────────────────────────────────────────────────
+    try:
+        content = filepath.read_text(encoding="utf-8")
+    except OSError as exc:
+        result.status = "FAIL"
+        result.details = f"Error reading file: {exc}"
+        return result
+
+    # ── Render ────────────────────────────────────────────────────────────
+    try:
+        from weasyprint import HTML
+    except (ImportError, OSError) as exc:
+        result.status = "FAIL"
+        result.details = f"WeasyPrint unavailable: {exc}"
+        return result
+
+    body_inner = _extract_body(content)
+    html_content = _build_verification_html(body_inner)
+
+    try:
+        doc = HTML(string=html_content, base_url=".").render()
+    except Exception as exc:
+        result.status = "FAIL"
+        result.details = f"Rendering error: {exc}"
+        return result
+
+    page_count = len(doc.pages)
+    if page_count == 0:
+        result.status = "FAIL"
+        result.details = "No pages generated."
+        return result
+
+    # ── Geometry Analysis ─────────────────────────────────────────────────
+    max_y_px, last_element = _find_content_bottom(doc.pages[0])
+    max_y_mm = max_y_px * PX_TO_MM
+    remaining_mm = PRINTABLE_BOTTOM_MM - max_y_mm
+    blank_pct = (remaining_mm / PAGE_HEIGHT_MM) * 100.0
+
+    result.remaining_height_mm = round(remaining_mm, 2)
+    result.blank_space_percentage = round(blank_pct, 1)
+
+    # ── Rule 1: Overflow ──────────────────────────────────────────────────
     if page_count > 1:
-        result["status"] = "OVERFLOW"
-        result["details"] = f"Page count is {page_count} (Expected: 1). Content spills over."
-        result["recommendation"] = "SPLIT_PAGE_OR_CONDENSE"
+        result.status = "OVERFLOW"
+        result.details = (
+            f"Page count is {page_count} (expected 1). Content overflows. "
+            "Split into multiple files or condense content."
+        )
+        result.recommendation = "SPLIT_PAGE_OR_CONDENSE"
+        result.split_recommendation = last_element
+        return result
 
-        if last_element_info:
-            result["split_recommendation"] = {
-                "message": "The following element is the last one to fit on Page 1.",
-                "element": last_element_info
-            }
-
-        print(json.dumps(result, indent=2))
-        sys.exit(0) # Logic handled, return valid JSON
-
-    # CHECK 2: Underflow
-    # Threshold: 10% of full page height (297mm) = 29.7mm
-    THRESHOLD_MM = PAGE_HEIGHT_MM * 0.10
-
-    if remaining_height_mm >= THRESHOLD_MM:
-        result["status"] = "UNDERFLOW"
-        result["recommendation"] = "FIT_ANOTHER_SECTION"
-        result["details"] = f"Page has {result['blank_space_percentage']}% ({remaining_height_mm:.1f}mm) empty space. Fill it."
+    # ── Rule 2: Underflow ─────────────────────────────────────────────────
+    if blank_pct >= UNDERFLOW_THRESHOLD_PCT:
+        result.status = "UNDERFLOW"
+        result.recommendation = "FIT_ANOTHER_SECTION"
+        result.details = (
+            f"Page is {blank_pct:.1f}% empty ({remaining_mm:.1f} mm blank). "
+            "Add more content or pull from adjacent pages."
+        )
     else:
-        result["status"] = "PASS"
-        result["recommendation"] = "GO_TO_NEXT_PAGE"
-        result["details"] = f"Layout Valid. Blank space: {result['blank_space_percentage']}%."
+        result.status = "PASS"
+        result.recommendation = "GO_TO_NEXT_PAGE"
+        result.details = f"Layout valid. Blank space: {blank_pct:.1f}%."
 
-    print(json.dumps(result, indent=2))
+    return result
+
+
+# ── CLI ───────────────────────────────────────────────────────────────────────
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="verify_layout.py",
+        description="Verify the One-Page Law for an HTML page.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "filepath",
+        type=Path,
+        metavar="FILE",
+        help="HTML page file to verify",
+    )
+    parser.add_argument(
+        "--skip-lint",
+        action="store_true",
+        help="Skip the linter compliance check before layout verification",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    result = verify_layout(args.filepath, skip_lint=args.skip_lint)
+    result.print()
+
+    # Exit 1 only on hard failures (file not found, render error)
+    if result.status == "FAIL":
+        sys.exit(1)
     sys.exit(0)
 
+
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python Jules-workspace/verify_layout.py <filepath>")
-        sys.exit(1)
-    else:
-        verify_layout(sys.argv[1])
+    main()
