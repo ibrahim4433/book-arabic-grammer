@@ -81,13 +81,13 @@ class LocalPDFOCR:
                         img = img.convert('L')
                         
                         # Apply strict threshold to eliminate background and faint watermarks (opacity 0.4)
-                        # Everything lighter than 150 becomes pure white, everything darker becomes pure black.
-                        img = img.point(lambda p: 255 if p > 150 else 0)
+                        # Watermark is roughly pixel value 153. A threshold of 140 ensures it becomes white (255),
+                        # while keeping text (value ~0-100) black (0).
+                        img = img.point(lambda p: 255 if p > 140 else 0)
                         
                         # --- 2. OPTIMIZED OCR CONFIG ---
-                        # psm 6: Assume a single uniform block of text (prevents poetry columns from splitting)
-                        # psm 4: Assume a single column of text of variable sizes
-                        config = "--oem 1 --psm 6"
+                        # psm 3: Fully automatic page segmentation (Restored to fix column-merging in poetry/biography)
+                        config = "--oem 1 --psm 3"
                         text = pytesseract.image_to_string(img, lang=self.languages, config=config)
                         
                         # --- 3. TEXT CLEANUP (Removing digital noise) ---
