@@ -1,19 +1,22 @@
 import os
 import random
-import string
 import re
+import string
 
 # Configuration
 OUTPUT_FILE_19_0 = "pages/19.0_nXX_الهمزة المتطرفة.html"
 OUTPUT_FILE_19_1 = "pages/19.1_nXX_الهمزة المتطرفة.html"
 TEMPLATES_DIR = "Jules-workspace/Templates/"
 
+
 def load_template(filename):
-    with open(os.path.join(TEMPLATES_DIR, filename), 'r', encoding='utf-8') as f:
+    with open(os.path.join(TEMPLATES_DIR, filename), encoding="utf-8") as f:
         return f.read()
+
 
 def generate_id():
     return "b" + "".join(random.choices(string.digits, k=5))
+
 
 def create_header(lesson_number, chapter_title, category, section, author_name, author_phone):
     template = load_template("TEMPLATE_C_HEADER.html")
@@ -24,6 +27,7 @@ def create_header(lesson_number, chapter_title, category, section, author_name, 
     content = content.replace("[AUTHOR_NAME]", author_name)
     content = content.replace("[AUTHOR_PHONE]", author_phone)
     return content
+
 
 def create_block(title, content, benefit_title=None, benefit_text=None):
     template = load_template("TEMPLATE_C_BLOCK.html")
@@ -36,9 +40,10 @@ def create_block(title, content, benefit_title=None, benefit_text=None):
         template = template.replace("[BENEFIT_TEXT]", benefit_text)
     else:
         # Remove benefit box if not used
-        template = re.sub(r'<div class="benefit-box">.*?</div>', '', template, flags=re.DOTALL)
+        template = re.sub(r'<div class="benefit-box">.*?</div>', "", template, flags=re.DOTALL)
 
     return template
+
 
 def create_table(title, headers, rows):
     template = load_template("TEMPLATE_C_TABLE.html")
@@ -55,6 +60,7 @@ def create_table(title, headers, rows):
     template = template.replace("[TABLE_ROWS]", rows_html)
 
     return template
+
 
 def create_chips(title, chips):
     block_template = """
@@ -81,6 +87,7 @@ def create_chips(title, chips):
 
     return full_block
 
+
 def create_split(left_title, left_content, right_title, right_content):
     template = load_template("TEMPLATE_C_SPLIT.html")
     template = template.replace("[LEFT_TITLE]", left_title)
@@ -90,11 +97,13 @@ def create_split(left_title, left_content, right_title, right_content):
 
     return template
 
+
 def create_benefit(title, text):
     template = load_template("TEMPLATE_C_BENEFIT.html")
     template = template.replace("[BENEFIT_TITLE]", title)
     template = template.replace("[BENEFIT_TEXT]", text)
     return template
+
 
 def create_list(title, items, note_title=None, note_text=None):
     template = load_template("TEMPLATE_C_LIST.html")
@@ -113,10 +122,11 @@ def create_list(title, items, note_title=None, note_text=None):
         template = template.replace("[NOTE_TITLE]", note_title)
         template = template.replace("[NOTE_TEXT]", note_text)
     else:
-        template = re.sub(r'<div class="benefit-box">.*?</div>', '', template, flags=re.DOTALL)
-        template = template.replace('<hr class="separator-dashed">', '')
+        template = re.sub(r'<div class="benefit-box">.*?</div>', "", template, flags=re.DOTALL)
+        template = template.replace('<hr class="separator-dashed">', "")
 
     return template
+
 
 def create_exam(number_1, question_1, number_2, question_2, topic):
     template = load_template("TEMPLATE_C_EXAM.html")
@@ -133,6 +143,7 @@ def create_exam(number_1, question_1, number_2, question_2, topic):
         template = template.replace("[QUESTION_TEXT]", question_2, 1)
 
     return template
+
 
 def create_irab(sentence, word_analysis_list):
     template = load_template("TEMPLATE_C_IRAB.html")
@@ -151,19 +162,15 @@ def create_irab(sentence, word_analysis_list):
     template = template.replace("[IRAB_BOXES]", boxes_html)
     return template
 
+
 def main():
     # --- PAGE 1 CONTENT ---
     blocks_p1 = []
 
     # Block 1: Header
-    blocks_p1.append(create_header(
-        19,
-        "الْهَمْزَةُ الْمُتَطَرِّفَةُ",
-        "الإملاء",
-        "المستوى اللغوي",
-        "أ. حنا خفيف",
-        " "
-    ))
+    blocks_p1.append(
+        create_header(19, "الْهَمْزَةُ الْمُتَطَرِّفَةُ", "الإملاء", "المستوى اللغوي", "أ. حنا خفيف", " ")
+    )
 
     # Block 2: Definition
     content_b2 = """
@@ -178,10 +185,30 @@ def main():
     # Block 3: Matrix
     headers_b3 = ["حَرَكَةُ مَا قَبْلَهَا", "الْحَرْفُ الْمُنَاسِبُ", "صُورَةُ الْكِتَابَةِ", "أَمْثِلَةٌ تَوْضِيحِيَّةٌ"]
     rows_b3 = [
-        ["الْكَسْرَةُ (ــِـ)", "الْيَاءُ غَيْرُ الْمَنْقُوطَةِ", '<span class="font-bold text-primary">ـئ</span>', '<span class="highlight-red">يُومِئ</span>، شَاطِئ، قَارِئ'],
-        ["الضَّمَّةُ (ــُـ)", "الْوَاوُ", '<span class="font-bold text-primary">ـؤ</span>', '<span class="highlight-red">تَبَاطُؤ</span>، لُؤْلُؤ، تَكـَافُؤ'],
-        ["الْفَتْحَةُ (ــَـ)", "الْأَلِفُ", '<span class="font-bold text-primary">ـأ</span>', '<span class="highlight-red">الْمَبْدَأ</span>، قَرَأَ، نَشَأَ'],
-        ["السُّكُونُ (ــْـ)", "السَّطْرُ (مُنْفَرِدَةً)", '<span class="font-bold text-primary">ء</span>', '<span class="highlight-red">دِفْء</span>، عِبْء، شَيْء، هُدُوء']
+        [
+            "الْكَسْرَةُ (ــِـ)",
+            "الْيَاءُ غَيْرُ الْمَنْقُوطَةِ",
+            '<span class="font-bold text-primary">ـئ</span>',
+            '<span class="highlight-red">يُومِئ</span>، شَاطِئ، قَارِئ',
+        ],
+        [
+            "الضَّمَّةُ (ــُـ)",
+            "الْوَاوُ",
+            '<span class="font-bold text-primary">ـؤ</span>',
+            '<span class="highlight-red">تَبَاطُؤ</span>، لُؤْلُؤ، تَكـَافُؤ',
+        ],
+        [
+            "الْفَتْحَةُ (ــَـ)",
+            "الْأَلِفُ",
+            '<span class="font-bold text-primary">ـأ</span>',
+            '<span class="highlight-red">الْمَبْدَأ</span>، قَرَأَ، نَشَأَ',
+        ],
+        [
+            "السُّكُونُ (ــْـ)",
+            "السَّطْرُ (مُنْفَرِدَةً)",
+            '<span class="font-bold text-primary">ء</span>',
+            '<span class="highlight-red">دِفْء</span>، عِبْء، شَيْء، هُدُوء',
+        ],
     ]
     blocks_p1.append(create_table("مَوَاضِعُ كِتَابَةِ الْهَمْزَةِ الْمُتَطَرِّفَةِ", headers_b3, rows_b3))
 
@@ -190,7 +217,7 @@ def main():
         '<span class="font-bold">مَكْسُورٌ مَا قَبْلَهَا:</span> يُومِئ، يُكَافِئ',
         '<span class="font-bold">مَضْمُومٌ مَا قَبْلَهَا:</span> تَبَاطُؤ، يَجْرُؤ',
         '<span class="font-bold">مَفْتُوحٌ مَا قَبْلَهَا:</span> الْمَبْدَأ، يَلْجَأ',
-        '<span class="font-bold">سَاكِنٌ مَا قَبْلَهَا:</span> دِفْء، بُطْء'
+        '<span class="font-bold">سَاكِنٌ مَا قَبْلَهَا:</span> دِفْء، بُطْء',
     ]
     blocks_p1.append(create_chips("أَمْثِلَةٌ إِضَافِيَّةٌ لِلتَّرْسِيخِ", chips_b4))
 
@@ -225,8 +252,18 @@ def main():
     # Block 7: Hamza on Line with Dual Alif
     headers_b7 = ["الْحَالَةُ", "الْقَاعِدَةُ", "الْمِثَالُ", "التَّعْلِيلُ"]
     rows_b7 = [
-        ['مَا قَبْلَهَا <span class="text-accent">لَا يَتَّصِلُ</span>', 'تَبْقَى عَلَى السَّطْرِ مُنْفَرِدَةً', '<span class="font-bold">جُزْءَانِ</span>، نِدَاءَانِ', 'الْحَرْفُ السَّابِقُ (الزَّاي/الْأَلِف) لَا يَقْبَلُ الْوَصْلَ.'],
-        ['مَا قَبْلَهَا <span class="text-primary">يَتَّصِلُ</span>', 'تُكْتَبُ عَلَى نَبْرَةٍ (ـئـ)', '<span class="font-bold">شَيْئَانِ</span>، فَيْئَانِ، عِبْئَانِ', 'الْحَرْفُ السَّابِقُ (الْيَاء/الْبَاء) يَقْبَلُ الْوَصْلَ بِمَا بَعْدَهُ.']
+        [
+            'مَا قَبْلَهَا <span class="text-accent">لَا يَتَّصِلُ</span>',
+            "تَبْقَى عَلَى السَّطْرِ مُنْفَرِدَةً",
+            '<span class="font-bold">جُزْءَانِ</span>، نِدَاءَانِ',
+            "الْحَرْفُ السَّابِقُ (الزَّاي/الْأَلِف) لَا يَقْبَلُ الْوَصْلَ.",
+        ],
+        [
+            'مَا قَبْلَهَا <span class="text-primary">يَتَّصِلُ</span>',
+            "تُكْتَبُ عَلَى نَبْرَةٍ (ـئـ)",
+            '<span class="font-bold">شَيْئَانِ</span>، فَيْئَانِ، عِبْئَانِ',
+            "الْحَرْفُ السَّابِقُ (الْيَاء/الْبَاء) يَقْبَلُ الْوَصْلَ بِمَا بَعْدَهُ.",
+        ],
     ]
     blocks_p1.append(create_table("حُكْمُ الْهَمْزَةِ الْمُتَطَرِّفَةِ عَلَى السَّطْرِ مَعَ التَّثْنِيَةِ", headers_b7, rows_b7))
 
@@ -243,14 +280,14 @@ def main():
         '<span class="font-bold">بَدْء &#8592; بَدْءَانِ</span> (تَبْقَى عَلَى السَّطْرِ)',
         '<span class="font-bold">عِبْء &#8592; عِبْئَانِ</span> (تُوصَلُ بِمَا قَبْلَهَا)',
         '<span class="font-bold">مِلْء &#8592; مِلْءَانِ</span> (مِثْلُ عِبْء)',
-        '<span class="font-bold">دِفْء &#8592; دِفْءَانِ</span> (مِثْلُ شَيْء)'
+        '<span class="font-bold">دِفْء &#8592; دِفْءَانِ</span> (مِثْلُ شَيْء)',
     ]
     blocks_p1.append(create_chips("تَدْرِيبَاتٌ إِضَافِيَّةٌ عَلَى التَّثْنِيَةِ", chips_extra_p1))
 
     # Irab (Page 1)
     irab_p1 = [
         ("يَلْجَأُ", "فِعْلٌ مُضَارِعٌ مَرْفُوعٌ وَعَلَامَةُ رَفْعِهِ الضَّمَّةُ الظَّاهِرَةُ عَلَى آخِرِهِ (الْهَمْزَة)."),
-        ("الْمُؤْمِنُ", "فَاعِلٌ مَرْفُوعٌ وَعَلَامَةُ رَفْعِهِ الضَّمَّةُ الظَّاهِرَةُ عَلَى آخِرِهِ.")
+        ("الْمُؤْمِنُ", "فَاعِلٌ مَرْفُوعٌ وَعَلَامَةُ رَفْعِهِ الضَّمَّةُ الظَّاهِرَةُ عَلَى آخِرِهِ."),
     ]
     blocks_p1.append(create_irab("يَلْجَأُ الْمُؤْمِنُ إِلَى رَبِّهِ.", irab_p1))
 
@@ -258,14 +295,9 @@ def main():
     blocks_p2 = []
 
     # Block 9: Header (Continuation)
-    blocks_p2.append(create_header(
-        19,
-        "الْهَمْزَةُ الْمُتَطَرِّفَةُ ",
-        "الإملاء",
-        "المستوى اللغوي",
-        "أ. حنا خفيف",
-        " "
-    ))
+    blocks_p2.append(
+        create_header(19, "الْهَمْزَةُ الْمُتَطَرِّفَةُ ", "الإملاء", "المستوى اللغوي", "أ. حنا خفيف", " ")
+    )
 
     # Block 9: Tanween al-Nasb Introduction
     content_b9 = """
@@ -279,7 +311,7 @@ def main():
     items_b10 = [
         '<span class="font-bold text-accent">إِذَا سُبِقَتْ بِأَلِفٍ:</span> يُرْسَمُ التَّنْوِينُ عَلَى الْهَمْزَةِ مُبَاشَرَةً دُونَ أَلِفٍ إِضَافِيَّةٍ (كَرَاهَةَ اجْتِمَاعِ أَلِفَيْنِ). <span class="highlight-red">مِثَالٌ:</span> <span class="font-bold">سَمَاءً، نِدَاءً</span>.',
         '<span class="font-bold text-accent">إِذَا كُتِبَتْ عَلَى أَلِفٍ:</span> يُرْسَمُ التَّنْوِينُ فَوْقَهَا مُبَاشَرَةً. <span class="highlight-red">مِثَالٌ:</span> <span class="font-bold">مَبْدَأً، خَطَأً</span>.',
-        '<span class="font-bold text-primary">إِذَا لَمْ تُسْبَقْ بِأَلِفٍ:</span> تُرْسَمُ أَلِفُ التَّنْوِينِ بَعْدَهَا. وَلَهَا حَالَتَانِ:</span><ul class="structured-list"><li><span class="marker">.</span><span><span class="font-bold">غَيْرُ مُتَّصِلٍ:</span> إِذَا كَانَ مَا قَبْلَهَا لَا يَتَّصِلُ، تَبْقَى عَلَى السَّطْرِ. نَحْو: <span class="font-bold">جُزْءًا، بَدْءًا</span>.</span></li><li><span class="marker">.</span><span><span class="font-bold">مُتَّصِلٌ:</span> إِذَا كَانَ مَا قَبْلَهَا يَتَّصِلُ، تُكْتَبُ عَلَى نَبْرَةٍ. نَحْو: <span class="font-bold">شَيْئًا، عِبْئًا</span>.</span></li></ul><span>'
+        '<span class="font-bold text-primary">إِذَا لَمْ تُسْبَقْ بِأَلِفٍ:</span> تُرْسَمُ أَلِفُ التَّنْوِينِ بَعْدَهَا. وَلَهَا حَالَتَانِ:</span><ul class="structured-list"><li><span class="marker">.</span><span><span class="font-bold">غَيْرُ مُتَّصِلٍ:</span> إِذَا كَانَ مَا قَبْلَهَا لَا يَتَّصِلُ، تَبْقَى عَلَى السَّطْرِ. نَحْو: <span class="font-bold">جُزْءًا، بَدْءًا</span>.</span></li><li><span class="marker">.</span><span><span class="font-bold">مُتَّصِلٌ:</span> إِذَا كَانَ مَا قَبْلَهَا يَتَّصِلُ، تُكْتَبُ عَلَى نَبْرَةٍ. نَحْو: <span class="font-bold">شَيْئًا، عِبْئًا</span>.</span></li></ul><span>',
     ]
     blocks_p2.append(create_list("حَالَاتُ كِتَابَةِ تَنْوِينِ النَّصْبِ", items_b10))
 
@@ -302,26 +334,38 @@ def main():
     </p>
 </div>
 """
-    blocks_p2.append(create_split("تَعْلِيلُ رَسْمِ الْهَمْزَةِ (1)", left_content_b11, "تَعْلِيلُ رَسْمِ التَّنْوِينِ (2)", right_content_b11))
+    blocks_p2.append(
+        create_split(
+            "تَعْلِيلُ رَسْمِ الْهَمْزَةِ (1)", left_content_b11, "تَعْلِيلُ رَسْمِ التَّنْوِينِ (2)", right_content_b11
+        )
+    )
 
     # Block 12: Exam (Expanded for Page 2)
-    blocks_p2.append(create_exam(
-        "1", "بَيِّنْ سَبَبَ كِتَابَةِ الْهَمْزَةِ عَلَى الصُّورَةِ الَّتِي تَرَاهَا فِي الْكَلِمَاتِ الآتِيَةِ: (تَبَاطُؤ - شَاطِئ - دِفْء - مَلْجَآنِ).",
-        "2", "أَدْخِلْ تَنْوِينَ النَّصْبِ عَلَى الْكَلِمَاتِ الآتِيَةِ مُرَاعِيًا الْقَوَاعِدَ الْإِمْلَائِيَّةَ: (جُزْء - شَيْء - سَمَاء - مَبْدَأ).",
-        "الْهَمْزَةُ الْمُتَطَرِّفَةُ"
-    ))
+    blocks_p2.append(
+        create_exam(
+            "1",
+            "بَيِّنْ سَبَبَ كِتَابَةِ الْهَمْزَةِ عَلَى الصُّورَةِ الَّتِي تَرَاهَا فِي الْكَلِمَاتِ الآتِيَةِ: (تَبَاطُؤ - شَاطِئ - دِفْء - مَلْجَآنِ).",
+            "2",
+            "أَدْخِلْ تَنْوِينَ النَّصْبِ عَلَى الْكَلِمَاتِ الآتِيَةِ مُرَاعِيًا الْقَوَاعِدَ الْإِمْلَائِيَّةَ: (جُزْء - شَيْء - سَمَاء - مَبْدَأ).",
+            "الْهَمْزَةُ الْمُتَطَرِّفَةُ",
+        )
+    )
 
     # Add extra exam question to fill space if needed
-    blocks_p2.append(create_exam(
-        "3", "هَاتِ مُثَنَّى كُلٍّ مِنَ الْكَلِمَاتِ الآتِيَةِ: (مَلْجَأ - بَدَأَ - قَارِئ - لُؤْلُؤ).",
-        "4", "صَوِّبِ الْخَطَأَ فِي الْكَلِمَاتِ الآتِيَةِ: (شَيْءًا - سَمَاءًا - جُزْءًا - مَبْدَءًا).",
-        "تَدْرِيبَاتٌ إِضَافِيَّةٌ"
-    ))
+    blocks_p2.append(
+        create_exam(
+            "3",
+            "هَاتِ مُثَنَّى كُلٍّ مِنَ الْكَلِمَاتِ الآتِيَةِ: (مَلْجَأ - بَدَأَ - قَارِئ - لُؤْلُؤ).",
+            "4",
+            "صَوِّبِ الْخَطَأَ فِي الْكَلِمَاتِ الآتِيَةِ: (شَيْءًا - سَمَاءًا - جُزْءًا - مَبْدَءًا).",
+            "تَدْرِيبَاتٌ إِضَافِيَّةٌ",
+        )
+    )
 
     # Irab (Page 2) - Tanween
     irab_p2 = [
         ("قَرَأْتُ", "فِعْلٌ مَاضٍ مَبْنِيٌّ عَلَى السُّكُونِ لاتِّصَالِهِ بِتَاءِ الْفَاعِلِ، وَالتَّاءُ ضَمِيرٌ مُتَّصِلٌ فِي مَحَلِّ رَفْعٍ فَاعِلٌ."),
-        ("شَيْئًا", "مَفْعُولٌ بِهِ مَنْصُوبٌ وَعَلَامَةُ نَصْبِهِ الْفَتْحَةُ الظَّاهِرَةُ عَلَى آخِرِهِ (الْهَمْزَة).")
+        ("شَيْئًا", "مَفْعُولٌ بِهِ مَنْصُوبٌ وَعَلَامَةُ نَصْبِهِ الْفَتْحَةُ الظَّاهِرَةُ عَلَى آخِرِهِ (الْهَمْزَة)."),
     ]
     blocks_p2.append(create_irab("قَرَأْتُ شَيْئًا مُفِيدًا.", irab_p2))
 
@@ -329,16 +373,17 @@ def main():
     full_content_p1 = "\n".join(blocks_p1)
     page_template = load_template("TEMPLATE_C_PAGE_WRAPPER.html")
     final_html_p1 = page_template.replace("<!-- INJECT_CONTENT_HERE -->", full_content_p1)
-    with open(OUTPUT_FILE_19_0, 'w', encoding='utf-8') as f:
+    with open(OUTPUT_FILE_19_0, "w", encoding="utf-8") as f:
         f.write(final_html_p1)
     print(f"Generated {OUTPUT_FILE_19_0}")
 
     # Write Page 2
     full_content_p2 = "\n".join(blocks_p2)
     final_html_p2 = page_template.replace("<!-- INJECT_CONTENT_HERE -->", full_content_p2)
-    with open(OUTPUT_FILE_19_1, 'w', encoding='utf-8') as f:
+    with open(OUTPUT_FILE_19_1, "w", encoding="utf-8") as f:
         f.write(final_html_p2)
     print(f"Generated {OUTPUT_FILE_19_1}")
+
 
 if __name__ == "__main__":
     main()

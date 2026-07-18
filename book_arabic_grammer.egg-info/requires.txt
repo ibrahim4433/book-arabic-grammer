@@ -1,0 +1,14 @@
+weasyprint>=69.0
+beautifulsoup4>=4.15.0
+lxml>=5.0
+
+[api]
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.0.0
+
+[dev]
+ruff>=0.9.0
+mypy>=1.14.0
+pytest>=8.0.0
+pytest-asyncio>=0.23.0

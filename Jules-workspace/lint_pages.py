@@ -46,6 +46,7 @@ RESET = "\033[0m"
 
 # ── Data Models ───────────────────────────────────────────────────────────────
 
+
 @dataclass
 class LintIssue:
     level: str  # "ERROR" | "WARNING"
@@ -86,6 +87,7 @@ class LintResult:
 
 # ── CSS Class Parsing ─────────────────────────────────────────────────────────
 
+
 def parse_allowed_classes(css_file: Path) -> frozenset[str]:
     """Extract all class names defined in a CSS file."""
     if not css_file.exists():
@@ -98,6 +100,7 @@ def parse_allowed_classes(css_file: Path) -> frozenset[str]:
 
 
 # ── Style Fix Suggestions ─────────────────────────────────────────────────────
+
 
 def _suggest_fix(style_content: str) -> str:
     """Return a human-readable suggestion for replacing an inline style."""
@@ -124,6 +127,7 @@ def _suggest_fix(style_content: str) -> str:
 
 # ── Semantic Checks ───────────────────────────────────────────────────────────
 
+
 def _check_exam_compliance(soup: BeautifulSoup, result: LintResult) -> None:
     """Enforce the Golden Standard for .exam-question blocks."""
     # Rule 1: Exam headers must use .bg-dark, not .accent
@@ -132,24 +136,30 @@ def _check_exam_compliance(soup: BeautifulSoup, result: LintResult) -> None:
         if "اخْتَبِرْ نَفْسَكَ" in text or "Test Yourself" in text:
             classes: list[str] = header.get("class", [])
             if "bg-dark" not in classes:
-                result.issues.append(LintIssue(
-                    level="ERROR",
-                    message=f"Exam header '{text.strip()[:40]}…' must have class .bg-dark. Found: {classes}",
-                ))
+                result.issues.append(
+                    LintIssue(
+                        level="ERROR",
+                        message=f"Exam header '{text.strip()[:40]}…' must have class .bg-dark. Found: {classes}",
+                    )
+                )
             if "accent" in classes:
-                result.issues.append(LintIssue(
-                    level="ERROR",
-                    message=f"Exam header '{text.strip()[:40]}…' must NOT have class .accent.",
-                ))
+                result.issues.append(
+                    LintIssue(
+                        level="ERROR",
+                        message=f"Exam header '{text.strip()[:40]}…' must NOT have class .accent.",
+                    )
+                )
 
     # Rule 2: Exam questions must have an answer box
     for question in soup.find_all(class_="exam-question"):
         if not question.find(class_="bg-grey-lighter"):
             q_id = question.get("id", "N/A")
-            result.issues.append(LintIssue(
-                level="ERROR",
-                message=f"Exam question (id={q_id}) is missing an answer box (div.bg-grey-lighter).",
-            ))
+            result.issues.append(
+                LintIssue(
+                    level="ERROR",
+                    message=f"Exam question (id={q_id}) is missing an answer box (div.bg-grey-lighter).",
+                )
+            )
 
 
 def _check_anti_bloat(soup: BeautifulSoup, result: LintResult) -> None:
@@ -157,13 +167,16 @@ def _check_anti_bloat(soup: BeautifulSoup, result: LintResult) -> None:
     # No nested benefit boxes
     for box in soup.find_all(class_="benefit-box"):
         if box.find(class_="benefit-box"):
-            result.issues.append(LintIssue(
-                level="ERROR",
-                message="Nested .benefit-box found. Benefit boxes must NOT be nested.",
-            ))
+            result.issues.append(
+                LintIssue(
+                    level="ERROR",
+                    message="Nested .benefit-box found. Benefit boxes must NOT be nested.",
+                )
+            )
 
 
 # ── Main Lint Function ────────────────────────────────────────────────────────
+
 
 def lint_file(
     filepath: Path,
@@ -187,10 +200,12 @@ def lint_file(
     for match in re.finditer(r'style=["\']([^"\']*)["\']', content):
         style_content = match.group(1)
         suggestion = _suggest_fix(style_content)
-        result.issues.append(LintIssue(
-            level="ERROR",
-            message=f"STRICT VIOLATION: Inline style '{style_content[:60]}'. Fix: {suggestion}",
-        ))
+        result.issues.append(
+            LintIssue(
+                level="ERROR",
+                message=f"STRICT VIOLATION: Inline style '{style_content[:60]}'. Fix: {suggestion}",
+            )
+        )
 
     # ── Check 2: Class Whitelist & Forbidden Classes ───────────────────────
     used_classes: set[str] = set()
@@ -200,32 +215,40 @@ def lint_file(
     if allowed_classes:
         for cls in sorted(used_classes):
             if cls not in allowed_classes:
-                result.issues.append(LintIssue(
-                    level="ERROR",
-                    message=f"Class '.{cls}' is NOT defined in styles/main.css.",
-                ))
+                result.issues.append(
+                    LintIssue(
+                        level="ERROR",
+                        message=f"Class '.{cls}' is NOT defined in styles/main.css.",
+                    )
+                )
 
     for cls in sorted(used_classes & FORBIDDEN_CLASSES):
-        result.issues.append(LintIssue(
-            level="ERROR",
-            message=f"Class '.{cls}' is FORBIDDEN. Use .structured-list instead.",
-        ))
+        result.issues.append(
+            LintIssue(
+                level="ERROR",
+                message=f"Class '.{cls}' is FORBIDDEN. Use .structured-list instead.",
+            )
+        )
 
     # ── Check 3: Raw <ul> without .structured-list ─────────────────────────
     for match in re.finditer(r"<ul([^>]*)>", content):
         attrs = match.group(1)
         if "structured-list" not in attrs and "toc-list" not in attrs:
-            result.issues.append(LintIssue(
-                level="ERROR",
-                message="Raw <ul> found without class 'structured-list'. Use .structured-list.",
-            ))
+            result.issues.append(
+                LintIssue(
+                    level="ERROR",
+                    message="Raw <ul> found without class 'structured-list'. Use .structured-list.",
+                )
+            )
 
     # ── Check 4: Forbidden <hr> tag ───────────────────────────────────────
     if re.search(r"<hr[^>]*>", content, re.IGNORECASE):
-        result.issues.append(LintIssue(
-            level="ERROR",
-            message="STRICT VIOLATION: Forbidden <hr> tag found. Do not add horizontal rules.",
-        ))
+        result.issues.append(
+            LintIssue(
+                level="ERROR",
+                message="STRICT VIOLATION: Forbidden <hr> tag found. Do not add horizontal rules.",
+            )
+        )
 
     # ── Check 5: BeautifulSoup semantic checks ────────────────────────────
     try:
@@ -233,15 +256,18 @@ def lint_file(
         _check_exam_compliance(soup, result)
         _check_anti_bloat(soup, result)
     except Exception as exc:
-        result.issues.append(LintIssue(
-            level="WARNING",
-            message=f"Could not run semantic checks (HTML parse error): {exc}",
-        ))
+        result.issues.append(
+            LintIssue(
+                level="WARNING",
+                message=f"Could not run semantic checks (HTML parse error): {exc}",
+            )
+        )
 
     return result
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -281,7 +307,10 @@ def collect_targets(target: Path | None) -> list[Path]:
     sys.exit(1)
 
 
-def main() -> None:
+import asyncio
+
+
+async def main_async() -> None:
     args = parse_args()
     target_files = collect_targets(args.target)
 
@@ -289,25 +318,28 @@ def main() -> None:
     allowed_classes = parse_allowed_classes(STYLES_FILE)
     print(f"   Found {len(allowed_classes)} allowed classes.\n")
 
-    print(f"📄 Linting {len(target_files)} file(s)...\n")
+    print(f"📄 Linting {len(target_files)} file(s) concurrently...\n")
 
     results: list[LintResult] = []
-    total_errors = 0
-    files_with_errors = 0
 
-    for filepath in target_files:
-        result = lint_file(filepath, allowed_classes)
-        results.append(result)
+    # Using modern Python 3.11+ TaskGroup for concurrent execution
+    async with asyncio.TaskGroup() as tg:
+        tasks = [
+            tg.create_task(asyncio.to_thread(lint_file, filepath, allowed_classes))
+            for filepath in target_files
+        ]
 
-        if not result.passed:
-            files_with_errors += 1
-            total_errors += len(result.errors)
+    results = [task.result() for task in tasks]
 
-            if not args.json_output:
-                print(f"  {RED}✗{RESET} {filepath.name}")
-                for issue in result.issues:
-                    indent = "    "
-                    print(f"{indent}{issue}")
+    total_errors = sum(len(r.errors) for r in results)
+    files_with_errors = sum(1 for r in results if not r.passed)
+
+    for result in results:
+        if not result.passed and not args.json_output:
+            print(f"  {RED}✗{RESET} {filepath.name}")
+            for issue in result.issues:
+                indent = "    "
+                print(f"{indent}{issue}")
 
     # ── Output ─────────────────────────────────────────────────────────────
     if args.json_output:
@@ -321,8 +353,10 @@ def main() -> None:
             )
             sys.exit(1)
         else:
-            print(f"{GREEN}✅ SUCCESS: All {len(target_files)} file(s) passed. Zero violations.{RESET}")
+            print(
+                f"{GREEN}✅ SUCCESS: All {len(target_files)} file(s) passed. Zero violations.{RESET}"
+            )
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main_async())

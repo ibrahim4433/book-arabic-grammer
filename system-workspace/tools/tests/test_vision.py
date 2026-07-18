@@ -1,6 +1,5 @@
-import unittest
 import sys
-import os
+import unittest
 from pathlib import Path
 
 # Add project root to path
@@ -9,8 +8,8 @@ sys.path.append(str(project_root / "system-workspace/tools/automation"))
 
 from modules.vision import VisionClient
 
+
 class TestVisionClient(unittest.TestCase):
-    
     def setUp(self):
         print("\n--- Setup: Initializing VisionClient ---")
         self.client = VisionClient()
@@ -31,6 +30,6 @@ class TestVisionClient(unittest.TestCase):
         else:
             print("⚠️ Test image not found (input/3.jpg). Skipping integration check.")
 
-if __name__ == '__main__':
-    unittest.main()
 
+if __name__ == "__main__":
+    unittest.main()

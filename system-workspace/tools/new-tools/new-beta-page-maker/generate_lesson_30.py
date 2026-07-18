@@ -1,11 +1,7 @@
-import os
-import sys
-import re
 import json
-import shutil
-import uuid
-import random
-import string
+import os
+import re
+import sys
 
 # Add current directory to path to allow importing verify_layout and id_manager
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -42,20 +38,25 @@ id_manager.scan_existing_ids()
 TEMPLATES_DIR = os.path.join("Jules-workspace", "Templates")
 OUTPUT_DIR = "pages"
 
+
 def read_template(template_name):
     filepath = os.path.join(TEMPLATES_DIR, template_name)
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(filepath, encoding="utf-8") as f:
         content = f.read()
 
     # Fix TEMPLATE_C_BLOCK: Replace <p> with <div> to allow complex content (nested p, div, section)
     if template_name == "TEMPLATE_C_BLOCK.html":
-        content = content.replace('<p class="mt-1mm text-accent">', '<div class="mt-1mm text-accent">')
-        content = content.replace('</p>', '</div>')
+        content = content.replace(
+            '<p class="mt-1mm text-accent">', '<div class="mt-1mm text-accent">'
+        )
+        content = content.replace("</p>", "</div>")
 
     return content
 
+
 def generate_id():
     return id_manager.generate_id()
+
 
 def render_template(template_content, data):
     # Replace placeholders
@@ -64,18 +65,19 @@ def render_template(template_content, data):
 
     # Remove unused benefit/note sections if not provided
     if "[BENEFIT_TITLE]" in template_content and "[BENEFIT_TITLE]" not in data:
-         # Remove the benefit box div.
-         # Assuming structure: <div class="benefit-box"> ... </div>
-         # Regex to remove the div containing BENEFIT_TITLE
-         pattern = r'<div class="benefit-box">\s*<strong>.*?\[BENEFIT_TITLE\].*?</div>'
-         template_content = re.sub(pattern, '', template_content, flags=re.DOTALL)
+        # Remove the benefit box div.
+        # Assuming structure: <div class="benefit-box"> ... </div>
+        # Regex to remove the div containing BENEFIT_TITLE
+        pattern = r'<div class="benefit-box">\s*<strong>.*?\[BENEFIT_TITLE\].*?</div>'
+        template_content = re.sub(pattern, "", template_content, flags=re.DOTALL)
 
     if "[NOTE_TITLE]" in template_content and "[NOTE_TITLE]" not in data:
-         # Remove separator and benefit box
-         pattern = r'<hr class="separator-dashed">\s*<div class="benefit-box">\s*<strong>.*?\[NOTE_TITLE\].*?</div>'
-         template_content = re.sub(pattern, '', template_content, flags=re.DOTALL)
+        # Remove separator and benefit box
+        pattern = r'<hr class="separator-dashed">\s*<div class="benefit-box">\s*<strong>.*?\[NOTE_TITLE\].*?</div>'
+        template_content = re.sub(pattern, "", template_content, flags=re.DOTALL)
 
     return template_content
+
 
 # Content Definitions
 header_data = {
@@ -84,7 +86,7 @@ header_data = {
     "CATEGORY_HEADER": "فوائد",
     "SECTION_HEADER": "المستوى الفني",
     "AUTHOR_NAME": "أ. حنا خفيف",
-    "AUTHOR_PHONE": " "
+    "AUTHOR_PHONE": " ",
 }
 
 # Block 2: Concept
@@ -95,10 +97,7 @@ block2_content = """<p class="text-accent text-justify mb-2mm">
     ويَتِمُّ التَّعْبِيرُ عَنْ هَذا الشُّعُورِ بِأَدَواتٍ فَنِّيَّةٍ مُتَنَوِّعَةٍ، أَبْرَزُها: <span class="highlight-red">الأَلْفاظُ</span>، و<span class="highlight-blue">التَّراكِيبُ</span>، و<span class="highlight-green">الصُّورُ البَيانِيَّةُ</span>.
 </p>"""
 
-block2_data = {
-    "BLOCK_TITLE": "مَفْهُومُ العاطِفَةِ وأَدَواتُها",
-    "CONTENT_TEXT": block2_content
-}
+block2_data = {"BLOCK_TITLE": "مَفْهُومُ العاطِفَةِ وأَدَواتُها", "CONTENT_TEXT": block2_content}
 
 # Block 3: Summary Matrix
 # Table Rows
@@ -107,7 +106,7 @@ rows_html = ""
 rows_data = [
     ("الحُزْنُ والأَسَى", "التَّراكِيبُ", "إِنْ كُنْتَ مُكْتَئِبًا، إِنْ كُنْتَ مُكْتَئِبًا لِعِزٍّ مَضَى"),
     ("الأَلَمُ والكَآبَةُ", "الصُّورُ البَيانِيَّةُ", "يُرْجِعُهُ تَنَدُّمُ، عِزٍّ قَدْ مَضَى"),
-    ("الإِعْجابُ", "الصُّورُ البَيانِيَّةُ", "صُوَرٌ تَتَكَلَّمُ، تُطِلُّ مِنَ الثَّرَى صُوَرٌ")
+    ("الإِعْجابُ", "الصُّورُ البَيانِيَّةُ", "صُوَرٌ تَتَكَلَّمُ، تُطِلُّ مِنَ الثَّرَى صُوَرٌ"),
 ]
 
 for c1, c2, c3 in rows_data:
@@ -119,7 +118,7 @@ for c1, c2, c3 in rows_data:
 block3_data = {
     "TABLE_TITLE": "جَدْوَلُ تَحْلِيلِ العاطِفَةِ (نَماذِجُ)",
     "TABLE_HEADERS": "<th>الشُّعُورُ العاطِفِيُّ</th><th>الأَداةُ الفَنِّيَّةُ</th><th>المِثالُ التَّطْبِيقِيُّ</th>",
-    "TABLE_ROWS": rows_html
+    "TABLE_ROWS": rows_html,
 }
 
 # Block 4: Applied Model 1 (Admiration)
@@ -142,18 +141,21 @@ poem_template = read_template("TEMPLATE_C_POEM.html")
 # So I will render TEMPLATE_C_POEM and put it there.
 # I need to remove [SECTION_TITLE], [POET_NAME] etc if empty.
 
+
 def render_poem(right, left):
     content = read_template("TEMPLATE_C_POEM.html")
     # Clean up unused parts
     # Use exact regex or careful matching for nested divs
     # Remove header: Single div, safe
-    content = re.sub(r'<div class="block-header poem-header">.*?</div>', '', content, flags=re.DOTALL)
+    content = re.sub(
+        r'<div class="block-header poem-header">.*?</div>', "", content, flags=re.DOTALL
+    )
     # Remove bio-card: Nested divs. <div class="bio-card">...<div class="bio-info">...</div>...</div>
     # The previous regex stopped at the first </div> which was bio-info's closing tag, leaving bio-card's closing tag.
     # We need to consume TWO closing divs.
-    content = re.sub(r'<div class="bio-card">.*?</div>\s*</div>', '', content, flags=re.DOTALL)
+    content = re.sub(r'<div class="bio-card">.*?</div>\s*</div>', "", content, flags=re.DOTALL)
     # Remove title: Simple tag
-    content = re.sub(r'<h3.*?\[POEM_TITLE\].*?</h3>', '', content, flags=re.DOTALL)
+    content = re.sub(r"<h3.*?\[POEM_TITLE\].*?</h3>", "", content, flags=re.DOTALL)
 
     verse_html = f"""<div class="poem-line">
     <div class="hemistich">{right}</div>
@@ -162,12 +164,18 @@ def render_poem(right, left):
     content = content.replace("[POEM_VERSES]", verse_html)
     return content
 
+
 block4_poem = render_poem("كُنْ غَدِيـــرًا يَسِيرُ في الأَرْضِ رَقْرا", "قًا فَيَسْقِي مِنْ جانِبَيْهِ الحُقُولا")
 
 # List
 list_item_template = read_template("TEMPLATE_C_LIST_ITEM.html")
-l1 = list_item_template.replace("[MARKER]", "1").replace("[CONTENT]", '<span class="font-bold text-primary">الأَلْفاظُ:</span> (غَدِير، رَقراق، يَسْقِي).')
-l2 = list_item_template.replace("[MARKER]", "2").replace("[CONTENT]", '<span class="font-bold text-primary">التَّراكيبُ:</span> (كُنْ غَدِيرًا، يَسِيرُ في الأَرْضِ، يَسْقِي مِنْ جانِبِهِ الحُقُولا).')
+l1 = list_item_template.replace("[MARKER]", "1").replace(
+    "[CONTENT]", '<span class="font-bold text-primary">الأَلْفاظُ:</span> (غَدِير، رَقراق، يَسْقِي).'
+)
+l2 = list_item_template.replace("[MARKER]", "2").replace(
+    "[CONTENT]",
+    '<span class="font-bold text-primary">التَّراكيبُ:</span> (كُنْ غَدِيرًا، يَسِيرُ في الأَرْضِ، يَسْقِي مِنْ جانِبِهِ الحُقُولا).',
+)
 
 block4_list_html = f"""<ul class="structured-list">
 {l1}
@@ -181,16 +189,13 @@ block4_content = f"""<div class="mb-4mm">
 {block4_list_html}
 """
 
-block4_data = {
-    "BLOCK_TITLE": "نَمُوذَجٌ تَطْبِيقِيٌّ: شُعُورُ الإِعْجابِ",
-    "CONTENT_TEXT": block4_content
-}
+block4_data = {"BLOCK_TITLE": "نَمُوذَجٌ تَطْبِيقِيٌّ: شُعُورُ الإِعْجابِ", "CONTENT_TEXT": block4_content}
 
 # Block 5: Comparative Analysis (Split)
 # We need a title block first
 block5_title_data = {
     "BLOCK_TITLE": "مُقارَنَةٌ شُعُورِيَّةٌ بَيْنَ التَّراكِيبِ",
-    "CONTENT_TEXT": "" # Empty content, just header
+    "CONTENT_TEXT": "",  # Empty content, just header
 }
 # But TEMPLATE_C_BLOCK with empty content might look weird (empty padding).
 # I will use a minimal content or just the header if I can.
@@ -214,29 +219,38 @@ block5_right = """<h4 class="text-center font-bold text-accent mb-2mm">التّ�
 </p>"""
 
 block5_split_data = {
-    "LEFT_TITLE": "التَّرْكِيبُ الأَوَّلُ", # Visually Right in RTL? No, logical left.
+    "LEFT_TITLE": "التَّرْكِيبُ الأَوَّلُ",  # Visually Right in RTL? No, logical left.
     "RIGHT_TITLE": "التَّرْكِيبُ الثَّانِي",
     "LEFT_CONTENT": block5_left,
-    "RIGHT_CONTENT": block5_right
+    "RIGHT_CONTENT": block5_right,
 }
 # Wait, if I provide titles, I should remove the h4s from content to avoid duplication?
 # The plan has h4s. The template has titles.
 # I will use the template titles and remove h4 from content.
-block5_left_clean = block5_left.replace('<h4 class="text-center font-bold text-primary mb-2mm">التَّرْكِيبُ الأَوَّلُ</h4>', '')
-block5_right_clean = block5_right.replace('<h4 class="text-center font-bold text-accent mb-2mm">التَّرْكِيبُ الثَّانِي</h4>', '')
+block5_left_clean = block5_left.replace(
+    '<h4 class="text-center font-bold text-primary mb-2mm">التَّرْكِيبُ الأَوَّلُ</h4>', ""
+)
+block5_right_clean = block5_right.replace(
+    '<h4 class="text-center font-bold text-accent mb-2mm">التَّرْكِيبُ الثَّانِي</h4>', ""
+)
 
 block5_split_data = {
     "LEFT_TITLE": "التَّرْكِيبُ الأَوَّلُ",
     "RIGHT_TITLE": "التَّرْكِيبُ الثَّانِي",
     "LEFT_CONTENT": block5_left_clean,
-    "RIGHT_CONTENT": block5_right_clean
+    "RIGHT_CONTENT": block5_right_clean,
 }
 
 
 # Block 6: Applied Model 3 (Sadness)
 block6_poem = render_poem("حارَ فِكْرِي وَضاقَ صَدْرِي وإِنْ حا", "رَ هُمُومًا يَضِيـــقُ عَنْها الفَضاءُ")
-l6_1 = list_item_template.replace("[MARKER]", "1").replace("[CONTENT]", '<span class="font-bold text-primary">الأَلْفاظُ:</span> (حارَ، ضاقَ، هُمُومًا، يَضِيقُ).')
-l6_2 = list_item_template.replace("[MARKER]", "2").replace("[CONTENT]", '<span class="font-bold text-primary">التَّراكِيبُ:</span> (حارَ فِكْرِي، ضاقَ صَدْرِي، حارَ هُمُومًا، يَضِيقُ عَنْها الفَضاءُ).')
+l6_1 = list_item_template.replace("[MARKER]", "1").replace(
+    "[CONTENT]", '<span class="font-bold text-primary">الأَلْفاظُ:</span> (حارَ، ضاقَ، هُمُومًا، يَضِيقُ).'
+)
+l6_2 = list_item_template.replace("[MARKER]", "2").replace(
+    "[CONTENT]",
+    '<span class="font-bold text-primary">التَّراكِيبُ:</span> (حارَ فِكْرِي، ضاقَ صَدْرِي، حارَ هُمُومًا، يَضِيقُ عَنْها الفَضاءُ).',
+)
 
 block6_content = f"""<div class="mb-4mm">
     {block6_poem}
@@ -248,16 +262,20 @@ block6_content = f"""<div class="mb-4mm">
 </ul>
 """
 
-block6_data = {
-    "BLOCK_TITLE": "نَمُوذَجٌ تَطْبِيقِيٌّ: شُعُورُ الحُزْنِ",
-    "CONTENT_TEXT": block6_content
-}
+block6_data = {"BLOCK_TITLE": "نَمُوذَجٌ تَطْبِيقِيٌّ: شُعُورُ الحُزْنِ", "CONTENT_TEXT": block6_content}
 
 # Block 7: Applied Model 4 (Optimism)
 block7_poem = render_poem("وَتَوَقَّعْ إِذا السَّـــماءُ اكْفَهَرَّتْ", "مَطَرًا في السُّهُولِ يُحْيِي السُّهُولا")
-l7_1 = list_item_template.replace("[MARKER]", "1").replace("[CONTENT]", '<span class="font-bold text-primary">التَّرْكِيبُ:</span> (تَوَقَّعْ مَطَرًا)، أو: (مَطَرًا يُحْيِي السُّهُولا).')
-l7_2 = list_item_template.replace("[MARKER]", "2").replace("[CONTENT]", '<span class="font-bold text-primary">الأَلْفاظُ:</span> (مَطَرًا، يُحْيِي).')
-l7_3 = list_item_template.replace("[MARKER]", "3").replace("[CONTENT]", '<span class="font-bold text-primary">الصُّورَةُ البَيانِيَّةُ:</span> (مَطَرًا يُحْيِي السُّهُولا).')
+l7_1 = list_item_template.replace("[MARKER]", "1").replace(
+    "[CONTENT]",
+    '<span class="font-bold text-primary">التَّرْكِيبُ:</span> (تَوَقَّعْ مَطَرًا)، أو: (مَطَرًا يُحْيِي السُّهُولا).',
+)
+l7_2 = list_item_template.replace("[MARKER]", "2").replace(
+    "[CONTENT]", '<span class="font-bold text-primary">الأَلْفاظُ:</span> (مَطَرًا، يُحْيِي).'
+)
+l7_3 = list_item_template.replace("[MARKER]", "3").replace(
+    "[CONTENT]", '<span class="font-bold text-primary">الصُّورَةُ البَيانِيَّةُ:</span> (مَطَرًا يُحْيِي السُّهُولا).'
+)
 
 block7_content = f"""<div class="mb-4mm">
     {block7_poem}
@@ -275,10 +293,7 @@ block7_content = f"""<div class="mb-4mm">
 </ul>
 """
 
-block7_data = {
-    "BLOCK_TITLE": "نَمُوذَجٌ تَطْبِيقِيٌّ: شُعُورُ التَّفاؤُلِ",
-    "CONTENT_TEXT": block7_content
-}
+block7_data = {"BLOCK_TITLE": "نَمُوذَجٌ تَطْبِيقِيٌّ: شُعُورُ التَّفاؤُلِ", "CONTENT_TEXT": block7_content}
 
 # Block 8: Exam
 # Adjusting exam template for 1 question
@@ -286,7 +301,12 @@ exam_template = read_template("TEMPLATE_C_EXAM.html")
 # Remove question 2 (Target specifically the second question div which has distinct classes)
 # The template has: <div class="exam-question mb-0 border-none pb-0" id="[Q2_ID]">
 # We use a specific regex to avoid matching Q1
-exam_template = re.sub(r'<div class="exam-question mb-0 border-none pb-0".*?\[Q2_ID\].*?</div>', '', exam_template, flags=re.DOTALL)
+exam_template = re.sub(
+    r'<div class="exam-question mb-0 border-none pb-0".*?\[Q2_ID\].*?</div>',
+    "",
+    exam_template,
+    flags=re.DOTALL,
+)
 exam_data = {
     "BLOCK_ID": generate_id(),
     "TOPIC": "العاطِفَة",
@@ -294,7 +314,7 @@ exam_data = {
     "QUESTION_TEXT": """حَدِّدِ الشُّعُورَ العاطِفِيَّ وأَداةَ التَّعْبِيرِ عَنْهُ (أَلْفاظٌ، تَراكِيبُ) في البَيْتِ الآتي:
 <div class="text-center font-bold mt-2mm text-primary">
     أَنا الَّذِي نَظَرَ الأَعْمَى إِلَى أَدَبِي     وَأَسْمَعَتْ كَلِماتِي مَنْ بِهِ صَمَمُ
-</div>"""
+</div>""",
 }
 
 # Define list of blocks to process
@@ -303,11 +323,11 @@ blocks_to_add = [
     ("TEMPLATE_C_BLOCK.html", block2_data),
     ("TEMPLATE_C_TABLE.html", block3_data),
     ("TEMPLATE_C_BLOCK.html", block4_data),
-    ("TEMPLATE_C_BLOCK.html", block5_title_data), # Title for split
+    ("TEMPLATE_C_BLOCK.html", block5_title_data),  # Title for split
     ("TEMPLATE_C_SPLIT.html", block5_split_data),
     ("TEMPLATE_C_BLOCK.html", block6_data),
     ("TEMPLATE_C_BLOCK.html", block7_data),
-    ("TEMPLATE_C_EXAM.html", exam_data)
+    ("TEMPLATE_C_EXAM.html", exam_data),
 ]
 
 # Filler content generators
@@ -320,8 +340,9 @@ fillers_list = [
     ("exam", "سُؤالٌ إِضافِيٌّ: كَيْفَ تُسْهِمُ الصُّورَةُ البَيانِيَّةُ في إِبْرازِ العاطِفَةِ؟"),
     ("tip", "صِدْقُ العاطِفَةِ هُوَ المِعْيارُ الأَساسِيُّ لِجَوْدَةِ الشِّعْرِ الوِجْدانِيِّ."),
     ("exam", "سُؤالٌ إِضافِيٌّ: ما الفَرْقُ بَيْنَ الشُّعُورِ والْعاطِفَةِ؟"),
-    ("tip", "يَلْجَأُ الشَّاعِرُ إِلى الطَّبِيعَةِ لِيَبُثَّها شَكْواهُ ويُعَبِّرَ عَنْ عاطِفَتِهِ.")
+    ("tip", "يَلْجَأُ الشَّاعِرُ إِلى الطَّبِيعَةِ لِيَبُثَّها شَكْواهُ ويُعَبِّرَ عَنْ عاطِفَتِهِ."),
 ]
+
 
 def get_next_filler():
     global filler_idx
@@ -340,7 +361,12 @@ def get_next_filler():
         </div>
         """
     else:
-        return read_template("TEMPLATE_C_BENEFIT_TIP.html").replace("[TIP_TITLE]", "فائِدَة").replace("[TIP_TEXT]", text)
+        return (
+            read_template("TEMPLATE_C_BENEFIT_TIP.html")
+            .replace("[TIP_TITLE]", "فائِدَة")
+            .replace("[TIP_TEXT]", text)
+        )
+
 
 # Helper to write page and check layout
 def write_and_check(content_blocks, page_num):
@@ -352,7 +378,9 @@ def write_and_check(content_blocks, page_num):
     # If not page 0, maybe mark header as continuation?
     # Plan says "header of the continuation page(s) must include an indicator like ".
     if page_num > 0:
-        header = header.replace(header_data["CHAPTER_TITLE"], header_data["CHAPTER_TITLE"] + " (تابِع)")
+        header = header.replace(
+            header_data["CHAPTER_TITLE"], header_data["CHAPTER_TITLE"] + " (تابِع)"
+        )
 
     body_content = header + "\n" + "\n".join(content_blocks)
 
@@ -366,7 +394,7 @@ def write_and_check(content_blocks, page_num):
     # Simple regex injection for now.
 
     def inject_id(match):
-        return match.group(0).rstrip('>') + f' id="{generate_id()}">'
+        return match.group(0).rstrip(">") + f' id="{generate_id()}">'
 
     # Inject ID to content-block if it doesn't have one
     # This is a bit hacky on the full string, but works for checking layout.
@@ -374,27 +402,32 @@ def write_and_check(content_blocks, page_num):
     # For now, let's just save. verify_layout doesn't care about IDs for layout check.
 
     filename = f"pages/30.{page_num}_nXX_العاطفة.html"
-    with open(filename, 'w', encoding='utf-8') as f:
+    with open(filename, "w", encoding="utf-8") as f:
         f.write(full_html)
 
     return filename
+
 
 # Main Building Loop
 current_blocks = []
 page_num = 0
 final_files = []
 
+
 # Verify Layout wrapper
 def check_layout(filename):
     # Capture output of verify_layout
     # It prints JSON to stdout
     import subprocess
-    result = subprocess.run(["python3", "Jules-workspace/verify_layout.py", filename], capture_output=True, text=True)
+
+    result = subprocess.run(
+        ["python3", "Jules-workspace/verify_layout.py", filename], capture_output=True, text=True
+    )
     try:
         # Find JSON object in stdout (in case of extra logs)
         stdout = result.stdout.strip()
-        start = stdout.find('{')
-        end = stdout.rfind('}') + 1
+        start = stdout.find("{")
+        end = stdout.rfind("}") + 1
         if start != -1 and end != -1:
             json_str = stdout[start:end]
             return json.loads(json_str)
@@ -405,6 +438,7 @@ def check_layout(filename):
         print("Raw stdout:", result.stdout)
         return {"status": "FAIL"}
 
+
 # Process blocks
 i = 0
 while i < len(blocks_to_add):
@@ -412,14 +446,17 @@ while i < len(blocks_to_add):
 
     # Special handling for empty block title (Block 5 header)
     if template_name == "TEMPLATE_C_BLOCK.html" and data.get("CONTENT_TEXT") == "":
-         # Render manually to remove empty body div if possible
-         raw_tpl = read_template(template_name)
-         block_html = render_template(raw_tpl, data)
-         # Remove block-body if empty content
-         block_html = block_html.replace('<div class="block-body">\n            <p class="mt-1mm text-accent">\n                \n            </p>\n            \n        </div>', '')
+        # Render manually to remove empty body div if possible
+        raw_tpl = read_template(template_name)
+        block_html = render_template(raw_tpl, data)
+        # Remove block-body if empty content
+        block_html = block_html.replace(
+            '<div class="block-body">\n            <p class="mt-1mm text-accent">\n                \n            </p>\n            \n        </div>',
+            "",
+        )
     elif template_name == "TEMPLATE_C_EXAM.html":
         # Already handled regex in preparation
-        block_html = render_template(exam_template, data) # Use pre-processed exam_template
+        block_html = render_template(exam_template, data)  # Use pre-processed exam_template
     else:
         raw_tpl = read_template(template_name)
         block_html = render_template(raw_tpl, data)
@@ -437,7 +474,7 @@ while i < len(blocks_to_add):
         # Remove last block
         current_blocks.pop()
         # Save valid page (previous state)
-        write_and_check(current_blocks, page_num) # Re-write without overflowing block
+        write_and_check(current_blocks, page_num)  # Re-write without overflowing block
 
         # Check if underflow (unlikely if we just overflowed, but possible if block was huge)
         # If underflow, we might want to split the block? No, plan doesn't say split content inside block.
@@ -446,7 +483,9 @@ while i < len(blocks_to_add):
         # Check if finalized page is Underflow and try to fill
         layout = check_layout(temp_filename)
         while layout["status"] == "UNDERFLOW":
-            print(f"Page {page_num} Underflow ({layout['blank_space_percentage']}% blank). Adding filler.")
+            print(
+                f"Page {page_num} Underflow ({layout['blank_space_percentage']}% blank). Adding filler."
+            )
             filler = get_next_filler()
 
             current_blocks.append(filler)
@@ -465,7 +504,7 @@ while i < len(blocks_to_add):
 
         # Start new page
         page_num += 1
-        current_blocks = [block_html] # Start with the block that didn't fit
+        current_blocks = [block_html]  # Start with the block that didn't fit
 
     elif layout["status"] == "FAIL":
         print("Layout check failed. Stopping.")

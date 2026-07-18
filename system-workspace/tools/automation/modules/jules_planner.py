@@ -1,11 +1,11 @@
-import sys
 import json
-import re
-import time
-import random
 import logging
-from pathlib import Path
+import random
+import re
+import sys
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 
 # Ensure modules are importable
 sys.path.append(str(Path(__file__).parent))
@@ -13,27 +13,36 @@ sys.path.append(str(Path(__file__).parent))
 from jules_client_plans import JulesPlanClient
 from text_processing import TextProcessor
 
+
 class JulesPlanner:
     """
     Orchestrates the batch generation of plans using Jules Sessions.
     """
 
     def __init__(self, project_root=None, state_manager=None):
-        self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
+        self.project_root = (
+            Path(project_root)
+            if project_root
+            else Path(__file__).parent.parent.parent.parent.parent
+        )
         self.client = JulesPlanClient(project_root=self.project_root)
         self.tp = TextProcessor(project_root=self.project_root)
         self.state_manager = state_manager
 
         # Load Prompts
-        self.architect_prompt = (self.project_root / "system-workspace/Architect_GEM_MASTER.md").read_text(encoding='utf-8')
-        
+        self.architect_prompt = (
+            self.project_root / "system-workspace/Architect_GEM_MASTER.md"
+        ).read_text(encoding="utf-8")
+
         # Inject elements_index.md to prevent Context Starvation
         elements_index_path = self.project_root / "Jules-workspace/elements_index.md"
         if elements_index_path.exists():
-            elements_text = elements_index_path.read_text(encoding='utf-8')
+            elements_text = elements_index_path.read_text(encoding="utf-8")
             self.architect_prompt += f"\n\n--- ELEMENTS INDEX DICTIONARY ---\n{elements_text}\n"
 
-        self.auditor_prompt = (self.project_root / "system-workspace/Architect_AUDITOR.md").read_text(encoding='utf-8')
+        self.auditor_prompt = (
+            self.project_root / "system-workspace/Architect_AUDITOR.md"
+        ).read_text(encoding="utf-8")
 
         # Load Raw Text Index
         self.raw_text_path = self.project_root / "system-workspace/text-data/full_raw_indexed.txt"
@@ -41,7 +50,7 @@ class JulesPlanner:
             logging.warning("⚠️ Raw text index missing. Generating...")
             self.tp.merge_raw_text()
 
-        self.raw_lines = self.raw_text_path.read_text(encoding='utf-8').splitlines()
+        self.raw_lines = self.raw_text_path.read_text(encoding="utf-8").splitlines()
 
     def _extract_lesson_text(self, start_marker, end_marker):
         """
@@ -64,7 +73,7 @@ class JulesPlanner:
 
             if capturing:
                 # Remove the [marker] prefix for cleaner prompt
-                clean_line = re.sub(r'^\[.*?\]\s*', '', line)
+                clean_line = re.sub(r"^\[.*?\]\s*", "", line)
                 extracted.append(clean_line)
 
             if end_pattern in line:
@@ -73,7 +82,9 @@ class JulesPlanner:
 
         return "\n".join(extracted)
 
-    def run_batch_planning(self, max_concurrent=5, update_callback=None, excluded_lessons=None, only_lessons=None):
+    def run_batch_planning(
+        self, max_concurrent=5, update_callback=None, excluded_lessons=None, only_lessons=None
+    ):
         """
         Main entry point. Orchestrates the batch processing.
         Args:
@@ -81,8 +92,10 @@ class JulesPlanner:
             excluded_lessons (set): Set of lesson numbers (str) to skip.
         """
         if not update_callback:
+
             def default_callback(title, status, msg):
                 logging.info(f"[{status}] {title}: {msg}")
+
             update_callback = default_callback
 
         if excluded_lessons is None:
@@ -96,7 +109,7 @@ class JulesPlanner:
             update_callback("System", "WARN", "Lesson index missing. Generating...")
             mapping = self.tp.generate_lesson_index()
         else:
-            mapping = json.loads(index_path.read_text(encoding='utf-8'))
+            mapping = json.loads(index_path.read_text(encoding="utf-8"))
 
         if not mapping:
             update_callback("System", "ERROR", "No lessons to process.")
@@ -108,14 +121,18 @@ class JulesPlanner:
             lesson_number = self.tp.get_lesson_number(title)
 
             # Check Exclusions
-            if excluded_lessons and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons):
+            if excluded_lessons and (
+                lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons
+            ):
                 update_callback(title, "SKIP", f"Lesson {lesson_number} excluded (Page exists)")
                 continue
 
-            if only_lessons and (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons):
-                continue # Skip if we only want specific lessons
+            if only_lessons and (
+                lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons
+            ):
+                continue  # Skip if we only want specific lessons
 
-            clean_title = re.sub(r'^\d+\s*-\s*', '', title).strip()
+            clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
             plan_path = self.project_root / f"plans/{lesson_number}-{clean_title}-plan.md"
 
             if plan_path.exists():
@@ -131,12 +148,14 @@ class JulesPlanner:
         # 3. Execute Batch
         with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
             future_to_lesson = {
-                executor.submit(self.process_lesson_with_callback, title, info, update_callback): title
+                executor.submit(
+                    self.process_lesson_with_callback, title, info, update_callback
+                ): title
                 for title, info in to_process.items()
             }
-            
+
             for future in as_completed(future_to_lesson):
-                pass # The callback handles updates inside the future
+                pass  # The callback handles updates inside the future
 
     def process_lesson_with_callback(self, lesson_title, range_info, callback):
         """Wrapper for process_lesson that uses callback."""
@@ -154,17 +173,19 @@ class JulesPlanner:
         Worker function for a single lesson.
         """
         if not callback:
+
             def default_callback(t, s, m):
                 logging.info(f"[{s}] {t}: {m}")
+
             callback = default_callback
 
         # API Safety Delay (5-15s) to prevent burst
         delay = random.uniform(5, 15)
         callback(lesson_title, "RUNNING", f"Safety Delay ({delay:.1f}s)...")
         time.sleep(delay)
-        
+
         # Attempt to parse number and title from the lesson_title (which is a key from index)
-        match = re.match(r'^(\d+)\s*-\s*(.*)', lesson_title)
+        match = re.match(r"^(\d+)\s*-\s*(.*)", lesson_title)
         if match:
             # Found "9 - Title"
             inferred_number = match.group(1).zfill(2)
@@ -179,13 +200,13 @@ class JulesPlanner:
 
         # 0. Check if Plan Exists (Early Exit)
         if (self.project_root / "plans" / filename).exists():
-             callback(lesson_title, "SUCCESS", f"Plan exists: {filename}")
-             return True
+            callback(lesson_title, "SUCCESS", f"Plan exists: {filename}")
+            return True
 
         callback(lesson_title, "RUNNING", "Extracting Text...")
 
         # 1. Extract Text
-        raw_text = self._extract_lesson_text(range_info['start'], range_info['end'])
+        raw_text = self._extract_lesson_text(range_info["start"], range_info["end"])
         if not raw_text:
             callback(lesson_title, "ERROR", "No text found")
             return False
@@ -194,7 +215,7 @@ class JulesPlanner:
         lesson_metadata = {}
         if self.tp.toc_path.exists():
             try:
-                toc_data = json.loads(self.tp.toc_path.read_text(encoding='utf-8'))
+                toc_data = json.loads(self.tp.toc_path.read_text(encoding="utf-8"))
                 # Try to find by number (stripping leading zeros if key is integer-like string)
                 key = str(int(lesson_number)) if lesson_number.isdigit() else lesson_number
                 if key in toc_data:
@@ -202,21 +223,21 @@ class JulesPlanner:
                 else:
                     # Fallback: search by title
                     for k, v in toc_data.items():
-                         if v.get('title', '').strip() == clean_title:
-                             lesson_metadata = v
-                             break
+                        if v.get("title", "").strip() == clean_title:
+                            lesson_metadata = v
+                            break
             except Exception:
                 pass
 
         # 3. Construct Prompt
         lesson_data = {
-            'number': lesson_number,
-            'title': clean_title,
-            'raw_text': raw_text,
-            'level': lesson_metadata.get('level', ''),
-            'unit': lesson_metadata.get('Unit', ''),
-            'author': lesson_metadata.get('author', ''),
-            'author_number': lesson_metadata.get('author_number', '')
+            "number": lesson_number,
+            "title": clean_title,
+            "raw_text": raw_text,
+            "level": lesson_metadata.get("level", ""),
+            "unit": lesson_metadata.get("Unit", ""),
+            "author": lesson_metadata.get("author", ""),
+            "author_number": lesson_metadata.get("author_number", ""),
         }
         mega_prompt = self.client.construct_mega_prompt(
             lesson_data, self.architect_prompt, self.auditor_prompt
@@ -232,13 +253,17 @@ class JulesPlanner:
                 callback(lesson_title, "RUNNING", f"Checking Existing Session ({session_id})...")
                 status_data = self.client.get_session_status(session_id)
                 if status_data:
-                    state = status_data.get('state', 'UNKNOWN')
-                    if state in ['SUCCEEDED', 'COMPLETED']:
+                    state = status_data.get("state", "UNKNOWN")
+                    if state in ["SUCCEEDED", "COMPLETED"]:
                         callback(lesson_title, "RUNNING", f"Existing Session Completed: {state}")
                         # Skip creation, jump to pull
-                    elif state in ['FAILED', 'CANCELLED', 'ERROR']:
-                        callback(lesson_title, "WARN", f"Previous Session Failed ({state}). Creating New...")
-                        session_id = None # Force new session
+                    elif state in ["FAILED", "CANCELLED", "ERROR"]:
+                        callback(
+                            lesson_title,
+                            "WARN",
+                            f"Previous Session Failed ({state}). Creating New...",
+                        )
+                        session_id = None  # Force new session
                     else:
                         # RUNNING or UNKNOWN
                         callback(lesson_title, "RUNNING", f"Resuming Monitoring ({state})...")
@@ -254,7 +279,7 @@ class JulesPlanner:
                 callback(lesson_title, "ERROR", "Session Creation Failed")
                 return False
 
-            session_id = session.get('name')
+            session_id = session.get("name")
             if self.state_manager:
                 self.state_manager.update_lesson_data(lesson_title, {"session_id": session_id})
 
@@ -265,7 +290,9 @@ class JulesPlanner:
         def status_update(state):
             callback(lesson_title, "RUNNING", f"Status: {state}")
 
-        status = self.client.wait_for_completion(session_id, timeout_minutes=20, status_callback=status_update)
+        status = self.client.wait_for_completion(
+            session_id, timeout_minutes=20, status_callback=status_update
+        )
 
         if status not in ["SUCCEEDED", "COMPLETED"]:
             callback(lesson_title, "FAILED", f"Session ended: {status}")
@@ -279,9 +306,10 @@ class JulesPlanner:
             return False
 
         target_path = f"plans/{filename}"
+
         def pr_callback(ignored_path, state, msg):
             callback(lesson_title, state, msg)
-            
+
         success = self.client.finalize_pr_and_pull(details, target_path, callback=pr_callback)
 
         if success:

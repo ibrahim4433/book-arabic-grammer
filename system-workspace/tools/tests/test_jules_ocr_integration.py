@@ -1,9 +1,7 @@
-import unittest
-from unittest.mock import MagicMock, patch
 import sys
-import os
-import time
+import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 # Setup paths
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
@@ -12,9 +10,9 @@ sys.path.append(str(PROJECT_ROOT / "system-workspace/tools/automation"))
 # We import the module, not the class directly, to make patching easier if needed
 import modules.jules_ocr as jules_ocr_module
 
-class TestJulesOCRIntegration(unittest.TestCase):
 
-    @patch('modules.jules_ocr.JulesOCRClient')
+class TestJulesOCRIntegration(unittest.TestCase):
+    @patch("modules.jules_ocr.JulesOCRClient")
     def test_batch_processing_logic(self, MockClientClass):
         """Test that images are batched and processed correctly."""
 
@@ -36,10 +34,8 @@ class TestJulesOCRIntegration(unittest.TestCase):
 
         # Create dummy image files
         # We need Path objects that can be sorted and globbed
-        images = [Path(f"img_{i:02d}.jpg") for i in range(12)] # 00 to 11
-        ocr.input_dir.glob.side_effect = [
-            images, [], []
-        ]
+        images = [Path(f"img_{i:02d}.jpg") for i in range(12)]  # 00 to 11
+        ocr.input_dir.glob.side_effect = [images, [], []]
 
         # Mock relative_to
         # Since we use real Path objects in the list, relative_to might fail if project_root is real
@@ -60,12 +56,11 @@ class TestJulesOCRIntegration(unittest.TestCase):
             m.relative_to.return_value = Path(f"input/img_{i:02d}.jpg")
             mock_images.append(m)
 
-        ocr.input_dir.glob.side_effect = [
-            mock_images, [], []
-        ]
+        ocr.input_dir.glob.side_effect = [mock_images, [], []]
 
         # Callback capture
         logs = []
+
         def callback(status, msg):
             logs.append(f"[{status}] {msg}")
 
@@ -89,8 +84,8 @@ class TestJulesOCRIntegration(unittest.TestCase):
         suffixes = []
         for call in mock_client.create_ocr_session.call_args_list:
             args, kwargs = call
-            if 'title_suffix' in kwargs:
-                suffixes.append(kwargs['title_suffix'])
+            if "title_suffix" in kwargs:
+                suffixes.append(kwargs["title_suffix"])
 
         self.assertIn("Batch 1", suffixes)
         self.assertIn("Batch 2", suffixes)
@@ -100,9 +95,11 @@ class TestJulesOCRIntegration(unittest.TestCase):
         found_success = any("All OCR batches completed successfully" in log for log in logs)
         if not found_success:
             print("\nLOGS DUMP:")
-            for l in logs: print(l)
+            for l in logs:
+                print(l)
 
         self.assertTrue(found_success)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

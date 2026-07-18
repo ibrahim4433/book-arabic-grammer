@@ -1,0 +1,8 @@
+pyproject.toml
+book_arabic_grammer.egg-info/PKG-INFO
+book_arabic_grammer.egg-info/SOURCES.txt
+book_arabic_grammer.egg-info/dependency_links.txt
+book_arabic_grammer.egg-info/requires.txt
+book_arabic_grammer.egg-info/top_level.txt
+tests/test_batch_refactor.py
+tests/test_lint_pages.py

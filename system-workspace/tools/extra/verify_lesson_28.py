@@ -1,5 +1,7 @@
-from playwright.sync_api import sync_playwright
 import os
+
+from playwright.sync_api import sync_playwright
+
 
 def run():
     with sync_playwright() as p:
@@ -17,6 +19,7 @@ def run():
         page.screenshot(path="verification/lesson_28.png", full_page=True)
 
         browser.close()
+
 
 if __name__ == "__main__":
     run()

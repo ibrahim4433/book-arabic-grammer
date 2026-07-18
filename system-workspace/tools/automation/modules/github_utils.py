@@ -1,15 +1,16 @@
-import os
-import requests
 import logging
-import base64
+import os
 from pathlib import Path
+
+import requests
+
 
 class GithubClient:
     def __init__(self, token_path="secrets/Github_Token.txt"):
         self.token = self._load_token(token_path)
         self.headers = {
             "Authorization": f"token {self.token}",
-            "Accept": "application/vnd.github.v3+json"
+            "Accept": "application/vnd.github.v3+json",
         }
         self.api_url = "https://api.github.com"
 
@@ -40,7 +41,7 @@ class GithubClient:
                 # Filter by user login or part of it (case-insensitive)
                 filtered = []
                 for pr in prs:
-                    user_login = pr.get('user', {}).get('login', '').lower()
+                    user_login = pr.get("user", {}).get("login", "").lower()
                     if author.lower() in user_login:
                         filtered.append(pr)
                 return filtered
@@ -94,7 +95,7 @@ class GithubClient:
             # Ensure directory exists
             Path(local_path).parent.mkdir(parents=True, exist_ok=True)
 
-            with open(local_path, 'wb') as f:
+            with open(local_path, "wb") as f:
                 f.write(response.content)
             return True
         except requests.exceptions.RequestException as e:
@@ -118,7 +119,7 @@ class GithubClient:
         full_path = f"{target_dir.rstrip('/')}/{filename}"
 
         for pr in prs:
-            branch = pr['head']['ref']
+            branch = pr["head"]["ref"]
             # Direct check for file existence via API
             # Note: This makes an API call per PR until found.
             # To optimize, we could list files in the PR (GET /repos/{repo}/pulls/{number}/files)
@@ -126,7 +127,7 @@ class GithubClient:
 
             # We must use the branch ref to get the file version in that PR
             file_info = self.get_file_info(repo, full_path, branch)
-            if file_info and isinstance(file_info, dict) and file_info.get('type') == 'file':
-                return file_info.get('download_url')
+            if file_info and isinstance(file_info, dict) and file_info.get("type") == "file":
+                return file_info.get("download_url")
 
         return None

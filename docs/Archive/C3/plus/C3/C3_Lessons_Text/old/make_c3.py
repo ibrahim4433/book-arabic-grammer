@@ -1,11 +1,11 @@
-import re
 import os
+import re
 
-with open('all_content_edited.txt', 'r', encoding='utf-8') as f:
+with open("all_content_edited.txt", encoding="utf-8") as f:
     content = f.read()
 
-sections = re.split(r'={50}\nFile: ', content)
-sections = sections[1:] # Skip the first empty part before the first separator
+sections = re.split(r"={50}\nFile: ", content)
+sections = sections[1:]  # Skip the first empty part before the first separator
 
 # We'll build a mapping of index (0-70) to section content
 # But wait, we need to add back the "File: " header or just the title.
@@ -14,11 +14,11 @@ sections = sections[1:] # Skip the first empty part before the first separator
 
 parsed_sections = []
 for sec in sections:
-    lines = sec.split('\n')
+    lines = sec.split("\n")
     filename = lines[0].strip()
-    title = lines[1].replace('Title: ', '').strip()
-    body = '\n'.join(lines[3:]).strip() # Skip the '=======' line
-    parsed_sections.append({'title': title, 'body': body})
+    title = lines[1].replace("Title: ", "").strip()
+    body = "\n".join(lines[3:]).strip()  # Skip the '=======' line
+    parsed_sections.append({"title": title, "body": body})
 
 # Now let's define the new curriculum units and the section indices they map to (0-indexed).
 # From titles.txt:
@@ -55,22 +55,22 @@ plan = [
     ("U10_Morphology_Sarf", [42, 43, 44, 45, 46, 47, 48, 49]),
     ("U11_Spelling_Imla", [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61]),
     ("U12_Rhetoric_Balagha", [62, 63, 64, 65, 66, 67, 68, 69]),
-    ("U13_Dictionaries", [70])
+    ("U13_Dictionaries", [70]),
 ]
 
-os.makedirs('C3_Lessons_Text', exist_ok=True)
+os.makedirs("C3_Lessons_Text", exist_ok=True)
 
-with open('C3_Curriculum_Final_Plan.md', 'w', encoding='utf-8') as plan_file:
+with open("C3_Curriculum_Final_Plan.md", "w", encoding="utf-8") as plan_file:
     plan_file.write("# منهج المستوى الثالث (C3) - الخطة النهائية\n\n")
-    
+
     for unit_name, indices in plan:
         plan_file.write(f"## {unit_name}\n")
         filename = f"C3_Lessons_Text/{unit_name}.txt"
-        with open(filename, 'w', encoding='utf-8') as out:
+        with open(filename, "w", encoding="utf-8") as out:
             for idx in indices:
                 sec = parsed_sections[idx]
                 plan_file.write(f"- {sec['title']}\n")
                 out.write(f"=== {sec['title']} ===\n")
-                out.write(sec['body'] + "\n\n")
+                out.write(sec["body"] + "\n\n")
 
 print("Files generated successfully in C3_Lessons_Text/")

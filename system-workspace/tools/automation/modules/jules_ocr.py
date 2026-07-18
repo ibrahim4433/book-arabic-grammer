@@ -1,14 +1,13 @@
-import sys
-import json
-import time
-import logging
 import concurrent.futures
+import logging
+import sys
 from pathlib import Path
 
 # Ensure modules are importable
 sys.path.append(str(Path(__file__).parent))
 
 from jules_client_ocr import JulesOCRClient
+
 
 class JulesOCR:
     """
@@ -21,7 +20,11 @@ class JulesOCR:
     """
 
     def __init__(self, project_root=None):
-        self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
+        self.project_root = (
+            Path(project_root)
+            if project_root
+            else Path(__file__).parent.parent.parent.parent.parent
+        )
         self.client = JulesOCRClient(project_root=self.project_root)
         self.input_dir = self.project_root / "input"
         self.output_dir = self.project_root / "system-workspace/text-data/raw"
@@ -34,8 +37,10 @@ class JulesOCR:
             update_callback (callable): Function(status, message)
         """
         if not update_callback:
+
             def default_callback(status, msg):
                 logging.info(f"[{status}] {msg}")
+
             update_callback = default_callback
 
         update_callback("RUNNING", "Scanning for images...")
@@ -46,9 +51,9 @@ class JulesOCR:
             return
 
         image_files = sorted(
-            list(self.input_dir.glob("*.jpg")) +
-            list(self.input_dir.glob("*.png")) +
-            list(self.input_dir.glob("*.jpeg"))
+            list(self.input_dir.glob("*.jpg"))
+            + list(self.input_dir.glob("*.png"))
+            + list(self.input_dir.glob("*.jpeg"))
         )
 
         if not image_files:
@@ -57,10 +62,13 @@ class JulesOCR:
 
         # 2. Batching Logic
         batch_size = 5
-        batches = [image_files[i:i + batch_size] for i in range(0, len(image_files), batch_size)]
+        batches = [image_files[i : i + batch_size] for i in range(0, len(image_files), batch_size)]
         total_batches = len(batches)
 
-        update_callback("RUNNING", f"Found {len(image_files)} images. Processing in {total_batches} concurrent batch(es)...")
+        update_callback(
+            "RUNNING",
+            f"Found {len(image_files)} images. Processing in {total_batches} concurrent batch(es)...",
+        )
 
         # --- WORKER FUNCTION (API ONLY) ---
         def process_batch_api(batch_files, index):
@@ -78,14 +86,16 @@ class JulesOCR:
                     update_callback("ERROR", f"[{batch_id}] Failed to create session.")
                     return (False, None, batch_id)
 
-                session_id = session.get('name')
+                session_id = session.get("name")
                 update_callback("RUNNING", f"[{batch_id}] Session Started: {session_id}")
 
                 # C. Monitor
                 def status_update(state):
                     update_callback("RUNNING", f"[{batch_id}] Status: {state}")
 
-                status = self.client.wait_for_completion(session_id, timeout_minutes=30, status_callback=status_update)
+                status = self.client.wait_for_completion(
+                    session_id, timeout_minutes=30, status_callback=status_update
+                )
 
                 if status not in ["SUCCEEDED", "COMPLETED"]:
                     update_callback("FAILED", f"[{batch_id}] Session ended with status: {status}")
@@ -107,11 +117,13 @@ class JulesOCR:
         api_results = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=total_batches) as executor:
             # map returning futures
-            futures = [executor.submit(process_batch_api, batch, i+1) for i, batch in enumerate(batches)]
+            futures = [
+                executor.submit(process_batch_api, batch, i + 1) for i, batch in enumerate(batches)
+            ]
 
             for future in concurrent.futures.as_completed(futures):
                 res = future.result()
-                if res[0]: # If success
+                if res[0]:  # If success
                     api_results.append(res)
 
         # 4. Execute Git Sync Sequentially
@@ -119,7 +131,10 @@ class JulesOCR:
             update_callback("ERROR", "All API sessions failed. No git operations performed.")
             return
 
-        update_callback("RUNNING", f"API Phase Complete. Starting Sequential Git Sync for {len(api_results)} batches...")
+        update_callback(
+            "RUNNING",
+            f"API Phase Complete. Starting Sequential Git Sync for {len(api_results)} batches...",
+        )
 
         final_success_count = 0
 
@@ -142,7 +157,10 @@ class JulesOCR:
         if final_success_count == total_batches:
             update_callback("SUCCESS", "All OCR batches completed successfully.")
         else:
-            update_callback("WARN", f"OCR Finished. {final_success_count}/{total_batches} batches fully synced.")
+            update_callback(
+                "WARN", f"OCR Finished. {final_success_count}/{total_batches} batches fully synced."
+            )
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

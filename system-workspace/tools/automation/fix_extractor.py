@@ -1,4 +1,3 @@
-import sys
 content = open("beta-utilities/pattern_extractor.py").read()
 new_func = """def extract_classes(content):
     classes = []

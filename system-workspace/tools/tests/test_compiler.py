@@ -1,6 +1,5 @@
-import unittest
 import sys
-import os
+import unittest
 from pathlib import Path
 
 # Add project root to path
@@ -9,8 +8,8 @@ sys.path.append(str(project_root / "system-workspace/tools/automation"))
 
 from modules.compiler import Compiler
 
+
 class TestCompiler(unittest.TestCase):
-    
     def setUp(self):
         print("\n--- Setup: Initializing Compiler ---")
         self.compiler = Compiler()
@@ -47,6 +46,6 @@ Key2: Value2
         self.assertIn("<td>Alice</td>", result)
         print("✅ Table transformation successful.")
 
+
 if __name__ == "__main__":
     unittest.main()
-

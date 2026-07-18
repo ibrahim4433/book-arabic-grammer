@@ -1,5 +1,3 @@
-import os
-
 plan_content = """# **SESSION 01.0**
 
 [TASK DEFINITION]

@@ -1,6 +1,5 @@
-import unittest
 import sys
-import os
+import unittest
 from pathlib import Path
 
 # Add project root to path
@@ -9,8 +8,8 @@ sys.path.append(str(project_root / "system-workspace/tools/automation"))
 
 from modules.auditor import Auditor
 
+
 class TestAuditor(unittest.TestCase):
-    
     def setUp(self):
         print("\n--- Setup: Initializing Auditor ---")
         self.auditor = Auditor()
@@ -25,7 +24,7 @@ class TestAuditor(unittest.TestCase):
             return
 
         result = self.auditor.audit_page(self.test_page)
-        # Note: Depending on the real layout checker, this might fail or pass. 
+        # Note: Depending on the real layout checker, this might fail or pass.
         # But we check that the tool ran and returned a result.
         self.assertIn("status", result)
         print(f"Result: {result}")
@@ -37,6 +36,6 @@ class TestAuditor(unittest.TestCase):
         self.assertTrue(self.auditor.lint_tool.exists(), "Lint Pages tool must exist")
         print("✅ Tool paths verified.")
 
+
 if __name__ == "__main__":
     unittest.main()
-

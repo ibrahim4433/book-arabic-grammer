@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+
 class StateManager:
     """
     Manages the workflow state for lessons.
@@ -16,35 +17,44 @@ class StateManager:
       }
     }
     """
-    
+
     def __init__(self, project_root=None):
-        self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
-        self.state_file = self.project_root / "system-workspace/tools/automation/project_workflow_state.json"
+        self.project_root = (
+            Path(project_root)
+            if project_root
+            else Path(__file__).parent.parent.parent.parent.parent
+        )
+        self.state_file = (
+            self.project_root / "system-workspace/tools/automation/project_workflow_state.json"
+        )
         self.state = self._load_state()
 
     def _load_state(self):
         if self.state_file.exists():
             try:
-                return json.loads(self.state_file.read_text(encoding='utf-8'))
+                return json.loads(self.state_file.read_text(encoding="utf-8"))
             except json.JSONDecodeError:
                 return {"lessons": {}}
         return {"lessons": {}}
 
     def save_state(self):
         self.state_file.parent.mkdir(parents=True, exist_ok=True)
-        self.state_file.write_text(json.dumps(self.state, ensure_ascii=False, indent=2), encoding='utf-8')
+        self.state_file.write_text(
+            json.dumps(self.state, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
 
     def update_lesson_status(self, lesson_title, status, files=None):
         if lesson_title not in self.state["lessons"]:
             self.state["lessons"][lesson_title] = {}
-            
+
         self.state["lessons"][lesson_title]["status"] = status
         if files:
             current_files = self.state["lessons"][lesson_title].get("files", {})
             current_files.update(files)
             self.state["lessons"][lesson_title]["files"] = current_files
-            
+
         import time
+
         self.state["lessons"][lesson_title]["last_updated"] = time.time()
         self.save_state()
 
@@ -56,6 +66,7 @@ class StateManager:
         self.state["lessons"][lesson_title].update(data)
 
         import time
+
         self.state["lessons"][lesson_title]["last_updated"] = time.time()
         self.save_state()
 
@@ -81,9 +92,9 @@ class StateManager:
         Values are merged status objects.
         """
         consolidated = {}
-        import re
         import os
-        
+        import re
+
         # Verify files exist, remove them from state if they don't
         keys_to_delete = []
         for key, data in self.state["lessons"].items():
@@ -93,34 +104,34 @@ class StateManager:
                     if os.path.exists(fpath):
                         existing_files[ftype] = fpath
                 data["files"] = existing_files
-                
+
                 # If we lost files, we might want to downgrade status, but for now just removing missing files is enough
                 if not existing_files:
                     keys_to_delete.append(key)
-        
+
         for key in keys_to_delete:
             del self.state["lessons"][key]
-            
-        self.save_state() # Save cleaned state
+
+        self.save_state()  # Save cleaned state
 
         for key, data in self.state["lessons"].items():
             # Try to extract number
-            match = re.match(r'^(\d+)', key)
+            match = re.match(r"^(\d+)", key)
             if match:
                 num = match.group(1)
                 # If we already have this number, merge latest status
                 if num in consolidated:
                     existing = consolidated[num]
                     # Merge logic: Take the most advanced status or latest timestamp
-                    if data.get('last_updated', 0) > existing.get('last_updated', 0):
+                    if data.get("last_updated", 0) > existing.get("last_updated", 0):
                         consolidated[num] = data
-                        consolidated[num]['original_key'] = key # Keep track
+                        consolidated[num]["original_key"] = key  # Keep track
                 else:
                     consolidated[num] = data
-                    consolidated[num]['original_key'] = key
+                    consolidated[num]["original_key"] = key
             else:
                 # No number, keep as is (or maybe try to map if I had the index)
                 # For now, put in "Unnumbered" or keep key
                 consolidated[key] = data
-                
+
         return consolidated

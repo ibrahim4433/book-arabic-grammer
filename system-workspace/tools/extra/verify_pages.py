@@ -1,6 +1,7 @@
-
 import os
+
 from playwright.sync_api import sync_playwright
+
 
 def verify_pages():
     cwd = os.getcwd()
@@ -22,6 +23,7 @@ def verify_pages():
         print("Screenshot 2 taken")
 
         browser.close()
+
 
 if __name__ == "__main__":
     verify_pages()

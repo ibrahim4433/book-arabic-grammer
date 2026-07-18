@@ -1,7 +1,8 @@
 import re
 
+
 def test_plan():
-    with open("plans/01-أَقْسَامُ الْكَلَاَمِ الْمُفِيدِ فِي اللُّغَةَ الْعَرَبِيَّةَ-plan.md", "r") as f:
+    with open("plans/01-أَقْسَامُ الْكَلَاَمِ الْمُفِيدِ فِي اللُّغَةَ الْعَرَبِيَّةَ-plan.md") as f:
         content = f.read()
 
     # 1. Content Depth (at least 4 blocks)
@@ -21,6 +22,7 @@ def test_plan():
     assert "[AUTHOR_PHONE]:  " in content, "Incorrect author phone"
 
     print("All tests passed.")
+
 
 if __name__ == "__main__":
     test_plan()

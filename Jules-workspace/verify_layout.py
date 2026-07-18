@@ -33,6 +33,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 try:
     import lint_pages
+
     _LINT_AVAILABLE = True
 except ImportError:
     _LINT_AVAILABLE = False
@@ -100,6 +101,7 @@ class LayoutResult:
 
 # ── HTML Utilities ────────────────────────────────────────────────────────────
 
+
 def _extract_body(content: str) -> str:
     match = re.search(r"<body[^>]*>(.*?)</body>", content, re.DOTALL | re.IGNORECASE)
     return match.group(1) if match else content
@@ -126,6 +128,7 @@ def _build_verification_html(body_inner: str, stylesheet: Path = Path("styles/ma
 
 # ── Geometry Analysis ─────────────────────────────────────────────────────────
 
+
 def _find_content_bottom(page: object) -> tuple[float, ElementInfo | None]:  # type: ignore[type-arg]
     """Walk all boxes on the page to find the lowest content boundary."""
     max_y: float = 0.0
@@ -144,9 +147,7 @@ def _find_content_bottom(page: object) -> tuple[float, ElementInfo | None]:  # t
             continue
 
         # Skip non-content layers and root containers
-        el_classes: list[str] = (
-            element.get("class", "").split() if element.get("class") else []
-        )
+        el_classes: list[str] = element.get("class", "").split() if element.get("class") else []
         if any(c in SKIP_CLASSES for c in el_classes):
             continue
         if element.tag in SKIP_TAGS:
@@ -166,6 +167,7 @@ def _find_content_bottom(page: object) -> tuple[float, ElementInfo | None]:  # t
 
 
 # ── Core Verifier ─────────────────────────────────────────────────────────────
+
 
 def verify_layout(filepath: Path, *, skip_lint: bool = False) -> LayoutResult:
     """Verify that a page renders to exactly one A4 page."""
@@ -266,6 +268,7 @@ def verify_layout(filepath: Path, *, skip_lint: bool = False) -> LayoutResult:
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(

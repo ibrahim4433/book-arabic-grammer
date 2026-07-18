@@ -3,9 +3,10 @@
 Helper script to generate the HTML for Lesson 14 using JulesPageGenerator.
 This fulfills the requirement to create a generation script.
 """
-import sys
-import os
+
 import logging
+import os
+import sys
 from pathlib import Path
 
 # Add system-workspace modules to path
@@ -16,6 +17,7 @@ try:
 except ImportError:
     print("Error: Could not import JulesPageGenerator. Check paths.")
     sys.exit(1)
+
 
 def main():
     # Setup logging
@@ -43,11 +45,14 @@ def main():
         # Uncomment the following line to actually run the generation
         # generator.process_plan(plan_path)
 
-        print("\nTo generate the page, run this script and uncomment the 'generator.process_plan' line.")
+        print(
+            "\nTo generate the page, run this script and uncomment the 'generator.process_plan' line."
+        )
         print("Or use the batch runner in system.py")
 
     except Exception as e:
         print(f"Initialization failed: {e}")
+
 
 if __name__ == "__main__":
     main()

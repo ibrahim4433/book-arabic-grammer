@@ -19,6 +19,7 @@ from pathlib import Path
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 
+
 @dataclass(frozen=True)
 class BuildConfig:
     """Immutable build configuration."""
@@ -55,6 +56,7 @@ class BuildResult:
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 class BuildError(Exception):
     """Raised when a critical build step fails."""
@@ -126,6 +128,7 @@ def _master_html(body_content: str, stylesheet: Path, watermark_text: str) -> st
 
 # ── Core Build Logic ──────────────────────────────────────────────────────────
 
+
 def collect_pages(config: BuildConfig) -> list[Path]:
     """Return sorted list of page HTML files, excluding TEMPLATE_ files."""
     all_files = sorted(config.pages_dir.glob("*.html"))
@@ -145,8 +148,7 @@ def build_book(config: BuildConfig) -> BuildResult:
         from weasyprint import HTML
     except ImportError as exc:
         raise BuildError(
-            "WeasyPrint is not installed.\n"
-            "Run: pip install -r requirements.txt"
+            "WeasyPrint is not installed.\nRun: pip install -r requirements.txt"
         ) from exc
     except OSError as exc:
         raise BuildError(
@@ -212,6 +214,7 @@ def build_book(config: BuildConfig) -> BuildResult:
 
 # ── CLI Entry Point ───────────────────────────────────────────────────────────
 
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="preview-theme.py",
@@ -221,13 +224,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--theme",
         type=str,
-        help="The name of the theme folder to build (e.g., v1, v2). If not provided, you will be prompted."
+        help="The name of the theme folder to build (e.g., v1, v2). If not provided, you will be prompted.",
     )
-    parser.add_argument(
-        "--all",
-        action="store_true",
-        help="Build all themes in new-style-options."
-    )
+    parser.add_argument("--all", action="store_true", help="Build all themes in new-style-options.")
     return parser.parse_args()
 
 
@@ -238,7 +237,10 @@ def main() -> None:
 
     if args.all:
         import glob
-        themes = sorted([Path(p).name for p in glob.glob("new-style-options/v*") if Path(p).is_dir()])
+
+        themes = sorted(
+            [Path(p).name for p in glob.glob("new-style-options/v*") if Path(p).is_dir()]
+        )
         themes_to_build.extend(themes)
     elif args.theme:
         themes_to_build.append(args.theme)
@@ -250,9 +252,9 @@ def main() -> None:
         themes_to_build.append(theme)
 
     for theme_name in themes_to_build:
-        print(f"\n===========================================")
+        print("\n===========================================")
         print(f"🏗  BUILDING THEME: {theme_name}")
-        print(f"===========================================\n")
+        print("===========================================\n")
 
         config = BuildConfig(theme_name=theme_name)
 
@@ -275,6 +277,7 @@ def main() -> None:
                 f"({size_kb:.1f} KB, {result.pages_processed} pages, "
                 f"{result.duration_seconds:.1f}s)"
             )
+
 
 if __name__ == "__main__":
     main()

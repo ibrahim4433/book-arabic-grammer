@@ -1,7 +1,6 @@
 import json
-import os
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 # Define States
 STATE_RAW = "RAW"
@@ -11,6 +10,7 @@ STATE_CODED = "CODED"
 STATE_VERIFIED = "VERIFIED"
 STATE_FAILED = "FAILED"
 
+
 class WorkflowState:
     def __init__(self, state_file="tools/automation/project_workflow_state.json"):
         self.state_file = Path(state_file)
@@ -19,13 +19,15 @@ class WorkflowState:
     def _load(self):
         if self.state_file.exists():
             try:
-                return json.loads(self.state_file.read_text(encoding='utf-8'))
+                return json.loads(self.state_file.read_text(encoding="utf-8"))
             except json.JSONDecodeError:
                 return {"lessons": {}}
         return {"lessons": {}}
 
     def save(self):
-        self.state_file.write_text(json.dumps(self.data, indent=2, ensure_ascii=False), encoding='utf-8')
+        self.state_file.write_text(
+            json.dumps(self.data, indent=2, ensure_ascii=False), encoding="utf-8"
+        )
 
     def get_lesson(self, lesson_name):
         return self.data["lessons"].get(lesson_name, {})
@@ -35,23 +37,25 @@ class WorkflowState:
             self.data["lessons"][lesson_name] = {
                 "created_at": datetime.now().isoformat(),
                 "status": STATE_RAW,
-                "history": []
+                "history": [],
             }
-        
+
         lesson = self.data["lessons"][lesson_name]
-        
+
         # Archive old status if changing
         if "status" in kwargs and kwargs["status"] != lesson.get("status"):
-            lesson["history"].append({
-                "from": lesson.get("status"),
-                "to": kwargs["status"],
-                "timestamp": datetime.now().isoformat()
-            })
+            lesson["history"].append(
+                {
+                    "from": lesson.get("status"),
+                    "to": kwargs["status"],
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
 
         # Update fields
         for k, v in kwargs.items():
             lesson[k] = v
-        
+
         lesson["updated_at"] = datetime.now().isoformat()
         self.save()
 
@@ -59,6 +63,7 @@ class WorkflowState:
         if not status:
             return list(self.data["lessons"].keys())
         return [k for k, v in self.data["lessons"].items() if v.get("status") == status]
+
 
 # Usage Example
 if __name__ == "__main__":

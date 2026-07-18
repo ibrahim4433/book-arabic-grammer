@@ -1,18 +1,18 @@
-import sys
-import os
-import json
-import time
-import subprocess
-import re
 import logging
-import requests
+import os
+import subprocess
+import sys
+import time
 from pathlib import Path
+
+import requests
 
 # Ensure modules are importable
 sys.path.append(str(Path(__file__).parent))
 
-from jules_client import JulesClient
 from github_utils import GithubClient
+from jules_client import JulesClient
+
 
 class JulesOCRClient(JulesClient):
     """
@@ -51,11 +51,11 @@ class JulesOCRClient(JulesClient):
         url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/pulls/{pr_number}/merge"
         headers = {
             "Authorization": f"token {self.github_token}",
-            "Accept": "application/vnd.github.v3+json"
+            "Accept": "application/vnd.github.v3+json",
         }
         data = {
             "commit_title": f"Merge PR #{pr_number} (Jules OCR Auto-Merge)",
-            "merge_method": "squash"
+            "merge_method": "squash",
         }
 
         try:
@@ -84,9 +84,11 @@ class JulesOCRClient(JulesClient):
         Merges the PR (if available) and then pulls changes to local.
         """
         if not callback:
-            def callback(t, s, m): pass
 
-        pr_number = session_details.get('pr_number')
+            def callback(t, s, m):
+                pass
+
+        pr_number = session_details.get("pr_number")
 
         # 1. Try to Merge
         merged = False
@@ -102,16 +104,31 @@ class JulesOCRClient(JulesClient):
         # 2. Pull Logic
         try:
             import os
+
             git_env = os.environ.copy()
             git_env["GIT_TERMINAL_PROMPT"] = "0"
 
             if merged:
                 with GIT_LOCK:
-                    subprocess.run(["git", "checkout", "main"], check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
-                    subprocess.run(["git", "pull", "origin", "main"], check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
+                    subprocess.run(
+                        ["git", "checkout", "main"],
+                        check=True,
+                        cwd=self.project_root,
+                        capture_output=True,
+                        timeout=60,
+                        env=git_env,
+                    )
+                    subprocess.run(
+                        ["git", "pull", "origin", "main"],
+                        check=True,
+                        cwd=self.project_root,
+                        capture_output=True,
+                        timeout=60,
+                        env=git_env,
+                    )
 
                 # Assuming success since checkout/pull didn't throw
-                logging.info(f"✅ Finalization complete.")
+                logging.info("✅ Finalization complete.")
                 return True
             else:
                 return self.pull_raw_files_from_github(session_details)
@@ -133,14 +150,15 @@ class JulesOCRClient(JulesClient):
             logging.error("❌ No session details provided for pull.")
             return False
 
-        branch_name = session_details.get('branch')
-        pr_number = session_details.get('pr_number')
+        branch_name = session_details.get("branch")
+        pr_number = session_details.get("pr_number")
         target_dir = "system-workspace/text-data/raw/"
 
         logging.info(f"⬇️ Pulling raw files from {branch_name or pr_number}...")
 
         try:
             import os
+
             git_env = os.environ.copy()
             git_env["GIT_TERMINAL_PROMPT"] = "0"
 
@@ -162,17 +180,37 @@ class JulesOCRClient(JulesClient):
             with GIT_LOCK:
                 # 1. Fetch
                 fetch_cmd = ["git", "fetch", "origin", fetch_ref]
-                subprocess.run(fetch_cmd, check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
+                subprocess.run(
+                    fetch_cmd,
+                    check=True,
+                    cwd=self.project_root,
+                    capture_output=True,
+                    timeout=60,
+                    env=git_env,
+                )
 
                 # 2. Checkout the specific directory
                 checkout_cmd = ["git", "checkout", checkout_ref, "--", target_dir]
-                subprocess.run(checkout_cmd, check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
+                subprocess.run(
+                    checkout_cmd,
+                    check=True,
+                    cwd=self.project_root,
+                    capture_output=True,
+                    timeout=60,
+                    env=git_env,
+                )
 
                 logging.info(f"✅ Successfully pulled raw files from {checkout_ref}")
 
                 # Clean up local temp branch if created
                 if pr_number:
-                    subprocess.run(["git", "branch", "-D", checkout_ref], cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
+                    subprocess.run(
+                        ["git", "branch", "-D", checkout_ref],
+                        cwd=self.project_root,
+                        capture_output=True,
+                        timeout=60,
+                        env=git_env,
+                    )
 
             return True
 
@@ -203,29 +241,35 @@ class JulesOCRClient(JulesClient):
         details = {}
 
         if status_data:
+
             def extract_info(obj):
                 if isinstance(obj, dict):
                     # Check for direct branch field
-                    if 'branch' in obj and isinstance(obj['branch'], str) and 'branch' not in details:
-                        details['branch'] = obj['branch']
+                    if (
+                        "branch" in obj
+                        and isinstance(obj["branch"], str)
+                        and "branch" not in details
+                    ):
+                        details["branch"] = obj["branch"]
 
                     # Check for pull request info
-                    if 'pullRequest' in obj:
-                        pr_info = obj['pullRequest']
-                        if 'number' in pr_info and 'pr_number' not in details:
-                            details['pr_number'] = pr_info['number']
-                        
-                        head = pr_info.get('head', {})
-                        if 'ref' in head and 'branch' not in details:
-                            details['branch'] = head['ref']
+                    if "pullRequest" in obj:
+                        pr_info = obj["pullRequest"]
+                        if "number" in pr_info and "pr_number" not in details:
+                            details["pr_number"] = pr_info["number"]
 
-                        html_url = pr_info.get('htmlUrl', '')
-                        if html_url and 'pr_number' not in details:
+                        head = pr_info.get("head", {})
+                        if "ref" in head and "branch" not in details:
+                            details["branch"] = head["ref"]
+
+                        html_url = pr_info.get("htmlUrl", "")
+                        if html_url and "pr_number" not in details:
                             import re
-                            match = re.search(r'/pull/(\d+)', html_url)
+
+                            match = re.search(r"/pull/(\d+)", html_url)
                             if match:
-                                details['pr_number'] = match.group(1)
-                                
+                                details["pr_number"] = match.group(1)
+
                     for v in obj.values():
                         extract_info(v)
                 elif isinstance(obj, list):
@@ -233,19 +277,20 @@ class JulesOCRClient(JulesClient):
                         extract_info(item)
 
             extract_info(status_data)
-            
+
             # Ultimate fallback: regex search on the raw JSON string
-            if not details.get('pr_number'):
+            if not details.get("pr_number"):
                 import json
                 import re
+
                 raw_str = json.dumps(status_data)
-                match = re.search(r'github\.com/[^/]+/[^/]+/pull/(\d+)', raw_str)
+                match = re.search(r"github\.com/[^/]+/[^/]+/pull/(\d+)", raw_str)
                 if match:
-                    details['pr_number'] = match.group(1)
+                    details["pr_number"] = match.group(1)
 
         # Fallback: If no details found, search GitHub for recent open PRs
         if not details:
-            logging.warning(f"⚠️ Session status missing PR info. Searching GitHub...")
+            logging.warning("⚠️ Session status missing PR info. Searching GitHub...")
 
             # Find open PRs from Jules (or anyone really, but assume Jules)
             # We filter for PRs that touch system-workspace/text-data/raw/
@@ -256,13 +301,13 @@ class JulesOCRClient(JulesClient):
                 # Check if title matches our pattern "Jules OCR Batch"
                 # Or if user is Jules (need to know username, usually "google-jules-bot" or similar but varies)
                 # Let's rely on title mostly or files.
-                title = pr.get('title', '')
+                title = pr.get("title", "")
                 if "OCR" in title or "Batch" in title or "Jules" in title:
-                     # This is a candidate.
-                     details['pr_number'] = pr['number']
-                     details['branch'] = pr['head']['ref']
-                     logging.info(f"🔍 Found candidate PR #{pr['number']}: {title}")
-                     break
+                    # This is a candidate.
+                    details["pr_number"] = pr["number"]
+                    details["branch"] = pr["head"]["ref"]
+                    logging.info(f"🔍 Found candidate PR #{pr['number']}: {title}")
+                    break
 
         return details
 
@@ -293,6 +338,7 @@ DO NOT CREATE A TOOL OR WRITE CODE OR DO ANYTHING ELSE ABOVE !
 DO NOT Create a Python script like perform_ocr.py ! , do OCR yourself manually!
 """
         return prompt
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

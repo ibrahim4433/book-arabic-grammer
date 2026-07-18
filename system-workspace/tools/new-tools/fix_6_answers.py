@@ -1,6 +1,6 @@
 import re
 
-with open('pages/98.00_p120_Answers.html', 'r', encoding='utf-8') as f:
+with open("pages/98.00_p120_Answers.html", encoding="utf-8") as f:
     html = f.read()
 
 replacements = {
@@ -9,17 +9,21 @@ replacements = {
     "كِتَابٌ": "كَلِمَةٌ (لِأَنَّهَا لَفْظٌ مُفْرَدٌ دَلَّ عَلَى مَعْنًى).",
     "قَدْ قَامَ زَيْدٌ أَمْسِ": "كَلَامٌ وَكَلِمٌ مَعًا (كَلَامٌ لِأَنَّهَا جُمْلَةٌ مُفِيدَةٌ، وَكَلِمٌ لِأَنَّهَا مُكَوَّنَةٌ مِنْ ثَلَاثِ كَلِمَاتٍ فَأَكْثَرَ).",
     "إِنْ قَامَ الطَّالِبُ وَنَجَحَ": "كَلِمٌ (لِأَنَّهَا ثَلَاثُ كَلِمَاتٍ فَأَكْثَرَ، وَلَمْ تُفِدْ مَعْنًى يَحْسُنُ السُّكُوتُ عَلَيْهِ بَلْ تَحْتَاجُ إِلَى جَوَابِ الشَّرْطِ).",
-    "الْعِلْمُ نُورٌ مُبِينٌ": "كَلَامٌ وَكَلِمٌ مَعًا (كَلَامٌ لِأَنَّهَا جُمْلَةٌ مُفِيدَةٌ، وَكَلِمٌ لِأَنَّهَا ثَلَاثُ كَلِمَاتٍ)."
+    "الْعِلْمُ نُورٌ مُبِينٌ": "كَلَامٌ وَكَلِمٌ مَعًا (كَلَامٌ لِأَنَّهَا جُمْلَةٌ مُفِيدَةٌ، وَكَلِمٌ لِأَنَّهَا ثَلَاثُ كَلِمَاتٍ).",
 }
 
 count = 0
 for k, v in replacements.items():
     # Construct regex to find the specific question and replace its answer
-    target = r'(<strong>السُّؤَالُ:</strong>.*?مِمَّا يَأْتِي: ' + re.escape(k) + r'\.<br/>\s*<span class="highlight-green"><strong>الْجَوَابُ:</strong> )إجابة غير متوفرة\.(</span>)'
-    html, n = re.subn(target, r'\g<1>' + v + r'\g<2>', html)
+    target = (
+        r"(<strong>السُّؤَالُ:</strong>.*?مِمَّا يَأْتِي: "
+        + re.escape(k)
+        + r'\.<br/>\s*<span class="highlight-green"><strong>الْجَوَابُ:</strong> )إجابة غير متوفرة\.(</span>)'
+    )
+    html, n = re.subn(target, r"\g<1>" + v + r"\g<2>", html)
     count += n
 
-with open('pages/98.00_p120_Answers.html', 'w', encoding='utf-8') as f:
+with open("pages/98.00_p120_Answers.html", "w", encoding="utf-8") as f:
     f.write(html)
 
-print('Replaced', count, 'answers!')
+print("Replaced", count, "answers!")

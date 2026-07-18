@@ -1,12 +1,28 @@
-import os, glob, re
+import glob
+import os
+import re
+
 from bs4 import BeautifulSoup
 
+
 def to_arabic_indic(text):
-    english_to_arabic = {'0':'٠','1':'١','2':'٢','3':'٣','4':'٤','5':'٥','6':'٦','7':'٧','8':'٨','9':'٩'}
-    return ''.join(english_to_arabic.get(c, c) for c in str(text))
+    english_to_arabic = {
+        "0": "٠",
+        "1": "١",
+        "2": "٢",
+        "3": "٣",
+        "4": "٤",
+        "5": "٥",
+        "6": "٦",
+        "7": "٧",
+        "8": "٨",
+        "9": "٩",
+    }
+    return "".join(english_to_arabic.get(c, c) for c in str(text))
+
 
 # build.py processes all files in pages/*.html alphabetically (except TEMPLATE_)
-all_files = sorted(glob.glob('pages/*.html'))
+all_files = sorted(glob.glob("pages/*.html"))
 pages_files = [f for f in all_files if "TEMPLATE_" not in f]
 
 # We need to compute the physical page number for each file.
@@ -21,42 +37,44 @@ rename_ops = []
 
 for file in pages_files:
     basename = os.path.basename(file)
-    
+
     # Extract info for TOC
-    with open(file, 'r', encoding='utf-8') as f:
-        soup = BeautifulSoup(f.read(), 'html.parser')
-        
+    with open(file, encoding="utf-8") as f:
+        soup = BeautifulSoup(f.read(), "html.parser")
+
     lesson_number = None
-    ln_div = soup.find('div', class_='lesson-number')
+    ln_div = soup.find("div", class_="lesson-number")
     if ln_div:
         lesson_number = ln_div.get_text(strip=True)
-        
+
     lesson_title = None
-    title_tag = soup.find('title')
+    title_tag = soup.find("title")
     if title_tag:
         lesson_title = title_tag.get_text(strip=True)
-        
-    if basename.startswith('98.'):
-        if lesson_title and not lesson_title.startswith('حَلُّ تَدْرِيبَاتِ الْكِتَابِ'):
-            lesson_title = 'مُلْحَقُ الْإِجَابَاتِ - ' + lesson_title
+
+    if basename.startswith("98."):
+        if lesson_title and not lesson_title.startswith("حَلُّ تَدْرِيبَاتِ الْكِتَابِ"):
+            lesson_title = "مُلْحَقُ الْإِجَابَاتِ - " + lesson_title
 
     # Determine new filename
     # E.g. 01.0_p05_أَقْسَامُ.html -> 01.0_p06_أَقْسَامُ.html
     new_basename = basename
-    match = re.match(r'^([0-9]+\.[0-9]+)_p[0-9]+_(.*\.html)$', basename)
+    match = re.match(r"^([0-9]+\.[0-9]+)_p[0-9]+_(.*\.html)$", basename)
     if match:
         new_basename = f"{match.group(1)}_p{current_physical_page:02d}_{match.group(2)}"
         if new_basename != basename:
-            rename_ops.append((file, os.path.join('pages', new_basename)))
+            rename_ops.append((file, os.path.join("pages", new_basename)))
 
     # We only add to TOC if it's not 00.* and not 99.*
-    if not basename.startswith('00.') and not basename.startswith('99.'):
-        toc_entries.append({
-            'title': lesson_title or "بدون عنوان",
-            'number': to_arabic_indic(lesson_number) if lesson_number else '-',
-            'arabic_page': to_arabic_indic(current_physical_page)
-        })
-        
+    if not basename.startswith("00.") and not basename.startswith("99."):
+        toc_entries.append(
+            {
+                "title": lesson_title or "بدون عنوان",
+                "number": to_arabic_indic(lesson_number) if lesson_number else "-",
+                "arabic_page": to_arabic_indic(current_physical_page),
+            }
+        )
+
     current_physical_page += 1
 
 # Execute renames
@@ -71,7 +89,7 @@ chunks = [toc_entries[:mid_point], toc_entries[mid_point:]]
 
 for idx, chunk in enumerate(chunks):
     page_num = idx + 2
-    
+
     toc_html = f"""<!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
@@ -106,7 +124,7 @@ for idx, chunk in enumerate(chunks):
                 </div>
             </div>
             <div class="header-section center">
-                <h1 class="header-title">فِهْرِسُ الْمَوْضُوعَاتِ (الْجُزْءُ {to_arabic_indic(idx+1)})</h1>
+                <h1 class="header-title">فِهْرِسُ الْمَوْضُوعَاتِ (الْجُزْءُ {to_arabic_indic(idx + 1)})</h1>
             </div>
             <div class="header-section left">
                 <div class="author-info">أ. الياس خفيف</div>
@@ -127,39 +145,39 @@ for idx, chunk in enumerate(chunks):
                 </tr>
             </thead>
             <tbody>"""
-            
+
     col_size = (len(chunk) + 1) // 2
     col1 = chunk[:col_size]
     col2 = chunk[col_size:]
-    
+
     for row_idx in range(col_size):
         item1 = col1[row_idx]
         item2 = col2[row_idx] if row_idx < len(col2) else None
-        
-        bg1 = "bg-grey-lighter" if ('مُلْحَق' in item1['title'] or 'حَلُّ' in item1['title']) else ""
+
+        bg1 = "bg-grey-lighter" if ("مُلْحَق" in item1["title"] or "حَلُّ" in item1["title"]) else ""
         bg2 = ""
         if item2:
-            bg2 = "bg-grey-lighter" if ('مُلْحَق' in item2['title'] or 'حَلُّ' in item2['title']) else ""
-            
+            bg2 = "bg-grey-lighter" if ("مُلْحَق" in item2["title"] or "حَلُّ" in item2["title"]) else ""
+
         toc_html += f"""
                 <tr>
-                    <td class="text-center font-bold text-grey {bg1}">{item1['number']}</td>
-                    <td class="font-bold {bg1}">{item1['title']}</td>
-                    <td class="text-center font-bold text-primary {bg1}">{item1['arabic_page']}</td>
+                    <td class="text-center font-bold text-grey {bg1}">{item1["number"]}</td>
+                    <td class="font-bold {bg1}">{item1["title"]}</td>
+                    <td class="text-center font-bold text-primary {bg1}">{item1["arabic_page"]}</td>
                     
                     <td class="spacer-col"></td>
                     """
         if item2:
             toc_html += f"""
-                    <td class="text-center font-bold text-grey {bg2}">{item2['number']}</td>
-                    <td class="font-bold {bg2}">{item2['title']}</td>
-                    <td class="text-center font-bold text-primary {bg2}">{item2['arabic_page']}</td>
+                    <td class="text-center font-bold text-grey {bg2}">{item2["number"]}</td>
+                    <td class="font-bold {bg2}">{item2["title"]}</td>
+                    <td class="text-center font-bold text-primary {bg2}">{item2["arabic_page"]}</td>
                 </tr>"""
         else:
             toc_html += """
                     <td></td><td></td><td></td>
                 </tr>"""
-                
+
     toc_html += """
             </tbody>
         </table>
@@ -167,7 +185,7 @@ for idx, chunk in enumerate(chunks):
 </body>
 </html>"""
 
-    with open(f'pages/00.{page_num}_TOC.html', 'w', encoding='utf-8') as f:
+    with open(f"pages/00.{page_num}_TOC.html", "w", encoding="utf-8") as f:
         f.write(toc_html)
 
 print("TOC generated with completely accurate physical page numbers.")

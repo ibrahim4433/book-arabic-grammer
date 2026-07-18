@@ -20,6 +20,7 @@ from pathlib import Path
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 
+
 @dataclass(frozen=True)
 class BuildConfig:
     """Immutable build configuration."""
@@ -49,6 +50,7 @@ class BuildResult:
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 class BuildError(Exception):
     """Raised when a critical build step fails."""
@@ -120,6 +122,7 @@ def _master_html(body_content: str, stylesheet: Path, watermark_text: str) -> st
 
 # ── Core Build Logic ──────────────────────────────────────────────────────────
 
+
 def collect_pages(config: BuildConfig) -> list[Path]:
     """Return sorted list of page HTML files, excluding TEMPLATE_ files."""
     all_files = sorted(config.pages_dir.glob("*.html"))
@@ -136,8 +139,7 @@ def build_book(config: BuildConfig) -> BuildResult:
         from weasyprint import HTML
     except ImportError as exc:
         raise BuildError(
-            "WeasyPrint is not installed.\n"
-            "Run: pip install -r requirements.txt"
+            "WeasyPrint is not installed.\nRun: pip install -r requirements.txt"
         ) from exc
     except OSError as exc:
         raise BuildError(
@@ -207,6 +209,7 @@ def build_book(config: BuildConfig) -> BuildResult:
 
 
 # ── CLI Entry Point ───────────────────────────────────────────────────────────
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(

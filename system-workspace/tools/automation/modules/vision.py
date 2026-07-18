@@ -6,15 +6,16 @@ sys.path.append(str(Path(__file__).parent))
 
 from gemini_client import GeminiClient
 
+
 class VisionClient:
     """
     Handles Image-to-Text extraction using GeminiClient.
     Ensures strict diacritic preservation for Arabic grammar content.
     """
-    
+
     def __init__(self, api_key=None, project_root=None):
         self.client = GeminiClient(api_key, project_root)
-        
+
     def extract_text(self, image_paths):
         """
         Sends images to Gemini and requests a raw transcription.
@@ -41,9 +42,10 @@ class VisionClient:
         # Pass images as list of paths
         return self.client.generate_content(
             system_instruction=system_instruction,
-            user_content="Transcribe this image.", # Explicit user prompt to anchor the request
-            images=image_paths
+            user_content="Transcribe this image.",  # Explicit user prompt to anchor the request
+            images=image_paths,
         )
+
 
 if __name__ == "__main__":
     client = VisionClient()

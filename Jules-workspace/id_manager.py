@@ -45,6 +45,7 @@ TARGET_SELECTORS: tuple[str, ...] = (
 
 # ── Data Models ───────────────────────────────────────────────────────────────
 
+
 @dataclass
 class DuplicateID:
     filepath: Path
@@ -75,6 +76,7 @@ class AutoTagReport:
 
 
 # ── Core Manager ──────────────────────────────────────────────────────────────
+
 
 class IDManager:
     """Manages unique bXXXXX IDs across all HTML pages."""
@@ -197,6 +199,7 @@ class IDManager:
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(

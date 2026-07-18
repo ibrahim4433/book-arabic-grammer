@@ -1,8 +1,0 @@
-# Core
-weasyprint==69.0
-beautifulsoup4==4.15.0
-lxml>=5.0
-
-# Dev / Quality (optional)
-ruff>=0.9.0
-mypy>=1.14.0

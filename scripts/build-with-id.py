@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-import os
 import glob
+import os
 import re
+
 from weasyprint import HTML
+
 
 def main():
     # Ensure output directory exists
-    output_dir = 'output'
+    output_dir = "output"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
     # Find all HTML files in pages/ sorted alphabetically
-    all_files = sorted(glob.glob('pages/*.html'))
+    all_files = sorted(glob.glob("pages/*.html"))
     pages_files = [f for f in all_files if "TEMPLATE_" not in f]
 
     if not pages_files:
@@ -115,11 +117,11 @@ def main():
     for page_file in pages_files:
         print(f"Processing {page_file}...")
         try:
-            with open(page_file, 'r', encoding='utf-8') as f:
+            with open(page_file, encoding="utf-8") as f:
                 content = f.read()
 
             # Robust Body Extraction
-            body_match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL | re.IGNORECASE)
+            body_match = re.search(r"<body[^>]*>(.*?)</body>", content, re.DOTALL | re.IGNORECASE)
             if body_match:
                 page_content = body_match.group(1)
             else:
@@ -147,9 +149,10 @@ def main():
     # Render the final PDF
     print("Rendering final PDF (Debug Mode)...")
     # base_url='.' allows the CSS link to find styles/main.css relative to the current directory
-    HTML(string=full_html, base_url='.').write_pdf(os.path.join(output_dir, 'book-debug.pdf'))
+    HTML(string=full_html, base_url=".").write_pdf(os.path.join(output_dir, "book-debug.pdf"))
 
     print(f"PDF successfully generated at {os.path.join(output_dir, 'book-debug.pdf')}")
+
 
 if __name__ == "__main__":
     main()

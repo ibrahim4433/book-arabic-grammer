@@ -1,8 +1,7 @@
-import os
-
 def read_template(name):
-    with open(f"Jules-workspace/Templates/{name}", "r", encoding="utf-8") as f:
+    with open(f"Jules-workspace/Templates/{name}", encoding="utf-8") as f:
         return f.read()
+
 
 def create_table_rows(rows):
     html = ""
@@ -13,16 +12,18 @@ def create_table_rows(rows):
         html += "</tr>\n"
     return html
 
+
 def create_table_headers(headers):
     html = ""
     for header in headers:
         html += f"<th>{header}</th>"
     return html
 
+
 def main():
     # 1. Header
     header = read_template("TEMPLATE_C_HEADER.html")
-    header = header.replace("[LESSON_NUMBER]", "١١") # 11 in Arabic
+    header = header.replace("[LESSON_NUMBER]", "١١")  # 11 in Arabic
     header = header.replace("[CHAPTER_TITLE]", "الإبدال")
     header = header.replace("[CATEGORY_HEADER]", "الصرف")
     header = header.replace("[SECTION_HEADER]", "المستوى اللغوي")
@@ -32,18 +33,29 @@ def main():
     # 2. Definition Block
     block_def = read_template("TEMPLATE_C_BLOCK.html")
     # Fix nested <p> issue: remove wrapper <p> in template
-    block_def = block_def.replace('<p class="mt-1mm text-accent">\n                [CONTENT_TEXT]\n            </p>', '[CONTENT_TEXT]')
+    block_def = block_def.replace(
+        '<p class="mt-1mm text-accent">\n                [CONTENT_TEXT]\n            </p>',
+        "[CONTENT_TEXT]",
+    )
 
     block_def = block_def.replace("[BLOCK_TITLE]", "تَعْرِيفُ الإِبْدَالِ")
-    block_def = block_def.replace("[CONTENT_TEXT]", '<p class="text-accent text-center font-bold text-primary p-2mm">هُوَ جَعْلُ حَرْفٍ مَكَانَ حَرْفٍ، سَوَاءٌ أَكَانَ الحَرْفُ صَحِيحًا أَمْ مُعْتَلًّا.</p>')
+    block_def = block_def.replace(
+        "[CONTENT_TEXT]",
+        '<p class="text-accent text-center font-bold text-primary p-2mm">هُوَ جَعْلُ حَرْفٍ مَكَانَ حَرْفٍ، سَوَاءٌ أَكَانَ الحَرْفُ صَحِيحًا أَمْ مُعْتَلًّا.</p>',
+    )
 
     # Remove benefit box as it's not used here
-    block_def = block_def.replace('<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
+    block_def = block_def.replace(
+        '<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>',
+        "",
+    )
 
     # 3. Hamza Substitution Rules (Split)
     split_hamza = read_template("TEMPLATE_C_SPLIT.html")
     split_hamza = split_hamza.replace("[LEFT_TITLE]", "إِذَا تَطَرَّفَتَا بَعْدَ أَلِفٍ زَائِدَةٍ")
-    split_hamza = split_hamza.replace("[LEFT_CONTENT]", """<div class="p-2mm">
+    split_hamza = split_hamza.replace(
+        "[LEFT_CONTENT]",
+        """<div class="p-2mm">
     <ul class="structured-list">
         <li class="mb-2mm">
             <span class="marker">•</span>
@@ -54,9 +66,12 @@ def main():
             <span class="font-bold highlight-red">بِنَاء</span>: أَصْلُ هَذِهِ الهَمْزَةِ <span class="highlight-blue">يَاء</span> (يَبْنِي، بِنَاي)، وتَحوَّلَتْ إِلى هَمْزَةٍ لأَنَّهَا جَاءَتْ فِي آخِرِ كَلِمَة (بِنَاء) بَعْدَ أَلِفٍ زَائِدَة.
         </li>
     </ul>
-</div>""")
+</div>""",
+    )
     split_hamza = split_hamza.replace("[RIGHT_TITLE]", "فِي اسْمِ الفَاعِلِ مِنَ الأَجْوَفِ")
-    split_hamza = split_hamza.replace("[RIGHT_CONTENT]", """<div class="p-2mm">
+    split_hamza = split_hamza.replace(
+        "[RIGHT_CONTENT]",
+        """<div class="p-2mm">
     <p class="mb-2mm">إِذَا وَقَعَا عَيْنًا فِي اسْمِ الفَاعِلِ المَصُوغِ مِنَ الفِعْلِ الثُّلَاثِي الأَجْوَفِ:</p>
     <ul class="structured-list">
         <li class="mb-2mm">
@@ -72,15 +87,21 @@ def main():
             <span class="font-bold">أَمْثِلَةٌ أُخْرَى:</span> (قَالَ، قَائِل) - (بَاعَ، بَائِع).
         </li>
     </ul>
-</div>""")
+</div>""",
+    )
 
     # 4. Plural Substitution (Block)
     block_plural = read_template("TEMPLATE_C_BLOCK.html")
     # Fix nested <p> issue
-    block_plural = block_plural.replace('<p class="mt-1mm text-accent">\n                [CONTENT_TEXT]\n            </p>', '[CONTENT_TEXT]')
+    block_plural = block_plural.replace(
+        '<p class="mt-1mm text-accent">\n                [CONTENT_TEXT]\n            </p>',
+        "[CONTENT_TEXT]",
+    )
 
     block_plural = block_plural.replace("[BLOCK_TITLE]", "إِبْدَالُ حُرُوفِ المَدِّ هَمْزَةً فِي (فَعَائِل)")
-    block_plural = block_plural.replace("[CONTENT_TEXT]", """<p class="mb-2mm">يُبْدَلُ حَرْفُ المَدِّ (ي، و، ا) فِي المُفْرَدِ المُؤَنَّثِ هَمْزَةً إِذَا وَقَعَ بَعْدَ أَلِفِ صِيَغِ مُنْتَهَى الجُمُوعِ (فَعَائِل):</p>
+    block_plural = block_plural.replace(
+        "[CONTENT_TEXT]",
+        """<p class="mb-2mm">يُبْدَلُ حَرْفُ المَدِّ (ي، و، ا) فِي المُفْرَدِ المُؤَنَّثِ هَمْزَةً إِذَا وَقَعَ بَعْدَ أَلِفِ صِيَغِ مُنْتَهَى الجُمُوعِ (فَعَائِل):</p>
 <ul class="structured-list">
     <li class="bg-grey-lighter p-2mm rounded mb-2mm">
         <span class="marker">✅</span>
@@ -94,10 +115,13 @@ def main():
         <span class="marker">ℹ️</span>
         أَمْثِلَةٌ أُخْرَى: (صَحِيفَة، صَحَائِف)، (وَدِيعَة، وَدَائِع)، (قِلَادَة، قَلَائِد).
     </li>
-</ul>""")
+</ul>""",
+    )
     # Remove benefit box
-    block_plural = block_plural.replace('<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>', '')
-
+    block_plural = block_plural.replace(
+        '<div class="benefit-box">\n                <strong> [BENEFIT_TITLE]:</strong> [BENEFIT_TEXT]\n            </div>',
+        "",
+    )
 
     # 5. Ifti'āl Rules Matrix (Table)
     table_iftial = read_template("TEMPLATE_C_TABLE.html")
@@ -107,11 +131,15 @@ def main():
         ["تُبْدَلُ تَاءُ (افْتَعَلَ) طَاءً بَعْدَ الضَّادِ", "اضْطَرَّ", "اضْتَرَّ", "وَقَعَتِ التَّاءُ بَعْدَ حَرْفِ الضَّادِ"],
         ["تُبْدَلُ تَاءُ (افْتَعَلَ) طَاءً بَعْدَ الصَّادِ", "اصْطَحَبَ", "اصْتَحَبَ", "وَقَعَتِ التَّاءُ بَعْدَ حَرْفِ الصَّادِ"],
         ["تُبْدَلُ تَاءُ (افْتَعَلَ) دَالًا بَعْدَ الزَّايِ", "ازْدَهَرَ", "ازْتَهَرَ", "وَقَعَتِ التَّاءُ بَعْدَ حَرْفِ الزَّايِ"],
-        ["تُبْدَلُ الوَاوُ تَاءً إِذَا وَقَعَتْ فَاءً لِـ (افْتَعَلَ)", "اتَّقَدَ", "اوتَقَدَ", "جَاءَتْ مُقَابِلَةً لِفَاءِ المِيزَانِ الصَّرْفِي"]
+        [
+            "تُبْدَلُ الوَاوُ تَاءً إِذَا وَقَعَتْ فَاءً لِـ (افْتَعَلَ)",
+            "اتَّقَدَ",
+            "اوتَقَدَ",
+            "جَاءَتْ مُقَابِلَةً لِفَاءِ المِيزَانِ الصَّرْفِي",
+        ],
     ]
     table_iftial = table_iftial.replace("[TABLE_HEADERS]", create_table_headers(headers))
     table_iftial = table_iftial.replace("[TABLE_ROWS]", create_table_rows(rows))
-
 
     # 6. Solved Applications (Table)
     # 6. Solved Applications (Table) - SPLIT
@@ -120,7 +148,10 @@ def main():
         ["قَالَ", "إِعْلَالٌ بِالقَلْبِ، قُلِبَتِ الوَاو أَلِفًا؛ لِتَحَرُّكِهَا بَعْدَ فَتْحٍ."],
         ["عُدْ", "إِعْلَالٌ بِالحَذْفِ، حُذِفَ حَرْفُ العِلَّةِ لِوُجُودِ سَاكِنٍ بَعْدَه."],
         ["دَنَا", "إِعْلَالٌ بِالقَلْبِ، قُلِبَتِ الوَاو أَلِفًا؛ لِتَحَرُّكِهَا بَعْدَ فَتْحٍ."],
-        ["غُزَتْ", "إِعْلَالٌ بِالحَذْفِ، حُذِفَ حَرْفُ العِلَّةِ لِوُقُوعِهِ فِي آخِرِ الفِعْلِ المَاضِي الَّذِي اتَّصَلَتْ بِهِ تَاءُ التَّأْنِيثِ."],
+        [
+            "غُزَتْ",
+            "إِعْلَالٌ بِالحَذْفِ، حُذِفَ حَرْفُ العِلَّةِ لِوُقُوعِهِ فِي آخِرِ الفِعْلِ المَاضِي الَّذِي اتَّصَلَتْ بِهِ تَاءُ التَّأْنِيثِ.",
+        ],
         ["يَزْدَهِي (١)", "إِبْدَالٌ، أُبْدِلَتِ التَّاءُ دَالًا لِوُقُوعِهَا بَعْدَ الزَّايِ فِي صِيغَةِ (افْتَعَلَ)."],
         ["يَزْدَهِي (٢)", "إِعْلَالٌ بِالتَّسْكِينِ، سُكِّنَتِ اليَاء لِتَطَرُّفِهَا بَعْدَ كَسْرٍ."],
         ["صَائِد", "إِبْدَال، أُبْدِلَتِ اليَاء هَمْزَةً؛ لأَنَّهَا وَقَعَتْ عَيْنًا فِي صِيغَةِ اسْمِ الفَاعِلِ مِنَ الأَجْوَفِ."],
@@ -134,7 +165,7 @@ def main():
         ["مَعَاد", "إِعْلَالٌ بِالقَلْبِ، قُلِبَتِ الوَاو أَلِفًا؛ لِتَحَرُّكِهَا بَعْدَ فَتْحٍ."],
         ["أَعْطَتْ", "إِعْلَالٌ بِالحَذْفِ، حُذِفَ حَرفُ العِلَّةِ لوُقوعِهِ في آخِرِ الفِعْلِ الماضِي المُتَّصِلِ بِتَاءِ التَّأْنِيثِ."],
         ["تَقَاضِي", "إِعْلَالٌ بالتَّسكِينِ؛ سَكَنَتِ الياءُ لِتَطَرُّفِها بعدَ كَسرٍ."],
-        ["أَسْتَزِيدُ", "إِعْلَالٌ بالتَّسكِينِ، سَكَنَتِ الياءُ؛ لتَحَرُّكِها بَعدَ حَرْفٍ صَحِيحٍ ساكِنٍ."]
+        ["أَسْتَزِيدُ", "إِعْلَالٌ بالتَّسكِينِ، سَكَنَتِ الياءُ؛ لتَحَرُّكِها بَعدَ حَرْفٍ صَحِيحٍ ساكِنٍ."],
     ]
 
     # Split: 8 rows for P1, rest for P2
@@ -143,14 +174,17 @@ def main():
 
     table_solved_p1 = read_template("TEMPLATE_C_TABLE.html")
     table_solved_p1 = table_solved_p1.replace("[TABLE_TITLE]", "أَمْثِلَةٌ تَطْبِيقِيَّةٌ مُجَابٌ عَنْهَا")
-    table_solved_p1 = table_solved_p1.replace("[TABLE_HEADERS]", create_table_headers(headers_solved))
+    table_solved_p1 = table_solved_p1.replace(
+        "[TABLE_HEADERS]", create_table_headers(headers_solved)
+    )
     table_solved_p1 = table_solved_p1.replace("[TABLE_ROWS]", create_table_rows(rows_p1))
 
     table_solved_p2 = read_template("TEMPLATE_C_TABLE.html")
     table_solved_p2 = table_solved_p2.replace("[TABLE_TITLE]", "أَمْثِلَةٌ تَطْبِيقِيَّةٌ (تَابِع)")
-    table_solved_p2 = table_solved_p2.replace("[TABLE_HEADERS]", create_table_headers(headers_solved))
+    table_solved_p2 = table_solved_p2.replace(
+        "[TABLE_HEADERS]", create_table_headers(headers_solved)
+    )
     table_solved_p2 = table_solved_p2.replace("[TABLE_ROWS]", create_table_rows(rows_p2))
-
 
     # 7. Exam
     # Construct a custom exam block based on TEMPLATE_C_EXAM or just string replace if easy
@@ -173,15 +207,19 @@ def main():
     </div>
 </section>"""
 
-
     # 8. Assembly Page 1
     content_p1 = (
-        header + "\n" +
-        block_def + "\n" +
-        split_hamza + "\n" +
-        block_plural + "\n" +
-        table_iftial + "\n" +
-        table_solved_p1
+        header
+        + "\n"
+        + block_def
+        + "\n"
+        + split_hamza
+        + "\n"
+        + block_plural
+        + "\n"
+        + table_iftial
+        + "\n"
+        + table_solved_p1
     )
 
     wrapper = read_template("TEMPLATE_C_PAGE_WRAPPER.html")
@@ -200,16 +238,13 @@ def main():
     header_p2 = header_p2.replace("[AUTHOR_NAME]", "أ. حنا خفيف")
     header_p2 = header_p2.replace("[AUTHOR_PHONE]", " ")
 
-    content_p2 = (
-        header_p2 + "\n" +
-        table_solved_p2 + "\n" +
-        exam_content
-    )
+    content_p2 = header_p2 + "\n" + table_solved_p2 + "\n" + exam_content
 
     final_html_p2 = wrapper.replace("<!-- INJECT_CONTENT_HERE -->", content_p2)
 
     with open("pages/11.1_nXX_الإبدال.html", "w", encoding="utf-8") as f:
         f.write(final_html_p2)
+
 
 if __name__ == "__main__":
     main()

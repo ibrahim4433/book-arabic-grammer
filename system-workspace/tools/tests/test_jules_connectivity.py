@@ -1,6 +1,5 @@
-import unittest
 import sys
-import os
+import unittest
 from pathlib import Path
 
 # Add project root to path for imports
@@ -13,8 +12,8 @@ except ImportError as e:
     print(f"❌ Import Error: {e}")
     sys.exit(1)
 
+
 class TestJulesConnectivity(unittest.TestCase):
-    
     def setUp(self):
         print("\n--- Setup: Initializing JulesClient ---")
         self.client = JulesClient()
@@ -26,10 +25,14 @@ class TestJulesConnectivity(unittest.TestCase):
 
     def test_client_structure(self):
         print("Test: Client Structure")
-        self.assertTrue(hasattr(self.client, 'create_session'), "Client must have create_session method")
-        self.assertTrue(hasattr(self.client, 'get_session_status'), "Client must have get_session_status method")
+        self.assertTrue(
+            hasattr(self.client, "create_session"), "Client must have create_session method"
+        )
+        self.assertTrue(
+            hasattr(self.client, "get_session_status"), "Client must have get_session_status method"
+        )
         print("✅ Client structure verified.")
 
-if __name__ == '__main__':
-    unittest.main()
 
+if __name__ == "__main__":
+    unittest.main()

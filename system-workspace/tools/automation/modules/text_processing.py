@@ -1,12 +1,13 @@
-import sys
 import json
 import re
+import sys
 from pathlib import Path
 
 # Ensure modules are importable
 sys.path.append(str(Path(__file__).parent))
 
 from gemini_client import GeminiClient
+
 
 class TextProcessor:
     """
@@ -17,13 +18,17 @@ class TextProcessor:
     """
 
     def __init__(self, project_root=None, api_key=None, use_headless=False):
-        self.project_root = Path(project_root) if project_root else Path(__file__).parent.parent.parent.parent.parent
+        self.project_root = (
+            Path(project_root)
+            if project_root
+            else Path(__file__).parent.parent.parent.parent.parent
+        )
         self.raw_dir = self.project_root / "system-workspace/text-data/raw"
         self.toc_path = self.project_root / "input/TOC.json"
         self.index_file = self.project_root / "system-workspace/text-data/raw_to_lesson_index.json"
-        
+
         self.client = GeminiClient(api_key, self.project_root, use_headless=use_headless)
-        
+
         # Ensure directories exist
         self.raw_dir.mkdir(parents=True, exist_ok=True)
         self.index_file.parent.mkdir(parents=True, exist_ok=True)
@@ -38,7 +43,7 @@ class TextProcessor:
             return False
 
         try:
-            content = self.toc_path.read_text(encoding='utf-8').strip()
+            content = self.toc_path.read_text(encoding="utf-8").strip()
             data = json.loads(content)
 
             if not isinstance(data, dict):
@@ -51,9 +56,9 @@ class TextProcessor:
 
             # Check for required fields in at least one item
             first_key = next(iter(data))
-            if not isinstance(data[first_key], dict) or 'title' not in data[first_key]:
-                 print("❌ TOC items do not have 'title' field.")
-                 return False
+            if not isinstance(data[first_key], dict) or "title" not in data[first_key]:
+                print("❌ TOC items do not have 'title' field.")
+                return False
 
             print(f"✅ TOC Validated: {len(data)} topics found.")
             return True
@@ -68,18 +73,18 @@ class TextProcessor:
         """
         if not self.toc_path.exists():
             return "00"
-            
+
         try:
-            content = self.toc_path.read_text(encoding='utf-8')
+            content = self.toc_path.read_text(encoding="utf-8")
             data = json.loads(content)
 
             # Clean the input title by removing prefix (e.g., "9 - Title" -> "Title")
-            clean_input_title = re.sub(r'^\d+\s*-\s*', '', lesson_title).strip()
+            clean_input_title = re.sub(r"^\d+\s*-\s*", "", lesson_title).strip()
 
             for number, metadata in data.items():
-                title = metadata.get('title', '').strip()
+                title = metadata.get("title", "").strip()
                 if title == clean_input_title:
-                    return number.zfill(2) # Ensure 2 digits
+                    return number.zfill(2)  # Ensure 2 digits
 
             return "00"
         except Exception as e:
@@ -91,16 +96,17 @@ class TextProcessor:
         Merges all raw_*.txt files into a single context file with line numbers.
         Returns the path to the merged file.
         """
+
         # Sort files numerically
         def sort_key(p):
             try:
-                match = re.search(r'raw_(\d+)', p.name)
+                match = re.search(r"raw_(\d+)", p.name)
                 return int(match.group(1)) if match else 0
             except ValueError:
                 return 0
 
         files = sorted(list(self.raw_dir.glob("raw_*.txt")), key=sort_key)
-        
+
         if not files:
             print("⚠️ No raw text files found to merge.")
             return None
@@ -108,18 +114,19 @@ class TextProcessor:
         all_content = []
         for f in files:
             try:
-                lines = f.read_text(encoding='utf-8').splitlines()
+                lines = f.read_text(encoding="utf-8").splitlines()
                 for i, line in enumerate(lines):
-                    if len(line.strip()) < 2: continue
-                    all_content.append(f"[{f.name}:{i+1}] {line}")
+                    if len(line.strip()) < 2:
+                        continue
+                    all_content.append(f"[{f.name}:{i + 1}] {line}")
             except Exception as e:
                 print(f"⚠️ Error reading {f.name}: {e}")
 
         merged_content = "\n".join(all_content)
         output_path = self.project_root / "system-workspace/text-data/full_raw_indexed.txt"
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(merged_content, encoding='utf-8')
-        
+        output_path.write_text(merged_content, encoding="utf-8")
+
         print(f"📄 Merged {len(files)} files into {output_path}")
         return output_path
 
@@ -134,7 +141,7 @@ class TextProcessor:
         author_number = " "
         if settings_file.exists():
             try:
-                with open(settings_file, "r", encoding="utf-8") as f:
+                with open(settings_file, encoding="utf-8") as f:
                     settings = json.load(f)
                     author = settings.get("author", author)
                     author_number = settings.get("author_number", author_number)
@@ -164,33 +171,32 @@ CRITICAL RULES:
   }}
 }}
 """
-        user_content = merged_path.read_text(encoding='utf-8')
+        user_content = merged_path.read_text(encoding="utf-8")
 
         resp_text = self.client.generate_content(
-            system_instruction=system_instruction,
-            user_content=user_content
+            system_instruction=system_instruction, user_content=user_content
         )
-        
+
         if not resp_text:
             print("❌ Failed to generate TOC.")
             return False
-            
+
         try:
             cleaned_json = resp_text.replace("```json", "").replace("```", "").strip()
-            match = re.search(r'\{.*\}', cleaned_json, re.DOTALL)
+            match = re.search(r"\{.*\}", cleaned_json, re.DOTALL)
             if match:
                 cleaned_json = match.group(0)
 
             toc_data = json.loads(cleaned_json)
-            
+
             # Save the TOC
             self.toc_path.parent.mkdir(parents=True, exist_ok=True)
             with open(self.toc_path, "w", encoding="utf-8") as f:
                 json.dump(toc_data, f, ensure_ascii=False, indent=2)
-            
+
             print(f"✅ TOC created at {self.toc_path}")
             return True
-            
+
         except json.JSONDecodeError:
             print(f"❌ Failed to parse JSON response for TOC: {resp_text[:100]}...")
             return False
@@ -207,20 +213,22 @@ CRITICAL RULES:
             return None
 
         print("🔍 Mapping raw text to lessons via Gemini...")
-        
+
         try:
-            toc_data = json.loads(self.toc_path.read_text(encoding='utf-8'))
+            toc_data = json.loads(self.toc_path.read_text(encoding="utf-8"))
             # Simplify TOC for the prompt: "Number - Title" list
             toc_lines = []
-            sorted_keys = sorted(toc_data.keys(), key=lambda x: int(x) if x.isdigit() else float('inf'))
+            sorted_keys = sorted(
+                toc_data.keys(), key=lambda x: int(x) if x.isdigit() else float("inf")
+            )
             for num in sorted_keys:
                 meta = toc_data[num]
                 toc_lines.append(f"{num} - {meta.get('title', 'Unknown')}")
             toc_content = "\n".join(toc_lines)
         except Exception as e:
-             print(f"❌ Failed to process TOC.json: {e}")
-             return None
-        
+            print(f"❌ Failed to process TOC.json: {e}")
+            return None
+
         # System Prompt
         system_instruction = f"""You are an expert Arabic book editor.
 I have a file containing lines from transcribed Arabic grammar images (format: [filename:line] text).
@@ -243,41 +251,41 @@ CRITICAL RULES:
   }}
 }}
 """
-        
+
         # User Content (The merged raw text)
-        user_content = merged_path.read_text(encoding='utf-8')
+        user_content = merged_path.read_text(encoding="utf-8")
 
         # Call Gemini (Smart Client handles API Key vs CLI)
         # Using generate_content instead of forced headless mode
         resp_text = self.client.generate_content(
-            system_instruction=system_instruction,
-            user_content=user_content
+            system_instruction=system_instruction, user_content=user_content
         )
-        
+
         if not resp_text:
             print("❌ Failed to generate index mapping.")
             return None
-            
+
         try:
             # Clean potential markdown block ```json ... ```
             cleaned_json = resp_text.replace("```json", "").replace("```", "").strip()
 
             # Additional cleanup if needed (e.g. remove preamble text before {)
-            match = re.search(r'\{.*\}', cleaned_json, re.DOTALL)
+            match = re.search(r"\{.*\}", cleaned_json, re.DOTALL)
             if match:
                 cleaned_json = match.group(0)
 
             mapping = json.loads(cleaned_json)
-            
+
             with open(self.index_file, "w", encoding="utf-8") as f:
                 json.dump(mapping, f, ensure_ascii=False, indent=2)
-            
+
             print(f"✅ Index created at {self.index_file}")
             return mapping
-            
+
         except json.JSONDecodeError:
             print(f"❌ Failed to parse JSON response: {resp_text[:100]}...")
             return None
+
 
 if __name__ == "__main__":
     tp = TextProcessor()

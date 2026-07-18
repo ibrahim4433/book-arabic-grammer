@@ -170,6 +170,8 @@ html_content = """<!DOCTYPE html>
 </html>
 """
 
-os.makedirs('Jules-workspace/pages', exist_ok=True)
-with open('Jules-workspace/pages/10.0_nXX_الْفَاعِلُ وَأَنْوَاعُهُ وَعَلَاَّمَاتُ إِعْرَابِهِ.html', 'w', encoding='utf-8') as f:
+os.makedirs("Jules-workspace/pages", exist_ok=True)
+with open(
+    "Jules-workspace/pages/10.0_nXX_الْفَاعِلُ وَأَنْوَاعُهُ وَعَلَاَّمَاتُ إِعْرَابِهِ.html", "w", encoding="utf-8"
+) as f:
     f.write(html_content)

@@ -1,18 +1,20 @@
 import json
 import re
 
-def remove_tashkeel(text):
-    tashkeel = re.compile(r'[\u0617-\u061A\u064B-\u0652\u0657-\u065F\u0670]')
-    return re.sub(tashkeel, '', text)
 
-with open('input/TOC.json', 'r', encoding='utf-8') as f:
+def remove_tashkeel(text):
+    tashkeel = re.compile(r"[\u0617-\u061A\u064B-\u0652\u0657-\u065F\u0670]")
+    return re.sub(tashkeel, "", text)
+
+
+with open("input/TOC.json", encoding="utf-8") as f:
     toc = json.load(f)
 
-toc_titles = [v['title'] for k, v in toc.items()]
+toc_titles = [v["title"] for k, v in toc.items()]
 # To normalize titles
 norm_titles = {remove_tashkeel(t): t for t in toc_titles}
 
-with open('system-workspace/text-data/full_raw_indexed.txt', 'r', encoding='utf-8') as f:
+with open("system-workspace/text-data/full_raw_indexed.txt", encoding="utf-8") as f:
     lines = f.readlines()
 
 print("Searching for:")

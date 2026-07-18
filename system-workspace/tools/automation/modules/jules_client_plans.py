@@ -1,13 +1,12 @@
-import sys
-import os
-import json
-import time
-import subprocess
-import re
 import logging
-import requests
+import os
+import re
+import subprocess
+import sys
 import threading
 from pathlib import Path
+
+import requests
 
 # Global lock for git operations to prevent .git/index.lock collisions during concurrent pulls
 GIT_LOCK = threading.Lock()
@@ -16,6 +15,7 @@ GIT_LOCK = threading.Lock()
 sys.path.append(str(Path(__file__).parent))
 
 from jules_client import JulesClient
+
 
 class JulesPlanClient(JulesClient):
     """
@@ -52,11 +52,11 @@ class JulesPlanClient(JulesClient):
         url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/pulls/{pr_number}/merge"
         headers = {
             "Authorization": f"token {self.github_token}",
-            "Accept": "application/vnd.github.v3+json"
+            "Accept": "application/vnd.github.v3+json",
         }
         data = {
             "commit_title": f"Merge PR #{pr_number} (Jules Auto-Merge)",
-            "merge_method": "squash"
+            "merge_method": "squash",
         }
 
         try:
@@ -88,9 +88,11 @@ class JulesPlanClient(JulesClient):
             file_path: Relative path from project root (e.g. 'plans/1-Title.md')
         """
         if not callback:
-            def callback(t, s, m): pass
 
-        pr_number = session_details.get('pr_number')
+            def callback(t, s, m):
+                pass
+
+        pr_number = session_details.get("pr_number")
 
         # 1. Try to Merge
         merged = False
@@ -106,19 +108,34 @@ class JulesPlanClient(JulesClient):
         # 2. Pull Logic
         try:
             import os
+
             git_env = os.environ.copy()
             git_env["GIT_TERMINAL_PROMPT"] = "0"
 
             if merged:
                 # Checkout main and pull
                 with GIT_LOCK:
-                    subprocess.run(["git", "checkout", "main"], check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
-                    subprocess.run(["git", "pull", "origin", "main"], check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
+                    subprocess.run(
+                        ["git", "checkout", "main"],
+                        check=True,
+                        cwd=self.project_root,
+                        capture_output=True,
+                        timeout=60,
+                        env=git_env,
+                    )
+                    subprocess.run(
+                        ["git", "pull", "origin", "main"],
+                        check=True,
+                        cwd=self.project_root,
+                        capture_output=True,
+                        timeout=60,
+                        env=git_env,
+                    )
 
                 # Verify file exists
                 if (self.project_root / file_path).exists():
-                     logging.info(f"✅ Finalization complete for {file_path}")
-                     return True
+                    logging.info(f"✅ Finalization complete for {file_path}")
+                    return True
                 else:
                     logging.warning(f"⚠️ File {file_path} not found after pull.")
                     return False
@@ -156,26 +173,27 @@ class JulesPlanClient(JulesClient):
         def extract_info(obj):
             if isinstance(obj, dict):
                 # Check for direct branch field
-                if 'branch' in obj and isinstance(obj['branch'], str) and 'branch' not in details:
-                    details['branch'] = obj['branch']
+                if "branch" in obj and isinstance(obj["branch"], str) and "branch" not in details:
+                    details["branch"] = obj["branch"]
 
                 # Check for pull request info
-                if 'pullRequest' in obj:
-                    pr_info = obj['pullRequest']
-                    if 'number' in pr_info and 'pr_number' not in details:
-                        details['pr_number'] = pr_info['number']
-                    
-                    head = pr_info.get('head', {})
-                    if 'ref' in head and 'branch' not in details:
-                        details['branch'] = head['ref']
+                if "pullRequest" in obj:
+                    pr_info = obj["pullRequest"]
+                    if "number" in pr_info and "pr_number" not in details:
+                        details["pr_number"] = pr_info["number"]
 
-                    html_url = pr_info.get('htmlUrl', '')
-                    if html_url and 'pr_number' not in details:
+                    head = pr_info.get("head", {})
+                    if "ref" in head and "branch" not in details:
+                        details["branch"] = head["ref"]
+
+                    html_url = pr_info.get("htmlUrl", "")
+                    if html_url and "pr_number" not in details:
                         import re
-                        match = re.search(r'/pull/(\d+)', html_url)
+
+                        match = re.search(r"/pull/(\d+)", html_url)
                         if match:
-                            details['pr_number'] = match.group(1)
-                            
+                            details["pr_number"] = match.group(1)
+
                 for v in obj.values():
                     extract_info(v)
             elif isinstance(obj, list):
@@ -183,18 +201,21 @@ class JulesPlanClient(JulesClient):
                     extract_info(item)
 
         extract_info(status_data)
-        
+
         # Ultimate fallback: regex search on the raw JSON string
-        if not details.get('pr_number'):
+        if not details.get("pr_number"):
             import json
             import re
+
             raw_str = json.dumps(status_data)
-            match = re.search(r'github\.com/[^/]+/[^/]+/pull/(\d+)', raw_str)
+            match = re.search(r"github\.com/[^/]+/[^/]+/pull/(\d+)", raw_str)
             if match:
-                details['pr_number'] = match.group(1)
+                details["pr_number"] = match.group(1)
 
         if not details:
-            logging.warning(f"⚠️ Could not identify branch/PR for session {session_id}. Data: {status_data.keys()} -> Outputs: {status_data.get('outputs')}")
+            logging.warning(
+                f"⚠️ Could not identify branch/PR for session {session_id}. Data: {status_data.keys()} -> Outputs: {status_data.get('outputs')}"
+            )
 
         return details
 
@@ -206,13 +227,14 @@ class JulesPlanClient(JulesClient):
             logging.error("❌ No session details provided.")
             return False
 
-        branch_name = session_details.get('branch')
-        pr_number = session_details.get('pr_number')
+        branch_name = session_details.get("branch")
+        pr_number = session_details.get("pr_number")
 
         logging.info(f"⬇️ Pulling {target_filename} (Branch: {branch_name}, PR: {pr_number})...")
 
         try:
             import os
+
             git_env = os.environ.copy()
             git_env["GIT_TERMINAL_PROMPT"] = "0"
 
@@ -236,21 +258,43 @@ class JulesPlanClient(JulesClient):
             # 1. Fetch and Checkout
             with GIT_LOCK:
                 fetch_cmd = ["git", "fetch", "origin", fetch_ref]
-                subprocess.run(fetch_cmd, check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
+                subprocess.run(
+                    fetch_cmd,
+                    check=True,
+                    cwd=self.project_root,
+                    capture_output=True,
+                    timeout=60,
+                    env=git_env,
+                )
 
                 # 2. Checkout specific file
                 # If target_filename already contains a path separator, use it as is.
                 # Otherwise, assume it's a plan in plans/ directory (Legacy support).
-                repo_path = target_filename if "/" in target_filename else f"plans/{target_filename}"
+                repo_path = (
+                    target_filename if "/" in target_filename else f"plans/{target_filename}"
+                )
                 checkout_cmd = ["git", "checkout", checkout_ref, "--", repo_path]
-                subprocess.run(checkout_cmd, check=True, cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
+                subprocess.run(
+                    checkout_cmd,
+                    check=True,
+                    cwd=self.project_root,
+                    capture_output=True,
+                    timeout=60,
+                    env=git_env,
+                )
 
             logging.info(f"✅ Successfully pulled {target_filename}")
 
             # Clean up local temp branch if created
             if pr_number:
                 with GIT_LOCK:
-                    subprocess.run(["git", "branch", "-D", checkout_ref], cwd=self.project_root, capture_output=True, timeout=60, env=git_env)
+                    subprocess.run(
+                        ["git", "branch", "-D", checkout_ref],
+                        cwd=self.project_root,
+                        capture_output=True,
+                        timeout=60,
+                        env=git_env,
+                    )
 
             # 3. Verify file exists locally
             local_path = self.project_root / repo_path
@@ -273,38 +317,36 @@ class JulesPlanClient(JulesClient):
         """
         Constructs the combined prompt for Generation -> Verification -> Refinement.
         """
-        lesson_number = lesson_data['number']
-        lesson_title = lesson_data['title']
-        raw_text = lesson_data['raw_text']
+        lesson_number = lesson_data["number"]
+        lesson_title = lesson_data["title"]
+        raw_text = lesson_data["raw_text"]
 
         # New Metadata extraction
-        level = lesson_data.get('level', '')
-        unit = lesson_data.get('unit', '')
-        author = lesson_data.get('author', '')
-        author_number = lesson_data.get('author_number', '')
+        level = lesson_data.get("level", "")
+        unit = lesson_data.get("unit", "")
+        author = lesson_data.get("author", "")
+        author_number = lesson_data.get("author_number", "")
 
         # --- PROMPT INJECTION ---
         # 1. Replace [LESSON_NUMBER] but protect the key [LESSON_NUMBER]:
-        architect_prompt = re.sub(r'\[LESSON_NUMBER\](?!:)', lesson_number, architect_prompt)
+        architect_prompt = re.sub(r"\[LESSON_NUMBER\](?!:)", lesson_number, architect_prompt)
 
         # 2. Key-Value replacements
         replacements = {
-            '[TITLE]': lesson_title,
-            '[LESSON_TITLE]': lesson_title,
-
+            "[TITLE]": lesson_title,
+            "[LESSON_TITLE]": lesson_title,
             # Instructions Placeholders (without brackets in the file)
-            'LESSON_LEVEL': level,
-            'LESSON_UNIT': unit,
-            'LESSON_AUTHOR': author,
-            'LESSON_AUTHOR_NUMBER': author_number,
-
+            "LESSON_LEVEL": level,
+            "LESSON_UNIT": unit,
+            "LESSON_AUTHOR": author,
+            "LESSON_AUTHOR_NUMBER": author_number,
             # Example Placeholders
-            '[Number]': lesson_number,
-            '[Title]': lesson_title,
-            '[Level]': level,
-            '[Unit]': unit,
-            '[Author]': author,
-            '[Phone]': author_number
+            "[Number]": lesson_number,
+            "[Title]": lesson_title,
+            "[Level]": level,
+            "[Unit]": unit,
+            "[Author]": author,
+            "[Phone]": author_number,
         }
 
         # Sort by length descending to prevent partial replacement
@@ -362,6 +404,7 @@ You are currently operating in a BATCH MODE. You must perform the following step
         )
 
         return full_prompt
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

@@ -1,20 +1,20 @@
-import os
-import re
-import logging
-import time
 import random
+import re
+import threading
+import time
 from pathlib import Path
+
+import mishkal.tashkeel
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.formatters import TextFormatter
-import mishkal.tashkeel
 
-import threading
 
 class YouTubeOfflineTranscriber:
     """
     Handles the offline extraction of YouTube transcripts and applying Arabic diacritics using Mishkal.
     Bypasses yt-dlp to avoid 403 Forbidden errors.
     """
+
     def __init__(self, project_root):
         self.project_root = Path(project_root)
         self.output_dir = self.project_root / "system-workspace" / "text-data" / "video-raw"
@@ -48,7 +48,7 @@ class YouTubeOfflineTranscriber:
         clean_title = clean_title.replace(" ", "_")
         if len(clean_title) > 50:
             clean_title = clean_title[:50]
-            
+
         filename = f"{seq_num}-{clean_title}-video-raw.txt"
         output_path = self.output_dir / filename
 
@@ -61,7 +61,7 @@ class YouTubeOfflineTranscriber:
             api = YouTubeTranscriptApi()
             transcript_list = None
             max_retries = 3
-            
+
             for attempt in range(max_retries):
                 try:
                     # Random stagger to avoid concurrent burst
@@ -73,10 +73,10 @@ class YouTubeOfflineTranscriber:
                         time.sleep(random.uniform(5.0, 10.0))  # Backoff
                         continue
                     raise e
-            
+
             # Try to get Arabic transcript first
             try:
-                transcript = transcript_list.find_transcript(['ar'])
+                transcript = transcript_list.find_transcript(["ar"])
             except Exception:
                 # Fallback to auto-translated or any available
                 return False, "No Arabic transcript found for this video."
@@ -85,19 +85,19 @@ class YouTubeOfflineTranscriber:
 
             # 2. Apply Tashkeel using Mishkal
             vocalizer = self.get_vocalizer()
-            
+
             # Mishkal has a hard limit of 10,000 characters per call, so we chunk the text
             chunk_size = 5000
             text_vocalized = ""
             for i in range(0, len(text), chunk_size):
-                chunk = text[i:i+chunk_size]
+                chunk = text[i : i + chunk_size]
                 text_vocalized += vocalizer.tashkeel(chunk)
 
             # 3. Save to File
-            with open(output_path, 'w', encoding='utf-8') as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 f.write(text_vocalized)
 
             return True, f"Successfully processed: {filename}"
 
         except Exception as e:
-            return False, f"Error processing {video_id}: {str(e)}"
+            return False, f"Error processing {video_id}: {e!s}"

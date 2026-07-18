@@ -1,47 +1,50 @@
-import time
-import yt_dlp
 import re
 from pathlib import Path
+
+import yt_dlp
+
 from modules.jules_client import JulesClient
+
 
 class JulesYouTubeDispatcher:
     def __init__(self, project_root):
         self.project_root = Path(project_root)
         self.jules_client = JulesClient(project_root=self.project_root)
-        
+
     def resolve_urls(self, url):
         ydl_opts = {
-            'extract_flat': True,
-            'quiet': True,
-            'no_warnings': True,
+            "extract_flat": True,
+            "quiet": True,
+            "no_warnings": True,
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-            if info.get('_type') == 'playlist' or 'entries' in info:
-                entries = info.get('entries', [])
+            if info.get("_type") == "playlist" or "entries" in info:
+                entries = info.get("entries", [])
                 urls = []
                 for entry in entries:
-                    if not entry: continue
-                    v_url = entry.get('url')
-                    if not v_url and 'id' in entry:
+                    if not entry:
+                        continue
+                    v_url = entry.get("url")
+                    if not v_url and "id" in entry:
                         v_url = f"https://www.youtube.com/watch?v={entry['id']}"
                     if v_url:
-                        urls.append((v_url, entry.get('title', 'video')))
+                        urls.append((v_url, entry.get("title", "video")))
                 return urls, True
             else:
-                title = info.get('title', 'video')
+                title = info.get("title", "video")
                 return [(url, title)], False
 
     def sanitize_title(self, title):
         # Keep alphanumeric, Arabic chars, spaces, and hyphens
-        clean = re.sub(r'[^\w\s\u0600-\u06FF-]', '', title)
-        return clean.strip().replace(' ', '_')
+        clean = re.sub(r"[^\w\s\u0600-\u06FF-]", "", title)
+        return clean.strip().replace(" ", "_")
 
     def build_prompt(self, video_url, video_title, seq_num=None):
         clean_title = self.sanitize_title(video_title)
         n_prefix = f"{seq_num}-" if seq_num else ""
         out_filename = f"{n_prefix}{clean_title}-video-raw.txt"
-        
+
         prompt = f"""
 # TASK: YouTube Video Processing and Transcription
 
@@ -84,12 +87,14 @@ CRITICAL: ONLY submit the PR with the `.txt` file. Ensure the media file is dele
         clean_title = self.sanitize_title(video_title)
         n_prefix = f"{seq_num}-" if seq_num else ""
         session_title = f"YT-Process-{n_prefix}{clean_title}"[:60]
-        
+
         if progress_callback:
             progress_callback(f"Dispatching Jules Session: {session_title}")
-            
-        session = self.jules_client.create_session(prompt, session_title, automation_mode="AUTO_CREATE_PR")
+
+        session = self.jules_client.create_session(
+            prompt, session_title, automation_mode="AUTO_CREATE_PR"
+        )
         if not session:
             raise Exception("Failed to create Jules session.")
-            
-        return session.get('name')
+
+        return session.get("name")

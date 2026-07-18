@@ -1,5 +1,6 @@
-from playwright.sync_api import sync_playwright
 import os
+
+from playwright.sync_api import sync_playwright
 
 files = [
     "pages/03.2_n10_mubtada.html",
@@ -7,8 +8,9 @@ files = [
     "pages/04.2_n14_follow.html",
     "pages/04.3_n14_follow_cont.html",
     "pages/08.1_n24_irab_jumal.html",
-    "pages/08.2_n24_irab_jumal_cont.html"
+    "pages/08.2_n24_irab_jumal_cont.html",
 ]
+
 
 def verify_pages():
     with sync_playwright() as p:
@@ -26,6 +28,7 @@ def verify_pages():
             print(f"Screenshot saved: {screenshot_path}")
 
         browser.close()
+
 
 if __name__ == "__main__":
     verify_pages()

@@ -1,7 +1,5 @@
-import os
 import json
 import subprocess
-import re
 
 TEMPLATE_BASE = """<!DOCTYPE html>
 <html dir="rtl" lang="ar">
@@ -96,12 +94,14 @@ TEMPLATE_EXAM = """<!-- Regular Question -->
     <div class="border-light h-8mm bg-grey-lighter rounded"></div>
 </div>"""
 
+
 def generate_chips(items):
     res = '<div class="flex flex-wrap gap-2mm mt-1mm">\n'
     for it in items:
         res += f'    <span class="bg-grey-lighter rounded p-1mm">{it}</span>\n'
-    res += '</div>'
+    res += "</div>"
     return res
+
 
 # Now we construct the blocks
 blocks = []
@@ -116,7 +116,12 @@ b2_content = """<p class="mt-1mm text-accent">أَقْسَامُ الْكَلَ�
 blocks.append(TEMPLATE_BLOCK.format(title="مُقَدَّمَةً", content=b2_content))
 
 # Block 3
-blocks.append(TEMPLATE_BENEFIT_TIP.format(title="مَعْلُومَةٌ مُهِمَّةٌ", content="كَيْف نَعْرُفُ أَنّ هَذِه الْكَلِمَةِ اِسْمٌ ؟ لِلْاِسْمَ عَلَاَّمَاتٍ مُمَيَّزَةٍ ، وَمَجْمُوعَاتٍ يَنْتَمِي إِلَيْهَا."))
+blocks.append(
+    TEMPLATE_BENEFIT_TIP.format(
+        title="مَعْلُومَةٌ مُهِمَّةٌ",
+        content="كَيْف نَعْرُفُ أَنّ هَذِه الْكَلِمَةِ اِسْمٌ ؟ لِلْاِسْمَ عَلَاَّمَاتٍ مُمَيَّزَةٍ ، وَمَجْمُوعَاتٍ يَنْتَمِي إِلَيْهَا.",
+    )
+)
 
 # Block 4
 blocks.append(f"""<section class="content-block">
@@ -133,7 +138,7 @@ b5_items = [
     """<strong>التَّنْوِينُ :</strong> أَيَّ كَلِمَةِ تَقَبُّلِ التَّنْوِينِ ( ً ٍ ٌ ) هِي اِسْمٍ. أَمِثْلَةَ : اِشْتَرَيْتُ <span class="highlight-red">كِتَابًا</span>، أَو <span class="highlight-red">قَلَمًا</span>.""",
     """<strong>النِّدَاءُ :</strong> الْكَلِمَاتُ الَّتِي يُصْحِ نِدَاءَهَا هِي أَسْمَاءٍ. أَمِثْلَةَ : يَا <span class="highlight-red">سَعِيدَ</span>، يَا <span class="highlight-red">هِنْدَ</span>، يَا <span class="highlight-red">سَارَّةَ</span>.""",
     """<strong>التَّعْرِيفُ ب ( الَ ):</strong> أَيَّ كَلِمَةٍ تَبْدَأُ بِأدَاةِ التَّعْرِيفِ ( الَ ) أَو تَقْبَلُ دُخُولَهَا. أَمِثْلَةَ : فَصِلْ <span class="highlight-red">الْفَصْلَ</span>، كِتَابَ <span class="highlight-red">الْكِتَابَ</span>.""",
-    """<strong>التَّاءُ الْمَرْبُوطَةُ ( ة ):</strong> الْكَلِمَةَ الَّتِي تَنْتَهِي بِتَاءِ مَرْبُوطَةِ هِي مِن الْأَسْمَاءِ دُون تَفْكِيرٍ. أَمِثْلَةَ : <span class="highlight-red">حَديقَةُ</span>، <span class="highlight-red">شَجَرَةَ</span>."""
+    """<strong>التَّاءُ الْمَرْبُوطَةُ ( ة ):</strong> الْكَلِمَةَ الَّتِي تَنْتَهِي بِتَاءِ مَرْبُوطَةِ هِي مِن الْأَسْمَاءِ دُون تَفْكِيرٍ. أَمِثْلَةَ : <span class="highlight-red">حَديقَةُ</span>، <span class="highlight-red">شَجَرَةَ</span>.""",
 ]
 for item in b5_items:
     b5_list += TEMPLATE_LIST_ITEM.format(content=item) + "\n"
@@ -150,14 +155,18 @@ b6_items = [
     """<strong>النَّبَاتَاتِ :</strong> مِثْل ( <span class="highlight-green">شَجَرَةً</span> ، <span class="highlight-green">زَهْرَةً</span> ، <span class="highlight-green">فَوَاكِهَ</span> ، <span class="highlight-green">خُضْرُوَاتُ</span> ).""",
     """<strong>الْجَمَادَاتِ :</strong> الْأَشْيَاءُ الَّتِي لَا حَيَاةٍ فِيهَا ( <span class="highlight-green">حَجَرٌ</span> ، <span class="highlight-green">قَلَمَ</span> ).""",
     """<strong>الصَّفَّاتِ :</strong> مِثْل ( <span class="highlight-green">طَوِيلٌ</span> ، <span class="highlight-green">قَصِيرٌ</span> ، <span class="highlight-green">كَرِيمٌ</span> ، <span class="highlight-green">بِخَيْلِ</span> ).""",
-    """<strong>الْمُصَادَرَ ( الْأَحْدَاثَ الْمُجَرَّدَةَ مِن الزَّمَنِ ):</strong> مِثْل ( <span class="highlight-green">خُرُوجٌ</span> ، <span class="highlight-green">إعْلَاَنٌ</span> ، <span class="highlight-green">زِيَارَةَ</span> )."""
+    """<strong>الْمُصَادَرَ ( الْأَحْدَاثَ الْمُجَرَّدَةَ مِن الزَّمَنِ ):</strong> مِثْل ( <span class="highlight-green">خُرُوجٌ</span> ، <span class="highlight-green">إعْلَاَنٌ</span> ، <span class="highlight-green">زِيَارَةَ</span> ).""",
 ]
 for item in b6_items:
     b6_list += TEMPLATE_LIST_ITEM.format(content=item) + "\n"
 b6_list += TEMPLATE_LIST_END
 b6_content = f"""<div class="mt-1mm">يُمْكِنُنَا أيضاً تَمْييزَ الْأَسْمَاءِ مِن خِلَال دَلَالَتِهَا فِي الْحَيَاةِ ، فَالْاِسْمَ يَشْمَلُ كُلّ مَا يُشِيرُ إِلَى</div>
 {b6_list}"""
-blocks.append(TEMPLATE_BLOCK.format(title="ثَانِيًا الْمُعَنَّى وَالدَّلَالَةُ ( الطَّرِيقَةَ الْعَمَلِيَّةَ لِمَعْرِفَةَ الْاِسْمِ )", content=b6_content))
+blocks.append(
+    TEMPLATE_BLOCK.format(
+        title="ثَانِيًا الْمُعَنَّى وَالدَّلَالَةُ ( الطَّرِيقَةَ الْعَمَلِيَّةَ لِمَعْرِفَةَ الْاِسْمِ )", content=b6_content
+    )
+)
 
 # Block 7
 b7_list = TEMPLATE_LIST_START + "\n"
@@ -165,7 +174,7 @@ b7_data = [
     ("أَسَمَاءَ الْإشَارَةِ :", ["هَذَا", "هَذِه", "هَذَان", "هَاتَان", "هَؤُلَاء"]),
     ("الْأَسْمَاءَ الْمَوْصُولَةَ :", ["الَّذِي", "الَّتِي", "الْلَذَان", "الْلَتَان", "الَّذِين", "الْلَاتِي", "الْلَائِي"]),
     ("الضَّمَائِرَ :", ["هُو", "هِي", "أَنْتُم", "هُم", "نَحْن", "أَنْتُمَا"]),
-    ("أَسَمَاءَ الْاِسْتِفْهَامِ :", ["مَنٌّ", "مَاذَا", "لِمَاذَا", "مَتَى", "أَيْن", "كَيْف"])
+    ("أَسَمَاءَ الْاِسْتِفْهَامِ :", ["مَنٌّ", "مَاذَا", "لِمَاذَا", "مَتَى", "أَيْن", "كَيْف"]),
 ]
 for title, chips in b7_data:
     chips_html = generate_chips(chips)
@@ -173,7 +182,9 @@ for title, chips in b7_data:
 b7_list += TEMPLATE_LIST_END
 b7_content = f"""<div class="mt-1mm">هُنَاك كَلِمَاتٍ فِي اللُّغَةَ الْعَرَبِيَّةَ هِي مِن الْأَسْمَاءِ بِالرَّغْمِ مِن أَنّهَا لَا تَتَغَيَّرُ حَرَكَتُهَا ، مِثْل:</div>
 {b7_list}"""
-blocks.append(TEMPLATE_BLOCK.format(title="ثَالِثًا أَسَمَاءُ مَبْنِيَّةُ ( أَنْوَاعَ خَاصَّةٍ مِن الْأَسْمَاءِ )", content=b7_content))
+blocks.append(
+    TEMPLATE_BLOCK.format(title="ثَالِثًا أَسَمَاءُ مَبْنِيَّةُ ( أَنْوَاعَ خَاصَّةٍ مِن الْأَسْمَاءِ )", content=b7_content)
+)
 
 # Block 8: Exams
 exam_content = f"""<section class="content-block">
@@ -192,6 +203,7 @@ blocks.append(exam_content)
 current_page_idx = 0
 current_blocks = []
 
+
 def save_page(idx, content_blocks):
     filename = f"Jules-workspace/pages/02.{idx}_nXX_عَلَاَّمَاتُ الْاِسْمِ.html"
     if idx > 0 and 'class="page-header-strip"' not in content_blocks[0]:
@@ -205,15 +217,19 @@ def save_page(idx, content_blocks):
         f.write(html)
     return filename
 
+
 def check_overflow(filename):
-    res = subprocess.run(["python3", "Jules-workspace/verify_layout.py", filename], capture_output=True, text=True)
+    res = subprocess.run(
+        ["python3", "Jules-workspace/verify_layout.py", filename], capture_output=True, text=True
+    )
     try:
-        json_str = res.stdout[res.stdout.find('{'):res.stdout.rfind('}')+1]
+        json_str = res.stdout[res.stdout.find("{") : res.stdout.rfind("}") + 1]
         data = json.loads(json_str)
         return data.get("status") == "OVERFLOW"
     except Exception as e:
         print("Error parsing layout verification:", e, res.stdout)
         return False
+
 
 for i, block in enumerate(blocks):
     current_blocks.append(block)

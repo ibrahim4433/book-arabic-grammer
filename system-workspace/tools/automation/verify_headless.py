@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-import os
-import sys
 import argparse
 import json
-from weasyprint import HTML
 from pathlib import Path
+
+from weasyprint import HTML
 
 # Constants matching build.py
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 STYLES_DIR = PROJECT_ROOT / "styles"
 OUTPUT_DIR = PROJECT_ROOT / "output/debug"
+
 
 def verify_layout(file_path):
     """
@@ -27,11 +27,12 @@ def verify_layout(file_path):
 
     try:
         # Read content
-        content = input_path.read_text(encoding='utf-8')
+        content = input_path.read_text(encoding="utf-8")
 
         # Extract body (simplistic regex, assumes standard structure)
         import re
-        match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL | re.IGNORECASE)
+
+        match = re.search(r"<body[^>]*>(.*?)</body>", content, re.DOTALL | re.IGNORECASE)
         body_inner = match.group(1) if match else content
 
         # Inject into Master Template
@@ -52,30 +53,23 @@ def verify_layout(file_path):
 </body>
 </html>
 """
-        
+
         # Render
         doc = HTML(string=master_html, base_url=str(PROJECT_ROOT)).render()
         page_count = len(doc.pages)
-        
+
         # Write PDF for manual inspection if needed
         doc.write_pdf(output_path)
 
         # Decision Logic
         if page_count == 1:
-            return {
-                "status": "PASS",
-                "pages": 1,
-                "path": str(output_path)
-            }
+            return {"status": "PASS", "pages": 1, "path": str(output_path)}
         else:
-            return {
-                "status": "OVERFLOW",
-                "pages": page_count,
-                "path": str(output_path)
-            }
+            return {"status": "OVERFLOW", "pages": page_count, "path": str(output_path)}
 
     except Exception as e:
         return {"status": "ERROR", "message": str(e)}
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Headless Layout Verifier")

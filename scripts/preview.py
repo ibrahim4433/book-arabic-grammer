@@ -1,6 +1,8 @@
-import os
 import glob
+import os
+
 from weasyprint import HTML
+
 
 def get_chapter_map():
     """
@@ -8,30 +10,31 @@ def get_chapter_map():
     Maps numbers (1, 2) to chapters.
     Maps 't' specifically to the Template.
     """
-    files = sorted(glob.glob('pages/*.html'))
+    files = sorted(glob.glob("pages/*.html"))
     chapter_map = {}
-    
+
     for file_path in files:
         filename = os.path.basename(file_path)
-        
+
         # 1. SPECIAL CASE: Detect the Template
-        if filename == 'TEMPLATE_CHAPTER.html':
-            chapter_map['t'] = filename
+        if filename == "TEMPLATE_CHAPTER.html":
+            chapter_map["t"] = filename
             continue
-            
+
         # 2. STANDARD CASE: Detect Numbered Chapters
         try:
-            prefix = filename.split('_')[0]
+            prefix = filename.split("_")[0]
             number = float(prefix)
-            chapter_map[str(prefix)] = filename # Store as string keys
+            chapter_map[str(prefix)] = filename  # Store as string keys
         except ValueError:
-            continue # Skip files that don't match the pattern
-            
+            continue  # Skip files that don't match the pattern
+
     return chapter_map
+
 
 def main():
     # 1. Setup Output Directory
-    output_dir = 'output/debug'
+    output_dir = "output/debug"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -43,38 +46,41 @@ def main():
 
     # 3. Display Options
     print("\n📘 Available Files to Preview:")
-    
+
     # Print the Template first if it exists
-    if 't' in chapter_map:
+    if "t" in chapter_map:
         print(f"   [t] 🎨 {chapter_map['t']} (THE MASTER TEMPLATE)")
-    
+
     # Print numbered chapters sorted
-    numeric_keys = sorted([k for k in chapter_map.keys() if k.replace('.','',1).isdigit()], key=float)
+    numeric_keys = sorted(
+        [k for k in chapter_map.keys() if k.replace(".", "", 1).isdigit()], key=float
+    )
     for key in numeric_keys:
         print(f"   [{key}]    {chapter_map[key]}")
-        
+
     # 4. Ask User
     selection = input("\n👉 Enter number (or 't' for template): ").strip().lower()
 
     # 5. Render
     if selection in chapter_map:
         target_file = chapter_map[selection]
-        input_path = os.path.join('pages', target_file)
-        
+        input_path = os.path.join("pages", target_file)
+
         # Output name: TEMPLATE_CHAPTER.pdf or 02_chapter1.pdf
-        output_filename = target_file.replace('.html', '.pdf')
+        output_filename = target_file.replace(".html", ".pdf")
         output_path = os.path.join(output_dir, output_filename)
 
         print(f"\n🎨 Rendering: {target_file}...")
-        
+
         try:
             # Read the file content
-            with open(input_path, 'r', encoding='utf-8') as f:
+            with open(input_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Extract body content
             import re
-            match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL | re.IGNORECASE)
+
+            match = re.search(r"<body[^>]*>(.*?)</body>", content, re.DOTALL | re.IGNORECASE)
             if match:
                 body_inner_html = match.group(1)
             else:
@@ -104,16 +110,17 @@ def main():
 </html>
 """
             # Render with base_url='.' so styles/main.css is found
-            doc = HTML(string=master_html, base_url='.').render()
+            doc = HTML(string=master_html, base_url=".").render()
             page_count = len(doc.pages)
             doc.write_pdf(output_path)
             print(f"📄 Page Count: {page_count}")
             print(f"✅ Done! Saved to: {output_path}")
         except Exception as e:
             print(f"❌ Error during rendering: {e}")
-            
+
     else:
         print(f"❌ Selection '{selection}' not found.")
+
 
 if __name__ == "__main__":
     main()

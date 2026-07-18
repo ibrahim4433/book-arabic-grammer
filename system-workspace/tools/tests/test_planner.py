@@ -1,6 +1,5 @@
-import unittest
 import sys
-import os
+import unittest
 from pathlib import Path
 
 # Add project root to path
@@ -9,8 +8,8 @@ sys.path.append(str(project_root / "system-workspace/tools/automation"))
 
 from modules.planner import Planner
 
+
 class TestPlanner(unittest.TestCase):
-    
     def setUp(self):
         print("\n--- Setup: Initializing Planner ---")
         self.planner = Planner()
@@ -39,6 +38,6 @@ class TestPlanner(unittest.TestCase):
         self.assertEqual(result, expected)
         print("✅ Extracted correctly.")
 
+
 if __name__ == "__main__":
     unittest.main()
-

@@ -1,4 +1,5 @@
 from weasyprint import HTML
+
 html = """
 <!DOCTYPE html>
 <html>

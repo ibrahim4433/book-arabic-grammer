@@ -1,17 +1,19 @@
-import time
 import logging
-import threading
 import re
-from pathlib import Path
+import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
-from .jules_planner import JulesPlanner
 from .jules_page_generator import JulesPageGenerator
+from .jules_planner import JulesPlanner
+
 
 class UnifiedProductionManager:
     """
     Manages concurrent generation of Plans and Pages using a unified task queue.
     """
+
     def __init__(self, project_root, state_manager, callback=None):
         self.project_root = Path(project_root)
         self.state_manager = state_manager
@@ -20,7 +22,7 @@ class UnifiedProductionManager:
         self.planner = JulesPlanner(project_root, state_manager=state_manager)
         self.generator = JulesPageGenerator(project_root, state_manager=state_manager)
 
-        self.queue = [] # list of tasks: {'type': 'PLAN'|'PAGE', 'id': str, 'info': dict, 'retries': 0}
+        self.queue = []  # list of tasks: {'type': 'PLAN'|'PAGE', 'id': str, 'info': dict, 'retries': 0}
         self.active_futures = set()
         self.lock = threading.Lock()
 
@@ -45,7 +47,8 @@ class UnifiedProductionManager:
 
         if index_path.exists():
             import json
-            mapping = json.loads(index_path.read_text(encoding='utf-8'))
+
+            mapping = json.loads(index_path.read_text(encoding="utf-8"))
 
             for title, info in mapping.items():
                 lesson_number = self.planner.tp.get_lesson_number(title)
@@ -54,17 +57,19 @@ class UnifiedProductionManager:
                 if lesson_number in existing_lessons or str(int(lesson_number)) in existing_lessons:
                     continue
 
-                clean_title = re.sub(r'^\d+\s*-\s*', '', title).strip()
+                clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
                 plan_filename = f"{lesson_number}-{clean_title}-plan.md"
                 plan_path = self.project_root / "plans" / plan_filename
 
                 if not plan_path.exists():
-                    self.queue.append({
-                        'type': 'PLAN',
-                        'id': title, # Lesson Title used by planner
-                        'info': info,
-                        'retries': 0
-                    })
+                    self.queue.append(
+                        {
+                            "type": "PLAN",
+                            "id": title,  # Lesson Title used by planner
+                            "info": info,
+                            "retries": 0,
+                        }
+                    )
                 else:
                     # Plan exists, check Page
                     # Page filename usually matches plan stem
@@ -72,12 +77,14 @@ class UnifiedProductionManager:
                     # If page existed, it would be in existing_lessons
                     # So if we are here, page is missing
 
-                    self.queue.append({
-                        'type': 'PAGE',
-                        'id': plan_path.stem, # Plan filename stem
-                        'info': {'plan_path': plan_path},
-                        'retries': 0
-                    })
+                    self.queue.append(
+                        {
+                            "type": "PAGE",
+                            "id": plan_path.stem,  # Plan filename stem
+                            "info": {"plan_path": plan_path},
+                            "retries": 0,
+                        }
+                    )
         else:
             self._log("System", "ERROR", "Could not load Lesson Index.")
 
@@ -92,7 +99,11 @@ class UnifiedProductionManager:
                 with self.lock:
                     # Periodic Status Log (Every 60s)
                     if time.time() - last_status_log > 60:
-                        self._log("System", "INFO", f"Status: {len(self.queue)} tasks pending, {len(self.active_futures)} active workers.")
+                        self._log(
+                            "System",
+                            "INFO",
+                            f"Status: {len(self.queue)} tasks pending, {len(self.active_futures)} active workers.",
+                        )
                         last_status_log = time.time()
 
                     # Check if done: No tasks in queue AND no active futures
@@ -120,24 +131,24 @@ class UnifiedProductionManager:
 
                             if status == "SUCCESS" and next_task:
                                 with self.lock:
-                                    self.queue.insert(0, next_task) # Prioritize next step
+                                    self.queue.insert(0, next_task)  # Prioritize next step
 
                             elif status == "RETRY" and next_task:
                                 with self.lock:
-                                    self.queue.append(next_task) # Re-queue at end
+                                    self.queue.append(next_task)  # Re-queue at end
 
                         except Exception as e:
                             logging.error(f"Critical Task Error: {e}")
 
-                time.sleep(1) # prevent busy loop
+                time.sleep(1)  # prevent busy loop
 
     def process_task(self, task):
-        task_type = task['type']
-        task_id = task['id']
-        retries = task['retries']
+        task_type = task["type"]
+        task_id = task["id"]
+        retries = task["retries"]
 
         try:
-            if task_type == 'PLAN':
+            if task_type == "PLAN":
                 # Run Planner
                 def plan_cb(t, s, m):
                     self._log(t, s, m)
@@ -147,11 +158,11 @@ class UnifiedProductionManager:
                     self._log(task_id, "FAILED", "Max retries exceeded.")
                     return ("FAILED", None)
 
-                success = self.planner.process_lesson(task_id, task['info'], callback=plan_cb)
+                success = self.planner.process_lesson(task_id, task["info"], callback=plan_cb)
 
                 if success:
                     # Infer plan path to create PAGE task
-                    match = re.match(r'^(\d+)\s*-\s*(.*)', task_id)
+                    match = re.match(r"^(\d+)\s*-\s*(.*)", task_id)
                     if match:
                         num = match.group(1).zfill(2)
                         title = match.group(2).strip()
@@ -164,10 +175,10 @@ class UnifiedProductionManager:
 
                     if plan_path.exists():
                         next_task = {
-                            'type': 'PAGE',
-                            'id': plan_path.stem,
-                            'info': {'plan_path': plan_path},
-                            'retries': 0
+                            "type": "PAGE",
+                            "id": plan_path.stem,
+                            "info": {"plan_path": plan_path},
+                            "retries": 0,
                         }
                         return ("SUCCESS", next_task)
                     else:
@@ -176,15 +187,15 @@ class UnifiedProductionManager:
 
                 else:
                     # Failed
-                    delay = 30 # wait 30s before retry
+                    delay = 30  # wait 30s before retry
                     self._log(task_id, "WARN", f"Plan failed. Retrying in {delay}s...")
                     time.sleep(delay)
-                    task['retries'] += 1
+                    task["retries"] += 1
                     return ("RETRY", task)
 
-            elif task_type == 'PAGE':
+            elif task_type == "PAGE":
                 # Run Page Generator
-                plan_path = task['info']['plan_path']
+                plan_path = task["info"]["plan_path"]
 
                 def page_cb(t, s, m):
                     self._log(t, s, m)
@@ -198,16 +209,16 @@ class UnifiedProductionManager:
                 if success:
                     return ("SUCCESS", None)
                 else:
-                     delay = 30
-                     self._log(task_id, "WARN", f"Page failed. Retrying in {delay}s...")
-                     time.sleep(delay)
-                     task['retries'] += 1
-                     return ("RETRY", task)
+                    delay = 30
+                    self._log(task_id, "WARN", f"Page failed. Retrying in {delay}s...")
+                    time.sleep(delay)
+                    task["retries"] += 1
+                    return ("RETRY", task)
 
         except Exception as e:
             self._log(task_id, "ERROR", f"Worker Exception: {e}")
             time.sleep(10)
-            task['retries'] += 1
+            task["retries"] += 1
             return ("RETRY", task)
 
         return ("FAILED", None)
