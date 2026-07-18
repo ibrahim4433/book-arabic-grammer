@@ -22,8 +22,21 @@ except ImportError:
     print("❌ Missing UI libraries. Please run: pip install rich questionary")
     sys.exit(1)
 
+try:
+    import arabic_reshaper
+    from bidi.algorithm import get_display
+    def fix_arabic(text):
+        if not text: return text
+        try:
+            return get_display(arabic_reshaper.reshape(str(text)))
+        except:
+            return text
+except ImportError:
+    def fix_arabic(text):
+        return text
+
 # --- CONFIGURATION ---
-PROJECT_ROOT = Path(__file__).parent.resolve()
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 MODULES_PATH = PROJECT_ROOT / "system-workspace/tools/automation"
 JULES_WORKSPACE_PATH = PROJECT_ROOT / "Jules-workspace"
 sys.path.append(str(MODULES_PATH))
@@ -223,8 +236,8 @@ def display_status_table(state_manager):
 
         # Try to extract title from key or original key if the key is just a number
         title = info.get("original_key", key)
-        # Clean up title for display
-        clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
+        # Clean up title for display and fix RTL Arabic rendering
+        clean_title = fix_arabic(re.sub(r"^\d+\s*-\s*", "", title).strip())
         if key.isdigit() and clean_title == key:
             clean_title = "Unknown Title"
 
@@ -1790,6 +1803,7 @@ def main():
                 "I) YouTube to Text (Video -> Raw Text)",
                 "R) Retry batch planning / generation to selected lessons",
                 "S) Settings",
+                "Z) Clear History Database",
                 "Q) Quit",
             ],
             style=questionary.Style(
@@ -1838,6 +1852,11 @@ def main():
             run_retry_planning_and_generation_ui(state_manager)
         elif op == "S":
             run_settings()
+        elif op == "Z":
+            if questionary.confirm("Are you sure you want to completely clear the project state history?").ask():
+                state_manager.state = {"lessons": {}}
+                state_manager.save_state()
+                console.print("[green]✅ History database cleared successfully![/green]")
 
         if op != "Q":
             console.print(
