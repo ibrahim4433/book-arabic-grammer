@@ -1739,6 +1739,30 @@ def run_youtube_to_text():
 # --- MAIN MENU ---
 
 
+def run_local_pdf_ocr():
+    console.clear()
+    console.print(Panel("[bold cyan]J) Scanned PDF to Raw Text (Local OCR)[/bold cyan]", box=box.ROUNDED))
+    
+    pdf_path = questionary.text("Absolute path to the scanned PDF file:").ask()
+    if not pdf_path or not pdf_path.strip():
+        return
+        
+    output_path = questionary.text("Absolute path to save the extracted text (.txt):", default=str(PROJECT_ROOT / "output.txt")).ask()
+    if not output_path or not output_path.strip():
+        return
+        
+    languages = questionary.text("Languages (e.g. ara+eng for Arabic and English):", default="ara+eng").ask()
+    if not languages:
+        languages = "ara+eng"
+
+    try:
+        from modules.pdf_ocr_local import LocalPDFOCR
+        ocr = LocalPDFOCR(languages=languages)
+        ocr.process_pdf(pdf_path, output_path)
+    except Exception as e:
+        console.print(f"[red]❌ Critical Error running Local OCR: {e}[/red]")
+
+
 def run_settings():
     console.clear()
     console.print(Panel("[bold]System Settings[/bold]", style="magenta"))
@@ -1801,6 +1825,7 @@ def main():
                 "G) Audit & Verify Pages",
                 "H) OCR Only by Jules (Images -> Raw)",
                 "I) YouTube to Text (Video -> Raw Text)",
+                "J) Scanned PDF to Raw Text (Local OCR)",
                 "R) Retry batch planning / generation to selected lessons",
                 "S) Settings",
                 "Z) Clear History Database",
@@ -1848,6 +1873,8 @@ def main():
             run_jules_ocr_ui(state_manager)
         elif op == "I":
             run_jules_youtube_ui(state_manager)
+        elif op == "J":
+            run_local_pdf_ocr()
         elif op == "R":
             run_retry_planning_and_generation_ui(state_manager)
         elif op == "S":

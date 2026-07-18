@@ -18,6 +18,8 @@ Requires-Dist: mishkal>=0.4.0; extra == "dev"
 Requires-Dist: youtube-transcript-api>=0.6.2; extra == "dev"
 Requires-Dist: arabic-reshaper>=3.0.0; extra == "dev"
 Requires-Dist: python-bidi>=0.4.2; extra == "dev"
+Requires-Dist: pytesseract>=0.3.10; extra == "dev"
+Requires-Dist: pdf2image>=1.17.0; extra == "dev"
 Provides-Extra: api
 Requires-Dist: fastapi>=0.110.0; extra == "api"
 Requires-Dist: uvicorn[standard]>=0.29.0; extra == "api"
