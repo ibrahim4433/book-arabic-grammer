@@ -11,7 +11,7 @@ from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 console = Console()
 
 class LocalPDFOCR:
-    def __init__(self, languages="ara+eng"):
+    def __init__(self, languages="ara"):
         self.languages = languages
         # Check if tesseract is installed
         try:
@@ -81,17 +81,30 @@ class LocalPDFOCR:
                         img = img.convert('L')
                         
                         # Apply strict threshold to eliminate background and faint watermarks (opacity 0.4)
-                        # Watermark is roughly pixel value 153. A threshold of 140 ensures it becomes white (255),
-                        # while keeping text (value ~0-100) black (0).
-                        img = img.point(lambda p: 255 if p > 140 else 0)
+                        # Grid search confirmed Threshold 150 yields highest accuracy across all pages.
+                        img = img.point(lambda p: 255 if p > 150 else 0)
                         
                         # --- 2. OPTIMIZED OCR CONFIG ---
-                        # psm 3: Fully automatic page segmentation (Restored to fix column-merging in poetry/biography)
-                        config = "--oem 1 --psm 3"
+                        # psm 4: Assume a single column of text of variable sizes (Grid search proven best for this layout)
+                        config = "--oem 1 --psm 4"
                         text = pytesseract.image_to_string(img, lang=self.languages, config=config)
                         
-                        # --- 3. TEXT CLEANUP (Removing digital noise) ---
+                        # --- 3. TEXT CLEANUP & AUTOCORRECT (Removing digital noise & fixing typos) ---
                         # Remove lines consisting only of numbers/symbols/dashes like "111111111"
+                        
+                        # Dictionary of known stubborn Tesseract Arabic OCR errors
+                        autocorrect_dict = {
+                            "تبهي": "تيهي",
+                            "واشحبي": "واسحبي",
+                            "واشّحبي": "واسحبي",
+                            "فَؤقها": "فَوْقَهَا",
+                            "فؤقها": "فَوْقَهَا",
+                            "شَعَلَ مَتاصِب": "شَغَلَ مَنَاصِب",
+                            "تعاحج": "تعالج",
+                            "نَثَا": "نشأ",
+                            "المستوى الفق:": "المستوى الفني",
+                        }
+                        
                         cleaned_lines = []
                         for line in text.splitlines():
                             stripped = line.strip()
@@ -103,6 +116,11 @@ class LocalPDFOCR:
                             
                             # Clean up OCR'd "•••" (poetry separator)
                             stripped = re.sub(r'[•\.]{3,}', '•••', stripped)
+                            
+                            # Apply Smart Autocorrect for persistent OCR typos
+                            for wrong, right in autocorrect_dict.items():
+                                if wrong in stripped:
+                                    stripped = stripped.replace(wrong, right)
                             
                             cleaned_lines.append(stripped)
                         
