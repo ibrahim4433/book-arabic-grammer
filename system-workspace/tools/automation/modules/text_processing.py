@@ -286,7 +286,94 @@ CRITICAL RULES:
             print(f"❌ Failed to parse JSON response: {resp_text[:100]}...")
             return None
 
+    def generate_auto_page_index_and_toc(self, generate_toc=True):
+        """
+        Automatically generates TOC.json and raw_to_lesson_index.json by slicing
+        the raw text at '----- PAGE X -----' markers, bypassing AI completely.
+        """
+        merged_path = self.merge_raw_text()
+        if not merged_path:
+            return False
 
+        print("🔍 Auto-generating TOC and Index from '----- PAGE X -----' markers...")
+
+        # Load settings for TOC
+        settings_file = self.project_root / "system-workspace" / "settings.json"
+        author = "أ. حنا خفيف"
+        author_number = " "
+        if settings_file.exists():
+            try:
+                with open(settings_file, encoding="utf-8") as f:
+                    settings = json.load(f)
+                    author = settings.get("author", author)
+                    author_number = settings.get("author_number", author_number)
+            except Exception as e:
+                print(f"⚠️ Could not load settings: {e}")
+
+        toc = {}
+        mapping = {}
+        
+        lines = merged_path.read_text(encoding="utf-8").splitlines()
+        current_page_title = None
+        current_start_marker = None
+        prev_file_line_ref = None
+        
+        page_pattern = re.compile(r'^-+\s*PAGE\s+(.+?)\s*-+', re.IGNORECASE)
+        
+        for line in lines:
+            tag_match = re.match(r'^\[(raw_[^:]+:\d+)\]\s*(.*)$', line)
+            if not tag_match:
+                continue
+                
+            file_line_ref = tag_match.group(1)
+            actual_content = tag_match.group(2).strip()
+            
+            page_match = page_pattern.match(actual_content)
+            if page_match:
+                # Close the previous page block
+                if current_page_title and current_start_marker and prev_file_line_ref:
+                    mapping[current_page_title]["end"] = prev_file_line_ref
+                
+                page_id_raw = page_match.group(1).strip()
+                page_key = page_id_raw
+                title = f"page {page_id_raw}"
+                
+                if generate_toc:
+                    toc[page_key] = {
+                        "title": title,
+                        "level": page_id_raw,
+                        "Unit": page_id_raw,
+                        "author": author,
+                        "author_number": author_number
+                    }
+                
+                mapping[title] = {
+                    "start": file_line_ref,
+                    "end": None
+                }
+                
+                current_page_title = title
+                current_start_marker = file_line_ref
+                
+            prev_file_line_ref = file_line_ref
+            
+        # Close the last page block
+        if current_page_title and current_start_marker and prev_file_line_ref:
+            mapping[current_page_title]["end"] = prev_file_line_ref
+
+        # Save TOC if requested
+        if generate_toc:
+            self.toc_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.toc_path, "w", encoding="utf-8") as f:
+                json.dump(toc, f, ensure_ascii=False, indent=2)
+
+        # Save mapping
+        self.index_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.index_file, "w", encoding="utf-8") as f:
+            json.dump(mapping, f, ensure_ascii=False, indent=2)
+
+        print(f"✅ Auto-Paginated Index generated with {len(mapping)} pages!")
+        return True
 if __name__ == "__main__":
     tp = TextProcessor()
     tp.validate_toc()

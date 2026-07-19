@@ -384,7 +384,7 @@ body {
     left: -5mm;
     width: 210mm;
     height: 297mm;
-    background-image: url('../v11.jpg');
+    background-image: url('../assets/page-background/background.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

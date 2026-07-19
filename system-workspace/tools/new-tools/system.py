@@ -1472,6 +1472,69 @@ def run_raw_processing(state_manager):
         sys.stderr = original_stderr
 
 
+def run_raw_processing_auto(state_manager):
+    console.clear()
+    console.print(Panel("[bold]Running Auto-Paginated Raw Processing...[/bold]", style="blue"))
+    tp = TextProcessor()
+    
+    toc_choice = questionary.select(
+        "How would you like to provide the TOC.json?",
+        choices=[
+            "1. Manually select/use existing input/TOC.json",
+            "2. Auto-generate new TOC.json from PAGE markers",
+        ],
+    ).ask()
+
+    if not toc_choice:
+        return
+        
+    generate_toc_flag = toc_choice.startswith("2")
+
+    start_time = time.time()
+    
+    from rich.spinner import Spinner
+    from rich.text import Text
+
+    def generate_raw_view(status_text):
+        return Group(
+            Panel(Spinner("dots", text=Text(status_text, style="bold green")), border_style="blue"),
+            generate_log_panel(),
+        )
+
+    original_stdout = sys.stdout
+    original_stderr = sys.stderr
+    sys.stdout = StreamLogger(logging.getLogger(), logging.INFO)
+    sys.stderr = StreamLogger(logging.getLogger(), logging.ERROR)
+
+    try:
+        with Live(
+            generate_raw_view("Processing Auto-Pagination..."),
+            console=console,
+            refresh_per_second=4,
+            redirect_stdout=False,
+            redirect_stderr=False,
+            vertical_overflow="visible",
+        ) as live:
+
+            def log_step(text):
+                logging.info(text)
+                live.update(generate_raw_view(text))
+
+            log_step("Auto-generating Index (and TOC if requested) from PAGE markers...")
+            success = tp.generate_auto_page_index_and_toc(generate_toc=generate_toc_flag)
+            
+            if success:
+                console.print(
+                    f"[bold green]✅ Auto-Paginated Raw Processing Complete in {format_duration(time.time() - start_time)}![/bold green]"
+                )
+            else:
+                console.print("[bold red]❌ Failed to generate auto-paginated index.[/bold red]")
+    finally:
+        sys.stdout = original_stdout
+        sys.stderr = original_stderr
+
+
+
 def run_planning(state_manager):
     console.clear()
     console.print(Panel("[bold]Running Standard Planner...[/bold]", style="blue"))
@@ -1849,6 +1912,7 @@ def main():
                 "I) YouTube to Text (Video -> Raw Text)",
                 "J) Scanned PDF to Raw Text (Local OCR)",
                 "K) Advanced Network AI OCR (Surya)",
+                "L) Raw Processing (Auto-Paginated Index & TOC)",
                 "R) Retry batch planning / generation to selected lessons",
                 "S) Settings",
                 "Z) Clear History Database",
@@ -1900,6 +1964,8 @@ def main():
             run_local_pdf_ocr()
         elif op == "K":
             run_network_ai_ocr()
+        elif op == "L":
+            run_raw_processing_auto(state_manager)
         elif op == "R":
             run_retry_planning_and_generation_ui(state_manager)
         elif op == "S":
