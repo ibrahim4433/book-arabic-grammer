@@ -1,169 +1,43 @@
-import glob
-import os
+import json
+import re
 
-from bs4 import BeautifulSoup
-
-
-def to_arabic_indic(text):
-    english_to_arabic = {
-        "0": "٠",
-        "1": "١",
-        "2": "٢",
-        "3": "٣",
-        "4": "٤",
-        "5": "٥",
-        "6": "٦",
-        "7": "٧",
-        "8": "٨",
-        "9": "٩",
-    }
-    return "".join(english_to_arabic.get(c, c) for c in str(text))
-
-
-all_files = sorted(glob.glob("pages/*.html"))
-toc_entries = []
-current_page = 2
-
-for f in all_files:
-    if "TEMPLATE_" in f or "TOC" in f:
-        continue
-
-    basename = os.path.basename(f)
-    if basename == "00.0_blank.html" or basename == "00.1_intro.html":
-        current_page += 1
-        continue
-
-    with open(f, encoding="utf-8") as html_f:
-        soup = BeautifulSoup(html_f.read(), "html.parser")
-
-    lesson_number = None
-    ln_div = soup.find("div", class_="lesson-number")
-    if ln_div:
-        lesson_number = ln_div.get_text(strip=True)
-
-    lesson_title = None
-    title_tag = soup.find("title")
-    if title_tag:
-        lesson_title = title_tag.get_text(strip=True)
-
-    if basename.startswith("98."):
-        if not lesson_title.startswith("حَلُّ تَدْرِيبَاتِ الْكِتَابِ"):
-            lesson_title = "مُلْحَقُ الْإِجَابَاتِ - " + lesson_title
-
-    toc_entries.append(
-        {
-            "title": lesson_title,
-            "number": to_arabic_indic(lesson_number) if lesson_number else "-",
-            "arabic_page": to_arabic_indic(current_page),
-        }
-    )
-
-    current_page += 1
-
-mid_point = (len(toc_entries) + 1) // 2
-chunks = [toc_entries[:mid_point], toc_entries[mid_point:]]
-
-for idx, chunk in enumerate(chunks):
-    page_num = idx + 2
-
-    toc_html = f"""<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-    <meta charset="utf-8">
-    <title>فِهْرِسُ الْمَوْضُوعَاتِ</title>
-    <link href="../styles/main.css" rel="stylesheet">
-    <style>
-        .toc-table {{ width: 48.5%; float: right; margin-left: 1.5%; border-collapse: collapse; }}
-        .toc-table.left-col {{ margin-left: 0; }}
-        .toc-table td, .toc-table th {{ 
-            padding: 1mm 2mm; 
-            font-size: 8.5pt; 
-            border-bottom: 1px solid #e0e0e0;
-            line-height: 1.1;
-        }}
-        .toc-table th {{ 
-            background-color: #f5f5f5; 
-            font-weight: bold; 
-            color: #333;
-            border-bottom: 2px solid #ccc;
-        }}
-        .toc-container {{ 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-start;
-            margin-top: 2mm; 
-        }}
-        .header-title {{ font-size: 16pt; margin: 0; padding: 0; }}
-        .page-header-strip {{ padding: 2mm 5mm; min-height: 15mm; margin-bottom: 2mm; }}
-    </style>
-</head>
-<body>
-    <div class="force-new-page" style="padding: 5mm;">
-        <header class="page-header-strip">
-            <div class="header-section right">
-                <div class="lesson-number">٠٠</div>
-                <div class="lesson-details">
-                    <div>المستوى التأسيسي</div>
-                    <div>فِهْرِسٌ</div>
-                </div>
-            </div>
-            <div class="header-section center">
-                <h1 class="header-title">فِهْرِسُ الْمَوْضُوعَاتِ (الْجُزْءُ {to_arabic_indic(idx + 1)})</h1>
-            </div>
-            <div class="header-section left">
-                <div class="author-info">أ. حنا خفيف</div>
-                <div class="author-info"> </div>
-            </div>
-        </header>
+def create_toc():
+    with open("system-workspace/text-data/raw/raw_001.txt", "r", encoding="utf-8") as f:
+        lines = f.readlines()
         
-        <div class="toc-container">
-"""
-    col_size = (len(chunk) + 1) // 2
-    col1 = chunk[:col_size]
-    col2 = chunk[col_size:]
+    toc = {}
+    lesson_num = 1
+    
+    for i, line in enumerate(lines):
+        if "مدخل إلى النص" in line:
+            # Look at the previous 6 lines to find the title
+            title = "Unknown"
+            for j in range(max(0, i-6), i):
+                stripped = lines[j].strip()
+                # Skip author descriptions
+                if not stripped or stripped.startswith("-") or "شاعر" in stripped or "مواليد" in stripped or re.search(r'\d', stripped):
+                    continue
+                # If it's a short line, it's likely the title
+                if len(stripped) < 40:
+                    title = stripped
+                    break
+                    
+            if title == "Unknown":
+                title = f"Lesson {lesson_num}"
+                
+            toc[f"{lesson_num:02d}"] = {
+                "title": title,
+                "level": "الثالث الثانوي",
+                "Unit": "النصوص الأدبية",
+                "author": "د. محسن المحل",
+                "author_number": "٠٩٦٦٥٠١٦١٦"
+            }
+            lesson_num += 1
+            
+    with open("input/TOC.json", "w", encoding="utf-8") as f:
+        json.dump(toc, f, ensure_ascii=False, indent=4)
+        
+    print(f"Generated TOC.json with {len(toc)} lessons.")
 
-    for c_idx, col_data in enumerate([col1, col2]):
-        extra_class = "left-col" if c_idx == 1 else ""
-        toc_html += f"""
-            <table class="toc-table {extra_class}">
-                <thead>
-                    <tr>
-                        <th style="width: 12%; text-align: center;">الدَّرْسُ</th>
-                        <th style="width: 76%;">الْمَوْضُوعُ</th>
-                        <th style="width: 12%; text-align: center;">الصَّفْحَةُ</th>
-                    </tr>
-                </thead>
-                <tbody>"""
-
-        for item in col_data:
-            title = item["title"]
-            num = item["number"]
-            page = item["arabic_page"]
-
-            bg = (
-                "background-color: rgba(0, 121, 107, 0.04);"
-                if ("مُلْحَق" in title or "حَلُّ" in title)
-                else ""
-            )
-
-            toc_html += f"""
-                    <tr style="{bg}">
-                        <td style="text-align: center; font-weight: bold; color: #555;">{num}</td>
-                        <td style="font-weight: 600;">{title}</td>
-                        <td style="text-align: center; font-weight: bold; color: #00796b;">{page}</td>
-                    </tr>"""
-
-        toc_html += """
-                </tbody>
-            </table>"""
-
-    toc_html += """
-        </div>
-    </div>
-</body>
-</html>"""
-
-    with open(f"pages/00.{page_num}_TOC.html", "w", encoding="utf-8") as f:
-        f.write(toc_html)
-
-print("TOC generated successfully.")
+if __name__ == "__main__":
+    create_toc()
