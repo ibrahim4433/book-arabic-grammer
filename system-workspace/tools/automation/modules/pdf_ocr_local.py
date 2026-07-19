@@ -126,9 +126,8 @@ class LocalPDFOCR:
                         
                         cleaned_text = "\n".join(cleaned_lines)
                         
-                        # We don't output "--- Page X ---" to avoid it being treated as part of the book text,
-                        # but we can add a small clean separator.
-                        out_f.write(f"\n\n{cleaned_text}")
+                        # Add the page marker back so the user can easily see where pages start and stop
+                        out_f.write(f"\n\n--- Page {page_num} ---\n\n{cleaned_text}")
                         progress.advance(task)
 
         console.print(f"\n[bold green]✅ Finished! Text successfully extracted and saved to:[/bold green]")
