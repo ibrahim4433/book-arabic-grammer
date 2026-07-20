@@ -61,7 +61,7 @@ async def index(request: Request):
             # But since we serve the whole page, let's just pass the URL to the iframe.
             pass
 
-    return templates.TemplateResponse("calibration.html", {"request": request, "css_vars": css_vars})
+    return templates.TemplateResponse(request, "calibration.html", {"css_vars": css_vars})
 
 @app.get("/preview", response_class=HTMLResponse)
 async def preview():
