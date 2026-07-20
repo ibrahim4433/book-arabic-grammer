@@ -49,7 +49,7 @@ def start_calibration_server(html_path, project_root):
 
 def run_calibration_ui(state_manager=None, project_root=None):
     console.clear()
-    console.print(Panel("[bold cyan]O) Book Style Tuning (Semi-automatic)[/bold cyan]", box=None))
+    console.print(Panel("[bold cyan]O) Book Style Tuning (Semi-automatic)[/bold cyan]"))
 
     project_root = Path(project_root) if project_root else Path(__file__).resolve().parent.parent.parent.parent.parent
 
