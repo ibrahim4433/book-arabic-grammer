@@ -95,6 +95,7 @@ try:
     from modules.text_processing import TextProcessor
     from modules.vision import VisionClient
     from modules.youtube_ui import run_jules_youtube_ui
+    from modules.calibration_workflow import run_calibration_ui
 except ImportError as e:
     logging.critical(f"Failed to import modules: {e}")
     print("❌ Critical Error: Failed to import modules. See system.log for details.")
@@ -1913,6 +1914,7 @@ def main():
                 "J) Scanned PDF to Raw Text (Local OCR)",
                 "K) Advanced Network AI OCR (Surya)",
                 "L) Raw Processing (Auto-Paginated Index & TOC)",
+                "O) Book Style Tuning (Semi-automatic full process)",
                 "R) Retry batch planning / generation to selected lessons",
                 "S) Settings",
                 "Z) Clear History Database",
@@ -1966,6 +1968,8 @@ def main():
             run_network_ai_ocr()
         elif op == "L":
             run_raw_processing_auto(state_manager)
+        elif op == "O":
+            run_calibration_ui(state_manager, PROJECT_ROOT)
         elif op == "R":
             run_retry_planning_and_generation_ui(state_manager)
         elif op == "S":

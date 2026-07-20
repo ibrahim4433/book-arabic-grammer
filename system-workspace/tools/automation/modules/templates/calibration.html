@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jules Book Style Calibration</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; background: #f0f0f0;}
+        #sidebar { width: 350px; background: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); overflow-y: auto; z-index: 10; }
+        #preview-container { flex-grow: 1; padding: 20px; display: flex; justify-content: center; overflow-y: auto; background: #e0e0e0; }
+        iframe { border: none; width: 100%; height: 100%; max-width: 210mm; /* A4 width */ background: white; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+        .var-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;}
+        input[type="text"] { width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        h2 { margin-top: 0; font-size: 18px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;}
+        button { background: #007bff; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-size: 14px; width: 100%; margin-bottom: 10px; }
+        button:hover { background: #0056b3; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        #toast { display: none; padding: 10px; margin-top: 10px; border-radius: 4px; font-size: 14px; text-align: center; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h2>🎨 Global Style Calibration</h2>
+        <p style="font-size: 12px; color: #666;">Adjust the root variables below. Changes are saved directly to <code>main.css</code>.</p>
+
+        <form id="configForm">
+            {% for key, val in css_vars.items() %}
+            <div class="var-group">
+                <label>{{ key }}</label>
+                <input type="text" name="{{ key }}" value="{{ val }}">
+            </div>
+            {% endfor %}
+
+            <button type="button" class="btn-success" onclick="saveConfig()">💾 Save to main.css</button>
+        </form>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        <button type="button" onclick="generatePdf()">📄 Generate Test PDF</button>
+        <button type="button" style="background:#17a2b8;" onclick="reloadPreview()">🔄 Reload Preview</button>
+
+        <div id="toast"></div>
+    </div>
+
+    <div id="preview-container">
+        <!-- The iframe loads the preview endpoint which injects Paged.js -->
+        <iframe id="previewFrame" src="/preview"></iframe>
+    </div>
+
+    <script>
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = type;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        function reloadPreview() {
+            document.getElementById('previewFrame').contentWindow.location.reload();
+        }
+
+        async function saveConfig() {
+            const form = document.getElementById('configForm');
+            const data = new FormData(form);
+
+            try {
+                const res = await fetch('/save', { method: 'POST', body: data });
+                const json = await res.json();
+                if(json.status === 'success') {
+                    showToast(json.message, 'success');
+                    reloadPreview(); // reload the iframe to fetch new dynamic CSS
+                } else {
+                    showToast(json.message, 'error');
+                }
+            } catch(e) {
+                showToast(e.toString(), 'error');
+            }
+        }
+
+        async function generatePdf() {
+            showToast("Generating PDF... Please wait.", "success");
+            try {
+                const res = await fetch('/generate_pdf', { method: 'POST' });
+                const json = await res.json();
+                if(json.status === 'success') {
+                    showToast(json.message, 'success');
+                    window.open(json.url, '_blank');
+                } else {
+                    showToast(json.message, 'error');
+                }
+            } catch(e) {
+                 showToast(e.toString(), 'error');
+            }
+        }
+    </script>
+</body>
+</html>
