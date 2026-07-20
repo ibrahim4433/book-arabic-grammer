@@ -1,3 +1,10 @@
+"""
+lint_autofixer.py — Auto-fixer for common HTML class violations.
+
+Usage:
+    python Jules-workspace/lint_autofixer.py
+"""
+
 import os
 import re
 import subprocess

@@ -1,3 +1,10 @@
+"""
+lint_templates.py — Validation script for HTML template styles.
+
+Usage:
+    python Jules-workspace/lint_templates.py
+"""
+
 import os
 import re
 import sys

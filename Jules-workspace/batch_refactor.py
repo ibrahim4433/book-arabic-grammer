@@ -1,3 +1,10 @@
+"""
+batch_refactor.py — Batch refactor tool for HTML pages using regex.
+
+Usage:
+    python Jules-workspace/batch_refactor.py --pattern "regex" --replace "new_string" [--dry-run]
+"""
+
 import argparse
 import os
 import re

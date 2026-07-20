@@ -1,3 +1,10 @@
+"""
+generate.py — Minimal HTML template generation script.
+
+Usage:
+    python Jules-workspace/generate.py
+"""
+
 import os
 
 html_content = """<!DOCTYPE html>

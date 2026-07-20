@@ -1,3 +1,10 @@
+"""
+check_titles.py — Searches and normalizes titles found in TOC.json within full_raw_indexed.txt.
+
+Usage:
+    python system-workspace/check_titles.py
+"""
+
 import json
 import re
 
