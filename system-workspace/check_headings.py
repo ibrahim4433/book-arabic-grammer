@@ -1,3 +1,10 @@
+"""
+check_headings.py — Cross-references titles from TOC.json against full_raw_indexed.txt.
+
+Usage:
+    python system-workspace/check_headings.py
+"""
+
 import json
 import re
 

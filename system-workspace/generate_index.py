@@ -1,3 +1,10 @@
+"""
+generate_index.py — Generates an index map with raw file markers and titles from full_raw_indexed.txt.
+
+Usage:
+    python system-workspace/generate_index.py
+"""
+
 import json
 import re
 
