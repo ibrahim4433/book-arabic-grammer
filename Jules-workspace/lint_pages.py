@@ -336,7 +336,7 @@ async def main_async() -> None:
 
     for result in results:
         if not result.passed and not args.json_output:
-            print(f"  {RED}✗{RESET} {filepath.name}")
+            print(f"  {RED}✗{RESET} {result.filepath.name}")
             for issue in result.issues:
                 indent = "    "
                 print(f"{indent}{issue}")
