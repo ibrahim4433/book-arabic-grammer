@@ -1,0 +1,12 @@
+### `./preview-theme.py`
+- **Status:** Usable
+- **Purpose:** Compiles all individual HTML pages, along with cover images, into a single, complete A4 PDF book. It applies a specific, unified CSS theme.
+- **Inputs:**
+  - Reads `.html` files from the pages directory.
+  - Reads cover images.
+  - Reads CSS theme styles.
+  - Takes theme name arguments via CLI (`--theme` or `--all`).
+- **Outputs:**
+  - Generates a full compiled book PDF.
+- **Usage:** `python3 ./preview-theme.py --theme <theme_name>` or `python3 ./preview-theme.py --all`
+- **Workflow Integration:** This script acts as the final compilation step, allowing the system to test and verify CSS values globally across the entire compiled book, rendering all pages with the chosen theme.
