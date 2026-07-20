@@ -126,7 +126,7 @@ To achieve this, we need to solve 3 core problems:
 
 # **The Logic and Strategy**
 
-## **Phase 1: The New Visual Global Style Calibration Tool (New Option O in system.py)**
+## ** 1: The New Visual Global Style Calibration Tool (New Option O in system.py)**
 
 To find the "golden" CSS values that guarantee our densest page fits on a single A4 sheet without overflowing, we will build a local visual calibration workflow:
 
@@ -137,7 +137,7 @@ To find the "golden" CSS values that guarantee our densest page fits on a single
 * **Step E:** The tool must have a feature to build the test page into a final PDF to verify that the real-time preview matches the actual PDF output perfectly.
 * **Step F:** Once reviewed and confirmed, we save these golden CSS values globally for the entire book.
 
-## **Phase 2: Smart Sliced/Cut Content Architecture**
+## ** 2: Smart Sliced/Cut Content Architecture**
 
 When a concept, definition, or poem is violently cut in half, the Jules agent must use special elements that support cutting into parts in a suitable way.
 
@@ -145,7 +145,7 @@ When a concept, definition, or poem is violently cut in half, the Jules agent mu
 * **Dynamic States:** These custom elements will feature two dynamic states: part 1 (for the bottom of the first page) and part 2 (for the top of the next page).
 * **Strict Component Rules:** We must establish smart logic and strict instructions for the planner/maker agents to ensure visual continuity. The agent must use the *exact same* element style for both parts of the cut text across the page break (e.g., preventing a hallucination where part 1 uses Element A, but part 2 on the next page uses Element B).
 
-## **Phase 3: The "1-Plan-Per-Page" Engine Update (New Options M and N in system.py)**
+## ** 3: The "1-Plan-Per-Page" Engine Update (New Options M and N in system.py)**
 
 Add the new options to start the planning/page-making process for specially prepared raw text via option "L) Raw Processing (Auto-Paginated Index \& TOC)". This will function similarly to current options E and F, but tailored for the new 1-plan-per-page logic (rather than 1 plan per lesson).
 
@@ -158,7 +158,7 @@ This includes editing the text prompt sent to the Jules agent to achieve these g
 
 *Note: To get a better understanding, you can find a raw text example with page breaking (where I ran option L from system.py) in /system-workspace/raw-text/, and a TOC in /input/TOC.json.*
 
-## **Phase 4: Update and Fix Tools for the Jules Agent**
+## ** 4: Update and Fix Tools for the Jules Agent**
 
 We need to tidy up and document every current tool in this project, including its accurate definition, usage, and purpose.
 
