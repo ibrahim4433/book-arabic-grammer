@@ -47,6 +47,72 @@ def start_calibration_server(html_path, project_root):
         console.print("\n[yellow]Stopping calibration server...[/yellow]")
         # Daemon thread will die when we return
 
+def wait_for_session_pr(client, session_id, step_name="PR"):
+    """Waits for PR and handles manual override/interrupts."""
+    pr_number = None
+
+    while True:
+        try:
+            status = client.get_session_status(session_id)
+            details = client.get_session_details(session_id)
+
+            if details and details.get('pr_number'):
+                pr_number = details.get('pr_number')
+                console.print(f"[green]✅ {step_name} #{pr_number} created![/green]")
+                return pr_number, False
+
+            if status and status.get('state') == 'COMPLETED':
+                console.print(f"[yellow]Session completed. Checking for {step_name}...[/yellow]")
+                time.sleep(2)
+                details = client.get_session_details(session_id)
+                if details and details.get('pr_number'):
+                    pr_number = details.get('pr_number')
+                    console.print(f"[green]✅ {step_name} #{pr_number} found![/green]")
+                    return pr_number, False
+                else:
+                    console.print(f"[yellow]No {step_name} found automatically.[/yellow]")
+                    choice = questionary.select(
+                        "How would you like to proceed?",
+                        choices=[
+                            "1. Wait longer (check again)",
+                            "2. Enter PR number manually",
+                            "3. File is already in place locally (skip pull)",
+                            "4. Cancel"
+                        ]
+                    ).ask()
+                    if not choice or choice.startswith("4"):
+                        return None, False
+                    if choice.startswith("1"):
+                        continue
+                    elif choice.startswith("2"):
+                        pr_num_str = questionary.text("Enter PR number:").ask()
+                        if pr_num_str and pr_num_str.isdigit():
+                            return pr_num_str, False
+                    elif choice.startswith("3"):
+                        return None, True
+
+            time.sleep(5)
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Interrupted![/yellow]")
+            choice = questionary.select(
+                "How would you like to proceed?",
+                choices=[
+                    "1. Resume waiting",
+                    "2. Enter PR number manually",
+                    "3. File is already in place locally (skip pull)",
+                    "4. Cancel"
+                ]
+            ).ask()
+            if not choice or choice.startswith("4"):
+                return None, False
+            if choice.startswith("2"):
+                pr_num_str = questionary.text("Enter PR number:").ask()
+                if pr_num_str and pr_num_str.isdigit():
+                    return pr_num_str, False
+            elif choice.startswith("3"):
+                return None, True
+
+
 def run_calibration_ui(state_manager=None, project_root=None):
     console.clear()
     console.print(Panel("[bold cyan]O) Book Style Tuning (Semi-automatic)[/bold cyan]"))
@@ -57,17 +123,18 @@ def run_calibration_ui(state_manager=None, project_root=None):
         "How do you want to select the test page?",
         choices=[
             "1. Automatically fetch and generate the densest page (via Jules API)",
-            "2. Manually select an existing HTML file",
-            "3. Cancel"
+            "2. Generate HTML from an existing Plan (Markdown)",
+            "3. Manually select an existing HTML file",
+            "4. Cancel"
         ]
     ).ask()
 
-    if not choice or choice.startswith("3"):
+    if not choice or choice.startswith("4"):
         return
 
     html_target_path = None
 
-    if choice.startswith("2"):
+    if choice.startswith("3"):
         html_path_str = questionary.text("Enter path to the HTML file (relative to project root):", default="pages/test.html").ask()
         if not html_path_str:
             return
@@ -94,46 +161,45 @@ def run_calibration_ui(state_manager=None, project_root=None):
             return
 
         # 1. Dispatch Planning
-        console.print("\n[bold yellow]--- Step 1: Planning ---[/bold yellow]")
-        plan_client = JulesPlanClient(project_root=project_root)
+        if choice.startswith("1"):
+            console.print("\n[bold yellow]--- Step 1: Planning ---[/bold yellow]")
+            plan_client = JulesPlanClient(project_root=project_root)
 
-        # Override prompt for stress test
-        plan_prompt = (
-            f"You are the Lead Architect. Generate a Markdown plan for the following raw text.\n\n"
-            f"**CRITICAL INSTRUCTION**: This is a density stress test. DO NOT attempt to fit this into a single page. "
-            f"Bypass any 1-page limits. Plan it fully.\n\n"
-            f"Raw Text:\n{page_text}\n"
-        )
+            # Override prompt for stress test
+            plan_prompt = (
+                f"You are the Lead Architect. Generate a Markdown plan for the following raw text.\n\n"
+                f"**CRITICAL INSTRUCTION**: This is a density stress test. DO NOT attempt to fit this into a single page. "
+                f"Bypass any 1-page limits. Plan it fully.\n\n"
+                f"Raw Text:\n{page_text}\n"
+            )
 
-        title = f"Stress Test Plan - Page {page_num}"
-        session = plan_client.create_session(plan_prompt, title=title)
+            title = f"Stress Test Plan - Page {page_num}"
+            session = plan_client.create_session(plan_prompt, title=title)
 
-        if not session:
-            console.print("[red]❌ Failed to create Jules planning session.[/red]")
-            return
+            if not session:
+                console.print("[red]❌ Failed to create Jules planning session.[/red]")
+                return
 
-        console.print(f"Waiting for PR for session {session.get('name')}...")
-        session_id = session.get('name')
+            console.print(f"Waiting for PR for session {session.get('name')}...")
+            session_id = session.get('name')
 
-        # Wait for PR
-        pr_number = None
-        while True:
-            status = plan_client.get_session_status(session_id)
-            if status and status.get('state') == 'COMPLETED':
-                if 'pr_number' not in status:
-                    console.print("[yellow]PR creation takes a moment...[/yellow]")
-                    time.sleep(10)
-                    # For now, let's just break if it says completed but no PR (means interactive mode maybe, which we aren't using)
-                else:
-                    pr_number = status.get('pr_number')
-                    console.print(f"[green]✅ PR #{pr_number} created![/green]")
-                    break
-            time.sleep(5)
+            pr_number, skip_pull = wait_for_session_pr(plan_client, session_id, "Planning PR")
 
-        # Fake details for merge_pr
-        details = {"pr_number": pr_number}
-        plan_file = f"plans/{page_num}.md"
-        plan_client.finalize_pr_and_pull(details, plan_file)
+            if not pr_number and not skip_pull:
+                console.print("[red]❌ Planning cancelled or failed.[/red]")
+                return
+
+            plan_file = f"plans/{page_num}.md"
+            if not skip_pull:
+                details = {"pr_number": pr_number}
+                plan_client.finalize_pr_and_pull(details, plan_file)
+        else:
+            plan_file_str = questionary.text("Enter path to the Markdown Plan file (relative to project root):", default="plans/test.md").ask()
+            if not plan_file_str:
+                return
+            plan_file = plan_file_str
+            plan_client = JulesPlanClient(project_root=project_root)
+            page_num = "manual_test" # Dummy page_num for manual test
 
         # 2. Dispatch Generation
         console.print("\n[bold yellow]--- Step 2: Page Generation ---[/bold yellow]")
@@ -156,19 +222,16 @@ def run_calibration_ui(state_manager=None, project_root=None):
         console.print("Waiting for generation PR...")
         gen_session_id = gen_session.get('name')
 
-        gen_pr_number = None
-        while True:
-            status = plan_client.get_session_status(gen_session_id)
-            if status and status.get('state') == 'COMPLETED':
-                if 'pr_number' in status:
-                    gen_pr_number = status.get('pr_number')
-                    console.print(f"[green]✅ Generation PR #{gen_pr_number} created![/green]")
-                    break
-            time.sleep(5)
+        gen_pr_number, skip_pull_gen = wait_for_session_pr(plan_client, gen_session_id, "Generation PR")
 
-        details_gen = {"pr_number": gen_pr_number}
+        if not gen_pr_number and not skip_pull_gen:
+            console.print("[red]❌ Generation cancelled or failed.[/red]")
+            return
+
         html_file = f"pages/{page_num}.html"
-        plan_client.finalize_pr_and_pull(details_gen, html_file)
+        if not skip_pull_gen:
+            details_gen = {"pr_number": gen_pr_number}
+            plan_client.finalize_pr_and_pull(details_gen, html_file)
 
         html_target_path = project_root / html_file
         if not html_target_path.exists():
