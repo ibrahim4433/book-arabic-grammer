@@ -1,4 +1,4 @@
-venv
+/venv
 __pycache__
 .DS_Store
 /pages/cover
@@ -10,10 +10,7 @@ test_jules.py
 .gemini/
 gha-creds-*.json
 /output/book-debug.pdf
-/Archive
 system-workspace/tools/automation/project_workflow_state.json
-system.log
-system.log
 system.log
 *.log
 node_modules/
@@ -21,4 +18,3 @@ node_modules/
 xxx.pdf
 /.venv
 v*.pdf
-archive/
