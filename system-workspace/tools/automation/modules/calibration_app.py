@@ -19,6 +19,12 @@ app.state.target_html_path = None
 
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
+def get_available_pages():
+    pages_dir = PROJECT_ROOT / "pages"
+    if not pages_dir.exists():
+        return []
+    return sorted([p.name for p in pages_dir.glob("*.html") if "TEMPLATE" not in p.name])
+
 def extract_css_variables():
     content = CSS_PATH.read_text(encoding="utf-8")
     root_match = re.search(r":root\s*{([^}]+)}", content)
@@ -38,6 +44,15 @@ def extract_css_variables():
 
 def update_css_variables(new_vars):
     content = CSS_PATH.read_text(encoding="utf-8")
+    
+    # Create backup before saving
+    import datetime
+    import shutil
+    backup_dir = PROJECT_ROOT / "styles" / "backups"
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_path = backup_dir / f"main_backup_{timestamp}.css"
+    shutil.copy2(CSS_PATH, backup_path)
 
     # We will do a simple string replace for each variable.
     # A more robust parser could be used, but this is fine for calibration.
@@ -50,6 +65,8 @@ def update_css_variables(new_vars):
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     css_vars = extract_css_variables()
+    pages = get_available_pages()
+    current_page = Path(app.state.target_html_path).name if app.state.target_html_path else ""
     html_content = ""
     if app.state.target_html_path and Path(app.state.target_html_path).exists():
         # Inject paged.js script into the head of the target HTML
@@ -61,14 +78,24 @@ async def index(request: Request):
             # But since we serve the whole page, let's just pass the URL to the iframe.
             pass
 
-    return templates.TemplateResponse(request, "calibration.html", {"css_vars": css_vars})
+    return templates.TemplateResponse(request, "calibration.html", {"css_vars": css_vars, "pages": pages, "current_page": current_page})
 
 @app.get("/preview", response_class=HTMLResponse)
 async def preview():
     if not app.state.target_html_path or not Path(app.state.target_html_path).exists():
-        return HTMLResponse("<h1>No target HTML selected or file not found.</h1>")
+        return HTMLResponse("""
+            <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#525659; color:white; font-family:sans-serif; text-align:center;">
+                <div>
+                    <h2 style="margin-bottom:10px;">📄 No Target HTML Selected</h2>
+                    <p style="color:#aaa;">Please select a target page from the left sidebar to begin calibration.</p>
+                </div>
+            </div>
+        """)
 
-    raw_html = Path(app.state.target_html_path).read_text(encoding="utf-8")
+    try:
+        raw_html = Path(app.state.target_html_path).read_text(encoding="utf-8")
+    except Exception as e:
+        return HTMLResponse(f"<h1>Error reading file: {str(e)}</h1>")
     
     # Inject dynamic CSS and Paged.js
     # Replace relative CSS path with dynamic endpoint
@@ -80,33 +107,184 @@ async def preview():
         injection += """
         <style>
             @media screen {
-                body {
+                html {
                     background-color: #525659 !important;
                 }
+                body {
+                    background-color: transparent !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    min-height: 100vh;
+                }
+                /* If Paged.js fails, this acts as the paper */
+                .calibration-preview-wrapper {
+                    background-color: transparent !important;
+                }
+                /* When Paged.js runs, it adds .pagedjs_paged class to html/body */
                 .pagedjs_pages {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    padding: 40px 0;
-                    gap: 40px;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    padding: 40px 0 !important;
+                    gap: 60px !important;
+                    background-color: #525659 !important;
                 }
                 .pagedjs_page {
-                    background: white;
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                    background-color: white !important;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
                     margin: 0 !important;
-                    flex-shrink: 0;
+                    flex-shrink: 0 !important;
+                    position: relative;
                 }
+                .pagedjs_page * {
+                    /* We don't want to override everything, just ensure the page itself is white */
+                }
+                .pagedjs_sheet {
+                    background-color: white !important;
+                }
+                .pagedjs_pagebox {
+                    background-color: transparent !important;
+                }
+                .pagedjs_page_content {
+                    background-color: white !important;
+                }
+                /* Visual split line between pages when in continuous scroll mode */
+                .pagedjs_page:not(:last-child)::after {
+                    content: "";
+                    position: absolute;
+                    bottom: -35px;
+                    left: 0;
+                    right: 0;
+                    height: 10px;
+                    background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.2) 10px, rgba(255,255,255,0.2) 20px);
+                    border-radius: 5px;
+                }
+            }
+            /* Inspector Styles */
+            .inspector-hover {
+                outline: 3px solid #ff4757 !important;
+                background-color: rgba(255, 71, 87, 0.1) !important;
+                cursor: crosshair !important;
             }
         </style>
         <script>
+            let inspectorActive = false;
+            let currentTarget = null;
+            let currentPage = 1;
+            let singlePageMode = true;
+            let totalPages = 1;
+            
+            function updatePagination() {
+                const pages = document.querySelectorAll('.pagedjs_page');
+                totalPages = pages.length;
+                if(totalPages === 0) return;
+                
+                if(singlePageMode) {
+                    pages.forEach((p, i) => {
+                        p.style.display = (i + 1 === currentPage) ? 'block' : 'none';
+                    });
+                } else {
+                    pages.forEach(p => p.style.display = 'block');
+                }
+                window.parent.postMessage({ type: 'page-info', current: currentPage, total: totalPages }, '*');
+            }
+            
+            window.PagedConfig = {
+                after: (flow) => {
+                    updatePagination();
+                }
+            };
+
             window.addEventListener('message', function(event) {
                 if(event.data && event.data.type === 'update-css-var') {
                     document.documentElement.style.setProperty(event.data.key, event.data.value);
                 }
+                if(event.data && event.data.type === 'toggle-inspector') {
+                    inspectorActive = event.data.value;
+                    if(!inspectorActive && currentTarget) {
+                        currentTarget.classList.remove('inspector-hover');
+                        window.parent.postMessage({ type: 'inspector-data', html: '' }, '*');
+                    }
+                }
+                if(event.data && event.data.type === 'change-page') {
+                    currentPage += event.data.delta;
+                    if(currentPage < 1) currentPage = 1;
+                    if(currentPage > totalPages) currentPage = totalPages;
+                    updatePagination();
+                }
+                if(event.data && event.data.type === 'toggle-single-page') {
+                    singlePageMode = event.data.enabled;
+                    updatePagination();
+                }
+            });
+
+            function getInspectorInfo(target) {
+                const comp = window.getComputedStyle(target);
+                let info = `<div><strong style="color:#ff4757; font-size:16px;">${target.tagName}</strong></div>`;
+                if(target.id) info += `<div style="color:#f39c12; margin-top:4px;">#${target.id}</div>`;
+                if(target.className && typeof target.className === 'string') {
+                    let cls = target.className.replace('inspector-hover', '').trim();
+                    if(cls) {
+                        info += `<div style="color:#2ecc71; margin-top:4px; font-family:monospace; font-size:12px;">.${cls.split(' ').join('.')}</div>`;
+                    }
+                }
+                
+                info += `<div style="margin-top: 15px; border-top: 1px solid #444; padding-top: 10px;">`;
+                info += `<div><strong>Font Size:</strong> ${comp.fontSize}</div>`;
+                info += `<div><strong>Line Height:</strong> ${comp.lineHeight}</div>`;
+                info += `<div><strong>Color:</strong> <span style="display:inline-block; width:12px; height:12px; background:${comp.color}; border:1px solid #fff; margin-bottom:-2px;"></span> ${comp.color}</div>`;
+                info += `<div><strong>Margin:</strong> ${comp.marginTop} ${comp.marginRight} ${comp.marginBottom} ${comp.marginLeft}</div>`;
+                info += `<div><strong>Padding:</strong> ${comp.paddingTop} ${comp.paddingRight} ${comp.paddingBottom} ${comp.paddingLeft}</div>`;
+                info += `</div>`;
+                return info;
+            }
+
+            document.addEventListener('mouseover', function(e) {
+                if(!inspectorActive) return;
+                if(e.target === document.body || e.target === document.documentElement) return;
+                
+                if(currentTarget) currentTarget.classList.remove('inspector-hover');
+                currentTarget = e.target;
+                currentTarget.classList.add('inspector-hover');
+                
+                const info = getInspectorInfo(currentTarget);
+                window.parent.postMessage({ type: 'inspector-data', html: info }, '*');
+            });
+            
+            document.addEventListener('click', function(e) {
+                if(!inspectorActive) return;
+                if(e.target === document.body || e.target === document.documentElement) return;
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const info = getInspectorInfo(e.target);
+                window.parent.postMessage({ type: 'inspector-pinned-data', html: info }, '*');
+            });
+            
+            document.addEventListener('mouseout', function(e) {
+                if(!inspectorActive) return;
+                if(currentTarget) currentTarget.classList.remove('inspector-hover');
+                window.parent.postMessage({ type: 'inspector-data', html: '' }, '*');
             });
         </script>
         """
         raw_html = raw_html.replace("</head>", f"{injection}</head>")
+        
+        # Prevent the first page from being blank by stripping the page-break trigger
+        if 'class="force-new-page"' in raw_html:
+            raw_html = raw_html.replace('class="force-new-page"', 'class="calibration-preview-wrapper"')
+        else:
+            raw_html = re.sub(r'<body[^>]*>', r'\g<0><div class="calibration-preview-wrapper">', raw_html)
+            raw_html = raw_html.replace('</body>', '</div></body>')
+
+        # Inject global backgrounds
+        global_layers = """
+        <!-- Global Fixed Background -->
+        <div class="global-background-layer"></div>
+        <div class="global-watermark-layer"></div>
+        """
+        raw_html = re.sub(r'(<body[^>]*>)', rf'\1{global_layers}', raw_html)
+
 
     return HTMLResponse(content=raw_html)
 
@@ -125,6 +303,20 @@ async def save_config(request: Request):
     new_vars = dict(data)
     update_css_variables(new_vars)
     return {"status": "success", "message": "Variables saved to main.css"}
+
+@app.post("/set_target")
+async def set_target(request: Request):
+    try:
+        data = await request.form()
+        filename = data.get("filename")
+        if filename:
+            file_path = PROJECT_ROOT / "pages" / filename
+            if file_path.exists():
+                app.state.target_html_path = str(file_path)
+                return {"status": "success", "message": f"Target set to {filename}"}
+        return {"status": "error", "message": "File not found or not provided"}
+    except Exception as e:
+        return {"status": "error", "message": f"Internal error: {str(e)}"}
 
 @app.post("/generate_pdf")
 async def generate_pdf():

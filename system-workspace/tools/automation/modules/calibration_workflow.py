@@ -25,29 +25,31 @@ def start_calibration_server(html_path, project_root):
 
     # We need to run the uvicorn server.
     # To pass state safely, we can import the app and set it before running,
-    # but uvicorn.run blocks. So we run it in a thread.
-    def run_server():
-        from calibration_app import app
-        app.state.target_html_path = html_path
-        uvicorn.run(app, host="127.0.0.1", port=8000, log_level="error")
+    from calibration_app import app
+    app.state.target_html_path = html_path
+    
+    config = uvicorn.Config(app, host="127.0.0.1", port=8000, log_level="error")
+    server = uvicorn.Server(config)
 
-    server_thread = threading.Thread(target=run_server, daemon=True)
+    server_thread = threading.Thread(target=server.run, daemon=True)
     server_thread.start()
 
+    target_name = html_path.name if html_path else "None (Select in web app)"
     console.print(Panel(
         f"[bold green]✅ Calibration Tool Started![/bold green]\n"
-        f"Target HTML: {html_path.name}\n"
+        f"Target HTML: {target_name}\n"
         f"Open in your browser: [bold cyan]http://127.0.0.1:8000[/bold cyan]\n"
         f"Press Ctrl+C here to stop the server and return.",
         style="green"
     ))
 
     try:
-        while True:
+        while server_thread.is_alive():
             time.sleep(1)
     except KeyboardInterrupt:
         console.print("\n[yellow]Stopping calibration server...[/yellow]")
-        # Daemon thread will die when we return
+        server.should_exit = True
+        server_thread.join(timeout=3)
 
 def wait_for_session_pr(client, session_id, step_name="PR"):
     """Waits for PR and handles manual override/interrupts."""
@@ -163,16 +165,19 @@ def run_calibration_ui(state_manager=None, project_root=None):
             "1. Automatically fetch and generate the densest page (via Jules API)",
             "2. Generate HTML from an existing Plan (Markdown)",
             "3. Manually select an existing HTML file",
-            "4. Cancel"
+            "4. Open Web UI without selecting a page",
+            "5. Cancel"
         ]
     ).ask()
 
-    if not choice or choice.startswith("4"):
+    if not choice or choice.startswith("5"):
         return
 
     html_target_path = None
 
-    if choice.startswith("3"):
+    if choice.startswith("4"):
+        pass # html_target_path remains None
+    elif choice.startswith("3"):
         html_path_str = questionary.text("Enter path to the HTML file (relative to project root):", default="pages/test.html").ask()
         if not html_path_str:
             return

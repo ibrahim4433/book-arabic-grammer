@@ -5,13 +5,16 @@
     <title>Jules Book Style Calibration</title>
     <style>
         body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; background: #f0f0f0;}
-        #sidebar { width: 350px; background: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); overflow-y: auto; z-index: 10; }
-        #preview-container { flex-grow: 1; padding: 20px; display: flex; justify-content: center; overflow-y: auto; background: #e0e0e0; align-items: flex-start;}
-        .iframe-wrapper { transform-origin: top center; transition: transform 0.2s; width: 100%; max-width: 210mm; height: 297mm; }
-        iframe { border: none; width: 100%; height: 100%; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+        #sidebar { width: 350px; background: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); overflow-y: auto; z-index: 10; flex-shrink: 0; }
+        #right-sidebar { width: 320px; background: rgba(44, 62, 80, 0.95); backdrop-filter: blur(5px); color: white; padding: 20px; box-shadow: -5px 0 15px rgba(0,0,0,0.3); overflow-y: auto; z-index: 10000; display: none; flex-shrink: 0; }
+        #preview-container { flex-grow: 1; padding: 0; display: flex; justify-content: center; overflow: hidden; background: #525659; position: relative;}
+        .iframe-wrapper { transform-origin: top center; transition: transform 0.2s; width: 100%; height: 100%; display: flex; justify-content: center; }
+        iframe { border: none; width: 100%; height: 100%; }
         .var-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;}
-        input[type="text"] { width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        input[type="text"], input[type="number"], input[type="color"] { width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .input-group { display: flex; gap: 5px; align-items: center; }
+        .unit-label { font-size: 14px; color: #666; font-family: monospace; }
         h2 { margin-top: 0; font-size: 18px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;}
         button { background: #007bff; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-size: 14px; width: 100%; margin-bottom: 10px; }
         button:hover { background: #0056b3; }
@@ -20,22 +23,86 @@
         #toast { display: none; padding: 10px; margin-top: 10px; border-radius: 4px; font-size: 14px; text-align: center; }
         .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        /* Dark Mode UI Styles */
+        body.dark-mode { background: #1e1e1e; color: #eee; }
+        body.dark-mode #sidebar { background: #252526; color: #eee; box-shadow: 2px 0 5px rgba(0,0,0,0.5); }
+        body.dark-mode h2 { color: #fff; border-bottom: 1px solid #444; }
+        body.dark-mode label { color: #ddd; }
+        body.dark-mode input[type="text"], body.dark-mode input[type="number"], body.dark-mode select { background: #333; color: #fff; border: 1px solid #555; }
+        body.dark-mode .unit-label { color: #aaa; }
+        body.dark-mode hr { border-top: 1px solid #444; }
     </style>
 </head>
 <body>
     <div id="sidebar">
-        <h2>🎨 Global Style Calibration</h2>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <h2>🎨 Global Style Calibration</h2>
+            <label style="font-size: 11px; cursor: pointer; margin-top: 5px;">
+                <input type="checkbox" id="darkModeToggle" onchange="document.body.classList.toggle('dark-mode', this.checked)"> 🌙 Dark UI
+            </label>
+        </div>
+        <div class="var-group">
+            <label>📄 Target HTML Page</label>
+            <select id="pageSelect" onchange="setTargetHtml(this.value)" style="width:100%; padding:5px; margin-bottom:10px; border:1px solid #ccc; border-radius:4px;">
+                <option value="">-- Select a Page --</option>
+                {% for page in pages %}
+                <option value="{{ page }}" {% if page == current_page %}selected{% endif %}>{{ page }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="var-group" style="display: flex; gap: 10px; margin-bottom: 5px;">
+            <button type="button" style="background:#27ae60; flex: 1; padding: 8px;" onclick="changePage(-1)">◀ Prev</button>
+            <span id="pageIndicator" style="display:flex; align-items:center; font-weight:bold; font-size:14px; justify-content:center; flex:1;">Page 1</span>
+            <button type="button" style="background:#27ae60; flex: 1; padding: 8px;" onclick="changePage(1)">Next ▶</button>
+        </div>
+        <div style="text-align: center; margin-bottom: 15px;">
+            <label style="font-size: 13px; cursor: pointer;">
+                <input type="checkbox" id="singlePageToggle" checked onchange="toggleSinglePage(this.checked)"> Enable Single Page View
+            </label>
+        </div>
+
+        <div id="overflowWarning" style="display:none; background:#ff4757; color:white; padding:10px; border-radius:4px; font-size:13px; font-weight:bold; text-align:center; margin-bottom:15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+            ⚠️ Warning: Content spans <span id="overflowCount">X</span> pages!<br>Reduce CSS sizes to fit 1 page.
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+
         <p style="font-size: 12px; color: #666;">Adjust the root variables below. Changes are saved directly to <code>main.css</code>.</p>
 
         <form id="configForm">
             {% for key, val in css_vars.items() %}
             <div class="var-group">
                 <label>{{ key }}</label>
-                <input type="text" name="{{ key }}" value="{{ val }}" oninput="updateLiveCSS('{{ key }}', this.value)">
+                <div class="input-group">
+                {% if val.startswith('#') %}
+                <input type="color" name="{{ key }}" value="{{ val }}" oninput="handleInput('{{ key }}', this.value, '')" style="height: 35px; padding: 0; width: 100%;">
+                {% elif val.endswith('pt') %}
+                    <input type="number" step="0.1" name="{{ key }}" value="{{ val|replace('pt', '') }}" oninput="handleInput('{{ key }}', this.value, 'pt')">
+                    <span class="unit-label">pt</span>
+                {% elif val.endswith('mm') %}
+                    <input type="number" step="0.1" name="{{ key }}" value="{{ val|replace('mm', '') }}" oninput="handleInput('{{ key }}', this.value, 'mm')">
+                    <span class="unit-label">mm</span>
+                {% elif val.endswith('px') %}
+                    <input type="number" step="1" name="{{ key }}" value="{{ val|replace('px', '') }}" oninput="handleInput('{{ key }}', this.value, 'px')">
+                    <span class="unit-label">px</span>
+                {% elif key == '--line-height-base' or key == '--layout-columns' %}
+                <input type="number" step="0.05" name="{{ key }}" value="{{ val }}" oninput="handleInput('{{ key }}', this.value, '')">
+                {% else %}
+                <input type="text" name="{{ key }}" value="{{ val }}" oninput="handleInput('{{ key }}', this.value, '')">
+                {% endif %}
+                <button type="button" onclick="resetSingleVar('{{ key }}')" title="Reset to default" style="background:#ddd; color:#333; width:30px; padding:5px; margin:0; border:1px solid #ccc;">↺</button>
+                </div>
             </div>
             {% endfor %}
 
             <button type="button" class="btn-success" onclick="saveConfig()">💾 Save to main.css</button>
+            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                <button type="button" style="background:#3498db; margin-bottom:0;" onclick="exportConfig()">⬇️ Export</button>
+                <button type="button" style="background:#9b59b6; margin-bottom:0;" onclick="document.getElementById('importFile').click()">⬆️ Import</button>
+                <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importConfig(event)">
+            </div>
+            <button type="button" style="background:#f1c40f; color:#333; font-weight:bold; margin-bottom:0;" onclick="resetDefaults()">🔄 Reset All to Defaults</button>
         </form>
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
         <div class="var-group">
@@ -43,6 +110,8 @@
             <input type="range" min="30" max="200" value="100" style="width: 100%;" oninput="updateZoom(this.value)">
         </div>
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        <button type="button" style="background:#8e44ad;" onclick="toggleTwoColumns()">📖 Toggle 2-Column Split</button>
+        <button type="button" style="background:#f39c12;" id="inspectorBtn" onclick="toggleInspector()">🔎 Toggle Inspector</button>
         <button type="button" onclick="generatePdf()">📄 Generate Test PDF</button>
         <button type="button" style="background:#17a2b8;" onclick="reloadPreview()">🔄 Reload Preview</button>
 
@@ -55,8 +124,152 @@
             <iframe id="previewFrame" src="/preview"></iframe>
         </div>
     </div>
+    
+    <div id="right-sidebar">
+        <h3 style="margin-top:0; border-bottom:1px solid #444; padding-bottom:10px;">🔎 Inspector Data</h3>
+        
+        <div id="inspector-pinned" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 3px solid #f39c12; min-height: 50px;">
+            <div style="font-size: 12px; color: #f39c12; font-weight: bold; margin-bottom: 5px;">📌 Pinned Element (Click to save)</div>
+            <div id="inspector-pinned-content" style="font-size: 13px; color: #aaa;">No element selected. Click an element in the preview to pin its data.</div>
+        </div>
+        
+        <div style="font-size: 12px; color: #3498db; font-weight: bold; margin-bottom: 5px;">👀 Live Hover</div>
+        <div id="inspector-content"></div>
+    </div>
 
     <script>
+        const defaultVars = {{ css_vars | tojson | safe }};
+
+        function resetSingleVar(key) {
+            if (defaultVars.hasOwnProperty(key)) {
+                const val = defaultVars[key];
+                const inputs = document.getElementsByName(key);
+                if (inputs.length > 0) {
+                    const input = inputs[0];
+                    if (val.endsWith('pt')) {
+                        input.value = val.replace('pt', '');
+                        handleInput(key, input.value, 'pt');
+                    } else if (val.endsWith('mm')) {
+                        input.value = val.replace('mm', '');
+                        handleInput(key, input.value, 'mm');
+                    } else if (val.endsWith('px')) {
+                        input.value = val.replace('px', '');
+                        handleInput(key, input.value, 'px');
+                    } else {
+                        input.value = val;
+                        handleInput(key, input.value, '');
+                    }
+                }
+                showToast(`Reset ${key} to default`, 'success');
+            }
+        }
+
+        function exportConfig() {
+            // Gather all current inputs
+            const form = document.getElementById('configForm');
+            const inputs = form.querySelectorAll('input[name]');
+            let configData = {};
+            inputs.forEach(input => {
+                let val = input.value;
+                let nextSibling = input.nextElementSibling;
+                // Next sibling could be the reset button, so we check for unit-label specifically
+                while (nextSibling) {
+                    if(nextSibling.classList.contains('unit-label')) {
+                        val += nextSibling.innerText;
+                        break;
+                    }
+                    nextSibling = nextSibling.nextElementSibling;
+                }
+                configData[input.name] = val;
+            });
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(configData, null, 4));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href",     dataStr);
+            downloadAnchorNode.setAttribute("download", "calibration_config.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            showToast('Config exported successfully!', 'success');
+        }
+
+        function importConfig(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const configData = JSON.parse(e.target.result);
+                    for (const [key, val] of Object.entries(configData)) {
+                        const inputs = document.getElementsByName(key);
+                        if (inputs.length > 0) {
+                            const input = inputs[0];
+                            if (val.endsWith('pt')) {
+                                input.value = val.replace('pt', '');
+                                handleInput(key, input.value, 'pt');
+                            } else if (val.endsWith('mm')) {
+                                input.value = val.replace('mm', '');
+                                handleInput(key, input.value, 'mm');
+                            } else if (val.endsWith('px')) {
+                                input.value = val.replace('px', '');
+                                handleInput(key, input.value, 'px');
+                            } else {
+                                input.value = val;
+                                handleInput(key, input.value, '');
+                            }
+                        }
+                    }
+                    showToast('Config imported successfully! Click Save to apply.', 'success');
+                } catch (err) {
+                    showToast('Failed to parse JSON file.', 'error');
+                }
+            };
+            reader.readAsText(file);
+            // Reset the file input so the same file can be imported again if needed
+            event.target.value = '';
+        }
+
+        function resetDefaults() {
+            for (const [key, val] of Object.entries(defaultVars)) {
+                const inputs = document.getElementsByName(key);
+                if (inputs.length > 0) {
+                    const input = inputs[0];
+                    if (val.endsWith('pt')) {
+                        input.value = val.replace('pt', '');
+                        handleInput(key, input.value, 'pt');
+                    } else if (val.endsWith('mm')) {
+                        input.value = val.replace('mm', '');
+                        handleInput(key, input.value, 'mm');
+                    } else if (val.endsWith('px')) {
+                        input.value = val.replace('px', '');
+                        handleInput(key, input.value, 'px');
+                    } else {
+                        input.value = val;
+                        handleInput(key, input.value, '');
+                    }
+                }
+            }
+            showToast('Reset to default values', 'success');
+        }
+
+        async function setTargetHtml(filename) {
+            if (!filename) return;
+            const data = new FormData();
+            data.append('filename', filename);
+            try {
+                const res = await fetch('/set_target', { method: 'POST', body: data });
+                const json = await res.json();
+                if(json.status === 'success') {
+                    showToast(json.message, 'success');
+                    reloadPreview();
+                } else {
+                    showToast(json.message, 'error');
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
         function showToast(msg, type) {
             const t = document.getElementById('toast');
             t.textContent = msg;
@@ -67,39 +280,127 @@
 
         function updateZoom(val) {
             document.getElementById('zoomLabel').innerText = val + '%';
-            document.getElementById('iframeWrapper').style.transform = `scale(${val / 100})`;
+            document.getElementById('iframeWrapper').style.zoom = val / 100;
         }
 
-        function updateLiveCSS(key, value) {
+        let debounceTimer;
+        
+        function handleInput(key, rawValue, unit) {
+            let finalValue = rawValue + unit;
+            
+            // We no longer instantly inject the CSS via postMessage because it breaks Paged.js reflow.
+            // Instead, we just trigger a debounced save and full reload.
+            
+            // Debounce the save and reload (800ms)
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                saveConfigWithUnits();
+            }, 800);
+        }
+        
+        let inspectorActive = false;
+        function toggleInspector() {
+            inspectorActive = !inspectorActive;
+            const btn = document.getElementById('inspectorBtn');
+            btn.style.background = inspectorActive ? '#e74c3c' : '#f39c12';
+            btn.innerText = inspectorActive ? '🛑 Disable Inspector' : '🔎 Toggle Inspector';
+            
+            const rightSidebar = document.getElementById('right-sidebar');
+            rightSidebar.style.display = inspectorActive ? 'block' : 'none';
+            if(!inspectorActive) {
+                document.getElementById('inspector-content').innerHTML = '';
+            }
+            
             const iframe = document.getElementById('previewFrame');
             if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage({ type: 'update-css-var', key: key, value: value }, '*');
+                iframe.contentWindow.postMessage({ type: 'toggle-inspector', value: inspectorActive }, '*');
+            }
+        }
+        
+        // Listen for messages from iframe
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'inspector-data') {
+                document.getElementById('inspector-content').innerHTML = event.data.html;
+            }
+            if (event.data && event.data.type === 'inspector-pinned-data') {
+                document.getElementById('inspector-pinned-content').innerHTML = event.data.html;
+            }
+        });
+
+        function toggleTwoColumns() {
+            const input = document.querySelector('input[name="--layout-columns"]');
+            if(input) {
+                input.value = input.value == '1' ? '2' : '1';
+                handleInput('--layout-columns', input.value, '');
+            }
+        }
+
+        function changePage(delta) {
+            const iframe = document.getElementById('previewFrame');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'change-page', delta: delta }, '*');
+            }
+        }
+
+        function toggleSinglePage(enabled) {
+            const iframe = document.getElementById('previewFrame');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'toggle-single-page', enabled: enabled }, '*');
+            }
+        }
+        
+        // Listen for page info updates
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'page-info') {
+                const total = event.data.total;
+                document.getElementById('pageIndicator').innerText = `Page ${event.data.current} / ${total}`;
+                
+                const warning = document.getElementById('overflowWarning');
+                if (total > 1) {
+                    warning.style.display = 'block';
+                    document.getElementById('overflowCount').innerText = total;
+                } else {
+                    warning.style.display = 'none';
+                }
+            }
+        });
+
+        async function saveConfigWithUnits() {
+            // Build custom FormData to include units
+            const form = document.getElementById('configForm');
+            const data = new FormData();
+            
+            const inputs = form.querySelectorAll('input[name]');
+            inputs.forEach(input => {
+                let val = input.value;
+                let nextSibling = input.nextElementSibling;
+                if(nextSibling && nextSibling.classList.contains('unit-label')) {
+                    val += nextSibling.innerText;
+                }
+                data.append(input.name, val);
+            });
+
+            try {
+                const res = await fetch('/save', { method: 'POST', body: data });
+                const json = await res.json();
+                if(json.status === 'success') {
+                    showToast("Variables Auto-Saved. Repaginating...", 'success');
+                    reloadPreview(); 
+                }
+            } catch(e) {
+                console.error(e);
             }
         }
 
         async function reloadPreview() {
-            showToast("Reloading Live HTML...", "success");
             const iframe = document.getElementById('previewFrame');
             // Add timestamp to bypass cache
             iframe.src = "/preview?t=" + new Date().getTime();
         }
 
         async function saveConfig() {
-            const form = document.getElementById('configForm');
-            const data = new FormData(form);
-
-            try {
-                const res = await fetch('/save', { method: 'POST', body: data });
-                const json = await res.json();
-                if(json.status === 'success') {
-                    showToast(json.message, 'success');
-                    reloadPreview(); // Automatically generate and load new PDF
-                } else {
-                    showToast(json.message, 'error');
-                }
-            } catch(e) {
-                showToast(e.toString(), 'error');
-            }
+            // Manual save button calls this
+            saveConfigWithUnits();
         }
 
         async function generatePdf() {
