@@ -313,7 +313,7 @@ class JulesPlanClient(JulesClient):
             logging.error(f"   Stderr: {e.stderr.decode() if e.stderr else ''}")
             return False
 
-    def construct_mega_prompt(self, lesson_data, architect_prompt, auditor_prompt):
+    def construct_mega_prompt(self, lesson_data, architect_prompt, auditor_prompt, is_1_page_mode=False):
         """
         Constructs the combined prompt for Generation -> Verification -> Refinement.
         """
@@ -340,6 +340,10 @@ class JulesPlanClient(JulesClient):
             "LESSON_UNIT": unit,
             "LESSON_AUTHOR": author,
             "LESSON_AUTHOR_NUMBER": author_number,
+            "PAGE_LEVEL": level,
+            "PAGE_UNIT": unit,
+            "PAGE_AUTHOR": author,
+            "PAGE_AUTHOR_NUMBER": author_number,
             # Example Placeholders
             "[Number]": lesson_number,
             "[Title]": lesson_title,
@@ -347,6 +351,7 @@ class JulesPlanClient(JulesClient):
             "[Unit]": unit,
             "[Author]": author,
             "[Phone]": author_number,
+            "[PAGE_NUMBER]": lesson_number,
         }
 
         # Sort by length descending to prevent partial replacement
@@ -356,7 +361,45 @@ class JulesPlanClient(JulesClient):
             architect_prompt = architect_prompt.replace(key, replacements[key])
 
         # Instructions for the "One-Shot" Iteration
-        refinement_instruction = f"""
+        if is_1_page_mode:
+            refinement_instruction = f"""
+================================================================================
+CRITICAL INSTRUCTION: SELF-CORRECTION LOOP (STRICT ENFORCEMENT)
+================================================================================
+You are currently operating in a BATCH MODE. You must perform the following steps IN ORDER:
+
+1.  **MANDATORY INPUTS:**
+    - Use the **EXACT Page Number**: {lesson_number} (Do NOT search for TOC. Trust this number).
+    - Use the **EXACT Page Title**: {lesson_title} (Do NOT rename or translate).
+    - **FILE NAMING**: The target HTML file in the plan MUST use the exact page number (e.g., `pages/page_{lesson_number}.html`).
+        - **CRITICAL:** Do NOT use `nXX`. Do NOT use lesson formats.
+
+    - **METADATA INJECTION (TEMPLATE_C_HEADER):**
+        - You MUST use these values when populating `TEMPLATE_C_HEADER`:
+        - [CATEGORY_HEADER] (Level): {level}
+        - [SECTION_HEADER] (Unit): {unit}
+        - [AUTHOR_NAME]: {author}
+        - [AUTHOR_PHONE]: {author_number}
+        - [CHAPTER_TITLE]: {lesson_title}
+        - [LESSON_NUMBER]: {lesson_number}
+
+2.  **ACT AS THE ARCHITECT:** Generate the initial plan using the raw text.
+    - **CRITICAL:** If the raw text is short, you MUST EXPAND on the examples.
+    - **FORBIDDEN:** Do NOT produce a single "Summary Table" plan. Break it down!
+    - **GOAL:** The plan must fill a full A4 page. Use multiple Example Blocks, Definition Blocks, and Benefit Boxes.
+
+3.  **ACT AS THE AUDITOR:** Review your plan against the updated Auditor Rules.
+    - Check for **Content Depth**. If the plan has fewer than 4 content blocks, **FAIL** and RE-GENERATE with more detail.
+    - Check for **One-Page Law**. If it looks empty, ADD MORE EXAMPLES from your knowledge base (keeping the grammar rules strict).
+
+4.  **REFINE:** Fix any errors found by the Auditor.
+
+5.  **FINAL OUTPUT:** Output ONLY the final, verified, and corrected plan file.
+    - The file must be valid Markdown.
+    - The file must be placed in `plans/page_{lesson_number}-plan.md`.
+"""
+        else:
+            refinement_instruction = f"""
 ================================================================================
 CRITICAL INSTRUCTION: SELF-CORRECTION LOOP (STRICT ENFORCEMENT)
 ================================================================================

@@ -373,11 +373,12 @@ def extract_from_pr_branches(failed_lessons_data, project_root, console, is_page
     return recovered
 
 
-def run_jules_planning_ui(state_manager):
+def run_jules_planning_ui(state_manager, is_1_page_mode=False):
     console.clear()  # Clear screen for App-like feel
-    console.print("[bold cyan]🚀 Starting Jules Batch Planning...[/bold cyan]")
+    mode_text = " (1-PAGE MODE)" if is_1_page_mode else ""
+    console.print(f"[bold cyan]🚀 Starting Jules Batch Planning{mode_text}...[/bold cyan]")
 
-    planner = JulesPlanner(PROJECT_ROOT, state_manager=state_manager)
+    planner = JulesPlanner(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode)
 
     tasks = {}  # title -> {status, message, start_time, duration}
     lock = threading.Lock()
@@ -494,7 +495,10 @@ def run_jules_planning_ui(state_manager):
                 lesson_num = planner.tp.get_lesson_number(title)
                 if lesson_num:
                     clean_t = re.sub(r"^\d+\s*-\s*", "", title).strip()
-                    expected_path = f"plans/{lesson_num}-{clean_t}-plan.md"
+                    if getattr(planner, "is_1_page_mode", False):
+                        expected_path = f"plans/page_{lesson_num}-plan.md"
+                    else:
+                        expected_path = f"plans/{lesson_num}-{clean_t}-plan.md"
                     failed_data.append((lesson_num, title, expected_path))
 
     failed_lessons = [d[0] for d in failed_data]
@@ -592,15 +596,16 @@ def run_jules_planning_ui(state_manager):
             console.print("--------------------------------------\n")
 
 
-def run_jules_generation_ui(state_manager):
+def run_jules_generation_ui(state_manager, is_1_page_mode=False):
     console.clear()  # Clear screen for App-like feel
 
     if not run_template_lint():
         return
 
-    console.print("[bold cyan]🚀 Starting Jules Page Generation...[/bold cyan]")
+    mode_text = " (1-PAGE MODE)" if is_1_page_mode else ""
+    console.print(f"[bold cyan]🚀 Starting Jules Page Generation{mode_text}...[/bold cyan]")
 
-    generator = JulesPageGenerator(PROJECT_ROOT)
+    generator = JulesPageGenerator(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode)
 
     tasks = {}
     lock = threading.Lock()
@@ -705,7 +710,10 @@ def run_jules_generation_ui(state_manager):
                 lesson_num = match.group(1) if match else None
                 if lesson_num:
                     clean_t = re.sub(r"^\d+\s*-\s*", "", title).replace("-plan", "").strip()
-                    expected_path = f"pages/{lesson_num}.0_nXX_{clean_t.replace(' ', '_')}.html"
+                    if getattr(generator, "is_1_page_mode", False):
+                        expected_path = f"pages/page_{lesson_num}.html"
+                    else:
+                        expected_path = f"pages/{lesson_num}.0_nXX_{clean_t.replace(' ', '_')}.html"
                     failed_data.append((lesson_num, title, expected_path))
 
     failed_lessons = [d[0] for d in failed_data]
@@ -1914,6 +1922,8 @@ def main():
                 "J) Scanned PDF to Raw Text (Local OCR)",
                 "K) Advanced Network AI OCR (Surya)",
                 "L) Raw Processing (Auto-Paginated Index & TOC)",
+                "M) Plan Generation (Jules Batch - 1-to-1 Page Mapping)",
+                "N) Page Generation (Jules Batch - 1-to-1 Page Mapping)",
                 "O) Book Style Tuning (Semi-automatic full process)",
                 "R) Retry batch planning / generation to selected lessons",
                 "S) Settings",
@@ -1968,6 +1978,10 @@ def main():
             run_network_ai_ocr()
         elif op == "L":
             run_raw_processing_auto(state_manager)
+        elif op == "M":
+            run_jules_planning_ui(state_manager, is_1_page_mode=True)
+        elif op == "N":
+            run_jules_generation_ui(state_manager, is_1_page_mode=True)
         elif op == "O":
             run_calibration_ui(state_manager, PROJECT_ROOT)
         elif op == "R":

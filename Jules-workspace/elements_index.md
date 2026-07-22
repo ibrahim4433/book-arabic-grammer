@@ -58,3 +58,19 @@ Use these classes directly on text (e.g., `<span class="highlight-red">`) to hig
 - `.highlight-green`: Tertiary Focus
 - `.text-accent`: Theme text color (used for main definitions)
 - `.text-primary`: Primary theme text color variant
+
+## 8. Keyword-to-Template Deterministic Mapping (For Cut Content)
+
+To ensure visual continuity when content is cut across two pages, you **MUST** use the following strict mapping to deduce the correct template for a given text section. Both the page ending the cut and the page starting the cut must use the same element type defined here:
+
+| Raw Text Keyword / Pattern | Mandatory Template |
+| :--- | :--- |
+| **"مدخل إلى النص:" / "حياة الشاعر" / Author Names** | `TEMPLATE_C_POEM.html` (Bio block) |
+| **Lines starting with `-` containing dual parts (Verses)** | `TEMPLATE_C_POEM.html` (Verses block) |
+| **"مهارات الاستماع" / "مهارات القراءة" / "الاستيعاب والفهم" / "المستوى الفكري" / "القاعدة" / "الخلاصة"** | `TEMPLATE_C_BLOCK.html` (Standard Block) |
+| **"ج ١-" / "س:" / Q&A structures / "أولاً:" / "ثانياً:"** | `TEMPLATE_C_LIST.html` (Numbered/Bullet List) |
+| **"فائدة" / "تذكر"** | `TEMPLATE_C_BENEFIT.html` |
+| **"تنبيه" / "ملاحظة"** | `TEMPLATE_C_BENEFIT_WARNING.html` |
+| **"قاعدة ذهبية" / "تلميح"** | `TEMPLATE_C_BENEFIT_TIP.html` |
+| **"إعراب" / "أعرب"** | `TEMPLATE_C_IRAB.html` |
+| **"تطبيق" / "تدريب" / "امتحان"** | `TEMPLATE_C_EXAM.html` |

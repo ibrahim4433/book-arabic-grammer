@@ -20,7 +20,8 @@ class JulesPageGenerator:
     Handles interactive Q&A with Gemini Headless.
     """
 
-    def __init__(self, project_root=None, state_manager=None):
+    def __init__(self, project_root=None, state_manager=None, is_1_page_mode=False):
+        self.is_1_page_mode = is_1_page_mode
         self.project_root = (
             Path(project_root)
             if project_root
@@ -134,6 +135,18 @@ class JulesPageGenerator:
             if elements_path.exists():
                 elements_text = f"\n\n--- ELEMENTS INDEX DICTIONARY ---\n{elements_path.read_text(encoding='utf-8')}\n"
 
+            # Determine prompt
+            auditor_rules = ""
+            if self.is_1_page_mode:
+                auditor_path = self.project_root / "system-workspace/Architect_AUDITOR_1_PAGE.md"
+                if auditor_path.exists():
+                    auditor_rules = f"\n\n--- 1-PAGE STRICT RULES ---\n{auditor_path.read_text(encoding='utf-8')}\n"
+
+            if self.is_1_page_mode:
+                naming_instruction = f"The output file should follow the strict naming convention: `pages/page_{lesson_num}.html`.\n"
+            else:
+                naming_instruction = f"The output file should follow the strict naming convention: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html`.\n"
+
             prompt = (
                 f"Generate the HTML page for the following plan.\n"
                 f"CRITICAL RULES (ANTI-HALLUCINATION):\n"
@@ -142,7 +155,8 @@ class JulesPageGenerator:
                 f"3. You must preserve EXACT Tashkeel and output 100% Arabic text (except HTML tags).\n"
                 f"4. EVERY content block must have a unique ID (e.g., id='bXXXXX').\n"
                 f"5. Maintain continuity of style: use `.highlight-red` for primary focus, `.highlight-blue` for secondary. `.irab-word` MUST remain white.\n"
-                f"The output file should follow the strict naming convention: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html`.\n"
+                f"{naming_instruction}"
+                f"{auditor_rules}"
                 f"PLAN:\n{plan_content}{elements_text}"
             )
 

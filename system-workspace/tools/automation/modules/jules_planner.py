@@ -19,7 +19,8 @@ class JulesPlanner:
     Orchestrates the batch generation of plans using Jules Sessions.
     """
 
-    def __init__(self, project_root=None, state_manager=None):
+    def __init__(self, project_root=None, state_manager=None, is_1_page_mode=False):
+        self.is_1_page_mode = is_1_page_mode
         self.project_root = (
             Path(project_root)
             if project_root
@@ -30,8 +31,9 @@ class JulesPlanner:
         self.state_manager = state_manager
 
         # Load Prompts
+        master_prompt_name = "Architect_GEM_MASTER_1_PAGE.md" if is_1_page_mode else "Architect_GEM_MASTER.md"
         self.architect_prompt = (
-            self.project_root / "system-workspace/Architect_GEM_MASTER.md"
+            self.project_root / f"system-workspace/{master_prompt_name}"
         ).read_text(encoding="utf-8")
 
         # Inject elements_index.md to prevent Context Starvation
@@ -40,8 +42,9 @@ class JulesPlanner:
             elements_text = elements_index_path.read_text(encoding="utf-8")
             self.architect_prompt += f"\n\n--- ELEMENTS INDEX DICTIONARY ---\n{elements_text}\n"
 
+        auditor_prompt_name = "Architect_AUDITOR_1_PAGE.md" if is_1_page_mode else "Architect_AUDITOR.md"
         self.auditor_prompt = (
-            self.project_root / "system-workspace/Architect_AUDITOR.md"
+            self.project_root / f"system-workspace/{auditor_prompt_name}"
         ).read_text(encoding="utf-8")
 
         # Load Raw Text Index
@@ -196,7 +199,11 @@ class JulesPlanner:
             clean_title = lesson_title.strip()
             lesson_number = self.tp.get_lesson_number(clean_title)
 
-        filename = f"{lesson_number}-{clean_title}-plan.md"
+        # Determine filename based on mode
+        if getattr(self, "is_1_page_mode", False):
+            filename = f"page_{lesson_number}-plan.md"
+        else:
+            filename = f"{lesson_number}-{clean_title}-plan.md"
 
         # 0. Check if Plan Exists (Early Exit)
         if (self.project_root / "plans" / filename).exists():
@@ -240,7 +247,7 @@ class JulesPlanner:
             "author_number": lesson_metadata.get("author_number", ""),
         }
         mega_prompt = self.client.construct_mega_prompt(
-            lesson_data, self.architect_prompt, self.auditor_prompt
+            lesson_data, self.architect_prompt, self.auditor_prompt, getattr(self, "is_1_page_mode", False)
         )
 
         # 4. Check or Create Session

@@ -65,22 +65,50 @@ async def index(request: Request):
 
 @app.get("/preview", response_class=HTMLResponse)
 async def preview():
-    """Serves the target HTML modified to include Paged.js and the main.css via API."""
     if not app.state.target_html_path or not Path(app.state.target_html_path).exists():
-        return HTMLResponse("<h1>No target HTML selected</h1>")
+        return HTMLResponse("<h1>No target HTML selected or file not found.</h1>")
 
     raw_html = Path(app.state.target_html_path).read_text(encoding="utf-8")
-
-    # Inject our dynamic CSS endpoint and Paged.js
-    css_link = '<link rel="stylesheet" href="/dynamic.css">'
-    pagedjs_script = '<script src="/assets/js/paged.polyfill.js"></script>'
-
+    
+    # Inject dynamic CSS and Paged.js
+    # Replace relative CSS path with dynamic endpoint
+    raw_html = re.sub(r'<link[^>]*href="[^"]*styles/main\.css"[^>]*>', '<link rel="stylesheet" href="/dynamic.css">', raw_html)
+    
     if "</head>" in raw_html:
-        raw_html = raw_html.replace("</head>", f"{css_link}\n{pagedjs_script}\n</head>")
-    else:
-         raw_html = f"<head>{css_link}\n{pagedjs_script}</head>\n" + raw_html
+        injection = '<script src="/assets/js/paged.polyfill.js"></script>\n'
+        # Add dynamic live injection script and Page Slicing UI
+        injection += """
+        <style>
+            @media screen {
+                body {
+                    background-color: #525659 !important;
+                }
+                .pagedjs_pages {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    padding: 40px 0;
+                    gap: 40px;
+                }
+                .pagedjs_page {
+                    background: white;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                    margin: 0 !important;
+                    flex-shrink: 0;
+                }
+            }
+        </style>
+        <script>
+            window.addEventListener('message', function(event) {
+                if(event.data && event.data.type === 'update-css-var') {
+                    document.documentElement.style.setProperty(event.data.key, event.data.value);
+                }
+            });
+        </script>
+        """
+        raw_html = raw_html.replace("</head>", f"{injection}</head>")
 
-    return HTMLResponse(raw_html)
+    return HTMLResponse(content=raw_html)
 
 @app.get("/dynamic.css")
 async def dynamic_css():
@@ -107,8 +135,8 @@ async def generate_pdf():
     target_html = app.state.target_html_path
 
     try:
-        # Assuming weasyprint is installed in the env
-        subprocess.run(["weasyprint", str(target_html), str(output_pdf)], check=True)
+        # Pass base-url as the project root so asset paths resolve correctly
+        subprocess.run(["weasyprint", str(target_html), str(output_pdf), "--base-url", str(PROJECT_ROOT)], check=True)
         return {"status": "success", "message": f"PDF generated at {output_pdf.name}", "url": f"/download_pdf"}
     except Exception as e:
         return {"status": "error", "message": str(e)}

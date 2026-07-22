@@ -46,6 +46,14 @@
     --spacing-std: 1.2mm;
     --radius: 4px; /* Tighter radius = More professional */
     
+    /* TYPOGRAPHY SCALING */
+    --font-base-size: 10.8pt;
+    --line-height-base: 1.15;
+    --font-number-size: 24pt;
+    --font-title-size: 14pt;
+    --font-subtitle-size: 10pt;
+    --font-small-size: 10pt;
+
     /* SHADOWS (Kept per your request, but refined) */
     --shadow-card: 0 4px 6px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.08);
 }
@@ -79,8 +87,8 @@ html { direction: rtl; }
 body {
     font-family: 'Noto Naskh Arabic', "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", serif;
     color: var(--color-dark);
-    font-size: 10.8pt; /* Dense but readable */
-    line-height: 1.15;
+    font-size: var(--font-base-size); /* Dense but readable */
+    line-height: var(--line-height-base);
     margin: 0;
 }
 
@@ -121,7 +129,7 @@ body {
 
 .lesson-number {
     font-family: 'Noto Kufi Arabic';
-    font-size: 24pt;
+    font-size: var(--font-number-size);
     color: var(--color-primary);
     font-weight: 900;
     line-height: 1;
@@ -131,7 +139,7 @@ body {
     display: flex;
     flex-direction: column;
     font-family: 'Noto Kufi Arabic';
-    font-size: 10pt;
+    font-size: var(--font-small-size);
     color: #757575;
     font-weight: 700;
     white-space: nowrap;
@@ -139,7 +147,7 @@ body {
 
 .author-info {
     font-family: 'Noto Kufi Arabic';
-    font-size: 10pt;
+    font-size: var(--font-small-size);
     color: #757575;
     font-weight: 700;
     line-height: 1.4;
@@ -150,14 +158,14 @@ body {
     font-family: 'Noto Kufi Arabic';
     color: var(--color-primary);
     font-weight: 900;
-    font-size: 14pt;
+    font-size: var(--font-title-size);
     margin: 0;
 }
 
 .header-subtitle {
     font-family: 'Noto Kufi Arabic';
     color: #757575;
-    font-size: 10pt;
+    font-size: var(--font-subtitle-size);
     margin: 0;
 }
 
@@ -171,13 +179,48 @@ body {
     page-break-inside: avoid; /* Keep blocks intact */
 }
 
+/* Split Content Modifications */
+.content-block.border-open-bottom {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: 2px dashed #ccc;
+    margin-bottom: 0;
+    box-shadow: none;
+    border-left: 1px solid #eaeaea;
+    border-right: 1px solid #eaeaea;
+}
+
+.content-block.border-open-top {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: 2px dashed #ccc;
+    margin-top: 0;
+    box-shadow: none;
+    border-left: 1px solid #eaeaea;
+    border-right: 1px solid #eaeaea;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.fade-bottom {
+    position: relative;
+}
+.fade-bottom::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 15mm;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
+    pointer-events: none;
+}
+
+
 /* Header inside the card (Like the Green/Blue titles in your photos) */
 .block-header {
     background-color: var(--color-primary);
     color: white;
     padding: 1.5mm 3mm;
     font-family: 'Noto Kufi Arabic';
-    font-size: 10pt;
+    font-size: var(--font-subtitle-size);
     font-weight: 700;
     display: flex;
     justify-content: space-between;

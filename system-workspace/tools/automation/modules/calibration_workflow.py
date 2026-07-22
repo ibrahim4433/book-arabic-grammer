@@ -2,6 +2,8 @@ import os
 import sys
 import time
 import threading
+import subprocess
+import shutil
 from pathlib import Path
 import questionary
 from rich.console import Console
@@ -112,6 +114,42 @@ def wait_for_session_pr(client, session_id, step_name="PR"):
             elif choice.startswith("3"):
                 return None, True
 
+def extract_from_pr_branches(project_root, expected_filename):
+    console.print(f"\n[cyan]🔍 Searching Local PR Branches for {expected_filename}...[/cyan]")
+    try:
+        branches_out = subprocess.check_output(
+            ["git", "branch", "--list", "pr-*"], cwd=project_root, text=True
+        )
+        branches = [
+            b.strip().replace("*", "").strip() for b in branches_out.splitlines() if b.strip()
+        ]
+        
+        expected_name = Path(expected_filename).name
+        
+        for branch in branches:
+            diff_out = subprocess.check_output(
+                ["git", "diff", "--name-only", f"main..{branch}"], cwd=project_root, text=True
+            )
+            files = [f.strip() for f in diff_out.splitlines() if f.strip()]
+            
+            for f in files:
+                if expected_name in f:
+                    console.print(f"[green]✅ Found {expected_name} inside hidden branch {branch}: {f}[/green]")
+                    subprocess.run(
+                        ["git", "checkout", branch, "--", f],
+                        cwd=project_root,
+                        check=True,
+                        capture_output=True,
+                    )
+                    local_f = project_root / f
+                    target = project_root / expected_filename
+                    if local_f != target:
+                        target.parent.mkdir(exist_ok=True, parents=True)
+                        shutil.move(str(local_f), str(target))
+                    return True
+    except Exception as e:
+        console.print(f"[red]Error searching branches: {e}[/red]")
+    return False
 
 def run_calibration_ui(state_manager=None, project_root=None):
     console.clear()
@@ -165,11 +203,17 @@ def run_calibration_ui(state_manager=None, project_root=None):
             console.print("\n[bold yellow]--- Step 1: Planning ---[/bold yellow]")
             plan_client = JulesPlanClient(project_root=project_root)
 
+            plan_file = f"plans/{page_num}.md"
+            master_prompt_path = project_root / "system-workspace" / "Architect_GEM_MASTER.md"
+            master_prompt = master_prompt_path.read_text(encoding="utf-8") if master_prompt_path.exists() else ""
+
             # Override prompt for stress test
             plan_prompt = (
+                f"{master_prompt}\n\n"
                 f"You are the Lead Architect. Generate a Markdown plan for the following raw text.\n\n"
                 f"**CRITICAL INSTRUCTION**: This is a density stress test. DO NOT attempt to fit this into a single page. "
-                f"Bypass any 1-page limits. Plan it fully.\n\n"
+                f"Bypass any 1-page limits. Plan it fully.\n"
+                f"**OUTPUT FORMAT**: You MUST output your plan to the EXACT file path: {plan_file}\n\n"
                 f"Raw Text:\n{page_text}\n"
             )
 
@@ -193,6 +237,13 @@ def run_calibration_ui(state_manager=None, project_root=None):
             if not skip_pull:
                 details = {"pr_number": pr_number}
                 plan_client.finalize_pr_and_pull(details, plan_file)
+            
+            # Check if file exists and recover if necessary
+            if not (project_root / plan_file).exists():
+                console.print(f"[yellow]⚠️ {plan_file} not found at expected path. Searching PR branches...[/yellow]")
+                if not extract_from_pr_branches(project_root, plan_file):
+                    console.print(f"[red]❌ Failed to recover {plan_file}. Please check git branches manually.[/red]")
+                    return
         else:
             plan_file_str = questionary.text("Enter path to the Markdown Plan file (relative to project root):", default="plans/test.md").ask()
             if not plan_file_str:
@@ -210,9 +261,15 @@ def run_calibration_ui(state_manager=None, project_root=None):
             return
 
         # Use a simple generic generation logic or the JulesClient directly
+        html_file = f"pages/{page_num}.html"
+        auditor_prompt_path = project_root / "system-workspace" / "Architect_AUDITOR.md"
+        auditor_prompt = auditor_prompt_path.read_text(encoding="utf-8") if auditor_prompt_path.exists() else ""
+
         gen_prompt = (
+            f"{auditor_prompt}\n\n"
             f"You are the Lead UI Developer. Generate an HTML page based on the following plan.\n"
-            f"**CRITICAL INSTRUCTION**: This is a stress test. Ignore 1-page limits. Generate the full HTML.\n\n"
+            f"**CRITICAL INSTRUCTION**: This is a stress test. Ignore 1-page limits. Generate the full HTML.\n"
+            f"**OUTPUT FORMAT**: You MUST output the HTML to the EXACT file path: {html_file}\n\n"
             f"Plan:\n{plan_path.read_text(encoding='utf-8')}\n"
         )
 
@@ -228,15 +285,17 @@ def run_calibration_ui(state_manager=None, project_root=None):
             console.print("[red]❌ Generation cancelled or failed.[/red]")
             return
 
-        html_file = f"pages/{page_num}.html"
         if not skip_pull_gen:
             details_gen = {"pr_number": gen_pr_number}
             plan_client.finalize_pr_and_pull(details_gen, html_file)
-
+            
         html_target_path = project_root / html_file
+
         if not html_target_path.exists():
-            console.print(f"[red]❌ HTML file {html_target_path} not found after pull![/red]")
-            return
+            console.print(f"[yellow]⚠️ {html_file} not found at expected path. Searching PR branches...[/yellow]")
+            if not extract_from_pr_branches(project_root, html_file):
+                console.print(f"[red]❌ HTML file {html_target_path} not found after pull and branch search![/red]")
+                return
 
     # Start the server with the target HTML
     start_calibration_server(html_target_path, project_root)
