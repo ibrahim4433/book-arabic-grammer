@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+:root { --main-color: red; }
+.box { color: var(--main-color); background: var(--bg, blue); }
+.box::before { content: "X"; border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="box" id="mybox">Hello</div>
+<script>
+    let target = document.getElementById('mybox');
+    let vars = new Set();
+    for (let i = 0; i < document.styleSheets.length; i++) {
+        let sheet = document.styleSheets[i];
+        for (let j = 0; j < sheet.cssRules.length; j++) {
+            let rule = sheet.cssRules[j];
+            if (rule.type === 1) { // STYLE_RULE
+                if (rule.selectorText.includes(':root')) continue;
+                let cleanSelector = rule.selectorText.replace(/::?(before|after|hover|active|focus|nth-child\([^)]+\))/g, '').trim();
+                if (!cleanSelector) continue;
+                if (target.matches(cleanSelector) || target.querySelector(cleanSelector)) {
+                    const matches = rule.style.cssText.match(/var\(--([a-zA-Z0-9-]+)[^)]*\)/g);
+                    console.log("matches in", cleanSelector, ":", matches);
+                    if (matches) {
+                        matches.forEach(m => {
+                            let v = m.match(/--[a-zA-Z0-9-]+/)[0];
+                            vars.add(v.substring(2));
+                        });
+                    }
+                }
+            }
+        }
+    }
+    console.log(Array.from(vars));
+</script>
+</body>
+</html>

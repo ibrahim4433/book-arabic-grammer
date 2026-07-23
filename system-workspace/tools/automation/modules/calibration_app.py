@@ -170,6 +170,7 @@ async def preview():
         <script>
             let inspectorActive = false;
             let currentTarget = null;
+            let pinnedTarget = null;
             let currentPage = 1;
             let singlePageMode = true;
             let totalPages = 1;
@@ -216,6 +217,14 @@ async def preview():
                     singlePageMode = event.data.enabled;
                     updatePagination();
                 }
+                if(event.data && event.data.type === 'pin-parent') {
+                    if (pinnedTarget && pinnedTarget.parentElement && pinnedTarget.parentElement !== document.body && pinnedTarget.parentElement !== document.documentElement) {
+                        pinnedTarget = pinnedTarget.parentElement;
+                        const info = getInspectorInfo(pinnedTarget);
+                        const vars = getUsedVariables(pinnedTarget);
+                        window.parent.postMessage({ type: 'inspector-pinned-data', html: info, variables: vars }, '*');
+                    }
+                }
             });
 
             function getInspectorInfo(target) {
@@ -251,14 +260,69 @@ async def preview():
                 window.parent.postMessage({ type: 'inspector-data', html: info }, '*');
             });
             
+            function getUsedVariables(target) {
+                let vars = new Set();
+                try {
+                    for (let i = 0; i < document.styleSheets.length; i++) {
+                        let sheet = document.styleSheets[i];
+                        try {
+                            for (let j = 0; j < sheet.cssRules.length; j++) {
+                                let rule = sheet.cssRules[j];
+                                if (rule.type === CSSRule.STYLE_RULE) {
+                                    if (rule.selectorText.includes(':root') || rule.selectorText.includes('html') || rule.selectorText === 'body') continue;
+                                    
+                                    let cleanSelector = rule.selectorText.replace(/::?(before|after|hover|active|focus|nth-child\\([^)]+\\))/g, '').trim();
+                                    if (!cleanSelector) continue;
+                                    
+                                    try {
+                                        if (target.matches(cleanSelector) || target.querySelector(cleanSelector)) {
+                                            const matches = rule.style.cssText.match(/var\\(--[a-zA-Z0-9-]+\\b/g);
+                                            if (matches) {
+                                                matches.forEach(m => vars.add(m.substring(4)));
+                                            }
+                                        }
+                                    } catch(e) {}
+                                }
+                            }
+                        } catch(e) {}
+                    }
+                } catch(e) {
+                    console.error("Error accessing styleSheets", e);
+                }
+                console.log("Used variables for", target, ":", Array.from(vars));
+                return Array.from(vars);
+            }
+
             document.addEventListener('click', function(e) {
                 if(!inspectorActive) return;
+                
+                // Allow clicking through if Shift key is held (helps select elements behind others)
+                if (e.shiftKey) return;
+                
                 if(e.target === document.body || e.target === document.documentElement) return;
                 e.preventDefault();
                 e.stopPropagation();
                 
-                const info = getInspectorInfo(e.target);
-                window.parent.postMessage({ type: 'inspector-pinned-data', html: info }, '*');
+                pinnedTarget = e.target;
+                const info = getInspectorInfo(pinnedTarget);
+                const vars = getUsedVariables(pinnedTarget);
+                window.parent.postMessage({ type: 'inspector-pinned-data', html: info, variables: vars }, '*');
+            });
+            
+            document.addEventListener('selectionchange', function() {
+                if(!inspectorActive) return;
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0 && !selection.isCollapsed) {
+                    let target = selection.anchorNode;
+                    if (target.nodeType === 3) target = target.parentElement; // Get the element wrapping the text
+                    
+                    if(target === document.body || target === document.documentElement) return;
+                    
+                    pinnedTarget = target;
+                    const info = getInspectorInfo(pinnedTarget);
+                    const vars = getUsedVariables(pinnedTarget);
+                    window.parent.postMessage({ type: 'inspector-pinned-data', html: info, variables: vars }, '*');
+                }
             });
             
             document.addEventListener('mouseout', function(e) {

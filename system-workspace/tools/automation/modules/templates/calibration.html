@@ -128,8 +128,11 @@
     <div id="right-sidebar">
         <h3 style="margin-top:0; border-bottom:1px solid #444; padding-bottom:10px;">🔎 Inspector Data</h3>
         
-        <div id="inspector-pinned" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 3px solid #f39c12; min-height: 50px;">
-            <div style="font-size: 12px; color: #f39c12; font-weight: bold; margin-bottom: 5px;">📌 Pinned Element (Click to save)</div>
+        <div id="inspector-pinned" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 3px solid #f39c12; min-height: 50px; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <div style="font-size: 12px; color: #f39c12; font-weight: bold;">📌 Pinned Element</div>
+                <button type="button" onclick="pinParent()" style="background: transparent; border: 1px solid #f39c12; color: #f39c12; padding: 2px 8px; font-size: 11px; border-radius: 3px; cursor: pointer;" title="Select Parent Element">⬆️ Parent</button>
+            </div>
             <div id="inspector-pinned-content" style="font-size: 13px; color: #aaa;">No element selected. Click an element in the preview to pin its data.</div>
         </div>
         
@@ -324,6 +327,39 @@
             }
             if (event.data && event.data.type === 'inspector-pinned-data') {
                 document.getElementById('inspector-pinned-content').innerHTML = event.data.html;
+                
+                if (event.data.variables) {
+                    console.log("UI received variables:", event.data.variables);
+                    // Reset highlighting on all control groups
+                    document.querySelectorAll('.var-group').forEach(el => {
+                        el.style.backgroundColor = '';
+                        el.style.padding = '';
+                        el.style.borderRadius = '';
+                        el.style.boxShadow = '';
+                        el.style.borderLeft = '';
+                    });
+                    document.querySelectorAll('input').forEach(el => {
+                        el.style.borderColor = '';
+                        el.style.borderWidth = '';
+                    });
+                    
+                    // Highlight the matched variables
+                    event.data.variables.forEach(varName => {
+                        const input = document.querySelector(`input[name="${varName}"]`);
+                        if (input) {
+                            input.style.borderColor = '#2ecc71';
+                            input.style.borderWidth = '2px';
+                            
+                            const group = input.closest('.var-group');
+                            if (group) {
+                                group.style.backgroundColor = 'rgba(46, 204, 113, 0.2)'; // Green tint
+                                group.style.padding = '8px';
+                                group.style.borderRadius = '4px';
+                                group.style.borderLeft = '5px solid #2ecc71';
+                            }
+                        }
+                    });
+                }
             }
         });
 
@@ -339,6 +375,13 @@
             const iframe = document.getElementById('previewFrame');
             if (iframe && iframe.contentWindow) {
                 iframe.contentWindow.postMessage({ type: 'change-page', delta: delta }, '*');
+            }
+        }
+        
+        function pinParent() {
+            const iframe = document.getElementById('previewFrame');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'pin-parent' }, '*');
             }
         }
 
