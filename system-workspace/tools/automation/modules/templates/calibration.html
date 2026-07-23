@@ -140,8 +140,11 @@
         <div id="inspector-content"></div>
     </div>
 
+    <script id="css-vars-data" type="application/json">
+        {{ css_vars | tojson | safe }}
+    </script>
     <script>
-        const defaultVars = {{ css_vars | tojson | safe }};
+        const defaultVars = JSON.parse(document.getElementById('css-vars-data').textContent);
 
         function resetSingleVar(key) {
             if (defaultVars.hasOwnProperty(key)) {

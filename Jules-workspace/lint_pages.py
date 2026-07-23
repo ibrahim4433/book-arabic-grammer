@@ -160,6 +160,17 @@ def _check_exam_compliance(soup: BeautifulSoup, result: LintResult) -> None:
                     message=f"Exam question (id={q_id}) is missing an answer box (div.bg-grey-lighter).",
                 )
             )
+def _check_one_page_mode_compliance(soup: BeautifulSoup, result: LintResult) -> None:
+    """Enforce strict 1-page mode constraints (no <section> tags allowed)."""
+    for section in soup.find_all("section"):
+        sec_id = section.get("id", "N/A")
+        sec_class = " ".join(section.get("class", []))
+        result.issues.append(
+            LintIssue(
+                level="ERROR",
+                message=f"<section> tags are forbidden in 1-page mode. Found <section class='{sec_class}' id='{sec_id}'>. Use <div> instead.",
+            )
+        )
 
 
 def _check_anti_bloat(soup: BeautifulSoup, result: LintResult) -> None:
@@ -181,6 +192,7 @@ def _check_anti_bloat(soup: BeautifulSoup, result: LintResult) -> None:
 def lint_file(
     filepath: Path,
     allowed_classes: frozenset[str] | None = None,
+    one_page_mode: bool = False,
 ) -> LintResult:
     """Lint a single HTML file and return a LintResult."""
     result = LintResult(filepath=filepath)
@@ -255,6 +267,8 @@ def lint_file(
         soup = BeautifulSoup(content, "html.parser")
         _check_exam_compliance(soup, result)
         _check_anti_bloat(soup, result)
+        if one_page_mode:
+            _check_one_page_mode_compliance(soup, result)
     except Exception as exc:
         result.issues.append(
             LintIssue(
@@ -288,6 +302,12 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         dest="json_output",
         help="Output results as JSON (machine-readable)",
+    )
+    parser.add_argument(
+        "--one-page-mode",
+        action="store_true",
+        dest="one_page_mode",
+        help="Enforce strict 1-page mode constraints (no <section> tags)",
     )
     return parser.parse_args()
 
@@ -325,7 +345,7 @@ async def main_async() -> None:
     # Using modern Python 3.11+ TaskGroup for concurrent execution
     async with asyncio.TaskGroup() as tg:
         tasks = [
-            tg.create_task(asyncio.to_thread(lint_file, filepath, allowed_classes))
+            tg.create_task(asyncio.to_thread(lint_file, filepath, allowed_classes, args.one_page_mode))
             for filepath in target_files
         ]
 
