@@ -525,3 +525,11 @@ This document lists the essential tools available for the Jules agent, specifica
 - **Usage:** ``python3 system-workspace/tools/automation/modules/youtube_ui.py``
 - **Workflow Integration:** It operates independently of the '1-Plan-Per-Page' book generation workflow. It is an auxiliary tool used for gathering or processing raw data/audio before it enters the book generation pipeline.
 
+
+### `./Jules-workspace/generate.py`
+- **Status:** Usable
+- **Purpose:** Minimal HTML template generation script used as a baseline reference.
+- **Inputs:** None.
+- **Outputs:** Generates a minimal HTML output.
+- **Usage:** `python Jules-workspace/generate.py`
+- **Workflow Integration:** Reference script for template generation.

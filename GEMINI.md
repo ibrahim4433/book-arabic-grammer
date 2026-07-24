@@ -21,11 +21,12 @@ npm install -g @google/gemini-cli
 ### Key Commands
 | Command | Description |
 | :--- | :--- |
+| `python system.py` | **Control Room.** Interactive dashboard to manage OCR, planning, and generation. |
 | `python build.py` | **Build Full Book.** Generates `output/book.pdf`. |
 | `python preview.py` | **Preview Page.** Interactive tool to render a single HTML page for rapid iteration. |
 | `python "Jules-workspace/id_manager.py" auto-tag` | **Auto-ID.** Automatically assigns unique IDs (`bXXXXX`) to all content blocks. |
 | `python "Jules-workspace/verify_layout.py"` | **Verify Layout.** Checks compliance with the "One-Page Law". |
-| `python "Jules-workspace/lint_pages.py"` | **Lint Content.** Checks for missing IDs, invalid nesting, or rule violations. |
+| `python "Jules-workspace/lint_pages.py" --one-page-mode` | **Lint Content.** Checks for missing IDs, invalid nesting, or rule violations (enforces no `<section>` tags in 1-page mode). |
 
 ---
 
@@ -40,6 +41,7 @@ npm install -g @google/gemini-cli
 - **/output**: Destination for generated PDFs (`book.pdf`) and debug files.
 - **/Jules-workspace**: Tools and Context for the AI Agent (Rules, Standards, Verification Scripts).
 - **/system-workspace**: Backend Automation Tools and Prompts.
+    - **/tools/new-tools**: Contains 70+ ad-hoc migration, cleaning, and testing scripts used for one-off tasks. Check here before writing new single-use fixing scripts.
 
 ---
 
@@ -85,7 +87,8 @@ Every HTML file in `/pages/` must render to **exactly one A4 page**.
 
 ## 🧩 Design System: Atomic Components
 
-Always use the templates in `/Jules-workspace/Templates/`.
+Always use the templates in `/Jules-workspace/Templates/`. 
+**CRITICAL 1-PAGE MODE RULE:** When generating for the 1-plan-1-page workflow, `<section>` tags are strictly forbidden. You must replace `<section>` tags in the templates with `<div>` tags (keeping their IDs). `<header>` elements should remain as is.
 
 ### 1. Structure & Layout
 | Component | Template File | CSS Class | Usage |

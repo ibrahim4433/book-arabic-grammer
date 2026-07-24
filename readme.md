@@ -17,8 +17,8 @@ A modern, high-quality Arabic Grammar book project built with **HTML**, **CSS Pa
    `pip install -r requirements.txt`
 
 ### Building the Book
-Run the build script:
-`python build.py`
+Run the central control room to manage OCR, generation, and building the book:
+`python system.py`
 
 If you see `libgobject-2.0-0` / `libpango` errors on Windows, the Python package is installed but the native GTK runtime is missing.
 
@@ -51,8 +51,9 @@ If you see `libgobject-2.0-0` / `libpango` errors on Windows, the Python package
 
 ## **🛠️ Technical Documentation**
 
-For detailed technical constraints and architecture, please refer to:
+For detailed technical constraints, rules, and tool documentation, please refer to:
 
-* [TECH\_STACK.md](https://github.com/ibrahim4433/book-arabic-grammer/blob/main/TECH_STACK.md) \- Frameworks and strict constraints.
-* [ARCHITECTURE.md](https://github.com/ibrahim4433/book-arabic-grammer/blob/main/ARCHITECTURE.md) \- File structure and build logic.
-* [CODING\_STANDARDS.md](https://github.com/ibrahim4433/book-arabic-grammer/blob/main/CODING_STANDARDS.md) \- HTML/CSS rules and snippets.
+* [GEMINI.md](GEMINI.md) \- Context and core rules for the AI coding assistant.
+* [AGENTS.md](AGENTS.md) \- System rules, validation steps, and 1-page generation constraints.
+* [TOOLS_DOCUMENTATION.md](TOOLS_DOCUMENTATION.md) \- Master index of all project tools and scripts.
+* [ROADMAP_1_PAGE_PLAN.md](ROADMAP_1_PAGE_PLAN.md) \- Roadmap for the 1-Plan-Per-Page architecture.

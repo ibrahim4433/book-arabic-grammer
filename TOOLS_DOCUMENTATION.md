@@ -30,11 +30,11 @@ This document contains the aggregated documentation of every usable and fixable 
 
 ### `./Jules-workspace/lint_pages.py`
 - **Status:** Usable
-- **Purpose:** Lints HTML files for design constraints and allowable utility classes.
-- **Inputs:** Target files (command-line arguments, defaults to all files in `pages/`) and Golden Style Configurations (dynamically read from CSS via `get_valid_utility_classes`).
+- **Purpose:** Lints HTML files for design constraints, allowable utility classes, and 1-page mode semantic tags.
+- **Inputs:** Target files (command-line arguments, defaults to all files in `pages/`), `--one-page-mode` flag, and Golden Style Configurations (dynamically read from CSS via `get_valid_utility_classes`).
 - **Outputs:** Console messages showing errors, and optional JSON output. Fails fast if violations are found.
-- **Usage:** `python Jules-workspace/lint_pages.py pages/01.html`
-- **Workflow Integration:** Can verify new files immediately generated under the new '1-Plan-Per-Page' or legacy pipeline.
+- **Usage:** `python Jules-workspace/lint_pages.py pages/01.html --one-page-mode`
+- **Workflow Integration:** Can verify new files immediately generated under the new '1-Plan-Per-Page' or legacy pipeline. The `--one-page-mode` flag is required when checking 1-page-mode layouts to enforce the `<div>` tag rule.
 
 ### `./Jules-workspace/lint_templates.py`
 - **Status:** Usable
@@ -81,6 +81,14 @@ This document contains the aggregated documentation of every usable and fixable 
 - **Workflow Integration:** This tool acts as an independent external utility for converting scanned documents to raw text. It sits upstream of the new '1-Plan-Per-Page' workflow, which expects the raw text (with page markers) as its input.
 
 ## root
+
+### `./system.py`
+- **Status:** Usable
+- **Purpose:** The centralized interactive "Control Room" that coordinates the entire 1-Plan-Per-Page workflow. It handles text extraction (OCR), planning via LLM, HTML generation using Jules API, and layout auditing.
+- **Inputs:** Interactive CLI menu.
+- **Outputs:** Coordinates file generation in `plans/`, `pages/`, and calls verifiers.
+- **Usage:** `python system.py`
+- **Workflow Integration:** This is the primary entry point for managing the automated content pipeline, superseding legacy scripts.
 
 ### `./preview-theme.py`
 - **Status:** Usable
@@ -838,3 +846,44 @@ This document contains the aggregated documentation of every usable and fixable 
 - **Usage:** `python test_pytubefix.py`
 - **Workflow Integration:** Not part of the page generation workflow directly, but serves as a utility test for potentially integrating multimedia handling (like transcribing video audio for lessons) into the larger pipeline.
 
+
+## Additional Root Utilities
+
+### `./build.py`
+- **Status:** Usable
+- **Purpose:** Arabic Grammar Book PDF Builder. Compiles all pages in `/pages/` into a single A4 PDF using WeasyPrint.
+- **Inputs:** `--output` parameter.
+- **Outputs:** PDF file (e.g. `output/export/my_book.pdf`).
+- **Usage:** `python build.py`
+- **Workflow Integration:** Can be run as needed to compile the full book.
+
+### `./scripts/build-with-id.py` and `.sh` counterparts
+- **Status:** Usable
+- **Purpose:** Wrapper scripts for the PDF building process that ensure the `output` directory exists and fail safely on errors.
+- **Inputs:** None.
+- **Outputs:** PDF compilation.
+- **Usage:** `python scripts/build-with-id.py` or `./scripts/build.sh`
+- **Workflow Integration:** Used in CI or automated bash pipelines.
+
+## Additional Jules-workspace Utilities
+
+### `./Jules-workspace/generate.py`
+- **Status:** Usable
+- **Purpose:** Minimal HTML template generation script used as a baseline reference.
+- **Inputs:** None.
+- **Outputs:** Generates a minimal HTML output.
+- **Usage:** `python Jules-workspace/generate.py`
+- **Workflow Integration:** Reference script for template generation.
+
+## Ad-hoc Migration & Data Fixing Tools (new-tools & extra)
+
+The `system-workspace/tools/new-tools/` and `system-workspace/tools/extra/` directories contain over 70 undocumented ad-hoc scripts used for one-off data migrations, testing, and formatting during the project's development. 
+These include:
+- **`fix_*.py` and `clean_*.py`**: Scripts used to clean OCR text, fix TOC styling, and normalize HTML classes (e.g., `clean_raw_book.py`, `fix_answers_ids.py`, `fix_toc_styles.py`).
+- **`align_*.py` and `sync_*.py`**: Scripts to align parsed text with the original physical pages.
+- **`test_*.py`**: Local unit testing and headless validation scripts (e.g., `test_weasy.py`, `test_jules.py`).
+
+- **Status:** Archive / Experimental
+- **Purpose:** These scripts were created to solve specific data-cleaning tasks and should be referenced if similar data migrations are needed. They are NOT part of the standard generation pipeline.
+- **Inputs/Outputs:** Various depending on the script.
+- **Workflow Integration:** Use as a reference when writing new migration scripts. Agents should consult these directories before writing new single-use scripts to avoid duplication of effort.

@@ -69,6 +69,13 @@ This document outlines the roadmap for transforming the current scripts into a c
 - [x] **Implement Option A (Full Auto)**
     - [x] Chain B -> C -> D sequentially.
 
+## ✅ Phase 5: 1-Page Mode Structural Enhancements
+
+- [x] **Div Tag Enforcement**
+    - [x] Update templates to include 1-page mode instructional comments.
+    - [x] Update `Architect_GEM_MASTER_1_PAGE.md` to mandate `<div>` tags instead of `<section>` tags.
+    - [x] Implement `--one-page-mode` flag in `lint_pages.py` to strictly enforce the `<section>` ban.
+
 ## 🚀 Future Tasks
 
 - [ ] **Advanced Table Parsing:** Improve `Compiler._transform_table` to handle complex markdown tables robustly.

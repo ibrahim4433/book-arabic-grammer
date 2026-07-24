@@ -13,6 +13,7 @@ The goal is to fit content exactly on a single A4 page for rendering via WeasyPr
 3. **The Strict Typographer Rule:** Use 100% of the provided raw text. NO summarizing, NO deleting, NO adding new content.
 4. **The Typo Exception:** Explicit permission to correct obvious typos or grammatical errors in the raw Arabic text.
 5. **Sliced Content:** For elements cut between pages, use specific dynamic split HTML templates (`TEMPLATE_C_SPLIT.html`, `TEMPLATE_CUT_BOX_PART_1.html` etc).
+6. **Div Tags Only:** When mapping templates to content, `<section>` tags are strictly forbidden. You MUST replace any `<section>` tags in the template with `<div>` tags (keeping their IDs). `<header>` tags for page headers should remain as is.
 
 ## Tools
 
@@ -22,7 +23,7 @@ You have access to several specialized tools, particularly in the `Jules-workspa
 - **`verify_layout.py`**: Verifies that the generated HTML correctly renders onto a single A4 page without underflow/overflow.
   - Usage: `python3 Jules-workspace/verify_layout.py pages/01.html`
 - **`lint_pages.py`**: Lints HTML files to ensure they conform to Atomic Design compliance and golden styles.
-  - Usage: `python3 Jules-workspace/lint_pages.py pages/`
+  - Usage: `python3 Jules-workspace/lint_pages.py pages/ --one-page-mode`
 - **`id_manager.py`**: Auto-tags block elements with unique IDs for layout tracing. Must be run before linting.
   - Usage: `python3 Jules-workspace/id_manager.py auto-tag`
 

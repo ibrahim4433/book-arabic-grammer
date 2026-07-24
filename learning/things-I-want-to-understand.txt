@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+@dataclass(frozen=True)
+class BuildConfig:
+
+
+class BuildError(Exception):
+
+
+def _extract_body(content: str, filepath: Path) -> str:
+    """Extract inner body content from an HTML file string."""
+    body_match = re.search(r"<body[^>]*>(.*?)</body>", content, re.DOTALL | re.IGNORECASE)
+    if body_match:
+        return body_match.group(1)
+    print(f"  → Info: No <body> tag in {filepath}. Using full content as fragment.")
+    return content
+
+
+
