@@ -3,6 +3,7 @@ import random
 import re
 import sys
 import time
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -11,6 +12,7 @@ sys.path.append(str(Path(__file__).parent))
 
 from gemini_client import GeminiClient
 from github_utils import GithubClient
+from jules_client import APIBlockError
 from jules_client_plans import JulesPlanClient  # Reusing PR pulling logic
 
 
@@ -31,6 +33,7 @@ class JulesPageGenerator:
         self.jules_client = JulesPlanClient(project_root=self.project_root)  # Reuse for PR pulling
         self.gemini_client = GeminiClient(project_root=self.project_root)
         self.github = GithubClient(token_path=self.project_root / "secrets/Github_Token.txt")
+        self.abort_event = threading.Event()
 
         # Load Context for Gemini (Headless)
         self.context_files = [
@@ -68,6 +71,9 @@ class JulesPageGenerator:
         """
         Worker for a single plan.
         """
+        if self.abort_event.is_set():
+            return
+
         if not callback:
 
             def default_callback(t, s, m):
@@ -160,9 +166,15 @@ class JulesPageGenerator:
                 f"PLAN:\n{plan_content}{elements_text}"
             )
 
-            session = self.jules_client.create_session(
-                prompt, f"PageGen: {lesson_title}", automation_mode="AUTO_CREATE_PR"
-            )
+            try:
+                session = self.jules_client.create_session(
+                    prompt, f"PageGen: {lesson_title}", automation_mode="AUTO_CREATE_PR"
+                )
+            except APIBlockError as e:
+                self.abort_event.set()
+                callback(lesson_title, "API_BLOCKED", "API Quota/Limit Reached")
+                return False
+
             if not session:
                 callback(lesson_title, "ERROR", "Session Create Failed")
                 return False
@@ -306,8 +318,40 @@ class JulesPageGenerator:
 
         return "TIMEOUT"
 
+    def count_existing_pages(self, excluded_lessons=None, only_lessons=None):
+        """Counts how many HTML pages already exist for the current plans."""
+        plans_dir = self.project_root / "plans"
+        pages_dir = self.project_root / "pages"
+        if not plans_dir.exists(): return 0
+        
+        all_plans = sorted(list(plans_dir.glob("*.md")))
+        count = 0
+        for plan in all_plans:
+            match = re.search(r"(?:^|page[_\s]*)(\d+)", plan.name, re.IGNORECASE)
+            lesson_num = match.group(1) if match else None
+
+            if lesson_num and excluded_lessons and (lesson_num in excluded_lessons or str(int(lesson_num)) in excluded_lessons):
+                continue
+            if lesson_num and only_lessons and (lesson_num not in only_lessons and str(int(lesson_num)) not in only_lessons):
+                continue
+
+            html_exists = False
+            if lesson_num:
+                for f in pages_dir.glob("*.html"):
+                    if f.name.startswith(f"{lesson_num}.") or f.name.startswith(f"{lesson_num}_"):
+                        html_exists = True
+                        break
+            else:
+                html_name = plan.name.replace("-plan.md", ".html")
+                if (pages_dir / html_name).exists():
+                    html_exists = True
+            
+            if html_exists: count += 1
+            
+        return count
+
     def run_batch_generation(
-        self, max_concurrent=5, update_callback=None, excluded_lessons=None, only_lessons=None
+        self, max_concurrent=5, update_callback=None, excluded_lessons=None, only_lessons=None, force_remake=False
     ):
         """
         Main entry point.
@@ -360,7 +404,7 @@ class JulesPageGenerator:
                 if (pages_dir / html_name).exists():
                     html_exists = True
 
-            if html_exists:
+            if html_exists and not force_remake:
                 update_callback(plan.stem, "SKIP", "HTML exists")
                 continue
 

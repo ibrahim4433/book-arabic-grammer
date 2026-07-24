@@ -2,8 +2,13 @@ import logging
 import os
 import time
 from pathlib import Path
+from datetime import datetime
 
 import requests
+
+
+class APIBlockError(Exception):
+    """Raised when the Jules API returns a rate limit or quota exceeded response."""
 
 
 class JulesClient:
@@ -75,8 +80,11 @@ class JulesClient:
 
         except requests.exceptions.RequestException as e:
             logging.error(f"❌ JulesClient Error (Create): {e}")
-            if e.response:
+            if e.response is not None:
                 logging.error(f"   Response: {e.response.text}")
+                status = e.response.status_code
+                if status in [429, 403, 400] and ("quota" in e.response.text.lower() or "limit" in e.response.text.lower() or status in [429, 403]):
+                    raise APIBlockError("Jules API limit or quota reached.") from e
             return None
 
     def get_session_status(self, session_id):
