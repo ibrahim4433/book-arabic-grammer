@@ -176,6 +176,7 @@ api = [
 ]
 dev = [
     { name = "arabic-reshaper" },
+    { name = "beautifulsoup4" },
     { name = "mishkal" },
     { name = "mypy" },
     { name = "pdf2image" },
@@ -194,6 +195,7 @@ dev = [
 requires-dist = [
     { name = "arabic-reshaper", marker = "extra == 'dev'", specifier = ">=3.0.0" },
     { name = "beautifulsoup4", specifier = ">=4.15.0" },
+    { name = "beautifulsoup4", marker = "extra == 'dev'", specifier = ">=4.15.0" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.110.0" },
     { name = "jinja2", marker = "extra == 'api'", specifier = ">=3.1.6" },
     { name = "lxml", specifier = ">=5.0" },
