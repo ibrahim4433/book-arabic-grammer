@@ -24,6 +24,7 @@ dev = [
     "python-bidi>=0.4.2",
     "pytesseract>=0.3.10",
     "pdf2image>=1.17.0",
+    "beautifulsoup4>=4.15.0",
 ]
 api = [
     "fastapi>=0.110.0",
