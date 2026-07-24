@@ -84,7 +84,7 @@ class JulesPageGenerator:
         lesson_title = plan_path.stem
 
         # Extract Lesson Number
-        match = re.match(r"^(\d+)", lesson_title)
+        match = re.search(r"(?:^|page[_\s]*)(\d+)", lesson_title, re.IGNORECASE)
         lesson_num = match.group(1) if match else None
 
         # 1. Check Existing Session
@@ -95,7 +95,7 @@ class JulesPageGenerator:
             # Try to find matching key in StateManager
             all_lessons = self.state_manager.get_all_lessons()
             for key in all_lessons.keys():
-                if key.startswith(f"{lesson_num} -") or key.startswith(f"{int(lesson_num)!s} -"):
+                if key.startswith(f"{lesson_num} -") or key.startswith(f"{int(lesson_num)!s} -") or key.startswith(f"page {lesson_num}") or key.startswith(f"page {int(lesson_num)!s}"):
                     state_key = key
                     break
 
@@ -344,8 +344,8 @@ class JulesPageGenerator:
                 update_callback("System", "INFO", f"Moved stray file: {stray_file.name} -> pages/")
 
         for plan in all_plans:
-            # Check Lesson Number (Assuming "09-Title-plan.md")
-            match = re.match(r"^(\d+)", plan.name)
+            # Check Lesson Number (Assuming "09-Title-plan.md" or "page_09-plan.md")
+            match = re.search(r"(?:^|page[_\s]*)(\d+)", plan.name, re.IGNORECASE)
             lesson_num = match.group(1) if match else None
 
             # Smart check if output exists (Jules uses dynamic names like 09.0_nXX_title.html)

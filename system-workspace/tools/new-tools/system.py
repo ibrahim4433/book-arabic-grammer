@@ -706,7 +706,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
     with lock:
         for title, data in tasks.items():
             if data.get("status") in ["FAILED", "ERROR", "WARN"]:
-                match = re.match(r"^(\d+)", title)
+                match = re.search(r"(?:^|page[_\s]*)(\d+)", title, re.IGNORECASE)
                 lesson_num = match.group(1) if match else None
                 if lesson_num:
                     clean_t = re.sub(r"^\d+\s*-\s*", "", title).replace("-plan", "").strip()
@@ -883,7 +883,7 @@ def run_retry_planning_and_generation_ui(state_manager):
     deleted = 0
     if plans_dir.exists():
         for plan in plans_dir.glob("*.md"):
-            match = re.match(r"^(\d+)", plan.name)
+            match = re.search(r"(?:^|page[_\s]*)(\d+)", plan.name, re.IGNORECASE)
             if match and match.group(1) in only_lessons:
                 plan.unlink()
                 deleted += 1
@@ -891,7 +891,7 @@ def run_retry_planning_and_generation_ui(state_manager):
 
     if pages_dir.exists():
         for page in pages_dir.glob("*.html"):
-            match = re.match(r"^(\d+)", page.name)
+            match = re.search(r"(?:^|page[_\s]*)(\d+)", page.name, re.IGNORECASE)
             if match and match.group(1) in only_lessons:
                 page.unlink()
                 deleted += 1

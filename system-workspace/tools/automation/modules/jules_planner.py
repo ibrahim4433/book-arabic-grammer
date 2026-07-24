@@ -136,7 +136,11 @@ class JulesPlanner:
                 continue  # Skip if we only want specific lessons
 
             clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
-            plan_path = self.project_root / f"plans/{lesson_number}-{clean_title}-plan.md"
+            
+            if getattr(self, "is_1_page_mode", False):
+                plan_path = self.project_root / f"plans/page_{lesson_number}-plan.md"
+            else:
+                plan_path = self.project_root / f"plans/{lesson_number}-{clean_title}-plan.md"
 
             if plan_path.exists():
                 update_callback(title, "SKIP", "Plan exists")

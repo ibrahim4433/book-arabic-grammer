@@ -116,7 +116,7 @@ class StateManager:
 
         for key, data in self.state["lessons"].items():
             # Try to extract number
-            match = re.match(r"^(\d+)", key)
+            match = re.search(r"(?:^|page\s*)(\d+)", key, re.IGNORECASE)
             if match:
                 num = match.group(1)
                 # If we already have this number, merge latest status
