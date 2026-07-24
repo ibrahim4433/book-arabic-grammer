@@ -457,29 +457,58 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False):
         return layout
 
     # Initialize Live with the initial table
+    existing_count = planner.count_existing_plans()
+    force_remake = False
+    if existing_count > 0:
+        ans = questionary.confirm(f"Found {existing_count} existing plans. Do you want to RE-MAKE them? (No = Skip)").ask()
+        force_remake = ans
+
     start_all = time.time()
-    with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
+    
+    while True:
+        with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
+    
+            def callback(title, status, msg):
+                with lock:
+                    if title not in tasks:
+                        tasks[title] = {}
+    
+                    tasks[title]["status"] = status
+                    tasks[title]["message"] = msg
+    
+                    if status == "RUNNING":
+                        if "start_time" not in tasks[title]:
+                            tasks[title]["start_time"] = time.time()
+                    elif status in ["SUCCESS", "FAILED", "SKIP", "WARN", "ERROR", "API_BLOCKED"]:
+                        if "start_time" in tasks[title]:
+                            tasks[title]["duration"] = time.time() - tasks[title]["start_time"]
+                        else:
+                            tasks[title]["duration"] = 0.0
+    
+                live.update(generate_layout())
+    
+            planner.run_batch_planning(max_concurrent=5, update_callback=callback, force_remake=force_remake)
 
-        def callback(title, status, msg):
-            with lock:
-                if title not in tasks:
-                    tasks[title] = {}
-
-                tasks[title]["status"] = status
-                tasks[title]["message"] = msg
-
-                if status == "RUNNING":
-                    if "start_time" not in tasks[title]:
-                        tasks[title]["start_time"] = time.time()
-                elif status in ["SUCCESS", "FAILED", "SKIP", "WARN", "ERROR"]:
-                    if "start_time" in tasks[title]:
-                        tasks[title]["duration"] = time.time() - tasks[title]["start_time"]
-                    else:
-                        tasks[title]["duration"] = 0.0
-
-            live.update(generate_layout())
-
-        planner.run_batch_planning(max_concurrent=5, update_callback=callback)
+        api_blocked = any(data.get("status") == "API_BLOCKED" for data in tasks.values())
+        if api_blocked:
+            console.print("[bold red]\n⚠️ Jules API Limit or Quota Reached![/bold red]")
+            retry_choice = questionary.select(
+                "API Block detected. What would you like to do?",
+                choices=["1. Wait and Resume batch", "2. Stop and Exit batch"]
+            ).ask()
+            if retry_choice and retry_choice.startswith("1"):
+                planner.abort_event.clear()
+                for title, data in tasks.items():
+                    if data.get("status") == "API_BLOCKED":
+                        data["status"] = "PENDING"
+                        data["message"] = "Retrying..."
+                console.print("[yellow]Resuming batch...[/yellow]")
+                time.sleep(2)
+                continue
+            else:
+                break
+        else:
+            break
 
     total_duration = time.time() - start_all
     console.print(generate_table(full=True))
@@ -670,30 +699,58 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
         layout.add_row(generate_table(), generate_log_panel())
         return layout
 
-    # Initialize Live with the initial table
+    existing_count = generator.count_existing_pages()
+    force_remake = False
+    if existing_count > 0:
+        ans = questionary.confirm(f"Found {existing_count} existing pages. Do you want to RE-MAKE them? (No = Skip)").ask()
+        force_remake = ans
+
     start_all = time.time()
-    with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
+    
+    while True:
+        with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
+    
+            def callback(title, status, msg):
+                with lock:
+                    if title not in tasks:
+                        tasks[title] = {}
+    
+                    tasks[title]["status"] = status
+                    tasks[title]["message"] = msg
+    
+                    if status == "RUNNING":
+                        if "start_time" not in tasks[title]:
+                            tasks[title]["start_time"] = time.time()
+                    elif status in ["SUCCESS", "FAILED", "SKIP", "WARN", "ERROR", "API_BLOCKED"]:
+                        if "start_time" in tasks[title]:
+                            tasks[title]["duration"] = time.time() - tasks[title]["start_time"]
+                        else:
+                            tasks[title]["duration"] = 0.0
+    
+                live.update(generate_layout())
+    
+            generator.run_batch_generation(max_concurrent=5, update_callback=callback, force_remake=force_remake)
 
-        def callback(title, status, msg):
-            with lock:
-                if title not in tasks:
-                    tasks[title] = {}
-
-                tasks[title]["status"] = status
-                tasks[title]["message"] = msg
-
-                if status == "RUNNING":
-                    if "start_time" not in tasks[title]:
-                        tasks[title]["start_time"] = time.time()
-                elif status in ["SUCCESS", "FAILED", "SKIP", "WARN", "ERROR"]:
-                    if "start_time" in tasks[title]:
-                        tasks[title]["duration"] = time.time() - tasks[title]["start_time"]
-                    else:
-                        tasks[title]["duration"] = 0.0
-
-            live.update(generate_layout())
-
-        generator.run_batch_generation(max_concurrent=5, update_callback=callback)
+        api_blocked = any(data.get("status") == "API_BLOCKED" for data in tasks.values())
+        if api_blocked:
+            console.print("[bold red]\n⚠️ Jules API Limit or Quota Reached![/bold red]")
+            retry_choice = questionary.select(
+                "API Block detected. What would you like to do?",
+                choices=["1. Wait and Resume batch", "2. Stop and Exit batch"]
+            ).ask()
+            if retry_choice and retry_choice.startswith("1"):
+                generator.abort_event.clear()
+                for title, data in tasks.items():
+                    if data.get("status") == "API_BLOCKED":
+                        data["status"] = "PENDING"
+                        data["message"] = "Retrying..."
+                console.print("[yellow]Resuming batch...[/yellow]")
+                time.sleep(2)
+                continue
+            else:
+                break
+        else:
+            break
 
     total_duration = time.time() - start_all
     console.print(generate_table(full=True))

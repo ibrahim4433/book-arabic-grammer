@@ -4,6 +4,7 @@ import random
 import re
 import sys
 import time
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -11,6 +12,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
 from jules_client_plans import JulesPlanClient
+from jules_client import APIBlockError
 from text_processing import TextProcessor
 
 
@@ -29,6 +31,7 @@ class JulesPlanner:
         self.client = JulesPlanClient(project_root=self.project_root)
         self.tp = TextProcessor(project_root=self.project_root)
         self.state_manager = state_manager
+        self.abort_event = threading.Event()
 
         # Load Prompts
         master_prompt_name = "Architect_GEM_MASTER_1_PAGE.md" if is_1_page_mode else "Architect_GEM_MASTER.md"
@@ -85,8 +88,27 @@ class JulesPlanner:
 
         return "\n".join(extracted)
 
+    def count_existing_plans(self, excluded_lessons=None, only_lessons=None):
+        """Counts how many plans already exist for the current index."""
+        index_path = self.project_root / "system-workspace/text-data/raw_to_lesson_index.json"
+        if not index_path.exists(): return 0
+        mapping = json.loads(index_path.read_text(encoding="utf-8"))
+        count = 0
+        for title, info in mapping.items():
+            lesson_number = self.tp.get_lesson_number(title)
+            if excluded_lessons and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons): continue
+            if only_lessons and (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons): continue
+            
+            clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
+            if getattr(self, "is_1_page_mode", False):
+                plan_path = self.project_root / f"plans/page_{lesson_number}-plan.md"
+            else:
+                plan_path = self.project_root / f"plans/{lesson_number}-{clean_title}-plan.md"
+            if plan_path.exists(): count += 1
+        return count
+
     def run_batch_planning(
-        self, max_concurrent=5, update_callback=None, excluded_lessons=None, only_lessons=None
+        self, max_concurrent=5, update_callback=None, excluded_lessons=None, only_lessons=None, force_remake=False
     ):
         """
         Main entry point. Orchestrates the batch processing.
@@ -142,7 +164,7 @@ class JulesPlanner:
             else:
                 plan_path = self.project_root / f"plans/{lesson_number}-{clean_title}-plan.md"
 
-            if plan_path.exists():
+            if plan_path.exists() and not force_remake:
                 update_callback(title, "SKIP", "Plan exists")
             else:
                 to_process[title] = info
@@ -175,10 +197,13 @@ class JulesPlanner:
         except Exception as e:
             callback(lesson_title, "ERROR", str(e))
 
-    def process_lesson(self, lesson_title, range_info, callback=None):
+    def process_lesson(self, lesson_title, range_info, callback=None, force_remake=False):
         """
         Worker function for a single lesson.
         """
+        if self.abort_event.is_set():
+            return
+
         if not callback:
 
             def default_callback(t, s, m):
@@ -285,7 +310,13 @@ class JulesPlanner:
 
         if not session_id:
             callback(lesson_title, "RUNNING", "Creating Session...")
-            session = self.client.create_plan_session(lesson_title, mega_prompt)
+            try:
+                session = self.client.create_plan_session(lesson_title, mega_prompt)
+            except APIBlockError as e:
+                self.abort_event.set()
+                callback(lesson_title, "API_BLOCKED", "API Quota/Limit Reached")
+                return
+
             if not session:
                 callback(lesson_title, "ERROR", "Session Creation Failed")
                 return False
