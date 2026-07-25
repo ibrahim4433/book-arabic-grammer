@@ -51,10 +51,11 @@ except ImportError:
 
 
 class FullAutoWorkflow:
-    def __init__(self, project_root, state_manager, console_callback=None):
+    def __init__(self, project_root, state_manager, console_callback=None, is_1_page_mode=False):
         self.project_root = Path(project_root)
         self.state_manager = state_manager
         self.callback = console_callback
+        self.is_1_page_mode = is_1_page_mode
         self.github = GithubClient(token_path=self.project_root / "secrets/Github_Token.txt")
         self.repo_name = "ibrahim4433/book-arabic-grammer"  # Hardcoded based on request
 
@@ -379,7 +380,7 @@ class FullAutoWorkflow:
 
     def _step_plan_generation(self):
         self._log("PLAN_GEN", "RUNNING", "Generating Plans (JulesPlanner)...")
-        planner = JulesPlanner(self.project_root, state_manager=self.state_manager)
+        planner = JulesPlanner(self.project_root, state_manager=self.state_manager, is_1_page_mode=self.is_1_page_mode)
 
         def bridge_callback(title, status, msg):
             if status in ["ERROR", "FAILED"]:
@@ -533,7 +534,7 @@ class FullAutoWorkflow:
 
     def _step_page_generation(self):
         self._log("PAGE_GEN", "RUNNING", "Generating Pages (JulesPageGenerator)...")
-        generator = JulesPageGenerator(self.project_root)
+        generator = JulesPageGenerator(self.project_root, is_1_page_mode=self.is_1_page_mode)
 
         def bridge_callback(title, status, msg):
             if status in ["ERROR", "FAILED"]:

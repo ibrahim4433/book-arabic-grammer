@@ -1053,13 +1053,14 @@ def run_jules_ocr_ui(state_manager):
     )
 
 
-def run_full_auto_ui(state_manager):
+def run_full_auto_ui(state_manager, is_1_page_mode=False):
     console.clear()
-    console.print("[bold cyan]🚀 Starting Full Auto Workflow...[/bold cyan]")
+    mode_text = " (1-Page Mode)" if is_1_page_mode else ""
+    console.print(f"[bold cyan]🚀 Starting Full Auto Workflow{mode_text}...[/bold cyan]")
     console.print("[dim]Press Ctrl+C to Pause/Stop[/dim]")
 
     # Init workflow
-    workflow = FullAutoWorkflow(PROJECT_ROOT, state_manager)
+    workflow = FullAutoWorkflow(PROJECT_ROOT, state_manager, is_1_page_mode=is_1_page_mode)
 
     # Ask for starting point
     start_choice = questionary.select(
@@ -1956,6 +1957,21 @@ def run_settings():
 def main():
     state_manager = StateManager(PROJECT_ROOT)
 
+    menu_style = questionary.Style(
+        [
+            ("qmark", "fg:#673ab7 bold"),
+            ("question", "bold"),
+            ("answer", "fg:#f44336 bold"),
+            ("pointer", "fg:#673ab7 bold"),
+            ("highlighted", "fg:#673ab7 bold"),
+            ("selected", "fg:#cc5454"),
+            ("separator", "fg:#cc5454"),
+            ("instruction", ""),
+            ("text", ""),
+            ("disabled", "fg:#858585 italic"),
+        ]
+    )
+
     while True:
         print_header()
 
@@ -1963,95 +1979,139 @@ def main():
         display_status_table(state_manager)
         console.print("")
 
-        # 2. Questionary Menu
-        choice = questionary.select(
-            "Select Operation:",
+        # 2. Main Menu
+        main_choice = questionary.select(
+            "Select Category:",
             choices=[
-                "A) Full Auto Workflow",
-                "B) OCR Only (Images -> Raw)",
-                "C) Raw Processing (Merge & Index)",
-                "D) Plan Generation (Standard)",
-                "E) Plan Generation (Jules Batch)",
-                "F) Page Generation (Jules Batch)",
-                "G) Audit & Verify Pages",
-                "H) OCR Only by Jules (Images -> Raw)",
-                "I) YouTube to Text (Video -> Raw Text)",
-                "J) Scanned PDF to Raw Text (Local OCR)",
-                "K) Advanced Network AI OCR (Surya)",
-                "L) Raw Processing (Auto-Paginated Index & TOC)",
-                "M) Plan Generation (Jules Batch - 1-to-1 Page Mapping)",
-                "N) Page Generation (Jules Batch - 1-to-1 Page Mapping)",
-                "O) Book Style Tuning (Semi-automatic full process)",
-                "R) Retry batch planning / generation to selected lessons",
-                "S) Settings",
-                "Z) Clear History Database",
-                "Q) Quit",
+                "1) book making by 1-lesson-1-plan method",
+                "2) book making by 1-page-1-plan method",
+                "3) OCR tools",
+                "4) Book Style Tuning",
+                "5) Settings",
+                "6) Clear History",
+                "7) Quit",
             ],
-            style=questionary.Style(
-                [
-                    ("qmark", "fg:#673ab7 bold"),
-                    ("question", "bold"),
-                    ("answer", "fg:#f44336 bold"),
-                    ("pointer", "fg:#673ab7 bold"),
-                    ("highlighted", "fg:#673ab7 bold"),
-                    ("selected", "fg:#cc5454"),
-                    ("separator", "fg:#cc5454"),
-                    ("instruction", ""),
-                    ("text", ""),
-                    ("disabled", "fg:#858585 italic"),
-                ]
-            ),
+            style=menu_style,
         ).ask()
 
-        if not choice or choice.startswith("Q"):
+        if not main_choice or main_choice.startswith("7"):
             console.print("Goodbye.")
             sys.exit(0)
 
-        op = choice[0]
-
         start_op = time.time()
+        op_ran = False
+        
+        main_op = main_choice[0]
 
-        if op == "E":
-            run_jules_planning_ui(state_manager)
-        elif op == "A":
-            run_full_auto_ui(state_manager)
-        elif op == "F":
-            run_jules_generation_ui(state_manager)
-        elif op == "B":
-            run_ocr(state_manager)
-        elif op == "C":
-            run_raw_processing(state_manager)
-        elif op == "D":
-            run_planning(state_manager)
-        elif op == "G":
-            run_audit_and_verify(state_manager)
-        elif op == "H":
-            run_jules_ocr_ui(state_manager)
-        elif op == "I":
-            run_jules_youtube_ui(state_manager)
-        elif op == "J":
-            run_local_pdf_ocr()
-        elif op == "K":
-            run_network_ai_ocr()
-        elif op == "L":
-            run_raw_processing_auto(state_manager)
-        elif op == "M":
-            run_jules_planning_ui(state_manager, is_1_page_mode=True)
-        elif op == "N":
-            run_jules_generation_ui(state_manager, is_1_page_mode=True)
-        elif op == "O":
+        if main_op == "1":
+            sub_choice = questionary.select(
+                "Select Operation (1-lesson-1-plan):",
+                choices=[
+                    "A) Full Auto Workflow",
+                    "B) Raw Processing (Merge & Index)",
+                    "C) Plan Generation (Jules Batch)",
+                    "D) Plan Generation (Standard)",
+                    "E) Page Generation (Jules Batch)",
+                    "F) Audit & Verify Pages",
+                    "G) Retry batch planning / generation to selected lessons",
+                    "X) Back to Main Menu",
+                ],
+                style=menu_style,
+            ).ask()
+            
+            if sub_choice and not sub_choice.startswith("X"):
+                sub_op = sub_choice[0]
+                op_ran = True
+                if sub_op == "A":
+                    run_full_auto_ui(state_manager)
+                elif sub_op == "B":
+                    run_raw_processing(state_manager)
+                elif sub_op == "C":
+                    run_jules_planning_ui(state_manager)
+                elif sub_op == "D":
+                    run_planning(state_manager)
+                elif sub_op == "E":
+                    run_jules_generation_ui(state_manager)
+                elif sub_op == "F":
+                    run_audit_and_verify(state_manager)
+                elif sub_op == "G":
+                    run_retry_planning_and_generation_ui(state_manager)
+                
+        elif main_op == "2":
+            sub_choice = questionary.select(
+                "Select Operation (1-page-1-plan):",
+                choices=[
+                    "A) Full Auto Workflow",
+                    "B) Raw Processing (Auto-Paginated Index & TOC)",
+                    "C) Plan Generation (Jules Batch - 1-to-1 Page Mapping)",
+                    "D) Page Generation (Jules Batch - 1-to-1 Page Mapping)",
+                    "E) Audit & Verify Pages",
+                    "F) Retry batch planning / generation to selected lessons",
+                    "X) Back to Main Menu",
+                ],
+                style=menu_style,
+            ).ask()
+            
+            if sub_choice and not sub_choice.startswith("X"):
+                sub_op = sub_choice[0]
+                op_ran = True
+                if sub_op == "A":
+                    run_full_auto_ui(state_manager, is_1_page_mode=True)
+                elif sub_op == "B":
+                    run_raw_processing_auto(state_manager)
+                elif sub_op == "C":
+                    run_jules_planning_ui(state_manager, is_1_page_mode=True)
+                elif sub_op == "D":
+                    run_jules_generation_ui(state_manager, is_1_page_mode=True)
+                elif sub_op == "E":
+                    run_audit_and_verify(state_manager)
+                elif sub_op == "F":
+                    run_retry_planning_and_generation_ui(state_manager)
+
+        elif main_op == "3":
+            sub_choice = questionary.select(
+                "Select Operation (OCR tools):",
+                choices=[
+                    "A) Images -> Raw ( JULES )",
+                    "B) Images -> Raw ( API/CLI )",
+                    "C) Images -> Raw ( Local-utilities )",
+                    "D) Images -> Raw ( Local-AI-network )",
+                    "E) Video / Youtube -> Raw",
+                    "X) Back to Main Menu",
+                ],
+                style=menu_style,
+            ).ask()
+            
+            if sub_choice and not sub_choice.startswith("X"):
+                sub_op = sub_choice[0]
+                op_ran = True
+                if sub_op == "A":
+                    run_jules_ocr_ui(state_manager)
+                elif sub_op == "B":
+                    run_ocr(state_manager)
+                elif sub_op == "C":
+                    run_local_pdf_ocr()
+                elif sub_op == "D":
+                    run_network_ai_ocr()
+                elif sub_op == "E":
+                    run_jules_youtube_ui(state_manager)
+
+        elif main_op == "4":
+            op_ran = True
             run_calibration_ui(state_manager, PROJECT_ROOT)
-        elif op == "R":
-            run_retry_planning_and_generation_ui(state_manager)
-        elif op == "S":
+            
+        elif main_op == "5":
+            op_ran = True
             run_settings()
-        elif op == "Z":
+            
+        elif main_op == "6":
             if questionary.confirm("Are you sure you want to completely clear the project state history?").ask():
                 state_manager.state = {"lessons": {}}
                 state_manager.save_state()
                 console.print("[green]✅ History database cleared successfully![/green]")
+            op_ran = True
 
-        if op != "Q":
+        if op_ran:
             console.print(
                 f"\n[dim]Total operation time: {format_duration(time.time() - start_op)}[/dim]"
             )

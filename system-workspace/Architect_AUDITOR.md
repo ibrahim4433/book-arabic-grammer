@@ -16,9 +16,9 @@ Compare the Plan against the Source and Rules. Detect missing content, weak stru
 # 🕵️‍♂️ AUDIT CHECKLIST
 
 ## 1. Content Integrity & Volume (Critical)
-*   **Hallucination Check:** Did the Architect invent any examples, grammar rules, or text not present in the Raw Text? If yes, **FAIL**.
+*   **Hallucination Check:** Did the Architect invent any examples, grammar rules, or text not present in the Raw Text? Did the Architect use ellipses ("...", "…") or "(...)" to summarize text? If they added, summarized, or removed content, **FAIL**. They MUST use 100% of the text verbatim.
 *   **Missing Lines:** Did the Architect drop any sentences from the Raw Text?
-*   **Diacritics:** Are the Arabic vowel marks (Harakat) preserved?
+*   **Diacritics (Harakat):** Did the Architect strip the Arabic diacritics (Harakat) from the text? The output MUST be fully vocalized. If diacritics are missing or significantly reduced (e.g. generating bare Arabic letters without vowels), **FAIL**.
 *   **Content Depth:** Is the plan too short? A single summary table is **FORBIDDEN**. You must break down concepts into detailed blocks with examples.
 *   **Block Count:** Does the plan have at least **4 substantial content blocks** (excluding Header/Exam)? If not, **FAIL**.
 
@@ -26,6 +26,7 @@ Compare the Plan against the Source and Rules. Detect missing content, weak stru
 *   **The Golden Flow:** Does it start with Header -> Definition -> Detailed Breakdown -> Matrix?
 *   **Density:** Is there a "Summary Table" (Matrix)? If not, **FAIL**.
 *   **One-Page Law:** Does the plan explicitly mention `verify_layout.py`? If the page is too empty (< 80% full), **FAIL**.
+*   **Exam Block Hallucination:** Did the Architect include an Exam block when there were no exam questions in the raw text? If they hallucinated an exam, **FAIL**.
 
 ## 3. Technical & Anti-Bloat Constraints (Critical)
 *   **IDs:** Does it instruct to use `id_manager.py`?

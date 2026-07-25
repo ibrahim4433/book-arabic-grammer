@@ -16,8 +16,8 @@ Compare the Plan against the Source and Rules. Detect missing content, weak stru
 # 🕵️‍♂️ AUDIT CHECKLIST
 
 ## 1. Content Integrity & Volume (Critical)
-*   **Strict Typographer Check:** Did the Architect invent any examples, or drop ANY sentences from the Raw Text Slice? If they added or removed content, **FAIL**. They MUST use 100% of the slice.
-*   **Diacritics:** Are the Arabic vowel marks (Harakat) preserved?
+*   **Strict Typographer Check:** Did the Architect invent any examples, or drop ANY sentences from the Raw Text Slice? Did the Architect use ellipses ("...", "…") or "(...)" to summarize text? If they added, summarized, or removed content, **FAIL**. They MUST use 100% of the slice verbatim.
+*   **Diacritics (Harakat):** Did the Architect strip the Arabic diacritics (Harakat) from the text? The output MUST be fully vocalized. If diacritics are missing or significantly reduced (e.g. generating bare Arabic letters without vowels), **FAIL**.
 *   **Content Depth:** Is the plan too short? A single summary table is **FORBIDDEN**. You must break down concepts into detailed blocks with examples.
 *   **Block Count:** Does the plan have at least **4 substantial content blocks** (excluding Header/Exam)? If not, **FAIL**.
 
@@ -25,12 +25,13 @@ Compare the Plan against the Source and Rules. Detect missing content, weak stru
 *   **The Golden Flow:** Does it start with Header -> Definition -> Detailed Breakdown -> Matrix?
 *   **Density:** Is there a "Summary Table" (Matrix)? If not, **FAIL**.
 *   **One-Page Law:** Does the plan explicitly mention verifying layout with `verify_layout.py` or equivalent tools? If the page is too empty (< 80% full) or overflows a single A4 page, **FAIL**.
+*   **Exam Block Hallucination:** Did the Architect include an Exam block when there were no exam questions in the raw text? If they hallucinated an exam, **FAIL**.
 
 ## 3. Technical & Anti-Bloat Constraints (Critical)
 *   **IDs:** Does it instruct to use `id_manager.py`?
 *   **Classes:** Does it use `text-accent` for definitions?
 *   **No Coding:** Did the Architect accidentally write raw HTML code (Forbidden)?
-*   **Anti-Bloat:** Did the Architect use forbidden tags like `<hr>` or add inline `style="..."`? If yes, **FAIL**.
+*   **Anti-Bloat:** Did the Architect use forbidden tags like `<hr>` or `<section>`, or add inline `style="..."`? If yes, **FAIL**.
 *   **Component Purity:** Did the Architect try to nest `.benefit-box` inside `TEMPLATE_C_BLOCK.html` instead of using the raw component? If yes, **FAIL**.
 *   **Template Naming:** Did the Architect use the exact `.html` names (e.g., `TEMPLATE_C_HEADER.html`)?
 

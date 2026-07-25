@@ -91,11 +91,11 @@ Reference: Follow patterns in design_patterns.json.
 8. **Self-Correction:** Run "Jules-workspace/lint_pages.py --one-page-mode <filename>" after creating html files. If it fails, you MUST fix the errors (usually inline styles or forbidden section tags) before submitting.
 9. Do not summarize examples. 
 10. Do not provide uncompleted text content using (...) .
-11. You must preserve the **exact** Tashkeel provided in the input and add any missing Tashkeel needed if any.  
+11. You MUST preserve the EXACT Tashkeel (Harakat) from the input. Stripping diacritics is a critical failure. Do not generate bare Arabic letters without their vowels.
 12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.
 13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of all teal 
-14. Every HTML page content must be wrapped using `TEMPLATE_C_PAGE_WRAPPER.html` (which provides `.force-new-page`) as defined in `elements_index.md`.
-15. Exam section always be in the end of the lesson ( in the final page of that lesson) ,and without the answers !
+14. **Page Wrappers**: The compiler will automatically wrap the final page in `TEMPLATE_C_PAGE_WRAPPER.html`. Do NOT include this template in your `[CONTENT STREAM]` blocks.
+15. **Exam Section**: ONLY include the `TEMPLATE_C_EXAM.html` block if the provided raw text slice actually contains test/exam questions (e.g., keywords like "تطبيق", "امتحان"). Do NOT hallucinate an exam if it is not in the source text. **CRITICAL:** If an exam or exercise contains the answers in the raw text, you MUST use `TEMPLATE_C_EXAM_SOLVED.html` instead of `TEMPLATE_C_EXAM.html`.
 
 [CONTENT STREAM]
 
@@ -115,13 +115,13 @@ Reference: Follow patterns in design_patterns.json.
 Title: [Arabic Title]
 Content: [Text with classes]
 
-... [More Blocks] ...
+*(List all necessary blocks from 1 to N sequentially without using "..." or ellipses anywhere. You must output the entire stream without skipping any part of the text.)*
 
 === BLOCK N: Exam ===
 (Component: TEMPLATE_C_EXAM.html)
 Number: ١
 Question: [Arabic Question]
-....
+*(End the exam block without ellipses)*
 
 --- END STREAM ---
 ````

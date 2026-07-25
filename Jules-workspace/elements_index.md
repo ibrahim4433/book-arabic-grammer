@@ -49,6 +49,7 @@ These components are typically injected inside a `block-body` alongside text.
 | :--- | :--- | :--- |
 | `TEMPLATE_C_POEM.html` | Poem Container. | Contains poetic verses (`hemistich`) and an optional poet bio block. |
 | `TEMPLATE_C_EXAM.html` | Quiz/Exam Block. | For the "Test Yourself" section at the end of a chapter sequence. |
+| `TEMPLATE_C_EXAM_SOLVED.html` | Solved Quiz/Exam. | For exam questions that already contain the answer in the raw text. |
 
 ## 7. Highlighting System (Inline Classes)
 
@@ -73,4 +74,5 @@ To ensure visual continuity when content is cut across two pages, you **MUST** u
 | **"تنبيه" / "ملاحظة"** | `TEMPLATE_C_BENEFIT_WARNING.html` |
 | **"قاعدة ذهبية" / "تلميح"** | `TEMPLATE_C_BENEFIT_TIP.html` |
 | **"إعراب" / "أعرب"** | `TEMPLATE_C_IRAB.html` |
-| **"تطبيق" / "تدريب" / "امتحان"** | `TEMPLATE_C_EXAM.html` |
+| **"تطبيق" / "تدريب" / "امتحان"** (Unsolved) | `TEMPLATE_C_EXAM.html` |
+| **"تدريب محلول" / "امتحان" مع جواب** | `TEMPLATE_C_EXAM_SOLVED.html` (If cut, use `TEMPLATE_CUT_EXAM_SOLVED_PART_1/2.html`) |

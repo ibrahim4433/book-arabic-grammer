@@ -180,6 +180,29 @@ body {
 }
 
 /* Split Content Modifications */
+.exam-question.border-open-bottom {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+.exam-question.border-open-top {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+}
+.benefit-box.border-open-bottom {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: 2px dashed #ccc;
+    margin-bottom: 0;
+}
+.benefit-box.border-open-top {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: 2px dashed #ccc;
+    margin-top: 0;
+}
+
 .content-block.border-open-bottom {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
