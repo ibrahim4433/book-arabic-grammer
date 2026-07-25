@@ -50,4 +50,8 @@ def audit_plan(plan_path):
     print(json.dumps(result, indent=2))
 
 if __name__ == "__main__":
-    audit_plan("plans/page_131-plan.md")
+    import sys
+    if len(sys.argv) > 1:
+        audit_plan(sys.argv[1])
+    else:
+        audit_plan("plans/page_131-plan.md")
