@@ -1,0 +1,112 @@
+# **SESSION 137**
+
+[TASK DEFINITION]
+Objective: Implement page 137.
+File: `pages/page_137.html` (Note: Use the exact page number.)
+Reference: Follow patterns in design_patterns.json.
+
+[CONSTRAINTS & PROTOCOLS]
+1. Source of Truth: Adhere strictly to BOOK_RULES.md and elements_index.md
+1.5 ANTI-HALLUCINATION & STRICT TYPOGRAPHER RULE (CRITICAL): Do NOT invent, hallucinate, or add new grammar rules, examples, or external text. ONLY use the exact text slices provided in the Raw Input Text. You MUST use 100% of the provided raw text. NO summarizing, NO deleting, NO adding new content. Every piece of text must map to an approved TEMPLATE.
+1.6 THE TYPO EXCEPTION: You are explicitly permitted to correct obvious typos, spelling errors, or grammatical errors in the raw Arabic text during planning.
+2. Strict 1-Page Fit: The generated content MUST visually fit on exactly one A4 page when rendered. You MUST instruct the generator to verify this using `verify_layout.py` or equivalent tools. If it overflows, it is a catastrophic failure. Do NOT try to solve overflow by deleting text (Strict Typographer Rule). Solve it by choosing denser templates or omitting optional white-space.
+2.5 Cut Content: If content is violently split by the page boundary, strictly follow the [CUT CONTENT HANDLING] rules using `TEMPLATE_CUT_BOX_PART_1.html` and `TEMPLATE_CUT_BOX_PART_2.html`. Ensure exact visual continuity (same title, same classes).
+2.6 Cut Content Determinism: When handling cut content or starting a page mid-section, you MUST use the "Keyword-to-Template Deterministic Mapping" in `elements_index.md` to identify the correct template to use for the continuation. You are forbidden from guessing. Scan the raw text for the preceding keyword to determine the active template and apply the correct `_PART_2.html` wrapping.
+3. text Content: 100% Arabic with full Harakat. Must use EVERY WORD from the provided text slice.
+4. Highlighting: Use `.highlight-red` for primary focus words and `.highlight-blue`,`.highlight-green`  for secondary.
+5. Definitions: Must use `.text-accent` class.
+6. Mandatory Style Guide:
+*   **Rule:** NO INLINE STYLES.
+*   **Rule:** Irab Words inside `.irab-word` MUST be white. Do NOT use `.highlight-*` classes.
+*   **Mapping:**
+    *   `style="width: 20%"` -> `class="w-20pct"`
+    *   `style="margin-top: 2mm"` -> `class="mt-2mm"`
+    *   `style="text-align: center"` -> `class="text-center"`
+    *   `style="font-weight: bold"` -> `class="font-bold"`
+6. Templates: You are forbidden from inventing new HTML tags or classes or template elements. You must map all content using "Jules-workspace/Templates/" components as the STREAM says in suitable way. **CRITICAL 1-PAGE MODE RULE**: You MUST NOT use `<section>` tags when applying templates. Replace any `<section>` tags from the templates with `<div>` tags (keep `<header>` for page headers as is).
+7. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). The ID MUST be applied to the `<div>` tag that replaced the `<section>` tag. Use "Jules-workspace/id_manager.py" to generate or verify them.
+8. **Self-Correction:** Run "Jules-workspace/lint_pages.py --one-page-mode <filename>" after creating html files. If it fails, you MUST fix the errors (usually inline styles or forbidden section tags) before submitting.
+9. Do not summarize examples.
+10. Do not provide uncompleted text content using (...) .
+11. You MUST preserve the EXACT Tashkeel (Harakat) from the input. Stripping diacritics is a critical failure. Do not generate bare Arabic letters without their vowels.
+12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.
+13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of all teal
+14. **Page Wrappers**: The compiler will automatically wrap the final page in `TEMPLATE_C_PAGE_WRAPPER.html`. Do NOT include this template in your `[CONTENT STREAM]` blocks.
+15. **Exam Section**: ONLY include the `TEMPLATE_C_EXAM.html` block if the provided raw text slice actually contains test/exam questions (e.g., keywords like "تطبيق", "امتحان"). Do NOT hallucinate an exam if it is not in the source text. **CRITICAL:** If an exam or exercise contains the answers in the raw text, you MUST use `TEMPLATE_C_EXAM_SOLVED.html` instead of `TEMPLATE_C_EXAM.html`.
+
+[CONTENT STREAM]
+
+--- START STREAM ---
+
+=== BLOCK 1: Lesson Header ===
+(Component: TEMPLATE_C_HEADER.html)
+[UNIQUE_ID]: b25384
+[LESSON_NUMBER]: 137
+[CHAPTER_TITLE]: page 137
+[CATEGORY_HEADER]: 137
+[SECTION_HEADER]: 137
+[AUTHOR_NAME]: أ.الياس خفيف
+[AUTHOR_PHONE]: 994066850 963+
+
+=== BLOCK 2: مقدمة عن نصر تشرين ===
+(Component: TEMPLATE_C_BLOCK.html)
+[UNIQUE_ID]: b35251
+Title: نصر تشرين والأدب العربي
+Content: <div class="text-accent">أَشْرَسَ المعَارِك،ِ ولم يدعنُوا لهم، بل تَصَدَّوا لهم وخَاضُوا ضدهم وحب للوطن واستعداد للتضحية في سبيله، لَمْ يَسْتَكِينوا للمحتلين وحَقَّقُوا أَعظم الانتصارات. عَنْ مَشَاعِرِ الفَرَحِ وَالرَّهِو لأَدَقِ تَفَاصِيلِهَا . فقد قام الأدباء بالتعبير فكانَ الأَدَبُ العَرَبِيُّ مُوَاكِبًا لهذه الأحداث، ناقلا أمينا العَرَبِيُّ؛ مِنْ أَعْظَمِ المُنجَزَاتِ التِي حَقَّقَها الإِنسَانُ رَدًّا حَقِيقِيًّا على نَكْسَة حزيران، فهي بنصر تشرين، فقد كانَتْ حَرْبُ تشرين التَّحْرِيرِيَّةِ عِزَّهَا وَكَرَامَتَهَا وَكِبْرِيَاءَها المهدور، حزيران، وأَعَادَتْ للأُمَّةِ جَبِينَ الأَمَّةِ العَرَبِيَّةِ جَرَّاء هَزِيمَةِ إذ غسلَتْ بِدِمَاءِ الأبطال العارَ الذي لَطَّحَ وشَفَتْ وَجْدَانَهَا المطعُون.َ خَفَقَتْ خَرَجَ الوَطَنُ مِنَ الْحَرْبِ مُنْتَصِرًا حَتَّى الفَرَحَ فِي قَوَافِي الشُعَرَاءِ؛ فَمَا إِنْ ولأَجْلِ ذَلِكَ كُلِّهُ عَكَسَ انتِصَارُ تِشْرِينِ طَالِبًا تشرين حِينَمَا نَاجَى دِمَشْقَ نِزَارِ قَبَّانِي صَوَّرَ فَرْحَةَ انتصار بِهَذَا الْحَدَثِ الجَلَل.ِ فالشَّاعِرُ قُلُوبُ الشَّعَرَاءِ وَقَوَافِيهِم فَرَحَةً مُتَغَنِّيَةً عَظِيمَةٍ خَالِدَةِ حَقَّقَهَا الْإِنْسَانُ فَنَصْرُ تشرين قد أَحْيَا فِي النَّفْسِ ذِكْرَى انتِصَارَاتٍ مِنْهَا أَنْ تَمْحُوَ مِنْ ذَاكِرِهَا أَيَّامَ الإخْفَاقِ والانْكِسَار،ِ كَرَامَتَنَا الْمُهْدُورَة. يقول: سِنِينَ مُرَّة،ٍ واستَعَدْنَا العَزِيمَةَ بِالعَدُةِ بَعْدَ ويُؤكد لها مُبْتَهِدًا أَنَّنَا أَحَقْنَا العَرَبِيُّ فِي مَوْقِعَةِ بَدْرِ ومعركة حطين،</div>
+
+=== BLOCK 3: نزار قباني ===
+(Component: TEMPLATE_C_POEM.html)
+[UNIQUE_ID]: b58047
+[BIO_TEXT]: (None)
+[POEM_TITLE]: (None)
+Verse 1:
+[RIGHT_HEMISTICH]: مَرْقِي يَا دِمَشْقُ خَارِطَةَ اللَّ
+[LEFT_HEMISTICH]: ذُلِّ وَقُولي للدَّهْرِ كُنْ فَيَكُونُ
+Verse 2:
+[RIGHT_HEMISTICH]: استَرَدَّتْ أَيَّامَها بِكِ بَدْرٌ
+[LEFT_HEMISTICH]: و استَعَادَتْ شَبَاهَا حِطِينُ
+Verse 3:
+[RIGHT_HEMISTICH]: هُ مَ الرُّومُ بَعْدَ سَبْعِ عِجَافٍ
+[LEFT_HEMISTICH]: وتَعَالَى وُجُدَانُنَا المَطْعُونُ
+
+=== BLOCK 4: معاناة المهجرين ===
+(Component: TEMPLATE_C_BENEFIT_WARNING.html)
+[UNIQUE_ID]: b36910
+[CONTENT]: أَجَلٍ تَخْرِيرِ بَاقِي إِلَى مُوَاصَلَةِ النَّضَالِ مِنْ الإِنْسَانُ العَرَبِيُّ يَتَطَلَّعُ تَبْقَى في الحَلْقِ غَصَّة،ٌ فَيَظَلُ وفِي غَمْرَةِ الفَرَح بِنَصْرِ تشرين يُعاني أبْنَاؤُها، الذين أَرْغِمُوا والليمون،ِ فَلَسْطِين المغتصبة التي دَنَى الغُزَاة،ِ ولا سيما أَرْضُ الرَّيْتُونِ الْأَرَاضِي العَرَبِيَّةِ الخَتَلَّة،ِ وَتَطْهِيرِهَا مِنَ في ماقيهم، وغَطَّتْ وُجُوهَهُم حَيْثُ اعتَصَرَ الألم والحزن نفوسهم، وجَمَدَ الدَّمْعُ على مُعَادَرَهَا، أَلْوَانًا مِنَ العَذَابِ فِي مَوَاطِنِ هَجْرَهِم وَالصَّبَا. الحَبَيْنُ إِلَى مَلَاعِبِ الطَّقُولَةِ الأَشْوَاقِ لَأَرْضِ الْوَطَن،ِ وَطَحَنَهُم سَحَابَةٌ مِنَ الدُّ والانكسار، ولا كَنْهُم أَنْيَابُ الْمُسْ ولِيَّة،ِ فقد حَمَلَ الأَدَبَاءُ الفَلَسْطِينِيُّونَ أَعْبَاءَ فَكَانَ صَوْتُ الْأَدِيبِ الفَلَسْطِينِي مُعَبَرًا صَادِقًا عَنِ مِحْنَةِ المهجرين الفلسطينيين، الْأَدَبَاءُ المهجرين الفلسطينيين بالأمل وتطلعهم إلى العَوْدَة،ِ فَلَم يَجْعَلِ وَتَبَنَّوْا تَجَاؤُزَ مَرْحَلَةِ النَّ بِ وَالعَوِيلِ مِنْ خِلَالِ تَأْكِيدِ تَمَشْكِ فِي أَعْمَاقِهِم صَوْتُ التَّمَرُدِ والاحتجاج على الوَاقِع،ِ فَتَمَسَّكُوا الفَلَسْطِينِيون شِعْرَهُم صَدَى لآلامِهِم وَإِنَّمَا رَمَوا أَحْزَاهُم جَانِبًا، فارتَفَعَ بالأمل الذي يَرْسُمُ لَهُم صُورَةَ الْمُسْتَقْبَلِ المُشْرِق.ِ
+
+=== BLOCK 5: عبد الكريم الكرمي ===
+(Component: TEMPLATE_C_BLOCK.html)
+[UNIQUE_ID]: b00638
+Title: عبد الكريم الكرمي
+Content: إِلَيْهَا بَعْدَ النَّكْبَةِ كَسِيرَ فقد بَرَزَ صَوْتُ الشَّاعِرِ الفَلَسْطِينِي عَبْدِ الكريم الكرمي الذي دَرَسَ فِي دِمَشْقَ قَبْلَ النَّكْبَة،ِ ثُمَّ عَادَ ومعَ ذلك يَتَمَثَلُ مَنْظَرَ القَلْبِ فَفَتَحَتْ لَهُ ذِرَاعَيْهَا، وَحَاوَلَتْ كَفَكَفَةَ آلامِه،ِ وَمُدَوَاةٍ جِرَاحٍ قَلْبِهِ الذي ظل مُعَلَّقًا بِوَطَنِهِ المُغْتَصَب. شَعْبِه،ِ عَوْدَةَ فَرَحِ وَشُمُوخِ وانتِصَار،ِ يَقُول:ُ العَوْدَةِ فِي صُورَةِ الحُلْم،ِ وَيَرَى رَى أَنَّا أَ سَتَكُونُ عَوْدَةً ظَافِرَةً تَشْهَدُهَا الأَجْيَالُ مِنْ أَبْنَاءِ
+
+=== BLOCK 6: قصيدة الكرمي ===
+(Component: TEMPLATE_C_POEM.html)
+[UNIQUE_ID]: b38420
+[BIO_TEXT]: (None)
+[POEM_TITLE]: (None)
+Verse 1:
+[RIGHT_HEMISTICH]: غَدًا سَنَعُودُ وَالأَجْيَالُ تُصْفِي
+[LEFT_HEMISTICH]: إلى وقع الخطا عِنْدَ الْإِيَابِ
+
+=== BLOCK 7: ممارسات الصهيونية ===
+(Component: TEMPLATE_C_TABLE.html)
+[UNIQUE_ID]: b39056
+[TABLE_TITLE]: الممارسات الصهيونية
+Rows:
+Row 1: [COL_1] على إِبْقَائِهِم بَعِيدًا عَنْ أَرْضِهِم، الفِلَسْطِينين، غَيْرِ أَنَّ إِصْرَارَ الصُّهِيُونِيَّةِ وَمَعَ أَنَّ أَمَلَ العَوْدَةِ ما يزالُ يُدَاعِبُ أَحلام المهجرين الصَّهَا نَةِ وَجَدْنَا الأَدَبَاءَ يَعْمَدُونَ إِلَى فَضْحِ مُمَارَسَاتِ كذلك، قَائِمًا ثابتا لا يَتَغَيَّر. ولأَجْلِ ذلك ومَنْعِهِم مِنَ العَوْدَةِ إِلَى الوَطَنِ مَا يَزَال،ُ كُلِّ مَا أَتِيْحَ لَهَا مِنْ أَجْلِ تَنْفِيذِ إِلَى دِيَارِهِم، فقد مارَسَتِ الصُّهْيُونِيَّةٌ الفلسطينيين مِنْ حَيَّ الْعَوْدَةِ العُدْوَانِيَّةِ المَتَمَثَلَةِ بِحِرْمَانِ المهجرين [COL_2] ارتِكَابِ عَشَرَاتِ اسْتَعْمَلَتِ القُوَّةَ المُفْرِطَةَ وَأَقْدَمَتْ على مِنْ ثُلَثَي الشَّعْبِ الفَلَسْطِينِي فَقَدِ فكْرَةِ الطَّرْدِ الجَمَاعِيَ القَسْرِي لَأَكْثَرِ القُرَى وَالبَلْدَاتِ حِجَارَهَا أَو تَخَلْصَتْ مِنْهَا، وَأَعْلَنَاتِ وَهَدَمَتِ البُيُوتِ وَحَرَقَتْهَا وَبَاعَتْ المجازر،ٍ وَتَدْمِيرِ المنات مِنَ القُرَى وَالبَلْدَات،ِ التي هَجَرَتْ سُكَانَا مَنَاطِقَ عَسْكَرِيَّة.ٌ
+Row 2: [COL_1] المَهَجْرِين الذين اقْتَلَعَنْهُم مِنْ أَرْضِهِم سِيَاسَةِ التَّرهيب والتَّخْوِيفِ لِقَمْعِ ولم تكتف بهذه المارَسَاتِ الوَحْشِيَّةِ القَائِمَةِ على [COL_2] بِتَحْوِيل ممتلكاتهم وأَرَاضِيهم إلى المهجرين، حَيْثُ قَامَتِ السلطات الصُّهْيُونِيَّةُ ومَنَعَتْهُم مِنَ العَوْدَةِ إِلَيْهَا، وَإِنَّمَا قَامَتْ بِابْتِلاع حقوق
+
+=== BLOCK 8: محمود درويش ===
+(Component: TEMPLATE_C_BLOCK.html)
+[UNIQUE_ID]: b39765
+Title: محمود درويش
+Content: كانَ ابْنَا بَارًا لِفِلَسْطِين الجَبِينُ يَرْتَفِعُ صَوْتُ شَاعِرِ الْأَرْضِ مَحْمود درويش الذي مُلْكِيَّتِهَا. وأمام هذه الممارساتِ المُخْزِيَةِ اله الى لها العَوْدَةِ إِلَى دِيارهم. قصوت السَّهَايِنَةِ القَمْعِيَّة، ويُؤَكِّدَ مَنْعَهُم المهجرين مِنْ حَقِ نَذَرَ روحَهُ وَشِعْرَهُ لِخِدْمَةِ قَضِيَّتِهَا، لَيَفْعُ مَارَسَاتِ العائدين، العائدين من المرور، مؤكدًا وقوف حرس الحدود لرفض عودة بنادق اليهود يسكت أمل المهجرين، ووايل الرصاص يعلن منع مصرحًا بأن هذا الوقوف مسخر الاختبال حنين العائدين، يقول:
+
+=== BLOCK 9: محمود درويش (تتمة) ===
+(Component: TEMPLATE_CUT_BOX_PART_1.html)
+[UNIQUE_ID]: b16029
+[BLOCK_TITLE]: قصيدة محمود درويش
+[CONTENT]: -  -
+
+--- END STREAM ---
