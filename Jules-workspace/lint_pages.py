@@ -25,7 +25,7 @@ from bs4 import BeautifulSoup
 # ── Configuration ─────────────────────────────────────────────────────────────
 
 PAGES_DIR = Path("pages")
-STYLES_FILE = Path("../styles/main.css")
+STYLES_FILE = Path("styles/main.css")
 
 #: Classes explicitly banned even if they appear in main.css
 FORBIDDEN_CLASSES: frozenset[str] = frozenset(
