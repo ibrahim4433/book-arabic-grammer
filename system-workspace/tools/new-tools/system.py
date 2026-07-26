@@ -5,6 +5,9 @@ import subprocess
 import sys
 import threading
 import time
+import datetime
+import string
+import random
 from pathlib import Path
 
 # --- RICH & UI IMPORTS ---
@@ -191,10 +194,22 @@ class StreamLogger:
 
 def print_header():
     console.clear()
+    settings_file = PROJECT_ROOT / "system-workspace" / "settings.json"
+    workspace_code = "None"
+    import json
+    if settings_file.exists():
+        try:
+            with open(settings_file, encoding="utf-8") as f:
+                settings = json.load(f)
+                workspace_code = settings.get("workspace_code", "None")
+        except:
+            pass
+
     console.print(
         Panel.fit(
             "[bold cyan]📘 ARABIC GRAMMAR BOOK - CONTROL ROOM (V3)[/bold cyan]\n"
-            f"[dim]Project Root: {PROJECT_ROOT}[/dim]",
+            f"[dim]Project Root: {PROJECT_ROOT}[/dim]\n"
+            f"[bold yellow]Workspace Code: {workspace_code}[/bold yellow]",
             box=box.ROUNDED,
             border_style="cyan",
         )
@@ -1954,6 +1969,154 @@ def run_settings():
         console.print(f"[red]❌ Failed to save settings: {e}[/red]")
 
 
+def run_refresh_workspace_code():
+    console.clear()
+    console.print(Panel("[bold]Workspace Code Settings[/bold]", style="magenta"))
+    settings_file = PROJECT_ROOT / "system-workspace" / "settings.json"
+    
+    settings = {}
+    import json
+    if settings_file.exists():
+        try:
+            with open(settings_file, encoding="utf-8") as f:
+                settings.update(json.load(f))
+        except Exception as e:
+            console.print(f"[red]Failed to load settings: {e}[/red]")
+            
+    current_code = settings.get("workspace_code", "None")
+    console.print(f"Current Workspace Code: [bold cyan]{current_code}[/bold cyan]")
+    
+    generate_new = questionary.confirm("Do you want to generate a new 5-character workspace code?").ask()
+    if generate_new:
+        new_code = ''.join(random.choices(string.ascii_lowercase + string.digits, k=5))
+        manual_override = questionary.text("Enter a custom code or press enter to use generated:", default=new_code).ask()
+        if manual_override:
+            new_code = manual_override
+            
+        settings["workspace_code"] = new_code
+        if "workspace_code_history" not in settings:
+            settings["workspace_code_history"] = []
+            
+        settings["workspace_code_history"].append({
+            "code": new_code,
+            "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        })
+        
+        try:
+            with open(settings_file, "w", encoding="utf-8") as f:
+                json.dump(settings, f, ensure_ascii=False, indent=4)
+            console.print(f"[green]✅ Workspace code updated to {new_code}![/green]")
+        except Exception as e:
+            console.print(f"[red]❌ Failed to save settings: {e}[/red]")
+            
+    questionary.press_any_key_to_continue().ask()
+
+def run_auto_smart_merging():
+    console.clear()
+    console.print(Panel("[bold]Auto Smart Merging/Pulling Tool[/bold]", style="cyan"))
+    
+    file_type = questionary.select("What are the file types?", choices=["plans", "pages"]).ask()
+    if not file_type: return
+    
+    method_type = questionary.select("What is the method type?", choices=["1-lesson", "1-page"]).ask()
+    if not method_type: return
+    
+    settings_file = PROJECT_ROOT / "system-workspace" / "settings.json"
+    settings = {}
+    import json
+    if settings_file.exists():
+        try:
+            with open(settings_file, encoding="utf-8") as f:
+                settings.update(json.load(f))
+        except:
+            pass
+            
+    default_code = settings.get("workspace_code", "")
+    workspace_code = questionary.text("What is the workspace code?", default=default_code).ask()
+    if not workspace_code: return
+    
+    date_range = questionary.text("What is the date of PRs/branches? (e.g. 09/11-15/11 or 25/7-x/x)").ask()
+    if not date_range: return
+    
+    console.print(f"\n[cyan]🔍 Searching branches for workspace code: {workspace_code}[/cyan]")
+    
+    import subprocess
+    console.print("[dim]Fetching latest remote branches...[/dim]")
+    try:
+        subprocess.run(["git", "fetch", "--all"], cwd=PROJECT_ROOT, check=False, capture_output=True)
+    except:
+        pass
+        
+    try:
+        branches_out = subprocess.check_output(["git", "branch", "-a"], cwd=PROJECT_ROOT, text=True)
+        branches = []
+        for b in branches_out.splitlines():
+            b = b.strip().replace("* ", "")
+            if "->" in b: continue
+            branches.append(b)
+            
+        found_files = []
+        target_branches = [b for b in branches if "pr-" in b.lower() or "jules" in b.lower()]
+        if not target_branches:
+            target_branches = branches
+            
+        with console.status("Scanning branches..."):
+            for branch in target_branches:
+                try:
+                    diff_out = subprocess.check_output(
+                        ["git", "diff", "--name-only", f"main...{branch}"], 
+                        cwd=PROJECT_ROOT, text=True, stderr=subprocess.DEVNULL
+                    )
+                    for f in diff_out.splitlines():
+                        if not f.strip(): continue
+                        if file_type == "plans" and not f.startswith("plans/"): continue
+                        if file_type == "pages" and not f.startswith("pages/"): continue
+                        
+                        if workspace_code.lower() in f.lower():
+                            found_files.append((branch, f))
+                except Exception:
+                    continue
+                    
+        if not found_files:
+            console.print(f"[yellow]⚠️ No files found matching workspace code '{workspace_code}' in any PR branches.[/yellow]")
+        else:
+            console.print(f"[green]✅ Found {len(found_files)} files![/green]")
+            success = 0
+            failures = []
+            
+            for branch, f in found_files:
+                console.print(f"[dim]Pulling {f} from {branch}...[/dim]")
+                try:
+                    subprocess.run(["git", "checkout", branch, "--", f], cwd=PROJECT_ROOT, check=True, capture_output=True)
+                    success += 1
+                except subprocess.CalledProcessError:
+                    failures.append(f)
+                    
+            console.print(f"\n[bold green]Successfully pulled {success} files![/bold green]")
+            if failures:
+                console.print(f"[bold red]Failed to pull {len(failures)} files:[/bold red]")
+                for f in failures:
+                    console.print(f" - {f}")
+                force = questionary.confirm("Force download problematic files to a temp folder?").ask()
+                if force:
+                    temp_dir = PROJECT_ROOT / "temp_recovered"
+                    temp_dir.mkdir(exist_ok=True)
+                    for f in failures:
+                        branch = next((b for b, file in found_files if file == f), "HEAD")
+                        try:
+                            content = subprocess.check_output(["git", "show", f"{branch}:{f}"], cwd=PROJECT_ROOT)
+                            out_path = temp_dir / Path(f).name
+                            out_path.write_bytes(content)
+                            console.print(f"[green]Recovered to {out_path}[/green]")
+                        except Exception as e:
+                            console.print(f"[red]Could not recover {f}: {e}[/red]")
+            
+    except Exception as e:
+        console.print(f"[red]Error during smart merge: {e}[/red]")
+        
+    questionary.press_any_key_to_continue().ask()
+
+
 def main():
     state_manager = StateManager(PROJECT_ROOT)
 
@@ -1989,6 +2152,8 @@ def main():
                 "4) Book Style Tuning",
                 "5) Settings",
                 "6) Clear History",
+                "G) auto smart merging/pulling tool",
+                "H) refresh workspace code",
                 "7) Quit",
             ],
             style=menu_style,
@@ -2110,6 +2275,14 @@ def main():
                 state_manager.save_state()
                 console.print("[green]✅ History database cleared successfully![/green]")
             op_ran = True
+
+        elif main_op == "G":
+            op_ran = True
+            run_auto_smart_merging()
+            
+        elif main_op == "H":
+            op_ran = True
+            run_refresh_workspace_code()
 
         if op_ran:
             console.print(

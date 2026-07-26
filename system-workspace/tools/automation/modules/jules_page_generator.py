@@ -166,6 +166,21 @@ class JulesPageGenerator:
                 f"PLAN:\n{plan_content}{elements_text}"
             )
 
+            # Inject Workspace Code
+            settings_file = self.project_root / "system-workspace/settings.json"
+            workspace_code = None
+            import json
+            if settings_file.exists():
+                try:
+                    with open(settings_file, encoding="utf-8") as f:
+                        workspace_code = json.load(f).get("workspace_code")
+                except:
+                    pass
+            
+            if workspace_code and workspace_code != "None":
+                prompt += f"\n\nIMPORTANT INSTRUCTION: You MUST append the batch workspace code '_{workspace_code}' to the filename of the generated page (e.g. before the .html extension)."
+
+
             try:
                 session = self.jules_client.create_session(
                     prompt, f"PageGen: {lesson_title}", automation_mode="AUTO_CREATE_PR"

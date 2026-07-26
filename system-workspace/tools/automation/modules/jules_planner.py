@@ -278,6 +278,21 @@ class JulesPlanner:
         mega_prompt = self.client.construct_mega_prompt(
             lesson_data, self.architect_prompt, self.auditor_prompt, getattr(self, "is_1_page_mode", False)
         )
+        
+        # Inject Workspace Code
+        settings_file = self.project_root / "system-workspace/settings.json"
+        workspace_code = None
+        import json
+        if settings_file.exists():
+            try:
+                with open(settings_file, encoding="utf-8") as f:
+                    workspace_code = json.load(f).get("workspace_code")
+            except:
+                pass
+        
+        if workspace_code and workspace_code != "None":
+            mega_prompt += f"\n\nIMPORTANT INSTRUCTION: You MUST append the batch workspace code '_{workspace_code}' to the filename of the generated plan (e.g. before the .md extension, like 01-plan_{workspace_code}.md)."
+
 
         # 4. Check or Create Session
         session_id = None
