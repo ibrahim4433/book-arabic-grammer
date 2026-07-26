@@ -2018,9 +2018,6 @@ def run_auto_smart_merging():
     file_type = questionary.select("What are the file types?", choices=["plans", "pages"]).ask()
     if not file_type: return
     
-    method_type = questionary.select("What is the method type?", choices=["1-lesson", "1-page"]).ask()
-    if not method_type: return
-    
     settings_file = PROJECT_ROOT / "system-workspace" / "settings.json"
     settings = {}
     import json
@@ -2041,9 +2038,11 @@ def run_auto_smart_merging():
     console.print(f"\n[cyan]🔍 Searching branches for workspace code: '{workspace_code}'[/cyan]")
     
     import subprocess
-    console.print("[dim]Fetching latest remote branches...[/dim]")
+    console.print("[dim]Fetching latest remote branches and PRs...[/dim]")
     try:
         subprocess.run(["git", "fetch", "--all"], cwd=PROJECT_ROOT, check=False, capture_output=True)
+        # Specifically fetch all GitHub PRs into local remote-tracking branches
+        subprocess.run(["git", "fetch", "origin", "+refs/pull/*/head:refs/remotes/origin/pr/*"], cwd=PROJECT_ROOT, check=False, capture_output=True)
     except:
         pass
         
@@ -2056,7 +2055,7 @@ def run_auto_smart_merging():
             branches.append(b)
             
         found_files = []
-        target_branches = [b for b in branches if "pr-" in b.lower() or "jules" in b.lower()]
+        target_branches = [b for b in branches if "pr-" in b.lower() or "pr/" in b.lower() or "jules" in b.lower()]
         if not target_branches:
             target_branches = branches
             
