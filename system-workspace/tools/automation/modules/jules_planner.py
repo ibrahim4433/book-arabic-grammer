@@ -175,12 +175,19 @@ class JulesPlanner:
             return
 
         # 3. Execute Batch
+        def _get_num(t):
+            import re
+            m = re.match(r"^(\d+)", t)
+            return int(m.group(1)) if m else 999
+            
+        sorted_items = sorted(to_process.items(), key=lambda x: _get_num(x[0]))
+        
         with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
             future_to_lesson = {
                 executor.submit(
                     self.process_lesson_with_callback, title, info, update_callback
                 ): title
-                for title, info in to_process.items()
+                for title, info in sorted_items
             }
 
             for future in as_completed(future_to_lesson):

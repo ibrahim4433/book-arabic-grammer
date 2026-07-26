@@ -477,7 +477,26 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False):
     if existing_count > 0:
         ans = questionary.confirm(f"Found {existing_count} existing plans. Do you want to RE-MAKE them? (No = Skip)").ask()
         force_remake = ans
-
+        
+    range_input = questionary.text("Lessons to process (e.g. '1-10', '5', '12,15' or 'ALL'):", default="ALL").ask()
+    if range_input is None: return
+    
+    only_lessons = None
+    if range_input.strip().upper() != "ALL":
+        only_lessons = []
+        for part in range_input.split(','):
+            part = part.strip()
+            if '-' in part:
+                try:
+                    s, e = map(int, part.split('-'))
+                    only_lessons.extend([str(i).zfill(2) for i in range(s, e + 1)])
+                    only_lessons.extend([str(i) for i in range(s, e + 1)]) # handle both padded and non-padded
+                except:
+                    pass
+            elif part.isdigit():
+                only_lessons.append(str(int(part)).zfill(2))
+                only_lessons.append(str(int(part)))
+                
     start_all = time.time()
     
     while True:
@@ -502,7 +521,7 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False):
     
                 live.update(generate_layout())
     
-            planner.run_batch_planning(max_concurrent=5, update_callback=callback, force_remake=force_remake)
+            planner.run_batch_planning(max_concurrent=5, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
 
         api_blocked = any(data.get("status") == "API_BLOCKED" for data in tasks.values())
         if api_blocked:
@@ -638,6 +657,13 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False):
             console.print("   [bold]git checkout main[/bold]")
             console.print("   [bold]git merge pr-230[/bold]")
             console.print("--------------------------------------\n")
+            
+    # Auto-Pull
+    if planner.state_manager:
+        ws_code = planner.state_manager.get_workspace_code()
+        auto_pull_jules_batch("plans", ws_code)
+    
+    questionary.press_any_key_to_continue().ask()
 
 
 def run_jules_generation_ui(state_manager, is_1_page_mode=False):
@@ -714,11 +740,31 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
         layout.add_row(generate_table(), generate_log_panel())
         return layout
 
+    # Initialize Live with the initial table
     existing_count = generator.count_existing_pages()
     force_remake = False
     if existing_count > 0:
         ans = questionary.confirm(f"Found {existing_count} existing pages. Do you want to RE-MAKE them? (No = Skip)").ask()
         force_remake = ans
+        
+    range_input = questionary.text("Lessons to process (e.g. '1-10', '5', '12,15' or 'ALL'):", default="ALL").ask()
+    if range_input is None: return
+    
+    only_lessons = None
+    if range_input.strip().upper() != "ALL":
+        only_lessons = []
+        for part in range_input.split(','):
+            part = part.strip()
+            if '-' in part:
+                try:
+                    s, e = map(int, part.split('-'))
+                    only_lessons.extend([str(i).zfill(2) for i in range(s, e + 1)])
+                    only_lessons.extend([str(i) for i in range(s, e + 1)])
+                except:
+                    pass
+            elif part.isdigit():
+                only_lessons.append(str(int(part)).zfill(2))
+                only_lessons.append(str(int(part)))
 
     start_all = time.time()
     
@@ -744,7 +790,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
     
                 live.update(generate_layout())
     
-            generator.run_batch_generation(max_concurrent=5, update_callback=callback, force_remake=force_remake)
+            generator.run_batch_generation(max_concurrent=5, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
 
         api_blocked = any(data.get("status") == "API_BLOCKED" for data in tasks.values())
         if api_blocked:
@@ -883,7 +929,12 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
         elif choice and choice.startswith("4"):
             console.print("[dim]Skipping recovery for now.[/dim]")
 
-    # Run post-flight lint on generated pages
+    # Auto-Pull
+    if generator.state_manager:
+        ws_code = generator.state_manager.get_workspace_code()
+        auto_pull_jules_batch("pages", ws_code)
+
+    questionary.press_any_key_to_continue().ask()
     console.print("\n[cyan]Running Post-Flight Page Lint...[/cyan]")
     try:
         import lint_pages
@@ -2011,6 +2062,99 @@ def run_refresh_workspace_code():
             
     questionary.press_any_key_to_continue().ask()
 
+def auto_pull_jules_batch(file_type, workspace_code):
+    """Automatically pulls files for a specific Jules batch from GitHub API."""
+    if not workspace_code:
+        return
+        
+    console.print(f"\n[bold cyan]🔄 Auto-Pulling Generated Files for Workspace Code: '{workspace_code}'[/bold cyan]")
+    
+    token_path = PROJECT_ROOT / "secrets/Github_Token.txt"
+    if not token_path.exists():
+        console.print("[red]❌ secrets/Github_Token.txt not found! Cannot auto-pull.[/red]")
+        return
+        
+    token = token_path.read_text().strip()
+    import urllib.request, json, subprocess
+    
+    try:
+        repo_url = subprocess.check_output(["git", "config", "--get", "remote.origin.url"], cwd=PROJECT_ROOT, text=True).strip()
+        repo_name = repo_url.split("github.com/")[-1].replace(".git", "")
+    except Exception as e:
+        console.print("[red]❌ Could not detect repo name for auto-pull.[/red]")
+        return
+        
+    console.print(f"[dim]Fetching open PRs from API for {repo_name}...[/dim]")
+    url = f"https://api.github.com/repos/{repo_name}/pulls?state=open&per_page=100"
+    req = urllib.request.Request(url)
+    req.add_header("Authorization", f"token {token}")
+    req.add_header("Accept", "application/vnd.github.v3+json")
+    
+    try:
+        with urllib.request.urlopen(req, timeout=15) as response:
+            prs = json.loads(response.read())
+    except Exception as e:
+        console.print(f"[red]❌ API Request failed: {e}[/red]")
+        return
+        
+    if not prs:
+        console.print("[yellow]⚠️ No open PRs found to pull.[/yellow]")
+        return
+        
+    found_files = []
+    with console.status("Scanning PR branches for generated files...") as status:
+        for pr in prs:
+            branch_ref = pr['head']['ref']
+            try:
+                subprocess.run(["git", "fetch", "origin", f"pull/{pr['number']}/head:{branch_ref}"], cwd=PROJECT_ROOT, check=True, capture_output=True)
+                diff_out = subprocess.check_output(
+                    ["git", "diff", "--name-only", f"main...{branch_ref}"], 
+                    cwd=PROJECT_ROOT, text=True, stderr=subprocess.DEVNULL
+                )
+                for f in diff_out.splitlines():
+                    if not f.strip(): continue
+                    if file_type == "plans" and not f.startswith("plans/"): continue
+                    if file_type == "pages" and not f.startswith("pages/"): continue
+                    if workspace_code.lower() not in f.lower(): continue
+                    
+                    found_files.append((branch_ref, f))
+            except Exception as e:
+                console.print(f"[dim red]DEBUG fetch PR #{pr['number']}: {e}[/dim red]")
+                
+    if not found_files:
+        console.print("[green]✨ No generated files found waiting in PRs.[/green]")
+        return
+        
+    console.print(f"[green]✅ Found {len(found_files)} files to auto-pull.[/green]")
+    
+    success = 0
+    failures = []
+    
+    for branch, f in found_files:
+        console.print(f"[dim]Pulling {f} from {branch}...[/dim]")
+        try:
+            subprocess.run(["git", "checkout", branch, "--", f], cwd=PROJECT_ROOT, check=True, capture_output=True)
+            success += 1
+        except subprocess.CalledProcessError as e:
+            failures.append((branch, f))
+            
+    console.print(f"[bold green]Successfully pulled {success} files![/bold green]")
+    
+    if failures:
+        fallback_dir = PROJECT_ROOT / "temp_recovered"
+        fallback_dir.mkdir(exist_ok=True)
+        console.print(f"[bold red]Failed to merge {len(failures)} files (Conflict/Error). Auto-recovering to temp_recovered/ ...[/bold red]")
+        for branch, f in failures:
+            try:
+                content = subprocess.check_output(["git", "show", f"{branch}:{f}"], cwd=PROJECT_ROOT)
+                out_path = fallback_dir / Path(f).name
+                out_path.write_bytes(content)
+                console.print(f"[green]Recovered {f} -> {out_path}[/green]")
+            except Exception as e:
+                console.print(f"[red]Could not recover {f}: {e}[/red]")
+                
+    console.print("[bold cyan]✅ Auto-Pull Complete![/bold cyan]")
+    
 def run_auto_smart_merging():
     console.clear()
     console.print(Panel("[bold]Auto Smart Merging/Pulling Tool[/bold]", style="cyan"))
@@ -2032,95 +2176,276 @@ def run_auto_smart_merging():
     workspace_code = questionary.text("What is the workspace code? (leave empty to ignore)", default=default_code).ask()
     if workspace_code is None: return
     
-    date_range = questionary.text("What is the date of PRs/branches? (e.g. 09/11-15/11 or 25/7-x/x)").ask()
-    if not date_range: return
+    days_input = questionary.text("Fetch PRs from the last X days (leave empty for All Time):").ask()
+    if days_input is None: return
     
-    console.print(f"\n[cyan]🔍 Searching branches for workspace code: '{workspace_code}'[/cyan]")
+    import datetime
+    now = datetime.datetime.now(datetime.timezone.utc)
+    cutoff = None
+    if days_input.strip():
+        try:
+            days = float(days_input.strip())
+            cutoff = now - datetime.timedelta(days=days)
+        except ValueError:
+            console.print("[yellow]Invalid number of days. Defaulting to All Time.[/yellow]")
     
+    fetch_method = questionary.select(
+        "Select fetch method:", 
+        choices=[
+            "1) Fetch OPEN PRs directly from GitHub (API)", 
+            "2) Scan local branches (Old Method)"
+        ]
+    ).ask()
+    
+    if not fetch_method: return
+
     import subprocess
-    console.print("[dim]Fetching latest remote branches and PRs...[/dim]")
-    try:
-        subprocess.run(["git", "fetch", "--all"], cwd=PROJECT_ROOT, check=False, capture_output=True)
-        # Specifically fetch all GitHub PRs into local remote-tracking branches
-        subprocess.run(["git", "fetch", "origin", "+refs/pull/*/head:refs/remotes/origin/pr/*"], cwd=PROJECT_ROOT, check=False, capture_output=True)
-    except:
-        pass
+    found_files = []
+    
+    if fetch_method.startswith("1"):
+        import urllib.request
         
-    try:
-        branches_out = subprocess.check_output(["git", "branch", "-a"], cwd=PROJECT_ROOT, text=True)
-        branches = []
-        for b in branches_out.splitlines():
-            b = b.strip().replace("* ", "")
-            if "->" in b: continue
-            branches.append(b)
+        token_path = PROJECT_ROOT / "secrets/Github_Token.txt"
+        if not token_path.exists():
+            console.print("[red]❌ secrets/Github_Token.txt not found![/red]")
+            return
             
-        found_files = []
-        target_branches = [b for b in branches if "pr-" in b.lower() or "pr/" in b.lower() or "jules" in b.lower()]
-        if not target_branches:
-            target_branches = branches
+        token = token_path.read_text().strip()
+        
+        try:
+            repo_url = subprocess.check_output(["git", "config", "--get", "remote.origin.url"], cwd=PROJECT_ROOT, text=True).strip()
+            # Handle standard https URL like https://github.com/ibrahim4433/book-arabic-grammer.git
+            repo_name = repo_url.split("github.com/")[-1].replace(".git", "")
+        except Exception as e:
+            console.print(f"[dim red]DEBUG repo parsing: {e}[/dim red]")
+            repo_name = questionary.text("Could not detect repo name. Please enter it (e.g. ibrahim4433/book-arabic-grammer):").ask()
+            if not repo_name: return
             
-        with console.status("Scanning branches..."):
-            for branch in target_branches:
+        console.print(f"[dim]Fetching open PRs from API for {repo_name}...[/dim]")
+        url = f"https://api.github.com/repos/{repo_name}/pulls?state=open&per_page=100"
+        req = urllib.request.Request(url)
+        req.add_header("Authorization", f"token {token}")
+        req.add_header("Accept", "application/vnd.github.v3+json")
+        
+        try:
+            with urllib.request.urlopen(req, timeout=15) as response:
+                prs = json.loads(response.read())
+        except Exception as e:
+            console.print(f"[red]❌ API Request failed:[/red] [dim red]{e}[/dim red]")
+            return
+            
+        if not prs:
+            console.print("[yellow]⚠️ No open PRs found![/yellow]")
+            return
+            
+        if cutoff:
+            filtered_prs = []
+            for pr in prs:
                 try:
+                    pr_date = datetime.datetime.strptime(pr['created_at'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
+                    if pr_date >= cutoff:
+                        filtered_prs.append(pr)
+                except Exception:
+                    filtered_prs.append(pr)
+            prs = filtered_prs
+            
+        if not prs:
+            console.print("[yellow]⚠️ No PRs match the selected time filter![/yellow]")
+            return
+            
+        pr_choices = []
+        for pr in prs:
+            try:
+                pr_date = datetime.datetime.strptime(pr['created_at'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
+                delta = now - pr_date
+                if delta.days == 0:
+                    time_str = "Today"
+                elif delta.days == 1:
+                    time_str = "Yesterday"
+                else:
+                    time_str = f"{delta.days} days ago"
+            except Exception:
+                time_str = "Unknown time"
+                
+            pr_choices.append(questionary.Choice(f"[{time_str}] PR #{pr['number']}: {pr['title']} ({pr['head']['ref']})", value=pr))
+            
+        selected_prs = questionary.checkbox("Select PRs to process:", choices=pr_choices).ask()
+        
+        if not selected_prs: return
+        
+        with console.status("Fetching selected PR branches...") as status:
+            for i, pr in enumerate(selected_prs, 1):
+                status.update(f"Fetching PR #{pr['number']} ({i}/{len(selected_prs)})...")
+                branch_ref = pr['head']['ref']
+                try:
+                    subprocess.run(["git", "fetch", "origin", f"pull/{pr['number']}/head:{branch_ref}"], cwd=PROJECT_ROOT, check=True, capture_output=True)
                     diff_out = subprocess.check_output(
-                        ["git", "diff", "--name-only", f"main...{branch}"], 
+                        ["git", "diff", "--name-only", f"main...{branch_ref}"], 
                         cwd=PROJECT_ROOT, text=True, stderr=subprocess.DEVNULL
                     )
                     for f in diff_out.splitlines():
                         if not f.strip(): continue
                         if file_type == "plans" and not f.startswith("plans/"): continue
                         if file_type == "pages" and not f.startswith("pages/"): continue
+                        if workspace_code and workspace_code.lower() not in f.lower(): continue
                         
-                        if workspace_code and workspace_code.lower() not in f.lower():
-                            continue
-                        found_files.append((branch, f))
-                except Exception:
-                    continue
+                        found_files.append((branch_ref, f))
+                except Exception as e:
+                    console.print(f"[dim red]DEBUG fetch/diff PR #{pr['number']}: {e}[/dim red]")
                     
-        if not found_files:
-            console.print(f"[yellow]⚠️ No files found matching workspace code '{workspace_code}' in any PR branches.[/yellow]")
-        else:
-            console.print(f"[green]✅ Found {len(found_files)} files![/green]")
-            for b, f in found_files:
-                console.print(f" - {f} (from {b})")
-                
-            confirm = questionary.confirm("Apply these changes?").ask()
-            if not confirm:
-                console.print("[yellow]Aborted by user.[/yellow]")
-                return
-                
-            success = 0
-            failures = []
+    else:
+        console.print(f"\n[cyan]🔍 Searching branches for workspace code: '{workspace_code}'[/cyan]")
+        console.print("[dim]Fetching latest remote branches and PRs...[/dim]")
+        try:
+            subprocess.run(["git", "fetch", "--all"], cwd=PROJECT_ROOT, check=False, capture_output=True)
+            subprocess.run(["git", "fetch", "origin", "+refs/pull/*/head:refs/remotes/origin/pr/*"], cwd=PROJECT_ROOT, check=False, capture_output=True)
+        except Exception as e:
+            console.print(f"[dim red]DEBUG fetch: {e}[/dim red]")
             
-            for branch, f in found_files:
-                console.print(f"[dim]Pulling {f} from {branch}...[/dim]")
+        try:
+            branches_out = subprocess.check_output(["git", "branch", "-a"], cwd=PROJECT_ROOT, text=True)
+            branches = []
+            for b in branches_out.splitlines():
+                b = b.strip().replace("* ", "")
+                if "->" in b: continue
+                branches.append(b)
+                
+            target_branches = [b for b in branches if "pr-" in b.lower() or "pr/" in b.lower() or "jules" in b.lower()]
+            if not target_branches:
+                target_branches = branches
+                
+            if cutoff:
+                filtered_branches = []
+                with console.status("Filtering branches by date..."):
+                    for b in target_branches:
+                        try:
+                            d_out = subprocess.check_output(["git", "log", "-1", "--format=%cI", b], cwd=PROJECT_ROOT, text=True, stderr=subprocess.DEVNULL).strip()
+                            if d_out:
+                                b_date = datetime.datetime.fromisoformat(d_out)
+                                # b_date may be offset-aware. cutoff is utc-aware.
+                                if b_date >= cutoff:
+                                    filtered_branches.append(b)
+                        except Exception:
+                            filtered_branches.append(b)
+                target_branches = filtered_branches
+                
+            with console.status("Scanning branches..."):
+                for branch in target_branches:
+                    try:
+                        diff_out = subprocess.check_output(
+                            ["git", "diff", "--name-only", f"main...{branch}"], 
+                            cwd=PROJECT_ROOT, text=True, stderr=subprocess.DEVNULL
+                        )
+                        for f in diff_out.splitlines():
+                            if not f.strip(): continue
+                            if file_type == "plans" and not f.startswith("plans/"): continue
+                            if file_type == "pages" and not f.startswith("pages/"): continue
+                            if workspace_code and workspace_code.lower() not in f.lower(): continue
+                            
+                            found_files.append((branch, f))
+                    except Exception as e:
+                        console.print(f"[dim red]DEBUG diff branch {branch}: {e}[/dim red]")
+        except Exception as e:
+            console.print(f"[dim red]DEBUG branch parsing: {e}[/dim red]")
+            
+    if not found_files:
+        console.print(f"[yellow]⚠️ No files found matching filters.[/yellow]")
+    else:
+        # Filter found_files based on existence
+        filter_type = questionary.select(
+            "Filter findings:",
+            choices=[
+                "1) Show ALL files",
+                "2) Only show NEW files (Do not exist locally)",
+                "3) Only show EXISTING files (Already exist locally)"
+            ]
+        ).ask()
+        
+        if not filter_type: return
+        
+        filtered_files = []
+        for branch, f in found_files:
+            exists = (PROJECT_ROOT / f).exists()
+            if filter_type.startswith("2") and exists:
+                continue
+            if filter_type.startswith("3") and not exists:
+                continue
+            filtered_files.append((branch, f))
+            
+        if not filtered_files:
+            console.print("[yellow]⚠️ No files left after filtering.[/yellow]")
+            return
+            
+        console.print(f"[green]✅ Found {len(filtered_files)} candidate files.[/green]")
+        file_choices = [questionary.Choice(f"{f} (from {b})", value=(b, f)) for b, f in filtered_files]
+        
+        selected_files = questionary.checkbox("Select files to merge/pull:", choices=file_choices).ask()
+        if not selected_files:
+            console.print("[yellow]Aborted by user.[/yellow]")
+            return
+            
+        dest_choice = questionary.select(
+            "Where to save selected files?",
+            choices=[
+                "1) Pull to their actual places (Standard Git Checkout)",
+                "2) Extract to temp folder (temp_recovered/)",
+                "3) Extract to custom path..."
+            ]
+        ).ask()
+        if not dest_choice: return
+        
+        target_dir = None
+        if dest_choice.startswith("2"):
+            target_dir = PROJECT_ROOT / "temp_recovered"
+        elif dest_choice.startswith("3"):
+            custom_path = questionary.text("Enter custom path (relative to project root):").ask()
+            if not custom_path: return
+            target_dir = PROJECT_ROOT / custom_path
+            
+        if target_dir:
+            target_dir.mkdir(parents=True, exist_ok=True)
+            
+        success = 0
+        failures = []
+        
+        for branch, f in selected_files:
+            console.print(f"[dim]Processing {f} from {branch}...[/dim]")
+            if target_dir:
+                try:
+                    content = subprocess.check_output(["git", "show", f"{branch}:{f}"], cwd=PROJECT_ROOT)
+                    out_path = target_dir / Path(f).name
+                    out_path.write_bytes(content)
+                    console.print(f"[green]Saved to {out_path}[/green]")
+                    success += 1
+                except Exception as e:
+                    console.print(f"[dim red]DEBUG extract {f}: {e}[/dim red]")
+                    failures.append((branch, f))
+            else:
                 try:
                     subprocess.run(["git", "checkout", branch, "--", f], cwd=PROJECT_ROOT, check=True, capture_output=True)
                     success += 1
-                except subprocess.CalledProcessError:
-                    failures.append(f)
-                    
-            console.print(f"\n[bold green]Successfully pulled {success} files![/bold green]")
-            if failures:
-                console.print(f"[bold red]Failed to pull {len(failures)} files:[/bold red]")
-                for f in failures:
-                    console.print(f" - {f}")
+                except subprocess.CalledProcessError as e:
+                    console.print(f"[dim red]DEBUG checkout {f}: {e.stderr if hasattr(e, 'stderr') else e}[/dim red]")
+                    failures.append((branch, f))
+                
+        console.print(f"\n[bold green]Successfully processed {success} files![/bold green]")
+        if failures:
+            console.print(f"[bold red]Failed to process {len(failures)} files:[/bold red]")
+            for _, f in failures:
+                console.print(f" - {f}")
+            if not target_dir:
                 force = questionary.confirm("Force download problematic files to a temp folder?").ask()
                 if force:
-                    temp_dir = PROJECT_ROOT / "temp_recovered"
-                    temp_dir.mkdir(exist_ok=True)
-                    for f in failures:
-                        branch = next((b for b, file in found_files if file == f), "HEAD")
+                    fallback_dir = PROJECT_ROOT / "temp_recovered"
+                    fallback_dir.mkdir(exist_ok=True)
+                    for branch, f in failures:
                         try:
                             content = subprocess.check_output(["git", "show", f"{branch}:{f}"], cwd=PROJECT_ROOT)
-                            out_path = temp_dir / Path(f).name
+                            out_path = fallback_dir / Path(f).name
                             out_path.write_bytes(content)
                             console.print(f"[green]Recovered to {out_path}[/green]")
                         except Exception as e:
                             console.print(f"[red]Could not recover {f}: {e}[/red]")
-            
-    except Exception as e:
-        console.print(f"[red]Error during smart merge: {e}[/red]")
         
     questionary.press_any_key_to_continue().ask()
 

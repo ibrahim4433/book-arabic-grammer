@@ -441,6 +441,12 @@ class JulesPageGenerator:
             to_process.append(plan)
 
         update_callback("System", "INFO", f"Queued {len(to_process)} plans for generation.")
+        
+        def _get_num(plan_path):
+            match = re.search(r"(?:^|page[_\s]*)(\d+)", plan_path.name, re.IGNORECASE)
+            return int(match.group(1)) if match else 999
+            
+        to_process = sorted(to_process, key=_get_num)
 
         with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
             future_to_plan = {
