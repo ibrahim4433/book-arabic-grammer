@@ -150,6 +150,34 @@ class JulesPageGenerator:
 
             if self.is_1_page_mode:
                 naming_instruction = f"The output file should follow the strict naming convention: `pages/page_{lesson_num}.html`.\n"
+                naming_instruction += (
+                    f"\n[CONSTRAINTS & PROTOCOLS]\n"
+                    f"1. Source of Truth: Adhere strictly to BOOK_RULES.md and elements_index.md\n"
+                    f"2. Strict 1-Page Fit: The generated content MUST visually fit on exactly one A4 page when rendered. You MUST verify this using `verify_layout.py` or equivalent tools. If it overflows, it is a catastrophic failure. Do NOT try to solve overflow by deleting text (Strict Typographer Rule). Solve it by choosing denser templates or omitting optional white-space.\n"
+                    f"2.5 Cut Content: If content is violently split by the page boundary, strictly follow the [CUT CONTENT HANDLING] rules using `TEMPLATE_CUT_BOX_PART_1.html` and `TEMPLATE_CUT_BOX_PART_2.html`. Ensure exact visual continuity (same title, same classes).\n"
+                    f"2.6 Cut Content Determinism: When handling cut content or starting a page mid-section, you MUST use the Keyword-to-Template Deterministic Mapping in elements_index.md to identify the correct template to use for the continuation. You are forbidden from guessing. Scan the raw text for the preceding keyword to determine the active template and apply the correct `_PART_2.html` wrapping.\n"
+                    f"3. text Content: 100% Arabic with full Harakat. Must use EVERY WORD from the provided text slice.\n"
+                    f"4. Highlighting: Use `.highlight-red` for primary focus words and `.highlight-blue`,`.highlight-green` for secondary.\n"
+                    f"5. Definitions: Must use `.text-accent` class.\n"
+                    f"6. Mandatory Style Guide:\n"
+                    f"*   **Rule:** NO INLINE STYLES.\n"
+                    f"*   **Rule:** Irab Words inside `.irab-word` MUST be white. Do NOT use `.highlight-*` classes.\n"
+                    f"*   **Mapping:**\n"
+                    f"    *   `style=\"width: 20%\"` -> `class=\"w-20pct\"`\n"
+                    f"    *   `style=\"margin-top: 2mm\"` -> `class=\"mt-2mm\"`\n"
+                    f"    *   `style=\"text-align: center\"` -> `class=\"text-center\"`\n"
+                    f"    *   `style=\"font-weight: bold\"` -> `class=\"font-bold\"`\n"
+                    f"6. Templates: You are forbidden from inventing new HTML tags or classes or template elements. You must map all content using Jules-workspace/Templates/ components. **CRITICAL 1-PAGE MODE RULE**: You MUST NOT use `<section>` tags when applying templates. Replace any `<section>` tags from the templates with `<div>` tags (keep `<header>` for page headers as is).\n"
+                    f"7. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). The ID MUST be applied to the `<div>` tag that replaced the `<section>` tag. Use Jules-workspace/id_manager.py to generate or verify them.\n"
+                    f"8. **Self-Correction:** Run Jules-workspace/lint_pages.py --one-page-mode <filename> after creating html files. If it fails, you MUST fix the errors (usually inline styles or forbidden section tags) before submitting.\n"
+                    f"9. Do not summarize examples.\n"
+                    f"10. Do not provide uncompleted text content using (...) .\n"
+                    f"11. You MUST preserve the EXACT Tashkeel (Harakat) from the input. Stripping diacritics is a critical failure. Do not generate bare Arabic letters without their vowels.\n"
+                    f"12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.\n"
+                    f"13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of all teal\n"
+                    f"14. **Page Wrappers**: The compiler will automatically wrap the final page in `TEMPLATE_C_PAGE_WRAPPER.html`. Do NOT include this template in your HTML.\n"
+                    f"15. **Exam Section**: ONLY include the `TEMPLATE_C_EXAM.html` block if the provided raw text slice actually contains test/exam questions (e.g., keywords like \"تطبيق\", \"امتحان\"). Do NOT hallucinate an exam if it is not in the source text. **CRITICAL:** If an exam or exercise contains the answers in the raw text, you MUST use `TEMPLATE_C_EXAM_SOLVED.html` instead of `TEMPLATE_C_EXAM.html`.\n"
+                )
             else:
                 naming_instruction = f"The output file should follow the strict naming convention: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html`.\n"
 

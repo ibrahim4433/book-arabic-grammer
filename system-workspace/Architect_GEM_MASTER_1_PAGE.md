@@ -44,15 +44,22 @@ If a topic or block of text is cut violently between pages by a `----- PAGE X --
 
 ---
 
-# 🎨 THE STREAM "GOLDEN FLOW" :
+# 🧠 PRO LAYOUT & DENSITY STRATEGIES
+To fit massive amounts of text onto a single A4 page without deleting anything, you must think like a master typographer and use the following layout techniques aggressively:
 
-1.  **HEADER STRIP:** `TEMPLATE_C_HEADER.html`.
-2.  **DEFINITION & RULE:** `TEMPLATE_C_BLOCK.html` (Body text uses `.text-accent`).
-3.  **THE CORE MATRIX:** `TEMPLATE_C_TABLE.html` (Summary of all lesson rules).
-4.  **DEEP DIVE:** `TEMPLATE_C_SPLIT.html` , `TEMPLATE_C_BLOCK.html` , `TEMPLATE_C_LIST.html`, `TEMPLATE_C_CHIPS.html`.
-5.  **EXTRA INFO ( if multi merge them in one section or add them through the DEEP DIVE ):** `TEMPLATE_C_BENEFIT.html` , `TEMPLATE_C_BENEFIT_WARNING.html` , `TEMPLATE_C_BENEFIT_TIP.html`
-5.  **EVIDENCE:** `TEMPLATE_C_POEM.html` followed by `TEMPLATE_C_IRAB_ROW.html`.
-6.  **EVALUATION:** `TEMPLATE_C_EXAM.html` (Mandatory at the end of every lesson(without answers!)).
+1. **Halve the Page (Two-Column Wrapper):** If you have two independent lists, two small text blocks, or a short definition and a warning box, DO NOT stack them vertically. Wrap them inside a `TEMPLATE_C_TWO_COLUMNS_WRAPPER.html`. This splits the page horizontally and places them side-by-side, saving immense vertical space.
+2. **Table Consolidation (Compact Q&A):** If the raw text contains a long list of Q&A pairs (e.g. 5+ repetitive questions and answers), DO NOT use `TEMPLATE_C_LIST.html`. Use `TEMPLATE_C_COMPACT_QA_TABLE.html`. This forces the Q&A into a dense, space-saving matrix.
+3. **Chips over Lists:** For lists containing only single words (like pronouns, prepositions, or small examples), NEVER use a vertical bullet list. Use `TEMPLATE_C_CHIPS.html` so they flow horizontally.
+4. **Adjacency:** If a `TEMPLATE_C_BENEFIT.html` or `TEMPLATE_C_BENEFIT_WARNING.html` is very short, place it inside column 2 of a `TEMPLATE_C_TWO_COLUMNS_WRAPPER.html` next to the main text in column 1. Do not let small boxes consume the entire page width.
+
+---
+
+# 🎨 SEQUENTIAL CONTENT MAPPING:
+
+In 1-Page Mode, you MUST strictly follow the exact sequential order of the provided raw text. Do NOT force a predefined "Golden Flow" or reorder content. 
+Simply read the raw text slice from top to bottom, and map each section to the most appropriate template chronologically.
+- Start with `TEMPLATE_C_HEADER.html`.
+- Map the rest exactly as it appears in the text slice.
 
 ---
 
@@ -70,32 +77,6 @@ Objective: Implement page [PAGE_NUMBER].
 File: `pages/page_[PAGE_NUMBER].html` (Note: Use the exact page number.)
 Reference: Follow patterns in design_patterns.json.
 
-[CONSTRAINTS & PROTOCOLS]
-1. Source of Truth: Adhere strictly to BOOK_RULES.md and elements_index.md
-2. Strict 1-Page Fit: The generated content MUST visually fit on exactly one A4 page when rendered. You MUST instruct the generator to verify this using `verify_layout.py` or equivalent tools. If it overflows, it is a catastrophic failure. Do NOT try to solve overflow by deleting text (Strict Typographer Rule). Solve it by choosing denser templates or omitting optional white-space.
-2.5 Cut Content: If content is violently split by the page boundary, strictly follow the [CUT CONTENT HANDLING] rules using `TEMPLATE_CUT_BOX_PART_1.html` and `TEMPLATE_CUT_BOX_PART_2.html`. Ensure exact visual continuity (same title, same classes).
-2.6 Cut Content Determinism: When handling cut content or starting a page mid-section, you MUST use the "Keyword-to-Template Deterministic Mapping" in `elements_index.md` to identify the correct template to use for the continuation. You are forbidden from guessing. Scan the raw text for the preceding keyword to determine the active template and apply the correct `_PART_2.html` wrapping.
-3. text Content: 100% Arabic with full Harakat. Must use EVERY WORD from the provided text slice.
-4. Highlighting: Use `.highlight-red` for primary focus words and `.highlight-blue`,`.highlight-green`  for secondary.
-5. Definitions: Must use `.text-accent` class.
-6. Mandatory Style Guide:
-*   **Rule:** NO INLINE STYLES.
-*   **Rule:** Irab Words inside `.irab-word` MUST be white. Do NOT use `.highlight-*` classes.
-*   **Mapping:**
-    *   `style="width: 20%"` -> `class="w-20pct"`
-    *   `style="margin-top: 2mm"` -> `class="mt-2mm"`
-    *   `style="text-align: center"` -> `class="text-center"`
-    *   `style="font-weight: bold"` -> `class="font-bold"`
-6. Templates: You are forbidden from inventing new HTML tags or classes or template elements. You must map all content using "Jules-workspace/Templates/" components as the STREAM says in suitable way. **CRITICAL 1-PAGE MODE RULE**: You MUST NOT use `<section>` tags when applying templates. Replace any `<section>` tags from the templates with `<div>` tags (keep `<header>` for page headers as is).
-7. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). The ID MUST be applied to the `<div>` tag that replaced the `<section>` tag. Use "Jules-workspace/id_manager.py" to generate or verify them.
-8. **Self-Correction:** Run "Jules-workspace/lint_pages.py --one-page-mode <filename>" after creating html files. If it fails, you MUST fix the errors (usually inline styles or forbidden section tags) before submitting.
-9. Do not summarize examples. 
-10. Do not provide uncompleted text content using (...) .
-11. You MUST preserve the EXACT Tashkeel (Harakat) from the input. Stripping diacritics is a critical failure. Do not generate bare Arabic letters without their vowels.
-12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.
-13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of all teal 
-14. **Page Wrappers**: The compiler will automatically wrap the final page in `TEMPLATE_C_PAGE_WRAPPER.html`. Do NOT include this template in your `[CONTENT STREAM]` blocks.
-15. **Exam Section**: ONLY include the `TEMPLATE_C_EXAM.html` block if the provided raw text slice actually contains test/exam questions (e.g., keywords like "تطبيق", "امتحان"). Do NOT hallucinate an exam if it is not in the source text. **CRITICAL:** If an exam or exercise contains the answers in the raw text, you MUST use `TEMPLATE_C_EXAM_SOLVED.html` instead of `TEMPLATE_C_EXAM.html`.
 
 [CONTENT STREAM]
 

@@ -17,6 +17,13 @@ This document serves as the absolute source of truth for all HTML templates (ele
 | `TEMPLATE_C_BLOCK.html` | Generic Content Card. | A generic `<section class="content-block">` container for Definitions, Rules, or Text. Do not assume it has lists or tips inside. Inject those as needed. |
 | `TEMPLATE_C_SPLIT.html` | Two-Column Grid. | For side-by-side content or comparisons. Remember RTL stacks right-to-left. |
 
+## 2.5 Layout & Grouping Wrappers (For Smart Density)
+
+| Template File | Description | When to Use |
+| :--- | :--- | :--- |
+| `TEMPLATE_C_TWO_COLUMNS_WRAPPER.html` | Generic Grid Wrapper. | Use this to place ANY two disparate elements side-by-side (e.g. a Definition block on the right, and a Warning box on the left). Highly recommended for saving vertical space. |
+| `TEMPLATE_C_COMPACT_QA_TABLE.html` | Condensed Q&A Matrix. | When you have repetitive Q&A pairs (س/ج), use this table to display them densely instead of using bulky bullet lists. |
+
 ## 3. Data & Lists (Injected inside Blocks)
 
 | Template File | Description | When to Use |
@@ -69,7 +76,8 @@ To ensure visual continuity when content is cut across two pages, you **MUST** u
 | **"مدخل إلى النص:" / "حياة الشاعر" / Author Names** | `TEMPLATE_C_POEM.html` (Bio block) |
 | **Lines starting with `-` containing dual parts (Verses)** | `TEMPLATE_C_POEM.html` (Verses block) |
 | **"مهارات الاستماع" / "مهارات القراءة" / "الاستيعاب والفهم" / "المستوى الفكري" / "القاعدة" / "الخلاصة"** | `TEMPLATE_C_BLOCK.html` (Standard Block) |
-| **"ج ١-" / "س:" / Q&A structures / "أولاً:" / "ثانياً:"** | `TEMPLATE_C_LIST.html` (Numbered/Bullet List) |
+| **"ج ١-" / "س:" / Q&A structures** | `TEMPLATE_C_COMPACT_QA_TABLE.html` (If highly repetitive Q&A) or `TEMPLATE_C_LIST.html` |
+| **"أولاً:" / "ثانياً:"** | `TEMPLATE_C_LIST.html` (Numbered/Bullet List) |
 | **"فائدة" / "تذكر"** | `TEMPLATE_C_BENEFIT.html` |
 | **"تنبيه" / "ملاحظة"** | `TEMPLATE_C_BENEFIT_WARNING.html` |
 | **"قاعدة ذهبية" / "تلميح"** | `TEMPLATE_C_BENEFIT_TIP.html` |

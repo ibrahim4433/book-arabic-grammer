@@ -22,9 +22,8 @@ Compare the Plan against the Source and Rules. Detect missing content, weak stru
 *   **Block Count:** Does the plan have at least **4 substantial content blocks** (excluding Header/Exam)? If not, **FAIL**.
 
 ## 2. Design Compliance (Critical)
-*   **The Golden Flow:** Does it start with Header -> Definition -> Detailed Breakdown -> Matrix?
-*   **Density:** Is there a "Summary Table" (Matrix)? If not, **FAIL**.
-*   **One-Page Law:** Does the plan explicitly mention verifying layout with `verify_layout.py` or equivalent tools? If the page is too empty (< 80% full) or overflows a single A4 page, **FAIL**.
+*   **Sequential Flow:** Does the plan strictly follow the sequential order of the raw text without skipping or reordering sections?
+*   **One-Page Law (PLANNER PHASE):** Does the plan use dense templates if the source text is extremely long? Do NOT fail a plan for being 'too long' or 'overflowing' because the Strict Typographer Rule mandates 100% inclusion. The HTML generator handles actual overflow.
 *   **Exam Block Hallucination:** Did the Architect include an Exam block when there were no exam questions in the raw text? If they hallucinated an exam, **FAIL**.
 
 ## 3. Technical & Anti-Bloat Constraints (Critical)
