@@ -2032,13 +2032,13 @@ def run_auto_smart_merging():
             pass
             
     default_code = settings.get("workspace_code", "")
-    workspace_code = questionary.text("What is the workspace code?", default=default_code).ask()
-    if not workspace_code: return
+    workspace_code = questionary.text("What is the workspace code? (leave empty to ignore)", default=default_code).ask()
+    if workspace_code is None: return
     
     date_range = questionary.text("What is the date of PRs/branches? (e.g. 09/11-15/11 or 25/7-x/x)").ask()
     if not date_range: return
     
-    console.print(f"\n[cyan]🔍 Searching branches for workspace code: {workspace_code}[/cyan]")
+    console.print(f"\n[cyan]🔍 Searching branches for workspace code: '{workspace_code}'[/cyan]")
     
     import subprocess
     console.print("[dim]Fetching latest remote branches...[/dim]")
@@ -2072,8 +2072,9 @@ def run_auto_smart_merging():
                         if file_type == "plans" and not f.startswith("plans/"): continue
                         if file_type == "pages" and not f.startswith("pages/"): continue
                         
-                        if workspace_code.lower() in f.lower():
-                            found_files.append((branch, f))
+                        if workspace_code and workspace_code.lower() not in f.lower():
+                            continue
+                        found_files.append((branch, f))
                 except Exception:
                     continue
                     
@@ -2081,6 +2082,14 @@ def run_auto_smart_merging():
             console.print(f"[yellow]⚠️ No files found matching workspace code '{workspace_code}' in any PR branches.[/yellow]")
         else:
             console.print(f"[green]✅ Found {len(found_files)} files![/green]")
+            for b, f in found_files:
+                console.print(f" - {f} (from {b})")
+                
+            confirm = questionary.confirm("Apply these changes?").ask()
+            if not confirm:
+                console.print("[yellow]Aborted by user.[/yellow]")
+                return
+                
             success = 0
             failures = []
             
@@ -2152,14 +2161,14 @@ def main():
                 "4) Book Style Tuning",
                 "5) Settings",
                 "6) Clear History",
-                "G) auto smart merging/pulling tool",
-                "H) refresh workspace code",
-                "7) Quit",
+                "7) auto smart merging/pulling tool",
+                "8) refresh workspace code",
+                "9) Quit",
             ],
             style=menu_style,
         ).ask()
 
-        if not main_choice or main_choice.startswith("7"):
+        if not main_choice or main_choice.startswith("9"):
             console.print("Goodbye.")
             sys.exit(0)
 
@@ -2276,11 +2285,11 @@ def main():
                 console.print("[green]✅ History database cleared successfully![/green]")
             op_ran = True
 
-        elif main_op == "G":
+        elif main_op == "7":
             op_ran = True
             run_auto_smart_merging()
             
-        elif main_op == "H":
+        elif main_op == "8":
             op_ran = True
             run_refresh_workspace_code()
 
