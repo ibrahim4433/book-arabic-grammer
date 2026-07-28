@@ -1,6 +1,14 @@
-fastapi==0.110.0
-uvicorn==0.29.0
-python-multipart==0.0.9
-surya-ocr==0.4.14
-Pillow>=9.0.0
-torch>=2.0.0
+weasyprint
+beautifulsoup4
+requests
+rich
+questionary
+yt-dlp
+youtube-transcript-api
+mishkal
+# Playwright (Chrome-based PDF export — matches calibration preview exactly)
+# After install: playwright install chromium
+playwright>=1.40
+# Optional: for compare_preview.py side-by-side visual diff
+# pdf2image
+# Pillow

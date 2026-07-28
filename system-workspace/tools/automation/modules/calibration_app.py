@@ -1,4 +1,5 @@
 import re
+import shutil
 from pathlib import Path
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
@@ -382,20 +383,130 @@ async def set_target(request: Request):
     except Exception as e:
         return {"status": "error", "message": f"Internal error: {str(e)}"}
 
+
+def _is_wsl() -> bool:
+    """Return True when running inside Windows Subsystem for Linux."""
+    try:
+        return "microsoft" in Path("/proc/version").read_text().lower()
+    except Exception:
+        return False
+
+
+def _find_system_chrome() -> str | None:
+    """Locate a native Linux Chrome/Chromium executable.
+
+    Windows .exe paths are skipped in WSL because Playwright communicates
+    via --remote-debugging-pipe (Linux file descriptors), which Windows
+    processes cannot use.
+    """
+    if _is_wsl():
+        linux_candidates = [
+            "/usr/bin/google-chrome",
+            "/usr/bin/google-chrome-stable",
+            "/usr/bin/chromium-browser",
+            "/usr/bin/chromium",
+            "/snap/bin/chromium",
+        ]
+        for path in linux_candidates:
+            if Path(path).exists():
+                return path
+        for name in ["google-chrome", "google-chrome-stable", "chromium-browser", "chromium"]:
+            found = shutil.which(name)
+            if found:
+                return found
+        return None  # Let Playwright use its bundled Chromium headless shell
+
+    candidates = [
+        "/usr/bin/google-chrome",
+        "/usr/bin/google-chrome-stable",
+        "/usr/bin/chromium-browser",
+        "/usr/bin/chromium",
+        "/snap/bin/chromium",
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    ]
+    for path in candidates:
+        if Path(path).exists():
+            return path
+    for name in ["google-chrome", "google-chrome-stable", "chromium-browser", "chromium"]:
+        found = shutil.which(name)
+        if found:
+            return found
+    return None
+
+
 @app.post("/generate_pdf")
 async def generate_pdf():
     if not app.state.target_html_path:
         return {"status": "error", "message": "No HTML target set."}
 
     output_pdf = PROJECT_ROOT / "calibration_test.pdf"
-    target_html = app.state.target_html_path
+    target_html = Path(app.state.target_html_path)
 
+    # ── Try Playwright first (matches preview exactly) ─────────────────────
     try:
-        # Pass base-url as the project root so asset paths resolve correctly
-        subprocess.run(["weasyprint", str(target_html), str(output_pdf), "--base-url", str(PROJECT_ROOT)], check=True)
-        return {"status": "success", "message": f"PDF generated at {output_pdf.name}", "url": f"/download_pdf"}
+        from playwright.sync_api import sync_playwright
+
+        url = target_html.as_uri()
+        chrome_exe = _find_system_chrome()
+
+        launch_kwargs: dict = {
+            "args": [
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--allow-file-access-from-files",
+                "--disable-web-security",
+            ],
+            "headless": True,
+        }
+        if chrome_exe:
+            launch_kwargs["executable_path"] = chrome_exe
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch(**launch_kwargs)
+            context = browser.new_context()
+            page = context.new_page()
+            page.emulate_media(media="print")
+            page.goto(url, wait_until="networkidle", timeout=60_000)
+            page.wait_for_timeout(800)
+            page.pdf(
+                path=str(output_pdf),
+                format="A4",
+                print_background=True,
+                margin={"top": "0", "right": "0", "bottom": "0", "left": "0"},
+                prefer_css_page_size=True,
+            )
+            browser.close()
+
+        engine_used = f"Chrome ({chrome_exe or 'Playwright Chromium'})"
+        return {"status": "success", "message": f"PDF generated via {engine_used}", "url": "/download_pdf"}
+
+    except ImportError:
+        # ── Fallback: WeasyPrint ───────────────────────────────────────────
+        # Note: WeasyPrint renders differently from the browser preview.
+        # Install Playwright for matching output: pip install playwright && playwright install chromium
+        try:
+            base_url = str(target_html.parent) + "/"
+            result = subprocess.run(
+                ["weasyprint", str(target_html), str(output_pdf), "--base-url", base_url],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            return {
+                "status": "success",
+                "message": "PDF generated via WeasyPrint (⚠ may differ from preview — install Playwright for exact match)",
+                "url": "/download_pdf",
+            }
+        except subprocess.CalledProcessError as e:
+            err_detail = (e.stderr or "").strip()
+            return {"status": "error", "message": f"WeasyPrint error: {err_detail or str(e)}"}
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": f"Playwright error: {str(e)}"}
+
 
 @app.get("/download_pdf")
 async def download_pdf():

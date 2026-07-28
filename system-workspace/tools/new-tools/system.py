@@ -659,9 +659,17 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False):
             console.print("--------------------------------------\n")
             
     # Auto-Pull
-    if planner.state_manager:
-        ws_code = planner.state_manager.get_workspace_code()
-        auto_pull_jules_batch("plans", ws_code)
+    _settings_file = PROJECT_ROOT / "system-workspace/settings.json"
+    _ws_code = None
+    import json as _json
+    if _settings_file.exists():
+        try:
+            with open(_settings_file, encoding="utf-8") as _f:
+                _ws_code = _json.load(_f).get("workspace_code")
+        except Exception:
+            pass
+    if planner.state_manager and _ws_code:
+        auto_pull_jules_batch("plans", _ws_code)
     
     questionary.press_any_key_to_continue().ask()
 
@@ -739,6 +747,87 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
         layout.add_column(ratio=3)
         layout.add_row(generate_table(), generate_log_panel())
         return layout
+
+    # --- RESUME LAST FAILED BATCH ---
+    _failed_cache_path = PROJECT_ROOT / "system-workspace" / ".last_failed_pages.json"
+    import json as _json_resume
+    _last_failed = None
+    if _failed_cache_path.exists():
+        try:
+            _last_failed = _json_resume.loads(_failed_cache_path.read_text(encoding="utf-8"))
+        except Exception:
+            _last_failed = None
+
+    if _last_failed and _last_failed.get("failed_lessons"):
+        _prev_count = len(_last_failed["failed_lessons"])
+        console.print(f"\n[bold yellow]⚠️  Found {_prev_count} lessons that failed in your last batch run![/bold yellow]")
+        console.print(f"[dim]Lessons: {', '.join(_last_failed['failed_lessons'])}[/dim]")
+        _resume_choice = questionary.select(
+            "What would you like to do?",
+            choices=[
+                f"1. Resume & retry the {_prev_count} failed lessons from last time",
+                "2. Start a new batch (full or custom range)",
+            ]
+        ).ask()
+        if _resume_choice and _resume_choice.startswith("1"):
+            only_lessons = _last_failed["failed_lessons"]
+            force_remake = False
+            # Clear the cache now that we're retrying
+            try:
+                _failed_cache_path.unlink()
+            except Exception:
+                pass
+            console.print(f"[cyan]Resuming with {len(only_lessons)} failed lessons...[/cyan]")
+            start_all = time.time()
+            # Skip straight to batch run
+            with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
+                def callback(title, status, msg):
+                    with lock:
+                        if title not in tasks:
+                            tasks[title] = {}
+                        tasks[title]["status"] = status
+                        tasks[title]["message"] = msg
+                        if status == "RUNNING":
+                            if "start_time" not in tasks[title]:
+                                tasks[title]["start_time"] = time.time()
+                        elif status in ["SUCCESS", "FAILED", "SKIP", "WARN", "ERROR", "API_BLOCKED"]:
+                            if "start_time" in tasks[title]:
+                                tasks[title]["duration"] = time.time() - tasks[title]["start_time"]
+                            else:
+                                tasks[title]["duration"] = 0.0
+                    live.update(generate_layout())
+                generator.run_batch_generation(max_concurrent=5, update_callback=callback, only_lessons=only_lessons)
+            # Fall through to failure-handling logic below
+            total_duration = time.time() - start_all
+            console.print(generate_table(full=True))
+            console.print(f"[bold green]✅ Resume Batch Completed in {format_duration(total_duration)}![/bold green]")
+            # Re-check failures (same logic below)
+            failed_data = []
+            with lock:
+                for title, data in tasks.items():
+                    if data.get("status") in ["FAILED", "ERROR", "WARN"]:
+                        match = re.search(r"(?:^|page[_\s]*)(\d+)", title, re.IGNORECASE)
+                        lesson_num = match.group(1) if match else None
+                        if lesson_num:
+                            clean_t = re.sub(r"^\d+\s*-\s*", "", title).replace("-plan", "").strip()
+                            if getattr(generator, "is_1_page_mode", False):
+                                expected_path = f"pages/page_{lesson_num}.html"
+                            else:
+                                expected_path = f"pages/{lesson_num}.0_nXX_{clean_t.replace(' ', '_')}.html"
+                            failed_data.append((lesson_num, title, expected_path))
+            failed_lessons = [d[0] for d in failed_data]
+            if failed_data:
+                try:
+                    _failed_cache_path.write_text(
+                        _json_resume.dumps({"failed_lessons": failed_lessons, "failed_data": [[a, b, c] for a, b, c in failed_data]}, ensure_ascii=False, indent=2),
+                        encoding="utf-8"
+                    )
+                except Exception:
+                    pass
+                console.print(f"\n[bold red]⚠️ {len(failed_lessons)} pages still failed.[/bold red]")
+                console.print(f"[dim]Run generation again to resume these {len(failed_lessons)} lessons.[/dim]")
+            questionary.press_any_key_to_continue().ask()
+            return
 
     # Initialize Live with the initial table
     existing_count = generator.count_existing_pages()
@@ -836,6 +925,18 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
 
     failed_lessons = [d[0] for d in failed_data]
 
+    # Persist failed lessons list to disk so it can be resumed later
+    _failed_cache_path = PROJECT_ROOT / "system-workspace" / ".last_failed_pages.json"
+    import json as _json_fl
+    if failed_data:
+        try:
+            _failed_cache_path.write_text(
+                _json_fl.dumps({"failed_lessons": failed_lessons, "failed_data": [[a, b, c] for a, b, c in failed_data]}, ensure_ascii=False, indent=2),
+                encoding="utf-8"
+            )
+        except Exception:
+            pass
+
     if failed_data:
         console.print(
             f"\n[bold red]⚠️ {len(failed_lessons)} pages failed to generate or pull from PRs.[/bold red]"
@@ -849,6 +950,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
                 "2. Regenerate them using new Jules sessions",
                 "3. Show me how to check and fix them manually",
                 "4. Skip for now",
+                "5. Auto-Retry failed lessons now (resume batch)",
             ],
         ).ask()
 
@@ -928,11 +1030,34 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
 
         elif choice and choice.startswith("4"):
             console.print("[dim]Skipping recovery for now.[/dim]")
+            console.print(f"[dim]💡 Tip: Run generation again and choose option 5 to resume the {len(failed_lessons)} failed lessons.[/dim]")
+
+        elif choice and choice.startswith("5"):
+            console.print("[cyan]⏳ Auto-retrying all failed lessons with new Jules sessions...[/cyan]")
+            with lock:
+                tasks.clear()
+            if state_manager:
+                for l_num, l_title, _ in failed_data:
+                    state_manager.update_lesson_data(l_title, {"page_session_id": None})
+            generator.abort_event.clear()
+            with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
+                generator.run_batch_generation(
+                    max_concurrent=5, update_callback=callback, only_lessons=failed_lessons
+                )
+            console.print("[bold green]✅ Auto-Retry Completed![/bold green]")
 
     # Auto-Pull
-    if generator.state_manager:
-        ws_code = generator.state_manager.get_workspace_code()
-        auto_pull_jules_batch("pages", ws_code)
+    _settings_file_gen = PROJECT_ROOT / "system-workspace/settings.json"
+    _ws_code_gen = None
+    import json as _json_gen
+    if _settings_file_gen.exists():
+        try:
+            with open(_settings_file_gen, encoding="utf-8") as _fg:
+                _ws_code_gen = _json_gen.load(_fg).get("workspace_code")
+        except Exception:
+            pass
+    if _ws_code_gen:
+        auto_pull_jules_batch("pages", _ws_code_gen)
 
     questionary.press_any_key_to_continue().ask()
     console.print("\n[cyan]Running Post-Flight Page Lint...[/cyan]")

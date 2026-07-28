@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """build.py — Arabic Grammar Book PDF Builder.
 
-Compiles all pages in /pages/ into a single A4 PDF using WeasyPrint.
+Compiles all pages in /pages/ into a single A4 PDF.
 
 Usage:
-    python build.py
-    python build.py --output output/export/my_book.pdf
+    python build.py                          # auto-selects best engine
+    python build.py --engine playwright      # Chrome via Playwright (recommended, matches preview)
+    python build.py --engine weasyprint      # legacy WeasyPrint engine
+    python build.py --output output/book.pdf
     python build.py --pages-dir pages/ --dry-run
 """
 
@@ -18,13 +20,9 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
-# ── Configuration ─────────────────────────────────────────────────────────────
-
 
 @dataclass(frozen=True)
 class BuildConfig:
-    """Immutable build configuration."""
-
     pages_dir: Path = Path("pages")
     output_pdf: Path = Path("output/export/book.pdf")
     front_cover: Path = Path("pages/cover/front-cover.jpg")
@@ -36,8 +34,6 @@ class BuildConfig:
 
 @dataclass
 class BuildResult:
-    """Tracks the outcome of a build run."""
-
     pages_processed: int = 0
     pages_skipped: int = 0
     errors: list[str] = field(default_factory=list)
@@ -49,15 +45,11 @@ class BuildResult:
         return len(self.errors) == 0
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
-
 class BuildError(Exception):
-    """Raised when a critical build step fails."""
+    pass
 
 
 def _extract_body(content: str, filepath: Path) -> str:
-    """Extract inner body content from an HTML file string."""
     body_match = re.search(r"<body[^>]*>(.*?)</body>", content, re.DOTALL | re.IGNORECASE)
     if body_match:
         return body_match.group(1)
@@ -74,7 +66,6 @@ def _build_cover_html(image_path: Path, *, break_after: str = "page") -> str:
 
 
 def _master_html(body_content: str, stylesheet: Path, watermark_text: str) -> str:
-    """Wrap accumulated body content in the full master HTML template."""
     return f"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -120,21 +111,16 @@ def _master_html(body_content: str, stylesheet: Path, watermark_text: str) -> st
 """
 
 
-# ── Core Build Logic ──────────────────────────────────────────────────────────
-
-
 def collect_pages(config: BuildConfig) -> list[Path]:
-    """Return sorted list of page HTML files, excluding TEMPLATE_ files."""
     all_files = sorted(config.pages_dir.glob("*.html"))
     return [f for f in all_files if "TEMPLATE_" not in f.name]
 
 
 def build_book(config: BuildConfig) -> BuildResult:
-    """Main build pipeline. Returns a BuildResult."""
+    """WeasyPrint build pipeline."""
     result = BuildResult()
     start_time = time.perf_counter()
 
-    # ── Validate WeasyPrint import ─────────────────────────────────────────
     try:
         from weasyprint import HTML
     except ImportError as exc:
@@ -147,14 +133,12 @@ def build_book(config: BuildConfig) -> BuildResult:
             "See: https://doc.courtbouillon.org/weasyprint/stable/first_steps.html"
         ) from exc
 
-    # ── Collect pages ──────────────────────────────────────────────────────
     pages = collect_pages(config)
     if not pages:
         raise BuildError(f"No HTML files found in '{config.pages_dir}'.")
 
     print(f"📄 Found {len(pages)} page(s) in '{config.pages_dir}'")
 
-    # ── Detect covers ─────────────────────────────────────────────────────
     has_front = config.front_cover.exists()
     has_back = config.back_cover.exists()
     if has_front:
@@ -162,7 +146,6 @@ def build_book(config: BuildConfig) -> BuildResult:
     if has_back:
         print(f"🖼  Back cover:  {config.back_cover}")
 
-    # ── Accumulate body content ────────────────────────────────────────────
     body_parts: list[str] = []
 
     if has_front:
@@ -182,7 +165,6 @@ def build_book(config: BuildConfig) -> BuildResult:
     if has_back:
         body_parts.append(_build_cover_html(config.back_cover, break_after="auto"))
 
-    # ── Assemble full HTML ─────────────────────────────────────────────────
     full_html = _master_html(
         body_content="\n".join(body_parts),
         stylesheet=config.stylesheet,
@@ -195,9 +177,8 @@ def build_book(config: BuildConfig) -> BuildResult:
         result.duration_seconds = time.perf_counter() - start_time
         return result
 
-    # ── Render PDF ─────────────────────────────────────────────────────────
     config.output_pdf.parent.mkdir(parents=True, exist_ok=True)
-    print(f"\n🖨  Rendering PDF → {config.output_pdf} ...")
+    print(f"\n🖨  Rendering PDF (WeasyPrint) → {config.output_pdf} ...")
     try:
         HTML(string=full_html, base_url=".").write_pdf(str(config.output_pdf))
     except Exception as exc:
@@ -208,9 +189,6 @@ def build_book(config: BuildConfig) -> BuildResult:
     return result
 
 
-# ── CLI Entry Point ───────────────────────────────────────────────────────────
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="build.py",
@@ -218,36 +196,69 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--pages-dir",
-        type=Path,
-        default=Path("pages"),
-        metavar="DIR",
-        help="Directory containing page HTML files (default: pages/)",
+        "--engine",
+        choices=["playwright", "weasyprint", "auto"],
+        default="auto",
+        help=(
+            "PDF rendering engine. 'playwright' uses Chrome for pixel-perfect output "
+            "matching the calibration preview. 'weasyprint' is the legacy engine. "
+            "'auto' uses Playwright if installed, otherwise WeasyPrint. (default: auto)"
+        ),
     )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=Path("output/export/book.pdf"),
-        metavar="PATH",
-        help="Output PDF path (default: output/export/book.pdf)",
-    )
-    parser.add_argument(
-        "--watermark",
-        default="أ. حنا خفيف",
-        metavar="TEXT",
-        help="Watermark text (default: 'أ. حنا خفيف')",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Validate and collect pages without rendering the PDF",
-    )
+    parser.add_argument("--pages-dir", type=Path, default=Path("pages"), metavar="DIR")
+    parser.add_argument("--output", type=Path, default=Path("output/export/book.pdf"), metavar="PATH")
+    parser.add_argument("--watermark", default="أ. حنا خفيف", metavar="TEXT")
+    parser.add_argument("--dry-run", action="store_true", help="Validate pages without rendering")
+    parser.add_argument("--use-system-chrome", action="store_true", help="(Playwright) Auto-detect system Chrome")
     return parser.parse_args()
+
+
+def _playwright_available() -> bool:
+    try:
+        import playwright  # noqa: F401
+        return True
+    except ImportError:
+        return False
 
 
 def main() -> None:
     args = parse_args()
 
+    engine = args.engine
+    if engine == "auto":
+        if _playwright_available():
+            engine = "playwright"
+            print("🔧 Engine: Playwright (Chrome) — auto-selected for pixel-perfect output.")
+            print("   Use --engine weasyprint to use the legacy engine instead.")
+        else:
+            engine = "weasyprint"
+            print("🔧 Engine: WeasyPrint (legacy) — Playwright not found.")
+            print("   For output matching the calibration preview exactly, run:")
+            print("   pip install playwright && playwright install chromium")
+
+    if engine == "playwright":
+        _root = Path(__file__).resolve().parent
+        playwright_script = _root / "build_playwright.py"
+        if not playwright_script.exists():
+            print("❌ build_playwright.py not found next to build.py.")
+            sys.exit(1)
+
+        fwd_args = [
+            sys.executable, str(playwright_script),
+            "--pages-dir", str(args.pages_dir),
+            "--output", str(args.output),
+            "--watermark", args.watermark,
+        ]
+        if args.dry_run:
+            fwd_args.append("--dry-run")
+        if args.use_system_chrome:
+            fwd_args.append("--use-system-chrome")
+
+        import subprocess
+        result = subprocess.run(fwd_args)
+        sys.exit(result.returncode)
+
+    # WeasyPrint path
     config = BuildConfig(
         pages_dir=args.pages_dir,
         output_pdf=args.output,

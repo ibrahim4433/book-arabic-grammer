@@ -7,6 +7,11 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+try:
+    import requests as _requests
+except ImportError:
+    _requests = None
+
 # Ensure modules are importable
 sys.path.append(str(Path(__file__).parent))
 
@@ -15,6 +20,50 @@ from github_utils import GithubClient
 from jules_client import APIBlockError
 from jules_client_plans import JulesPlanClient  # Reusing PR pulling logic
 
+
+def _is_network_error(exc):
+    """Returns True if the exception looks like a transient network connectivity issue."""
+    if _requests is None:
+        return False
+    network_error_types = (
+        _requests.exceptions.ConnectionError,
+        _requests.exceptions.Timeout,
+        _requests.exceptions.ChunkedEncodingError,
+    )
+    if isinstance(exc, network_error_types):
+        return True
+    # Also catch status 503/502 gateway errors
+    if isinstance(exc, _requests.exceptions.HTTPError):
+        if exc.response is not None and exc.response.status_code in [502, 503, 504]:
+            return True
+    return False
+
+
+def _wait_for_network(callback_fn, lesson_title, retry_interval_secs=300, max_wait_secs=3600):
+    """
+    Blocks until internet connectivity is restored.
+    Retries every `retry_interval_secs` seconds (default 5 min).
+    Gives up after `max_wait_secs` (default 60 min) and returns False.
+    Returns True when connectivity is confirmed.
+    """
+    waited = 0
+    test_url = "https://www.google.com"
+    while waited < max_wait_secs:
+        try:
+            if _requests is not None:
+                _requests.get(test_url, timeout=5)
+            return True  # Connection OK
+        except Exception:
+            pass
+        remaining_min = (max_wait_secs - waited) // 60
+        callback_fn(
+            lesson_title,
+            "WARN",
+            f"No internet. Retrying in {retry_interval_secs // 60}m... ({remaining_min}m left)",
+        )
+        time.sleep(retry_interval_secs)
+        waited += retry_interval_secs
+    return False  # Gave up
 
 class JulesPageGenerator:
     """
@@ -209,15 +258,29 @@ class JulesPageGenerator:
                 prompt += f"\n\nIMPORTANT INSTRUCTION: You MUST append the batch workspace code '_{workspace_code}' to the filename of the generated page (e.g. before the .html extension)."
 
 
-            try:
-                session = self.jules_client.create_session(
-                    prompt, f"PageGen: {lesson_title}", automation_mode="AUTO_CREATE_PR"
-                )
-            except APIBlockError as e:
-                self.abort_event.set()
-                callback(lesson_title, "API_BLOCKED", "API Quota/Limit Reached")
-                return False
-
+            # Network-aware session creation: retry on connection errors
+            session = None
+            _max_create_attempts = 4
+            for _attempt in range(_max_create_attempts):
+                try:
+                    session = self.jules_client.create_session(
+                        prompt, f"PageGen: {lesson_title}", automation_mode="AUTO_CREATE_PR"
+                    )
+                    break  # Success
+                except APIBlockError as e:
+                    self.abort_event.set()
+                    callback(lesson_title, "API_BLOCKED", "API Quota/Limit Reached")
+                    return False
+                except Exception as e:
+                    if _is_network_error(e) and _attempt < _max_create_attempts - 1:
+                        callback(lesson_title, "WARN", f"Network error on create: {e}. Waiting for internet...")
+                        if not _wait_for_network(callback, lesson_title):
+                            callback(lesson_title, "ERROR", "Internet did not recover. Giving up.")
+                            return False
+                        callback(lesson_title, "RUNNING", "Internet restored. Retrying session create...")
+                    else:
+                        callback(lesson_title, "ERROR", f"Session create failed: {e}")
+                        return False
             if not session:
                 callback(lesson_title, "ERROR", "Session Create Failed")
                 return False
@@ -319,17 +382,35 @@ class JulesPageGenerator:
         """
         Monitors a running session.
         If Jules asks a question, uses Gemini to answer.
+        Network errors trigger a 5-minute wait-and-retry loop.
         """
         start_time = time.time()
         timeout = 25 * 60  # 25 minutes
         last_log_time = start_time
+        consecutive_network_errors = 0
 
         while time.time() - start_time < timeout:
-            status_data = self.jules_client.get_session_status(session_id)
+            status_data = None
+            try:
+                status_data = self.jules_client.get_session_status(session_id)
+            except Exception as e:
+                if _is_network_error(e):
+                    consecutive_network_errors += 1
+                    callback(lesson_title, "WARN", f"Network error #{consecutive_network_errors} while polling: {e}")
+                    if not _wait_for_network(callback, lesson_title):
+                        callback(lesson_title, "ERROR", "Internet did not recover after 60 min. Giving up.")
+                        return "NETWORK_TIMEOUT"
+                    callback(lesson_title, "RUNNING", "Internet restored. Resuming monitoring...")
+                    consecutive_network_errors = 0
+                    continue
+                else:
+                    callback(lesson_title, "WARN", f"Unexpected error polling: {e}")
+
             if not status_data:
                 time.sleep(30)
                 continue
 
+            consecutive_network_errors = 0  # Reset on success
             state = status_data.get("state", "UNKNOWN")
 
             # Periodic Heartbeat Log (Every 60s)
