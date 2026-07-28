@@ -108,6 +108,8 @@ async def preview():
         injection += """
         <style>
             @media screen {
+                .global-background-layer, .global-watermark-layer { position: absolute !important; display: none !important; }
+                .pagedjs_pages { overflow: visible !important; height: auto !important; max-height: none !important; }
                 html {
                     background-color: #525659 !important;
                 }
@@ -115,7 +117,7 @@ async def preview():
                     background-color: transparent !important;
                     margin: 0 !important;
                     padding: 0 !important;
-                    min-height: 100vh;
+                    /* min-height: 100vh; */
                     overflow: auto !important;
                 }
                 /* If Paged.js fails, this acts as the paper */
@@ -141,6 +143,8 @@ async def preview():
                 .pagedjs_page * {
                     /* We don't want to override everything, just ensure the page itself is white */
                 }
+                .pagedjs_page { height: 297mm !important; overflow: hidden !important; margin: 20px auto !important; }
+                .pagedjs_page_content { height: 297mm !important; overflow: visible !important; }
                 .pagedjs_sheet {
                     background-color: white !important;
                 }
@@ -189,7 +193,15 @@ async def preview():
                 } else {
                     pages.forEach(p => p.style.display = 'block');
                 }
+
+                try { window.parent.postMessage({ type: 'iframe-height', height: document.querySelector('.pagedjs_pages').scrollHeight + 200 }, '*'); } catch(e) {}
                 window.parent.postMessage({ type: 'page-info', current: currentPage, total: totalPages }, '*');
+                try {
+                    const pagesContainer = document.querySelector('.pagedjs_pages');
+                    if (pagesContainer) {
+                        window.parent.postMessage({ type: 'iframe-height', height: pagesContainer.scrollHeight + 50 }, '*');
+                    }
+                } catch(e) { console.error("Error sending iframe height", e); }
             }
             
             window.PagedConfig = {
@@ -197,6 +209,28 @@ async def preview():
                     updatePagination();
                 }
             };
+
+
+            // Setup ResizeObserver for iframe height
+            const resizeObserver = new ResizeObserver(entries => {
+                for (let entry of entries) {
+                    if (entry.target.classList.contains('pagedjs_pages')) {
+                        window.parent.postMessage({ type: 'iframe-height', height: entry.target.scrollHeight + 50 }, '*');
+                    }
+                }
+            });
+
+            // Re-check after pagedjs renders
+            class PreviewHandler2 extends Paged.Handler {
+                afterRendered(pages) {
+                    const pagesContainer = document.querySelector('.pagedjs_pages');
+                    if (pagesContainer) {
+                        resizeObserver.observe(pagesContainer);
+                        window.parent.postMessage({ type: 'iframe-height', height: pagesContainer.scrollHeight + 50 }, '*');
+                    }
+                }
+            }
+            Paged.registerHandlers(PreviewHandler2);
 
             window.addEventListener('message', function(event) {
                 if(event.data && event.data.type === 'update-css-var') {
