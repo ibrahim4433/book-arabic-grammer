@@ -421,6 +421,18 @@ body {
     align-items: center;
 }
 
+.bio-image-container {
+    flex-shrink: 0;
+}
+
+.poet-img {
+    width: 25mm;
+    height: 25mm;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-primary);
+}
+
 /* 6. EXAM / QUIZ STYLES */
 .exam-question, .exercise-question {
     margin-bottom: 2mm;

@@ -43,11 +43,12 @@
 * **Classes:** `.chips-container` (or inline flex style).
 
 ### G. Shawahid (Poetic Evidence) & I'rab
-* **File:** `TEMPLATE_C_POEM.html` + `TEMPLATE_C_IRAB_ROW.html`
+* **Files:** `TEMPLATE_C_POET_BIO.html` + `TEMPLATE_C_POEM.html` + `TEMPLATE_C_IRAB_ROW.html`
 * **Mandatory Rule:** Every poetic verse (Shahid) acting as a grammatical example MUST be immediately followed by an I'rab (Parsing) line for the "Witness Word" (محل الشاهد).
+* **Poet Bio Rule:** If the raw text contains information about the poet's life or history, you MUST use `TEMPLATE_C_POET_BIO.html` strictly BEFORE the poem itself. This template expects a dummy picture at `input/integrated-pictures/pic_[PAGE_NUMBER].jpg` which must be generated in the bash session.
 * **Coloring Rule:** The Witness Word in the I'rab explanation must be colored using `.highlight-red` (for signs) or `.highlight-blue` (for particles) to match the visual style of Page 10.
 * **Format:** Use `TEMPLATE_C_IRAB_ROW` or a dedicated `.irab-footer` inside the block.
-* **Classes:** `.poem-container`, `.poem-line`, `.hemistich`, `.bio-card`.
+* **Classes:** `.poem-container`, `.poem-line`, `.hemistich`, `.bio-card`, `.bio-image-container`, `.poet-img`.
 
 ### H. Grammar Analysis (I'rab)
 * **File:** `TEMPLATE_C_IRAB.html`

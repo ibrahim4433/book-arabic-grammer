@@ -95,6 +95,7 @@ Reference: Follow patterns in design_patterns.json.
 13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of all teal 
 14. **Page Wrappers**: The compiler will automatically wrap the final page in `TEMPLATE_C_PAGE_WRAPPER.html`. Do NOT include this template in your `[CONTENT STREAM]` blocks.
 15. **Exam Section**: ONLY include the `TEMPLATE_C_EXAM.html` block if the provided raw text slice actually contains test/exam questions (e.g., keywords like "تطبيق", "امتحان"). Do NOT hallucinate an exam if it is not in the source text. **CRITICAL:** If an exam or exercise contains the answers in the raw text, you MUST use `TEMPLATE_C_EXAM_SOLVED.html` instead of `TEMPLATE_C_EXAM.html`.
+16. **Poet Biography**: If the text contains information about a poet's life or history, you MUST use `TEMPLATE_C_POET_BIO.html`. When you use this template, you MUST add an explicit instruction block before the Content Stream that tells the Jules Page Generator agent: "Create a dummy picture at `input/integrated-pictures/pic_[PAGE_NUMBER].jpg` (e.g. using `touch` or `cp` in bash)."
 
 [CONTENT STREAM]
 
