@@ -173,7 +173,7 @@ async def preview():
             let currentTarget = null;
             let pinnedTarget = null;
             let currentPage = 1;
-            let singlePageMode = true;
+            let singlePageMode = false;
             let totalPages = 1;
             
             function updatePagination() {
@@ -334,13 +334,6 @@ async def preview():
         </script>
         """
         raw_html = raw_html.replace("</head>", f"{injection}</head>")
-        
-        # Prevent the first page from being blank by stripping the page-break trigger
-        if 'class="force-new-page"' in raw_html:
-            raw_html = raw_html.replace('class="force-new-page"', 'class="calibration-preview-wrapper"')
-        else:
-            raw_html = re.sub(r'<body[^>]*>', r'\g<0><div class="calibration-preview-wrapper">', raw_html)
-            raw_html = raw_html.replace('</body>', '</div></body>')
 
         # Inject global backgrounds
         global_layers = """
@@ -444,7 +437,7 @@ async def generate_pdf():
 
     # ── Try Playwright first (matches preview exactly) ─────────────────────
     try:
-        from playwright.sync_api import sync_playwright
+        from playwright.async_api import async_playwright
 
         url = target_html.as_uri()
         chrome_exe = _find_system_chrome()
@@ -462,21 +455,21 @@ async def generate_pdf():
         if chrome_exe:
             launch_kwargs["executable_path"] = chrome_exe
 
-        with sync_playwright() as p:
-            browser = p.chromium.launch(**launch_kwargs)
-            context = browser.new_context()
-            page = context.new_page()
-            page.emulate_media(media="print")
-            page.goto(url, wait_until="networkidle", timeout=60_000)
-            page.wait_for_timeout(800)
-            page.pdf(
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(**launch_kwargs)
+            context = await browser.new_context()
+            page = await context.new_page()
+            await page.emulate_media(media="print")
+            await page.goto(url, wait_until="networkidle", timeout=60_000)
+            await page.wait_for_timeout(800)
+            await page.pdf(
                 path=str(output_pdf),
                 format="A4",
                 print_background=True,
                 margin={"top": "0", "right": "0", "bottom": "0", "left": "0"},
                 prefer_css_page_size=True,
             )
-            browser.close()
+            await browser.close()
 
         engine_used = f"Chrome ({chrome_exe or 'Playwright Chromium'})"
         return {"status": "success", "message": f"PDF generated via {engine_used}", "url": "/download_pdf"}
