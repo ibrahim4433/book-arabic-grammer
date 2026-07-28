@@ -62,7 +62,7 @@
 @page {
     size: A4;
     /* Small margins like the classic book to maximize space */
-    margin: 5mm 5mm 9mm 5mm;
+    margin: 0;
 
     /* FOOTER - Automatic Page Numbering */
     @bottom-center {
@@ -725,7 +725,7 @@ body {
 
 @page toc_start {
     size: A4;
-    margin: 5mm 5mm 9mm 5mm;
+    margin: 0;
     counter-reset: page 1;
     @bottom-center {
         content: counter(page, arabic-indic);
