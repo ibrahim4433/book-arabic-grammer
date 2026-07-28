@@ -379,6 +379,8 @@ async def preview():
         raw_html = re.sub(r'(<body[^>]*>)', rf'\1{global_layers}', raw_html)
 
 
+    raw_html = re.sub(r'<body([^>]*)>', r'<body\1><div class="calibration-rtl-wrapper" style="direction: rtl !important; text-align: start;">', raw_html)
+    raw_html = raw_html.replace("</body>", "</div></body>")
     return HTMLResponse(content=raw_html)
 
 @app.get("/dynamic.css")
@@ -387,6 +389,7 @@ async def dynamic_css():
     content = CSS_PATH.read_text(encoding="utf-8")
     # Fix paths in CSS if necessary, assuming assets are in /assets
     content = content.replace("../assets/", "/assets/")
+    content = re.sub(r"(html\s*\{[^}]*)(direction:\s*rtl\s*;?)([^}]*\})", r"\1\3", content)
     from fastapi.responses import Response
     return Response(content=content, media_type="text/css")
 
