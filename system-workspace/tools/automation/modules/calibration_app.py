@@ -116,6 +116,7 @@ async def preview():
                     margin: 0 !important;
                     padding: 0 !important;
                     min-height: 100vh;
+                    overflow: auto !important;
                 }
                 /* If Paged.js fails, this acts as the paper */
                 .calibration-preview-wrapper {
