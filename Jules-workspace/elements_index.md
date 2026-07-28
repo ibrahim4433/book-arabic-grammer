@@ -54,7 +54,8 @@ These components are typically injected inside a `block-body` alongside text.
 
 | Template File | Description | When to Use |
 | :--- | :--- | :--- |
-| `TEMPLATE_C_POEM.html` | Poem Container. | Contains poetic verses (`hemistich`) and an optional poet bio block. |
+| `TEMPLATE_C_POET_BIO.html` | Poet Biography Block. | Used strictly for information about a poet's life or history. Contains a circular dummy picture. Always placed before the poem. |
+| `TEMPLATE_C_POEM.html` | Poem Container. | Contains poetic verses (`hemistich`). |
 | `TEMPLATE_C_EXAM.html` | Quiz/Exam Block. | For the "Test Yourself" section at the end of a chapter sequence. |
 | `TEMPLATE_C_EXAM_SOLVED.html` | Solved Quiz/Exam. | For exam questions that already contain the answer in the raw text. |
 
@@ -73,7 +74,7 @@ To ensure visual continuity when content is cut across two pages, you **MUST** u
 
 | Raw Text Keyword / Pattern | Mandatory Template |
 | :--- | :--- |
-| **"مدخل إلى النص:" / "حياة الشاعر" / Author Names** | `TEMPLATE_C_POEM.html` (Bio block) |
+| **"مدخل إلى النص:" / "حياة الشاعر" / Author Names** | `TEMPLATE_C_POET_BIO.html` (Poet Biography Block) |
 | **Lines starting with `-` containing dual parts (Verses)** | `TEMPLATE_C_POEM.html` (Verses block) |
 | **"مهارات الاستماع" / "مهارات القراءة" / "الاستيعاب والفهم" / "المستوى الفكري" / "القاعدة" / "الخلاصة"** | `TEMPLATE_C_BLOCK.html` (Standard Block) |
 | **"ج ١-" / "س:" / Q&A structures** | `TEMPLATE_C_COMPACT_QA_TABLE.html` (If highly repetitive Q&A) or `TEMPLATE_C_LIST.html` |

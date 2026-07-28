@@ -27,6 +27,9 @@ You have access to several specialized tools, particularly in the `Jules-workspa
 - **`id_manager.py`**: Auto-tags block elements with unique IDs for layout tracing. Must be run before linting.
   - Usage: `python3 Jules-workspace/id_manager.py auto-tag`
 
+### Dynamic Image Generation
+- **Dummy Images**: Whenever a plan dictates the use of the `TEMPLATE_C_POET_BIO.html` element (for a poet's biography), you MUST create a dummy picture file at `input/integrated-pictures/pic_[PAGE_NUMBER].jpg` during your page generation process using a bash command like `touch` or `cp`.
+
 Refer to `JULES_TOOLS.md` (in `Jules-workspace/`) or `TOOLS_DOCUMENTATION.md` (in the project root) for the full list of tools. A dedicated list of tools documentation is available in `Jules-workspace/JULES_TOOLS.md` for AI agent usage.
 
 Always run the available checks when making code changes.
