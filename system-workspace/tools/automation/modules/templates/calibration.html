@@ -8,8 +8,8 @@
         #sidebar { width: 350px; background: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); overflow-y: auto; z-index: 10; flex-shrink: 0; }
         #right-sidebar { width: 320px; background: rgba(44, 62, 80, 0.95); backdrop-filter: blur(5px); color: white; padding: 20px; box-shadow: -5px 0 15px rgba(0,0,0,0.3); overflow-y: auto; z-index: 10000; display: none; flex-shrink: 0; }
         #preview-container { flex-grow: 1; padding: 0; display: flex; justify-content: center; overflow: auto; background: #525659; position: relative;}
-        .iframe-wrapper { transform-origin: top center; transition: transform 0.2s; width: 100%; height: 100%; display: flex; justify-content: center; }
-        iframe { border: none; width: 100%; height: 100%; }
+        .iframe-wrapper { transform-origin: top center; transition: transform 0.2s; width: 100%; height: auto; display: flex; justify-content: center; overflow: visible; min-height: 100vh; }
+        iframe { border: none; width: 100%; display: block; overflow: visible; min-height: 100vh; }
         .var-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;}
         input[type="text"], input[type="number"], input[type="color"] { width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
@@ -402,11 +402,16 @@
                 document.getElementById('pageIndicator').innerText = `Page ${event.data.current} / ${total}`;
                 
                 const warning = document.getElementById('overflowWarning');
-                if (total > 1) {
+                if (total > 1 && document.getElementById('singlePageToggle').checked) {
                     warning.style.display = 'block';
                     document.getElementById('overflowCount').innerText = total;
                 } else {
                     warning.style.display = 'none';
+                }
+            } else if (event.data && event.data.type === 'iframe-height') {
+                const iframe = document.getElementById('previewFrame');
+                if (iframe) {
+                    iframe.style.height = event.data.height + 'px';
                 }
             }
         });
