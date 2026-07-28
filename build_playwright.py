@@ -1,32 +1,36 @@
 #!/usr/bin/env python3
-"""build_playwright.py — Arabic Grammar Book PDF Builder (Playwright / Chrome engine).
+"""build_playwright.py — Arabic Grammar Book PDF Builder using Playwright.
 
-Uses headless Chromium via Playwright to render the book PDF. This guarantees
-the output matches the calibration tool preview exactly, since both use the
-same Chrome rendering engine.
+Compiles all pages in /pages/ into a single A4 PDF by rendering each page
+individually (to preserve positioning, backgrounds, and margins) and then
+merging them into a final PDF.
 
 Usage:
     python build_playwright.py
-    python build_playwright.py --output output/export/book.pdf
+    python build_playwright.py --output output/book.pdf
     python build_playwright.py --pages-dir pages/ --dry-run
-    python build_playwright.py --install-browsers   # First-time setup
-    python build_playwright.py --use-system-chrome  # Use existing Chrome
-
-Requirements:
-    pip install playwright
-    playwright install chromium
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import re
-import sys
-import time
-import tempfile
 import shutil
+import subprocess
+import sys
+import tempfile
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
+from urllib.parse import urljoin
+
+try:
+    from pypdf import PdfWriter
+except ImportError:
+    print("❌ Error: pypdf is not installed. Run: pip install pypdf", file=sys.stderr)
+    sys.exit(1)
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
@@ -46,6 +50,7 @@ class BuildConfig:
 @dataclass
 class BuildResult:
     pages_processed: int = 0
+    pages_skipped: int = 0
     errors: list[str] = field(default_factory=list)
     output_path: Path | None = None
     duration_seconds: float = 0.0
@@ -59,48 +64,28 @@ class BuildError(Exception):
     pass
 
 
-def _extract_body(content: str, filepath: Path) -> str:
-    body_match = re.search(r"<body[^>]*>(.*?)</body>", content, re.DOTALL | re.IGNORECASE)
-    if body_match:
-        return body_match.group(1)
-    print(f"  → Info: No <body> tag in {filepath}. Using full content as fragment.")
-    return content
-
-
-def _build_cover_html(image_path: Path, *, break_after: str = "page") -> str:
-    return f"""
-    <div class="cover-page-wrapper" style="break-after: {break_after};">
-        <img src="{image_path.as_uri()}" alt="Cover">
-    </div>
-    """
-
-
-def _master_html(body_content: str, stylesheet: Path, watermark_text: str) -> str:
-    # Use file:// URIs for stylesheet and font/asset references so Playwright
-    # can resolve them regardless of the temp file's location.
+def _build_cover_html(image_path: Path) -> str:
+    # Use file URL for image
     return f"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Book Compilation</title>
-    <link rel="stylesheet" href="{stylesheet.as_uri()}">
+    <title>Cover</title>
     <style>
-        @page cover {{
+        @page {{
             margin: 0;
             size: A4;
             @bottom-center {{ content: none; }}
         }}
-        .cover-page-wrapper {{
-            page: cover;
-            width: 210mm;
-            height: 297mm;
-            overflow: hidden;
-            break-after: page;
-            position: relative;
-            z-index: 20000;
+        body, html {{
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
             background: white;
+            overflow: hidden;
         }}
-        .cover-page-wrapper img {{
+        img {{
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -108,11 +93,7 @@ def _master_html(body_content: str, stylesheet: Path, watermark_text: str) -> st
     </style>
 </head>
 <body>
-    <div class="global-background-layer"></div>
-    <div class="global-watermark-layer">
-        <span class="watermark-text">{watermark_text}</span>
-    </div>
-    {body_content}
+    <img src="{image_path.as_uri()}" alt="Cover">
 </body>
 </html>
 """
@@ -124,7 +105,6 @@ def collect_pages(config: BuildConfig) -> list[Path]:
 
 
 def _is_wsl() -> bool:
-    """Return True when running inside Windows Subsystem for Linux."""
     try:
         return "microsoft" in Path("/proc/version").read_text().lower()
     except Exception:
@@ -132,14 +112,7 @@ def _is_wsl() -> bool:
 
 
 def _find_system_chrome() -> str | None:
-    """Locate a native Linux Chrome/Chromium executable.
-
-    Windows .exe binaries are deliberately excluded when running in WSL:
-    Playwright communicates via --remote-debugging-pipe (Linux file
-    descriptors), which Windows processes cannot use.
-    """
     if _is_wsl():
-        # Only look for native Linux binaries — skip Windows .exe paths
         linux_candidates = [
             "/usr/bin/google-chrome",
             "/usr/bin/google-chrome-stable",
@@ -154,11 +127,8 @@ def _find_system_chrome() -> str | None:
             found = shutil.which(name)
             if found:
                 return found
-        # No native Linux Chrome found — return None so Playwright uses
-        # its own bundled Chromium headless shell
         return None
 
-    # Non-WSL (native Linux / macOS): check all standard paths
     candidates = [
         "/usr/bin/google-chrome",
         "/usr/bin/google-chrome-stable",
@@ -176,6 +146,37 @@ def _find_system_chrome() -> str | None:
             return found
     return None
 
+def check_emoji_font() -> None:
+    """Warns if Noto Color Emoji is missing on Linux/WSL systems."""
+    if sys.platform.startswith("linux") or _is_wsl():
+        try:
+            result = subprocess.run(
+                ["fc-list", ":family=Noto Color Emoji"],
+                capture_output=True,
+                text=True
+            )
+            if not result.stdout.strip():
+                print(
+                    "\n⚠️  WARNING: 'Noto Color Emoji' font not found.\n"
+                    "   Emojis may render as boxes or empty squares.\n"
+                    "   To fix this, install the font (e.g. `sudo apt install fonts-noto-color-emoji`)\n"
+                )
+        except Exception:
+            pass
+
+
+def _render_page_to_pdf(page_obj, html_url: str, output_path: Path) -> None:
+    page_obj.goto(html_url, wait_until="networkidle", timeout=90_000)
+    page_obj.wait_for_timeout(500)  # Wait for fonts/images
+
+    page_obj.pdf(
+        path=str(output_path),
+        format="A4",
+        print_background=True,
+        margin={"top": "0", "right": "0", "bottom": "0", "left": "0"},
+        prefer_css_page_size=True,
+    )
+
 
 def build_book(config: BuildConfig) -> BuildResult:
     result = BuildResult()
@@ -186,10 +187,10 @@ def build_book(config: BuildConfig) -> BuildResult:
     except ImportError as exc:
         raise BuildError(
             "Playwright is not installed.\n"
-            "Run: pip install playwright && playwright install chromium\n"
-            "     — or —\n"
-            "     python build_playwright.py --install-browsers"
+            "Run: pip install playwright && playwright install chromium"
         ) from exc
+
+    check_emoji_font()
 
     pages = collect_pages(config)
     if not pages:
@@ -199,35 +200,6 @@ def build_book(config: BuildConfig) -> BuildResult:
 
     has_front = config.front_cover.exists()
     has_back = config.back_cover.exists()
-    if has_front:
-        print(f"🖼  Front cover: {config.front_cover}")
-    if has_back:
-        print(f"🖼  Back cover:  {config.back_cover}")
-
-    body_parts: list[str] = []
-
-    if has_front:
-        body_parts.append(_build_cover_html(config.front_cover))
-
-    for page_file in pages:
-        print(f"  ⚙  Processing {page_file.name}...")
-        try:
-            content = page_file.read_text(encoding="utf-8")
-            body_parts.append(_extract_body(content, page_file))
-            result.pages_processed += 1
-        except OSError as exc:
-            msg = f"Error reading {page_file}: {exc}"
-            print(f"  ✗  {msg}")
-            result.errors.append(msg)
-
-    if has_back:
-        body_parts.append(_build_cover_html(config.back_cover, break_after="auto"))
-
-    full_html = _master_html(
-        body_content="\n".join(body_parts),
-        stylesheet=config.stylesheet,
-        watermark_text=config.watermark_text,
-    )
 
     if config.dry_run:
         print("\n🔍 Dry-run mode: skipping PDF render.")
@@ -235,28 +207,16 @@ def build_book(config: BuildConfig) -> BuildResult:
         result.duration_seconds = time.perf_counter() - start_time
         return result
 
-    tmp_html = None
+    config.output_pdf.parent.mkdir(parents=True, exist_ok=True)
+    temp_dir = tempfile.mkdtemp(prefix="book_build_")
+    pdf_parts = []
+
     try:
-        # Write temp HTML to project root so relative paths in CSS resolve correctly
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
-            suffix="_book_build.html",
-            dir=str(PROJECT_ROOT),
-            delete=False,
-        ) as f:
-            f.write(full_html)
-            tmp_html = Path(f.name)
-
-        temp_url = tmp_html.as_uri()
-        config.output_pdf.parent.mkdir(parents=True, exist_ok=True)
-        print(f"\n🖨  Rendering PDF via Chrome → {config.output_pdf} ...")
-
         chrome_exe = config.chrome_executable or _find_system_chrome()
+
+        print("\n🖨  Rendering pages via Chrome...")
         if chrome_exe:
             print(f"   Chrome: {chrome_exe}")
-        else:
-            print("   Using Playwright bundled Chromium")
 
         with sync_playwright() as p:
             launch_kwargs: dict = {
@@ -266,6 +226,7 @@ def build_book(config: BuildConfig) -> BuildResult:
                     "--disable-gpu",
                     "--allow-file-access-from-files",
                     "--disable-web-security",
+                    "--font-render-hinting=none"
                 ],
                 "headless": True,
             }
@@ -274,31 +235,83 @@ def build_book(config: BuildConfig) -> BuildResult:
 
             browser = p.chromium.launch(**launch_kwargs)
             context = browser.new_context()
-            page = context.new_page()
+            page_obj = context.new_page()
+            page_obj.emulate_media(media="print")
 
-            # Activate @media print rules and @page declarations
-            page.emulate_media(media="print")
+            # 1. Front Cover
+            if has_front:
+                print("  ⚙  Rendering front cover...")
+                front_html_path = Path(temp_dir) / "front_cover.html"
+                front_html_path.write_text(_build_cover_html(config.front_cover), encoding="utf-8")
 
-            print("   Loading HTML document...")
-            page.goto(temp_url, wait_until="networkidle", timeout=90_000)
-            # Allow fonts and background images to finish loading
-            page.wait_for_timeout(1000)
+                front_pdf_path = Path(temp_dir) / "front_cover.pdf"
+                _render_page_to_pdf(page_obj, front_html_path.as_uri(), front_pdf_path)
+                pdf_parts.append(front_pdf_path)
 
-            print("   Generating PDF...")
-            page.pdf(
-                path=str(config.output_pdf),
-                format="A4",
-                print_background=True,
-                # Let CSS @page rules control all margins and page size
-                margin={"top": "0", "right": "0", "bottom": "0", "left": "0"},
-                prefer_css_page_size=True,
-            )
+            # 2. Content Pages
+            for i, page_file in enumerate(pages):
+                print(f"  ⚙  Rendering {page_file.name} ({i+1}/{len(pages)})...")
+                try:
+                    # Inject watermark into the page before rendering
+                    content = page_file.read_text(encoding="utf-8")
+
+                    # Instead of parsing everything, just rely on file:// URLs matching the preview.
+                    # We render the original page directly.
+                    # If it lacks watermark layer, we could inject it, but the styling
+                    # requires it to be inside <body>. The pages already include watermark logic
+                    # or are expected to when loaded individually.
+                    # Note: We append watermark to the body if it isn't there already.
+                    if 'class="global-watermark-layer"' not in content:
+                        watermark_html = f'''<div class="global-watermark-layer" style="position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none;">
+        <span class="watermark-text" style="font-family: 'Noto Kufi Arabic'; font-weight: 900; font-size: 80pt; color: #000000; opacity: 0.4; transform: rotate(-45deg); white-space: nowrap;">{config.watermark_text}</span>
+    </div>'''
+                        content = content.replace('</body>', watermark_html + '\n</body>')
+
+                    if 'class="global-background-layer"' not in content:
+                        bg_html = '''<div class="global-background-layer" style="position: fixed; z-index: -1000; top: -5mm; left: -5mm; width: 210mm; height: 297mm; background-image: url('../assets/page-background/background.jpg'); background-size: cover; background-position: center;"></div>'''
+                        content = re.sub(r'(<body[^>]*>)', r'\1\n' + bg_html, content, flags=re.IGNORECASE)
+
+                    # Save modified content to a temp file in the same directory so relative links work
+                    temp_page = page_file.with_name(f"_tmp_render_{page_file.name}")
+                    try:
+                        temp_page.write_text(content, encoding="utf-8")
+                        out_pdf = Path(temp_dir) / f"page_{i}.pdf"
+
+                        _render_page_to_pdf(page_obj, temp_page.resolve().as_uri(), out_pdf)
+                        pdf_parts.append(out_pdf)
+                        result.pages_processed += 1
+                    finally:
+                        if temp_page.exists():
+                            temp_page.unlink()
+
+                except Exception as exc:
+                    msg = f"Error rendering {page_file.name}: {exc}"
+                    print(f"  ✗  {msg}")
+                    result.errors.append(msg)
+
+            # 3. Back Cover
+            if has_back:
+                print("  ⚙  Rendering back cover...")
+                back_html_path = Path(temp_dir) / "back_cover.html"
+                back_html_path.write_text(_build_cover_html(config.back_cover), encoding="utf-8")
+
+                back_pdf_path = Path(temp_dir) / "back_cover.pdf"
+                _render_page_to_pdf(page_obj, back_html_path.as_uri(), back_pdf_path)
+                pdf_parts.append(back_pdf_path)
 
             browser.close()
 
+        # Merge PDFs
+        print(f"\n🔗 Merging {len(pdf_parts)} PDF parts...")
+        merger = PdfWriter()
+        for pdf_path in pdf_parts:
+            merger.append(str(pdf_path))
+
+        merger.write(str(config.output_pdf))
+        merger.close()
+
     finally:
-        if tmp_html and tmp_html.exists():
-            tmp_html.unlink()
+        shutil.rmtree(temp_dir, ignore_errors=True)
 
     result.output_path = config.output_pdf
     result.duration_seconds = time.perf_counter() - start_time
@@ -325,7 +338,6 @@ def main() -> None:
     args = parse_args()
 
     if args.install_browsers:
-        import subprocess
         print("📦 Installing Playwright Chromium browser...")
         subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"], check=True)
         print("✅ Done! You can now run: python build_playwright.py")
