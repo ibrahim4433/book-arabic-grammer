@@ -174,7 +174,7 @@ def _render_page_to_pdf(page_obj, html_url: str, output_path: Path) -> None:
         format="A4",
         print_background=True,
         margin={"top": "0", "right": "0", "bottom": "0", "left": "0"},
-        prefer_css_page_size=True,
+        prefer_css_page_size=False,
     )
 
 
@@ -268,7 +268,7 @@ def build_book(config: BuildConfig) -> BuildResult:
                         content = content.replace('</body>', watermark_html + '\n</body>')
 
                     if 'class="global-background-layer"' not in content:
-                        bg_html = '''<div class="global-background-layer" style="position: fixed; z-index: -1000; top: -5mm; left: -5mm; width: 210mm; height: 297mm; background-image: url('../assets/page-background/background.jpg'); background-size: cover; background-position: center;"></div>'''
+                        bg_html = '''<div class="global-background-layer" style="position: fixed; z-index: -1000; top: 0; left: 0; width: 210mm; height: 297mm; background-image: url('../assets/page-background/background.jpg'); background-size: cover; background-position: center;"></div>'''
                         content = re.sub(r'(<body[^>]*>)', r'\1\n' + bg_html, content, flags=re.IGNORECASE)
 
                     # Save modified content to a temp file in the same directory so relative links work
