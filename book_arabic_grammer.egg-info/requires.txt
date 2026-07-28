@@ -1,6 +1,7 @@
 weasyprint>=69.0
 beautifulsoup4>=4.15.0
 lxml>=5.0
+pypdf>=5.0.0
 
 [api]
 fastapi>=0.110.0

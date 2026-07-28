@@ -6,6 +6,7 @@ Requires-Python: >=3.13
 Requires-Dist: weasyprint>=69.0
 Requires-Dist: beautifulsoup4>=4.15.0
 Requires-Dist: lxml>=5.0
+Requires-Dist: pypdf>=5.0.0
 Provides-Extra: dev
 Requires-Dist: ruff>=0.9.0; extra == "dev"
 Requires-Dist: mypy>=1.14.0; extra == "dev"
