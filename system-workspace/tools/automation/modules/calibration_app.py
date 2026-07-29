@@ -102,6 +102,27 @@ async def preview():
     # Replace relative CSS path with dynamic endpoint
     raw_html = re.sub(r'<link[^>]*href="[^"]*styles/main\.css"[^>]*>', '<link rel="stylesheet" href="/dynamic.css">', raw_html)
     
+    # WORKAROUND for Paged.js RTL Pagination Bug:
+    # Check if the document is actually RTL before applying workaround
+    if 'dir="rtl"' in raw_html.lower() or 'direction: rtl' in raw_html.lower():
+        raw_html = re.sub(r'(<html[^>]*?)dir="rtl"([^>]*>)', r'\1dir="ltr"\2', raw_html)
+        raw_html = re.sub(r'(<body[^>]*?)dir="rtl"([^>]*>)', r'\1dir="ltr"\2', raw_html)
+
+        body_start_match = re.search(r'<body[^>]*>', raw_html)
+        if body_start_match:
+            start_idx = body_start_match.end()
+            last_body_end = [m.start() for m in re.finditer(r'</body>', raw_html)]
+            if last_body_end:
+                end_idx = last_body_end[-1]
+
+                raw_html = (
+                    raw_html[:start_idx] +
+                    '\n<div dir="rtl" class="pagedjs-rtl-workaround" style="min-height: 100vh;">' +
+                    raw_html[start_idx:end_idx] +
+                    '</div>\n' +
+                    raw_html[end_idx:]
+                )
+
     if "</head>" in raw_html:
         injection = '<script src="/assets/js/paged.polyfill.js"></script>\n'
         # Add dynamic live injection script and Page Slicing UI

@@ -172,15 +172,46 @@ class Compiler:
 
     def _transform_list(self, markdown_text):
         """Converts markdown list to HTML list items."""
+        import re as regex
         html_items = ""
-        for line in markdown_text.splitlines():
-            line = line.strip()
-            if line.startswith("- ") or line.startswith("* "):
-                content = line[2:]
-                html_items += f'<li class="list-item-content">{content}</li>\n'
-            elif re.match(r"\d+\\. ", line):
-                content = line.split(".", 1)[1].strip()
-                html_items += f'<li class="list-item-content">{content}</li>\n'
+        lines = markdown_text.splitlines()
+
+        current_item = []
+        in_math = False
+
+        for line in lines:
+            stripped = line.strip()
+            if stripped == "$$":
+                in_math = not in_math
+                current_item.append(line)
+                continue
+
+            if not in_math and (stripped.startswith("- ") or stripped.startswith("* ") or regex.match(r"^\d+\. ", stripped)):
+                if current_item:
+                    html_items += f'<li class="list-item-content">{"<br />\n".join(current_item)}</li>\n'
+
+                if stripped.startswith("- "):
+                    content = regex.sub(r'^\s*-\s*', '', line)
+                elif stripped.startswith("* "):
+                    content = regex.sub(r'^\s*\*\s*', '', line)
+                else:
+                    content = regex.sub(r'^\s*\d+\.\s*', '', line)
+
+                current_item = [content]
+            else:
+                if current_item:
+                    current_item.append(line)
+                elif stripped:
+                    current_item = [line]
+
+        if current_item:
+            html_items += f'<li class="list-item-content">{"<br />\n".join(current_item)}</li>\n'
+
+        def un_br_math(match):
+            return match.group(0).replace("<br />\n", "\n").replace("<br />", "\n")
+
+        html_items = regex.sub(r'\$\$.*?\$\$', un_br_math, html_items, flags=regex.DOTALL)
+
         return html_items
 
     def _transform_table(self, tpl_content, markdown_table):
