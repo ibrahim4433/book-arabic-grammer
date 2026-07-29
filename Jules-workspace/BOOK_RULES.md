@@ -23,8 +23,9 @@
 
 ### C. Comparison Grids (Split View)
 * **File:** `TEMPLATE_C_SPLIT.html`
-* **Usage:** Comparing Noun vs. Verb, Past vs. Present.
+* **Usage:** Comparing Noun vs. Verb, Past vs. Present. Also used for full-page two-column layouts (e.g., poem + explanation rows).
 * **Classes:** `.split-grid`, `.content-block`.
+* **Padding Rule:** Do **NOT** use `p-0` on `.block-header`, `.block-body`, `.poem-verses`, `.irab-word`, or `.irab-details` inside `.split-grid` columns. The CSS enforces minimum internal padding so content doesn't touch the center gap. Using `p-0` on these elements will be overridden by `!important` rules in `main.css`.
 
 ### D. Structured Lists
 * **File:** `TEMPLATE_C_LIST.html`

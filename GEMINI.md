@@ -96,7 +96,7 @@ Always use the templates in `/Jules-workspace/Templates/`.
 | **Page Base** | `TEMPLATE_C_BASE.html` | N/A | The standard HTML shell. Always starts with `<!DOCTYPE html><html dir="rtl" lang="ar">`. |
 | **Page Wrapper** | `TEMPLATE_C_PAGE_WRAPPER.html` | `.force-new-page` | Wraps all content in `<body>` to enforce page breaks. |
 | **Header** | `TEMPLATE_C_HEADER.html` | `.page-header-strip` | Top of every new chapter/topic. Contains Title, Lesson #, Author. |
-| **Split Grid** | `TEMPLATE_C_SPLIT.html` | `.split-grid` | Side-by-side comparisons (e.g., Past vs Present). Maximize horizontal space. |
+| **Split Grid** | `TEMPLATE_C_SPLIT.html` | `.split-grid` | Side-by-side comparisons (e.g., Past vs Present). CSS enforces min-padding on inner elements (`.block-header`, `.block-body`, `.poem-verses`, `.irab-word`, `.irab-details`) — do **not** use `p-0` on these inside `.split-grid`. |
 
 ### 2. Content Containers
 | Component | Template File | CSS Class | Usage |

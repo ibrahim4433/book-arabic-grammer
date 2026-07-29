@@ -265,11 +265,33 @@ body {
 .split-grid {
     display: flex;
     flex-direction: row;
-    gap: var(--spacing-std);
+    gap: 3mm;
 }
 
 .split-grid > * {
     flex: 1;
+}
+
+/* Ensure split-grid children have proper internal spacing */
+.split-grid .block-header,
+.split-grid .poem-header {
+    padding: 1mm 2mm !important;
+}
+
+.split-grid .block-body {
+    padding: 1mm 1.5mm !important;
+}
+
+.split-grid .irab-word {
+    padding: 1mm !important;
+}
+
+.split-grid .irab-details {
+    padding: 1mm 1.5mm !important;
+}
+
+.split-grid .poem-verses {
+    padding: 0.5mm 1mm !important;
 }
 
 /* 5. STRUCTURED LISTS (Replacing bullets) */
