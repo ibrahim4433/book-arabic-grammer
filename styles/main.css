@@ -809,3 +809,8 @@ body {
 .spacer-col { width: 2%; border-bottom: none !important; }
 .dynamic-page::after { content: target-counter(attr(href), page, arabic-indic); }
 
+
+/* Additional missing classes added by fix script */
+.compact-qa {
+    margin-bottom: 2mm;
+}
