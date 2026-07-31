@@ -83,6 +83,8 @@ class JulesPageGenerator:
         self.gemini_client = GeminiClient(project_root=self.project_root)
         self.github = GithubClient(token_path=self.project_root / "secrets/Github_Token.txt")
         self.abort_event = threading.Event()
+        self._first_task_done = False
+        self._delay_lock = threading.Lock()
 
         # Load Context for Gemini (Headless)
         self.context_files = [
@@ -131,9 +133,16 @@ class JulesPageGenerator:
             callback = default_callback
 
         # API Safety Delay (5-15s) to prevent burst
-        delay = random.uniform(5, 15)
-        callback(plan_path.stem, "RUNNING", f"Safety Delay ({delay:.1f}s)...")
-        time.sleep(delay)
+        with self._delay_lock:
+            if not self._first_task_done:
+                self._first_task_done = True
+                delay = 0
+            else:
+                delay = random.uniform(5, 15)
+
+        if delay > 0:
+            callback(plan_path.stem, "RUNNING", f"Safety Delay ({delay:.1f}s)...")
+            time.sleep(delay)
 
         plan_content = plan_path.read_text(encoding="utf-8")
         lesson_title = plan_path.stem
@@ -432,7 +441,7 @@ class JulesPageGenerator:
             if state in ["ACTION_REQUIRED", "WAITING_FOR_INPUT"]:
                 callback(lesson_title, "INTERACT", "Jules needs input...")
 
-                question = self.jules_client.get_latest_message(status_data)
+                question = self.jules_client.get_latest_message(session_id)
                 if not question:
                     question = "Please continue."
 

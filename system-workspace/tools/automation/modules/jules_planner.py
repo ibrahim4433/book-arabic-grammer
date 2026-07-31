@@ -32,6 +32,8 @@ class JulesPlanner:
         self.tp = TextProcessor(project_root=self.project_root)
         self.state_manager = state_manager
         self.abort_event = threading.Event()
+        self._first_task_done = False
+        self._delay_lock = threading.Lock()
 
         # Load Prompts
         master_prompt_name = "Architect_GEM_MASTER_1_PAGE.md" if is_1_page_mode else "Architect_GEM_MASTER.md"
@@ -227,9 +229,16 @@ class JulesPlanner:
             callback = default_callback
 
         # API Safety Delay (5-15s) to prevent burst
-        delay = random.uniform(5, 15)
-        callback(lesson_title, "RUNNING", f"Safety Delay ({delay:.1f}s)...")
-        time.sleep(delay)
+        with self._delay_lock:
+            if not self._first_task_done:
+                self._first_task_done = True
+                delay = 0
+            else:
+                delay = random.uniform(5, 15)
+
+        if delay > 0:
+            callback(lesson_title, "RUNNING", f"Safety Delay ({delay:.1f}s)...")
+            time.sleep(delay)
 
         # Attempt to parse number and title from the lesson_title (which is a key from index)
         match = re.match(r"^(\d+)\s*-\s*(.*)", lesson_title)

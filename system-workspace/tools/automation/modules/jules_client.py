@@ -25,12 +25,13 @@ class JulesClient:
         )
         self.api_key = api_key or self._load_api_key()
         self.base_url = "https://jules.googleapis.com/v1alpha/sessions"
-        self.source_context = "sources/github/ibrahim4433/book-arabic-grammer"  # Default
-
+        
         if not self.api_key:
             raise ValueError(
                 "Jules API Key not found. Set JULES_API_KEY env var or check secrets/Jules_API.txt"
             )
+            
+        self.source_context = self._discover_source()
 
     def _load_api_key(self):
         """Loads API key from environment or secrets file."""
@@ -43,6 +44,24 @@ class JulesClient:
             return secrets_file.read_text().strip()
 
         return None
+        
+    def _discover_source(self):
+        """Dynamically discovers the GitHub source ID."""
+        headers = {"X-Goog-Api-Key": self.api_key}
+        url = "https://jules.googleapis.com/v1alpha/sources"
+        try:
+            resp = requests.get(url, headers=headers, timeout=10)
+            resp.raise_for_status()
+            sources = resp.json().get("sources", [])
+            for s in sources:
+                if "ibrahim4433" in s.get("name", "") and "book-arabic-grammer" in s.get("name", ""):
+                    return s["name"]
+            # Fallback
+            if sources:
+                return sources[0]["name"]
+        except Exception as e:
+            logging.warning(f"⚠️ Could not discover sources dynamically: {e}")
+        return "sources/github/ibrahim4433/book-arabic-grammer"
 
     def create_session(self, prompt, title, automation_mode="AUTO_CREATE_PR"):
         """
@@ -115,34 +134,41 @@ class JulesClient:
             logging.error(f"❌ JulesClient Error (Get Status): {e}")
             return None
 
+    def get_activities(self, session_id, page_size=50):
+        """
+        Retrieves activities for a session.
+        """
+        headers = {"X-Goog-Api-Key": self.api_key}
+        
+        session_path = session_id
+        if "https" in session_path:
+            session_path = session_path.split("v1alpha/")[-1]
+            
+        url = f"https://jules.googleapis.com/v1alpha/{session_path}/activities?pageSize={page_size}"
+        
+        try:
+            resp = requests.get(url, headers=headers, timeout=10)
+            resp.raise_for_status()
+            return resp.json().get("activities", [])
+        except requests.exceptions.RequestException as e:
+            logging.error(f"❌ JulesClient Error (Get Activities): {e}")
+            return []
+
     def send_response(self, session_id, message):
         """
         Sends a response (user input) to a session that is waiting for input.
-
-        Args:
-            session_id (str): The session ID.
-            message (str): The text message to send.
-
-        Returns:
-            bool: True if successful, False otherwise.
         """
         headers = {"X-Goog-Api-Key": self.api_key, "Content-Type": "application/json"}
-
-        # Construct URL - assuming :sendMessage or similar action
-        # Based on typical patterns, it might be appending a turn or a specific action.
-        # Since we don't have the spec, we will try the most common "addInput" or "sendMessage" pattern
-        # for these types of agents.
-        # IF THIS FAILS, we might need to adjust.
-
-        url = f"https://jules.googleapis.com/v1alpha/{session_id}:send"
-        if "https" in session_id:
-            # If session_id is a URL, strip it to get base and append :send
-            url = f"{session_id}:send"
-
-        payload = {"text": message}
+        
+        session_path = session_id
+        if "https" in session_path:
+            session_path = session_path.split("v1alpha/")[-1]
+            
+        url = f"https://jules.googleapis.com/v1alpha/{session_path}:sendMessage"
+        payload = {"prompt": message}
 
         try:
-            logging.info(f"📤 Sending response to {session_id}...")
+            logging.info(f"📤 Sending response to {session_path}...")
             resp = requests.post(url, headers=headers, json=payload, timeout=30)
             resp.raise_for_status()
             logging.info("✅ Response sent.")
@@ -153,36 +179,25 @@ class JulesClient:
                 logging.error(f"   Response: {e.response.text}")
             return False
 
-    def get_latest_message(self, session_data):
+    def get_latest_message(self, session_id):
         """
-        Extracts the latest message/question from the session data.
-
-        Args:
-            session_data (dict): The session object from get_session_status.
-
-        Returns:
-            str: The text of the last message from the agent, or None.
+        Extracts the latest message/question from the agent using activities.
         """
-        # Attempt to parse 'turns' or 'messages'
-        # Structure assumption: { "turns": [ { "role": "MODEL", "parts": [ { "text": "..." } ] } ] }
-
-        if not session_data:
+        activities = self.get_activities(session_id)
+        if not activities:
             return None
-
-        turns = session_data.get("turns", [])
-        if not turns:
-            return None
-
-        last_turn = turns[-1]
-
-        # Check if it's from the Model (Agent)
-        if last_turn.get("role") != "MODEL":
-            return None
-
-        parts = last_turn.get("parts", [])
-        if parts and "text" in parts[0]:
-            return parts[0]["text"]
-
+            
+        # Sort activities by createTime descending (just in case they aren't ordered)
+        activities.sort(key=lambda x: x.get("createTime", ""), reverse=True)
+        
+        for act in activities:
+            if act.get("originator") == "agent" and "progressUpdated" in act:
+                # Often the message to the user is in progressUpdated.description
+                pu = act["progressUpdated"]
+                if "description" in pu and pu["description"]:
+                    return pu["description"]
+                elif "title" in pu and pu["title"]:
+                    return pu["title"]
         return None
 
     def wait_for_completion(

@@ -170,51 +170,36 @@ class JulesPlanClient(JulesClient):
 
         details = {}
 
-        def extract_info(obj):
-            if isinstance(obj, dict):
-                # Check for direct branch field
-                if "branch" in obj and isinstance(obj["branch"], str) and "branch" not in details:
-                    details["branch"] = obj["branch"]
+        outputs = status_data.get("outputs", [])
+        for out in outputs:
+            if "pullRequest" in out:
+                pr = out["pullRequest"]
+                url = pr.get("url", "")
+                if url:
+                    import re
+                    match = re.search(r"/pull/(\d+)", url)
+                    if match:
+                        details["pr_number"] = match.group(1)
 
-                # Check for pull request info
-                if "pullRequest" in obj:
-                    pr_info = obj["pullRequest"]
-                    if "number" in pr_info and "pr_number" not in details:
-                        details["pr_number"] = pr_info["number"]
-
-                    head = pr_info.get("head", {})
-                    if "ref" in head and "branch" not in details:
-                        details["branch"] = head["ref"]
-
-                    html_url = pr_info.get("htmlUrl", "")
-                    if html_url and "pr_number" not in details:
-                        import re
-
-                        match = re.search(r"/pull/(\d+)", html_url)
-                        if match:
-                            details["pr_number"] = match.group(1)
-
-                for v in obj.values():
-                    extract_info(v)
-            elif isinstance(obj, list):
-                for item in obj:
-                    extract_info(item)
-
-        extract_info(status_data)
-
-        # Ultimate fallback: regex search on the raw JSON string
+        # Fallback to activities if outputs is empty
         if not details.get("pr_number"):
-            import json
-            import re
-
-            raw_str = json.dumps(status_data)
-            match = re.search(r"github\.com/[^/]+/[^/]+/pull/(\d+)", raw_str)
-            if match:
-                details["pr_number"] = match.group(1)
+            activities = self.get_activities(session_id)
+            for act in activities:
+                artifacts = act.get("artifacts", [])
+                for artifact in artifacts:
+                    if "changeSet" in artifact and "gitPatch" in artifact["changeSet"]:
+                        git_patch = artifact["changeSet"]["gitPatch"]
+                        if "pullRequest" in git_patch:
+                            pr_url = git_patch["pullRequest"].get("htmlUrl", "")
+                            import re
+                            match = re.search(r"/pull/(\d+)", pr_url)
+                            if match:
+                                details["pr_number"] = match.group(1)
+                                break
 
         if not details:
             logging.warning(
-                f"⚠️ Could not identify branch/PR for session {session_id}. Data: {status_data.keys()} -> Outputs: {status_data.get('outputs')}"
+                f"⚠️ Could not identify branch/PR for session {session_id}. Data: {status_data.get('state')} -> Outputs: {status_data.get('outputs')}"
             )
 
         return details
