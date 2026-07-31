@@ -1,82 +1,65 @@
-# Project TODO: The "Control Room" & System Refactoring
+# Project TODO: 
 
-This document outlines the roadmap for transforming the current scripts into a centralized, interactive "Control Room" (`system.py`) utilizing the Jules API and the `system-workspace` context.
+1. implement the new cli-headless way of using batch jules sessions ?
+"┌──(saito㉿Saito)-[~]
+└─$ jules --help
+A CLI for Jules, the asynchronous coding agent from Google.
 
-## ✅ Phase 1: Infrastructure & API Integration (Jules)
+Usage:
+  jules [flags]
+  jules [command]
 
-- [x] **Jules API Verification & Enhanced Wrapper**
-    - [x] **Research:** Deeply analyze `system-workspace/tools/automation/dispatch_jules.py`.
-    - [x] **Refactor `dispatch_jules.py`:** Create `system-workspace/tools/automation/modules/jules_client.py`.
-        - [x] Implement `create_session` with precise `sourceContext`.
-        - [x] Implement **Session Monitoring** (polling).
-        - [x] Add error handling.
-    - [x] **Test:** Create `tests/test_jules_connectivity.py`.
+Examples:
+jules # Launch the TUI
 
-- [x] **system-workspace Consolidation**
-    - [x] **Path Updates:** Update all script references to point to `system-workspace/`.
-    - [x] **Prompt Definition:** Confirmed prompts are in `system-workspace/`.
+# Create a session (defaults to current working directory's repository)
+jules new "write unit tests"
 
-## ✅ Phase 2: Core Tool Refactoring (Modularization)
+# Create a session for a specific repository
+jules new --repo torvalds/linux "write unit tests"
 
-- [x] **Module: Vision (OCR)** (`modules/vision.py`)
-    - [x] Refactor logic from `orchestrator.py` and `all_pics_to_text.py`.
-    - [x] Use `GeminiClient` generic wrapper.
-    - [x] **Constraint:** Strictly preserve diacritics (Harakat).
+# Create 3 parallel sessions for the same task
+jules new --repo torvalds/linux --parallel 3 "write unit tests"
 
-- [x] **Module: Text Processor** (`modules/text_processing.py`)
-    - [x] Refactor `create_lesson_index.py`.
-    - [x] **Validation:** Define and enforce `TOC.txt` structure.
-    - [x] Functionality: Merge raw text fragments -> Identify Lesson Boundaries -> Map to `TOC.txt`.
+# List all sessions
+jules remote list --session
 
-- [x] **Module: Architect (Planner)** (`modules/planner.py`)
-    - [x] Refactor `plan_refiner.py`.
-    - [x] Input: Raw Lesson Text + `Architect_GEM_MASTER.md`.
-    - [x] Process: Use Gemini 1.5 Pro (Headless via API).
-    - [x] Output: `plans/plan_XX.md`.
+# List all repos
+jules remote list --repo
 
-- [x] **Module: Compiler (Jules Dispatcher)** (`modules/compiler.py`)
-    - [x] Refactor `lesson_compiler.py`.
-    - [x] **Critical:** Implement a **Plan-to-Template Mapping Schema** (`mappings/plan_to_template.json`).
-    - [x] Update compiler to use this schema for intelligent replacement.
-    - [x] Input: `plans/plan_XX.md`.
-    - [x] Process: Local Compilation + `JulesClient` Dispatch option.
+# Pull the result of a session
+jules remote pull --session 123456
 
-- [x] **Module: Auditor (Quality Control)** (`modules/auditor.py`)
-    - [x] Implement logic using `Jules-workspace/verify_layout.py` and `lint_pages.py`.
-    - [x] Process: Run layout verification and linting.
+# Pull and apply the patch to the local repository
+jules remote pull --session 123456 --apply
 
-## ✅ Phase 3: The "Control Room" (`system.py`)
+# Teleport to a session (clone repo + checkout branch + apply patch, or apply to existing repo)
+jules teleport 123456
 
-- [x] **Interactive Menu Interface (TUI)**
-    - [x] Create `system.py` in the root directory.
-    - [x] Implement the `main` loop with A-E menu.
+# Create multiple sessions for each task in TODO.md
+cat TODO.md | while IFS= read -r line; do\
+  jules new "$line";\
+done
 
-- [x] **State Management (`modules/state_manager.py`)**
-    - [x] Ensure the system tracks the state of every lesson (`OCR_DONE`, `PLAN_READY`, etc.).
-    - [x] Dashboard View: Option [E] displays status.
+# Create a session based on the first issue assigned to @me
+gh issue list --assignee @me --limit 1 --json title | jq -r '.[0].title' | jules new
 
-## 🔄 Phase 4: Workflow Implementation Details
+# Use Gemini CLI to analyze GitHub issues and send the hardest one to Jules
+gemini -p "find the most tedious issue, print it verbatim\n$(gh issue list --assignee @me)" | jules new
 
-- [x] **Implement Option B (OCR)**
-    - [x] Scan `input/` -> Call `modules.vision` -> Update State.
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  help        Help about any command
+  login       Login your Google account to use Jules
+  logout      Logout your Google account
+  new         Assign a new session to Jules (defaults to current working directory)
+  remote      Interact with remote sessions, e.g. new/list/pull
+  teleport    Clone repository and apply session changes (or apply to existing repo)
+  version     Show the version
 
-- [x] **Implement Option C (Planning)**
-    - [x] Scan for text -> Call `modules.text_processing` -> `modules.planner`.
+Flags:
+  -h, --help           help for jules
+      --theme string   Which theme to use, dark/light (default "dark")
 
-- [x] **Implement Option D (Generation)**
-    - [x] Scan for plans -> Call `modules.compiler` -> `modules.auditor`.
-
-- [x] **Implement Option A (Full Auto)**
-    - [x] Chain B -> C -> D sequentially.
-
-## ✅ Phase 5: 1-Page Mode Structural Enhancements
-
-- [x] **Div Tag Enforcement**
-    - [x] Update templates to include 1-page mode instructional comments.
-    - [x] Update `Architect_GEM_MASTER_1_PAGE.md` to mandate `<div>` tags instead of `<section>` tags.
-    - [x] Implement `--one-page-mode` flag in `lint_pages.py` to strictly enforce the `<section>` ban.
-
-## 🚀 Future Tasks
-
-- [ ] **Advanced Table Parsing:** Improve `Compiler._transform_table` to handle complex markdown tables robustly.
-- [ ] **Jules Feedback Loop:** Automate the feedback loop where Auditor failure triggers a Jules retry session.
+Use "jules [command] --help" for more information about a command.
+"
