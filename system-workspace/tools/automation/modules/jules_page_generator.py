@@ -215,6 +215,12 @@ class JulesPageGenerator:
             )
 
             # 2. Tools and Docs
+            verify_layout_cmd = (
+                "python3 Jules-workspace/verify_layout.py pages/<filename>.html --one-page-mode"
+                if self.is_1_page_mode else
+                "python3 Jules-workspace/verify_layout.py pages/<filename>.html"
+            )
+            
             tools_and_docs = (
                 f"=== 2. TOOLS AND DOCS ===\n"
                 f"You have access to predefined templates. You MUST strictly use the HTML snippets defined in the Elements Index Dictionary.\n"
@@ -227,7 +233,7 @@ class JulesPageGenerator:
                 f"4. **Auto-Tag IDs:** Do NOT manually hallucinate IDs. You MUST run exactly:\n"
                 f"   `python3 Jules-workspace/id_manager.py auto-tag`\n"
                 f"5. **Verify Layout:** You MUST run exactly:\n"
-                f"   `python3 Jules-workspace/verify_layout.py pages/<filename>.html`\n"
+                f"   `{verify_layout_cmd}`\n"
                 f"6. **Lint the File:** You MUST run this from inside the pages directory. You MUST run exactly:\n"
                 f"   `cd pages && python3 ../Jules-workspace/lint_pages.py --one-page-mode <filename>.html`\n"
                 f"7. **Verify Plan:** To satisfy the Completeness Rule, do NOT recreate the plan file. Just run exactly:\n"

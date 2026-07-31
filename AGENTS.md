@@ -6,7 +6,7 @@ The scope of this file is the entire directory tree. This repository uses two di
 ## Universal Book Generation Rules (Applies to ALL Modes)
 
 1. **The Strict Typographer Rule:** Use 100% of the provided raw text slice. NO summarizing, NO deleting, NO adding new content.
-2. **The Typo Exception:** Explicit permission to correct obvious typos or grammatical errors in the raw Arabic text.
+2. **Mandatory OCR Restoration (CRITICAL):** The raw text is raw OCR output. It is full of missing dots, garbled letters, broken Arabic-Indic numbers, and missing Harakat (diacritics). You MUST NOT blindly copy-paste this text into the plan. You are strictly REQUIRED to act as an expert Arabic proofreader: fix all spelling mistakes, restore missing dots and letters, correct garbled numbers, and perfectly reconstruct missing Harakat (diacritics) while preserving the exact original pedagogical meaning. NO raw OCR mistakes must reach the page maker agent.
 3. **Template Mapping:** Every piece of content must be mapped to an approved HTML component in `Jules-workspace/Templates/`. Do NOT invent raw HTML structures.
 4. **Content Integrity:** Preserve ALL Arabic Diacritics (Harakat) exactly as provided.
 5. **Unique IDs:** Every content block must have a unique ID (`id="bXXXXX"`).

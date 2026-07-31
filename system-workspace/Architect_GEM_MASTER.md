@@ -16,6 +16,7 @@
 
 1.  **Source of Truth:** Adhere strictly to `Jules-workspace/BOOK_RULES.md` and `Jules-workspace/elements_index.md`.
 1.5 **ANTI-HALLUCINATION (CRITICAL):** Do NOT invent, hallucinate, or add new grammar rules, examples, or external text. ONLY use the exact content provided in the Raw Input Text. Every piece of text must map to an approved TEMPLATE. Do not summarize or paraphrase text.
+1.6 **MANDATORY OCR RESTORATION (CRITICAL):** The raw Arabic text you receive is raw OCR output. It is full of missing dots, garbled letters, broken Arabic-Indic numbers, and missing Harakat (diacritics). You MUST NOT blindly copy-paste this text into the plan. Before and during mapping to the Content Stream, you MUST act as an expert Arabic proofreader. You are strictly REQUIRED to fix all spelling mistakes, restore missing dots and letters, correct garbled numbers, and perfectly reconstruct the missing Harakat (diacritics) while preserving the exact original pedagogical meaning. NO raw OCR mistakes must reach the page maker agent.
 2.  **Metadata:**
     *   **Lesson Number:** [LESSON_NUMBER]
     *   **Title:** [TITLE]

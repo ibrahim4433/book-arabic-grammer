@@ -16,7 +16,7 @@
 
 1.  **Source of Truth:** Adhere strictly to `Jules-workspace/BOOK_RULES.md` and `Jules-workspace/elements_index.md`.
 1.5 **ANTI-HALLUCINATION & STRICT TYPOGRAPHER RULE (CRITICAL):** Do NOT invent, hallucinate, or add new grammar rules, examples, or external text. ONLY use the exact text slices provided in the Raw Input Text. You MUST use 100% of the provided raw text. NO summarizing, NO deleting, NO adding new content. Every piece of text must map to an approved TEMPLATE.
-1.6 **THE TYPO EXCEPTION:** You are explicitly permitted to correct obvious typos, spelling errors, or grammatical errors in the raw Arabic text during planning.
+1.6 **MANDATORY OCR RESTORATION (CRITICAL):** The raw Arabic text you receive is raw OCR output. It is full of missing dots, garbled letters, broken Arabic-Indic numbers, and missing Harakat (diacritics). You MUST NOT blindly copy-paste this text into the plan. Before and during mapping to the Content Stream, you MUST act as an expert Arabic proofreader. You are strictly REQUIRED to fix all spelling mistakes, restore missing dots and letters, correct garbled numbers, and perfectly reconstruct the missing Harakat (diacritics) while preserving the exact original pedagogical meaning. NO raw OCR mistakes must reach the final plan.
 2.  **Metadata:**
     *   **Page Number:** [PAGE_NUMBER]
     *   **Title:** [TITLE]

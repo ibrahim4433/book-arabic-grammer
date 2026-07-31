@@ -69,7 +69,7 @@ SKIP_BOX_TYPES: frozenset[str] = frozenset({"MarginBox", "PageBox"})
 
 LayoutStatus = Literal["PASS", "FAIL", "OVERFLOW", "UNDERFLOW", "UNKNOWN"]
 LayoutRecommendation = Literal[
-    "NONE", "GO_TO_NEXT_PAGE", "SPLIT_PAGE_OR_CONDENSE", "FIT_ANOTHER_SECTION"
+    "NONE", "GO_TO_NEXT_PAGE", "SPLIT_PAGE_OR_CONDENSE", "CONDENSE_OR_USE_ESCAPE_HATCH", "FIT_ANOTHER_SECTION"
 ]
 
 
@@ -79,6 +79,7 @@ class ElementInfo:
     id: str
     css_class: str
     bottom_mm: float
+    height_mm: float = 0.0
 
 
 @dataclass
@@ -89,6 +90,7 @@ class LayoutResult:
     recommendation: LayoutRecommendation = "NONE"
     details: str = ""
     split_recommendation: ElementInfo | None = None
+    overflow_elements: list[ElementInfo] = field(default_factory=list)
 
     def to_dict(self) -> dict:  # type: ignore[type-arg]
         d = asdict(self)
@@ -161,15 +163,55 @@ def _find_content_bottom(page: object) -> tuple[float, ElementInfo | None]:  # t
                 id=element.get("id", ""),
                 css_class=element.get("class", ""),
                 bottom_mm=round(bottom * PX_TO_MM, 2),
+                height_mm=round(getattr(box, "height", 0) * PX_TO_MM, 2),
             )
 
     return max_y, last_element
+
+def _get_elements_on_page(page: object) -> list[ElementInfo]:  # type: ignore[type-arg]
+    """Extract all distinct elements (and their heights) that appear on this page."""
+    elements: list[ElementInfo] = []
+    seen_ids: set[str] = set()
+    
+    page_box = getattr(page, "_page_box", None)
+    if page_box is None:
+        return elements
+
+    for box in page_box.descendants():
+        if type(box).__name__ in SKIP_BOX_TYPES:
+            continue
+
+        element = getattr(box, "element", None)
+        if element is None:
+            continue
+
+        el_classes: list[str] = element.get("class", "").split() if element.get("class") else []
+        if any(c in SKIP_CLASSES for c in el_classes):
+            continue
+        if element.tag in SKIP_TAGS:
+            continue
+            
+        el_id = element.get("id", "")
+        if not el_id or el_id in seen_ids:
+            continue
+            
+        bottom: float = getattr(box, "position_y", 0) + getattr(box, "height", 0)
+        elements.append(ElementInfo(
+            tag=element.tag,
+            id=el_id,
+            css_class=element.get("class", ""),
+            bottom_mm=round(bottom * PX_TO_MM, 2),
+            height_mm=round(getattr(box, "height", 0) * PX_TO_MM, 2),
+        ))
+        seen_ids.add(el_id)
+        
+    return elements
 
 
 # ── Core Verifier ─────────────────────────────────────────────────────────────
 
 
-def verify_layout(filepath: Path, *, skip_lint: bool = False) -> LayoutResult:
+def verify_layout(filepath: Path, *, skip_lint: bool = False, one_page_mode: bool = False) -> LayoutResult:
     """Verify that a page renders to exactly one A4 page."""
     result = LayoutResult()
 
@@ -242,12 +284,28 @@ def verify_layout(filepath: Path, *, skip_lint: bool = False) -> LayoutResult:
 
     # ── Rule 1: Overflow ──────────────────────────────────────────────────
     if page_count > 1:
+        overflow_elements = _get_elements_on_page(doc.pages[1])
+        overflow_ids = [el.id for el in overflow_elements if el.id]
+        total_overflow_mm = sum(e.height_mm for e in overflow_elements)
+        
         result.status = "OVERFLOW"
-        result.details = (
-            f"Page count is {page_count} (expected 1). Content overflows. "
-            "Split into multiple files or condense content."
-        )
-        result.recommendation = "SPLIT_PAGE_OR_CONDENSE"
+        result.overflow_elements = overflow_elements
+        
+        if one_page_mode:
+            result.details = (
+                f"Page count is {page_count} (expected 1). Content overflows by approx {total_overflow_mm:.1f}mm. "
+                f"Overflowing elements: {overflow_ids}. "
+                "Condense previous elements using zero-margins, convert to dense templates, or use Escape Hatch."
+            )
+            result.recommendation = "CONDENSE_OR_USE_ESCAPE_HATCH"
+        else:
+            result.details = (
+                f"Page count is {page_count} (expected 1). Content overflows by approx {total_overflow_mm:.1f}mm. "
+                f"Overflowing elements: {overflow_ids}. "
+                "Split into multiple files or condense content."
+            )
+            result.recommendation = "SPLIT_PAGE_OR_CONDENSE"
+            
         result.split_recommendation = last_element
         return result
 
@@ -287,12 +345,17 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip the linter compliance check before layout verification",
     )
+    parser.add_argument(
+        "--one-page-mode",
+        action="store_true",
+        help="Enforce strict 1-Page constraints (forbids splitting)",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    result = verify_layout(args.filepath, skip_lint=args.skip_lint)
+    result = verify_layout(args.filepath, skip_lint=args.skip_lint, one_page_mode=args.one_page_mode)
     result.print()
 
     # Exit 1 only on hard failures (file not found, render error)
