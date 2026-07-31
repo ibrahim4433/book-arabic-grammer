@@ -2,7 +2,7 @@
 
 [TASK DEFINITION]
 Objective: Implement page 251.
-File: `pages/251.0_nXX_page_251.html` (Note: `nXX` must remain exactly as `nXX`. It represents the absolute lesson index and will be replaced later by the system.)
+File: `pages/251.0_nXX_page_251.html`
 Reference: Follow patterns in design_patterns.json.
 
 [CONSTRAINTS & PROTOCOLS]
@@ -19,9 +19,8 @@ Reference: Follow patterns in design_patterns.json.
     *   `style="margin-top: 2mm"` -> `class="mt-2mm"`
     *   `style="text-align: center"` -> `class="text-center"`
     *   `style="font-weight: bold"` -> `class="font-bold"`
-6. Templates: You are forbidden from inventing new HTML tags or classes or template elements. You must map all content using "Jules-workspace/Templates/" components as the STREAM says in suitable way.
-7. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). use "Jules-workspace/id_manager.py" to generate or verify them.
-8. **Self-Correction:** Run "Jules-workspace/lint_pages.py" after creating html files. If it fails, you MUST fix the errors (usually inline styles) before submitting.
+7. Templates: You are forbidden from inventing new HTML tags or classes or template elements. You must map all content using "Jules-workspace/Templates/" components as the STREAM says in suitable way.
+8. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). use "Jules-workspace/id_manager.py" to generate or verify them.
 9. Do not summarize examples.
 10. Do not provide uncompleted text content using (...) .
 11. You must preserve the **exact** Tashkeel provided in the input and add any missing Tashkeel needed if any.
@@ -44,10 +43,11 @@ Reference: Follow patterns in design_patterns.json.
 [AUTHOR_PHONE]: 994066850 963+
 
 === BLOCK 2: الإعراب ===
-(Component: TEMPLATE_C_IRAB.html)
-Content:
--
-صِفَةً تَجْرُورة، وعلامَةً جَرها الكَسْرَةُ الظَّاهِرَة.ُ وسُكِنَ لِلضَّرُورَةِ الشَّعْرِيَّة،ِ وَأَمْس: اسم مَبْنِي على الكَسْر،ِ فِي مَحَلِ نَصْب،ِ مَفْعُولٌ فِيهِ ظَرْفُ زَمَان.ٍ
+(Component: TEMPLATE_C_BLOCK.html with TEMPLATE_C_IRAB_BOX_COMPACT.html)
+We will group the Irab text into `TEMPLATE_C_BLOCK.html` containing `irab-box` containers. We will place the entire raw Arabic text within a single `irab-details` section, mapping the `irab-word` as `-` since the exact parsing breakdown was too complex and resulted in corrupted educational content.
+
+- Word: -
+  Analysis: صِفَةً تَجْرُورة، وعلامَةً جَرها الكَسْرَةُ الظَّاهِرَة.ُ وسُكِنَ لِلضَّرُورَةِ الشَّعْرِيَّة،ِ وَأَمْس: اسم مَبْنِي على الكَسْر،ِ فِي مَحَلِ نَصْب،ِ مَفْعُولٌ فِيهِ ظَرْفُ زَمَان.ٍ
  مَبْنِي على مُتَعَلَّقُ بِالفِعْلِ أَتوا(. أَتوا فعل ماض، مَبْنِي على الصَّمَةِ المُقَدَّرَةِ على الآلِفِ المَحْذُوفَةِ؛ لاتِصَالِهِ بواوِ الجماعة، والواو، ضميرٌ مُتَّصِلِّ
 السُّكُونِ فِي تَحَلِّ رَفْعٍ فَاعِلٌ والأَلِف،ُ حَرْفُ تَفْرِيقِ يَحْمِلُونَ فِعْلَ مُضَارِعٌ مَرْفُوع،ٌ وعلامَةُ رَفْعِهُ تُبُوتُ التُونِ؛ لأَنَّهُ مِنَ الْأَفعال الخمْسَة.ِ والواو،
 ضميرٌ مُتَّصِلِّ مَبْنِي على السُّكُونِ فِي مَحَلِّ رَفْع،ِ فَاعِلٌ قَمِيْصَ مَفْعُولُ بِهِ مَنْصُوبُ حبيبي: مُضَاف إليهِ تَجْرُور،ُ وعلامَةُ جَرَهِ الكَسْرَةُ الظَّاهِرَة.ُ
@@ -74,10 +74,9 @@ Content:
 النَّصْبُ جملةٌ مَا حِيلَي(: استنَافِيَّة،ٌ لا محل لها من الإعراب جملة )كُنْتَ أَنْتَ جميلا( : مُضَافُ إليه،ِ مَحَلَّها الجر.
 
 === BLOCK 3: إعراب المقطع الرابع ===
-(Component: TEMPLATE_C_IRAB.html)
-Content:
-إغراب المقطع الرابع:
-الا : أَنْ حَرْفٌ ناصِب. لا، حَرْفُ نَفِي أُصَدِّقَ فِعْلَ مُضَارِعْ مَنْصُوبٌ وَالْمَصْدَرُ المُ وَّلُ أَلَا أَصَدِّقَ فِي مَحَلِّ نَصْب،ِ مَفْعُولُ بِهِ أَن:َّ حَرْفٌ مُشَيَّةٌ
+(Component: TEMPLATE_C_BLOCK.html with TEMPLATE_C_IRAB_BOX_COMPACT.html)
+- Word: -
+  Analysis: الا : أَنْ حَرْفٌ ناصِب. لا، حَرْفُ نَفِي أُصَدِّقَ فِعْلَ مُضَارِعْ مَنْصُوبٌ وَالْمَصْدَرُ المُ وَّلُ أَلَا أَصَدِّقَ فِي مَحَلِّ نَصْب،ِ مَفْعُولُ بِهِ أَن:َّ حَرْفٌ مُشَيَّةٌ
  مَاتٌ فِعل ماض، مَبْنِي على بالفعل الأمير اسمها منصوب الخرافي : صِفَةٌ مَنْصُوبَة،ٌ وعلامَةُ نَصْبِها الفَتْحَةُ الظَّاهِرَةُ توفيق : بَدَلْ مَنْصُوبٌ
  حَرْفُ عَطْف. توفيق مات في مَحَلِّ نَصْب،ِ مَفْعُولُ بِهِ وَأَنَّ الواو، الفَنْحَةِ الظَّاهِرَة.ِ وسُكِّنَ لِلضَّرُورَةِ الشَّعْرِيَّة.ِ والمَصْدَرُ المُؤَوَّلُ أَنَّ الأمير الخرافي
  : مُضَافُ إِلَيهِ تَجْرُور.ٌ بينَ مَفْعُولٌ فِيهِ ظَرْفُ مَكَانٍ مَنْصُوبُ الكواكِبِ أَن،َ حَرْفٌ مُشَبَّهُ بِالفِعْلِ الجبين: اسمها مَنْصُوبُ الْمُسَافِرَ صِفَةٌ مَنْصُوبَةٌ
@@ -90,10 +89,9 @@ Content:
 *
 
 === BLOCK 4: إعراب المقطع الخامس ===
-(Component: TEMPLATE_C_IRAB.html)
-Content:
-إعراب المقطع الخامس:
-أتوفيق: الهَمْرَة،ُ حَرْفُ نِدَاء.ٍ توفيق، مُنَادَى مُفْرَدُ عَلَم مَبْنِي على الضَّمَّةِ فِي مَحَلِّ نَصْبِ على النِّدَاءِ إِنَّ حَرْفٌ مُشَبَّهُ بِالفِعْلِ جُسُور:َ اسم )إِنَّ(
+(Component: TEMPLATE_C_BLOCK.html with TEMPLATE_C_IRAB_BOX_COMPACT.html)
+- Word: -
+  Analysis: أتوفيق: الهَمْرَة،ُ حَرْفُ نِدَاء.ٍ توفيق، مُنَادَى مُفْرَدُ عَلَم مَبْنِي على الضَّمَّةِ فِي مَحَلِّ نَصْبِ على النِّدَاءِ إِنَّ حَرْفٌ مُشَبَّهُ بِالفِعْلِ جُسُور:َ اسم )إِنَّ(
  لِلضَّرُورَةِ الشَّعْرِيَّةِ فِي مَحَلَّ وعلامَةُ نَصْبِهِ الفَتْحَةُ المُقَدَّرَةُ على الأَلِفِ مَنَعَ ظُهُورَهَا التَّعَذِّرُ وَالكَافُ ضَمِيرٌ مُتَّصِلِّ مَبِنِي على الفَنْحَةِ )وسُكِنَ بِهِ مَنْصُوبُ مَنْصُوبُ الزَّمَالِكِ : مُضَافُ إِلَيهِ تَجْرُورٌ كُل:ِّ نائِبُ مَفْعُولِ فِيهِ ظَرْفُ زمانٍ مَنْصُوبُ صَبَاح: مُضَاف إليهِ مَجْرُورٌ خُطَاكَ مَفْعُولُ
 جر، مضاف إليه. وإِنَّ الواو، حَرْفُ عَطْفِ إِن،ّ حَرْفٌ مُشَبَّهُ بِالفِعْلِ الحَمَامَ اسمها مَنْصُوبُ الدِّمَشْقِي:َّ صِفَةٌ مَنْصُوبَة.ٌ تحت : مَفْعُولٌ فِيهِ
 
