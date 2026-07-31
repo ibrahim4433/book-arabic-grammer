@@ -50,7 +50,7 @@ class JulesClient:
         headers = {"X-Goog-Api-Key": self.api_key}
         url = "https://jules.googleapis.com/v1alpha/sources"
         try:
-            resp = requests.get(url, headers=headers, timeout=10)
+            resp = requests.get(url, headers=headers, timeout=30)
             resp.raise_for_status()
             sources = resp.json().get("sources", [])
             for s in sources:
@@ -59,6 +59,8 @@ class JulesClient:
             # Fallback
             if sources:
                 return sources[0]["name"]
+        except requests.exceptions.Timeout:
+            logging.warning("⚠️ JulesClient: Discover sources timed out.")
         except Exception as e:
             logging.warning(f"⚠️ Could not discover sources dynamically: {e}")
         return "sources/github/ibrahim4433/book-arabic-grammer"
@@ -126,10 +128,13 @@ class JulesClient:
         )
 
         try:
-            resp = requests.get(url, headers=headers, timeout=10)
+            resp = requests.get(url, headers=headers, timeout=30)
             resp.raise_for_status()
             return resp.json()
 
+        except requests.exceptions.Timeout:
+            logging.warning(f"⚠️ JulesClient Warning (Get Status): Read timed out for session {session_id}.")
+            return None
         except requests.exceptions.RequestException as e:
             logging.error(f"❌ JulesClient Error (Get Status): {e}")
             return None
@@ -147,9 +152,12 @@ class JulesClient:
         url = f"https://jules.googleapis.com/v1alpha/{session_path}/activities?pageSize={page_size}"
         
         try:
-            resp = requests.get(url, headers=headers, timeout=10)
+            resp = requests.get(url, headers=headers, timeout=30)
             resp.raise_for_status()
             return resp.json().get("activities", [])
+        except requests.exceptions.Timeout:
+            logging.warning(f"⚠️ JulesClient Warning (Get Activities): Read timed out for session {session_id}.")
+            return []
         except requests.exceptions.RequestException as e:
             logging.error(f"❌ JulesClient Error (Get Activities): {e}")
             return []
