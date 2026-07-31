@@ -99,6 +99,7 @@ try:
     from modules.vision import VisionClient
     from modules.youtube_ui import run_jules_youtube_ui
     from modules.calibration_workflow import run_calibration_ui
+    from modules.ai_css_tuner import run_ai_css_tuner
 except ImportError as e:
     logging.critical(f"Failed to import modules: {e}")
     print("❌ Critical Error: Failed to import modules. See system.log for details.")
@@ -2744,8 +2745,23 @@ def main():
                     run_jules_youtube_ui(state_manager)
 
         elif main_op == "4":
-            op_ran = True
-            run_calibration_ui(state_manager, PROJECT_ROOT)
+            sub_choice = questionary.select(
+                "Select Operation (Book Style Tuning):",
+                choices=[
+                    "A) Manual Calibration UI (Web App)",
+                    "B) AI Auto-Tuning (Density Optimizer via Jules)",
+                    "X) Back to Main Menu",
+                ],
+                style=menu_style,
+            ).ask()
+            
+            if sub_choice and not sub_choice.startswith("X"):
+                sub_op = sub_choice[0]
+                op_ran = True
+                if sub_op == "A":
+                    run_calibration_ui(state_manager, PROJECT_ROOT)
+                elif sub_op == "B":
+                    run_ai_css_tuner(PROJECT_ROOT)
             
         elif main_op == "5":
             op_ran = True
