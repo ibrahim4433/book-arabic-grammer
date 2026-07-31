@@ -809,3 +809,19 @@ body {
 .spacer-col { width: 2%; border-bottom: none !important; }
 .dynamic-page::after { content: target-counter(attr(href), page, arabic-indic); }
 
+
+.col-left {
+    flex: 1;
+}
+
+.col-right {
+    flex: 1;
+}
+
+.solved {
+    border-color: #27ae60;
+}
+
+.compact-qa {
+    margin-bottom: 2mm;
+}
