@@ -357,26 +357,31 @@ class JulesPageGenerator:
                 lesson_title, "WARN", f"Could not determine exact filename. Guessing: {found_path}"
             )
 
-        def pr_callback(ignored_path, state, msg):
-            callback(lesson_title, state, msg)
+        def bg_pull():
+            def pr_callback(ignored_path, state, msg):
+                callback(lesson_title, state, msg)
 
-        success = self.jules_client.finalize_pr_and_pull(details, found_path, callback=pr_callback)
+            success = self.jules_client.finalize_pr_and_pull(details, found_path, callback=pr_callback)
 
-        if success:
-            import shutil
+            if success:
+                import shutil
 
-            # If it downloaded to Jules-workspace/pages, move it to pages
-            if found_path.startswith("Jules-workspace/pages/"):
-                source_file = self.project_root / found_path
-                dest_file = self.project_root / "pages" / found_name
-                if source_file.exists():
-                    dest_file.parent.mkdir(exist_ok=True, parents=True)
-                    shutil.move(str(source_file), str(dest_file))
-            callback(lesson_title, "SUCCESS", f"Page Saved: {found_name}")
-            return True
-        else:
-            callback(lesson_title, "ERROR", "Pull Failed")
-            return False
+                # If it downloaded to Jules-workspace/pages, move it to pages
+                if found_path.startswith("Jules-workspace/pages/"):
+                    source_file = self.project_root / found_path
+                    dest_file = self.project_root / "pages" / found_name
+                    if source_file.exists():
+                        dest_file.parent.mkdir(exist_ok=True, parents=True)
+                        shutil.move(str(source_file), str(dest_file))
+                callback(lesson_title, "SUCCESS", f"Page Saved: {found_name}")
+            else:
+                callback(lesson_title, "ERROR", "Pull Failed")
+
+        import threading
+        t = threading.Thread(target=bg_pull, daemon=True)
+        t.start()
+        
+        return True
 
     def _monitor_and_handle_session(self, session_id, lesson_title, callback):
         """
@@ -475,7 +480,7 @@ class JulesPageGenerator:
         return count
 
     def run_batch_generation(
-        self, max_concurrent=5, update_callback=None, excluded_lessons=None, only_lessons=None, force_remake=False
+        self, max_concurrent=10, update_callback=None, excluded_lessons=None, only_lessons=None, force_remake=False
     ):
         """
         Main entry point.
@@ -517,20 +522,27 @@ class JulesPageGenerator:
             lesson_num = match.group(1) if match else None
 
             # Smart check if output exists (Jules uses dynamic names like 09.0_nXX_title.html)
-            html_exists = False
+            existing_htmls = []
             if lesson_num:
                 for f in pages_dir.glob("*.html"):
                     if f.name.startswith(f"{lesson_num}.") or f.name.startswith(f"{lesson_num}_"):
-                        html_exists = True
-                        break
+                        existing_htmls.append(f)
             else:
                 html_name = plan.name.replace("-plan.md", ".html")
-                if (pages_dir / html_name).exists():
-                    html_exists = True
+                f = pages_dir / html_name
+                if f.exists():
+                    existing_htmls.append(f)
 
-            if html_exists and not force_remake:
+            if existing_htmls and not force_remake:
                 update_callback(plan.stem, "SKIP", "HTML exists")
                 continue
+                
+            if existing_htmls and force_remake:
+                for f in existing_htmls:
+                    try:
+                        f.unlink()
+                    except:
+                        pass
 
             if (
                 lesson_num

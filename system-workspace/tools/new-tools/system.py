@@ -521,7 +521,7 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False):
     
                 live.update(generate_layout())
     
-            planner.run_batch_planning(max_concurrent=5, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
+            planner.run_batch_planning(max_concurrent=10, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
 
         api_blocked = any(data.get("status") == "API_BLOCKED" for data in tasks.values())
         if api_blocked:
@@ -615,7 +615,7 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False):
                             generate_layout(), refresh_per_second=4, vertical_overflow="crop"
                         ) as live:
                             planner.run_batch_planning(
-                                max_concurrent=5,
+                                max_concurrent=10,
                                 update_callback=callback,
                                 only_lessons=still_failed,
                             )
@@ -630,7 +630,7 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False):
                         planner.state_manager.update_lesson_data(l_title, {"session_id": None})
             with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
                 planner.run_batch_planning(
-                    max_concurrent=5, update_callback=callback, only_lessons=failed_lessons
+                    max_concurrent=10, update_callback=callback, only_lessons=failed_lessons
                 )
             console.print("[bold green]✅ Recovery Completed![/bold green]")
 
@@ -796,7 +796,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
                             else:
                                 tasks[title]["duration"] = 0.0
                     live.update(generate_layout())
-                generator.run_batch_generation(max_concurrent=5, update_callback=callback, only_lessons=only_lessons)
+                generator.run_batch_generation(max_concurrent=10, update_callback=callback, only_lessons=only_lessons)
             # Fall through to failure-handling logic below
             total_duration = time.time() - start_all
             console.print(generate_table(full=True))
@@ -879,7 +879,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
     
                 live.update(generate_layout())
     
-            generator.run_batch_generation(max_concurrent=5, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
+            generator.run_batch_generation(max_concurrent=10, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
 
         api_blocked = any(data.get("status") == "API_BLOCKED" for data in tasks.values())
         if api_blocked:
@@ -988,7 +988,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
                             generate_layout(), refresh_per_second=4, vertical_overflow="crop"
                         ) as live:
                             generator.run_batch_generation(
-                                max_concurrent=5,
+                                max_concurrent=10,
                                 update_callback=callback,
                                 only_lessons=still_failed,
                             )
@@ -1004,7 +1004,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
                         state_manager.update_lesson_data(l_title, {"page_session_id": None})
             with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
                 generator.run_batch_generation(
-                    max_concurrent=5, update_callback=callback, only_lessons=failed_lessons
+                    max_concurrent=10, update_callback=callback, only_lessons=failed_lessons
                 )
             console.print("[bold green]✅ Recovery Completed![/bold green]")
 
@@ -1042,7 +1042,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
             generator.abort_event.clear()
             with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
                 generator.run_batch_generation(
-                    max_concurrent=5, update_callback=callback, only_lessons=failed_lessons
+                    max_concurrent=10, update_callback=callback, only_lessons=failed_lessons
                 )
             console.print("[bold green]✅ Auto-Retry Completed![/bold green]")
 
@@ -1166,7 +1166,7 @@ def run_retry_planning_and_generation_ui(state_manager):
             console.print(f"[green]✅ {title} planned![/green]")
 
     planner.run_batch_planning(
-        max_concurrent=5, update_callback=callback_plan, only_lessons=only_lessons
+        max_concurrent=10, update_callback=callback_plan, only_lessons=only_lessons
     )
 
     # Run Generation
@@ -1186,7 +1186,7 @@ def run_retry_planning_and_generation_ui(state_manager):
             console.print(f"[green]✅ {title} generated![/green]")
 
     generator.run_batch_generation(
-        max_concurrent=5, update_callback=callback_gen, only_lessons=only_lessons
+        max_concurrent=10, update_callback=callback_gen, only_lessons=only_lessons
     )
 
     console.print("\n[bold green]✅ Retry Workflow Completed![/bold green]")

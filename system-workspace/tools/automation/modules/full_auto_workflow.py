@@ -390,7 +390,7 @@ class FullAutoWorkflow:
 
         try:
             planner.run_batch_planning(
-                max_concurrent=5,
+                max_concurrent=10,
                 update_callback=bridge_callback,
                 excluded_lessons=self.existing_lessons,
             )
@@ -546,7 +546,7 @@ class FullAutoWorkflow:
 
         try:
             generator.run_batch_generation(
-                max_concurrent=5,
+                max_concurrent=10,
                 update_callback=bridge_callback,
                 excluded_lessons=self.existing_lessons,
             )
