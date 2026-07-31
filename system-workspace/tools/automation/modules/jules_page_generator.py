@@ -207,7 +207,14 @@ class JulesPageGenerator:
                     auditor_rules = f"\n\n--- 1-PAGE STRICT RULES ---\n{auditor_path.read_text(encoding='utf-8')}\n"
 
             if self.is_1_page_mode:
-                naming_instruction = f"The output file should follow the strict naming convention: `pages/page_{lesson_num}.html`. CRITICAL: Do NOT place the file inside `Jules-workspace/pages/`. It MUST be in the root `pages/` directory.\n"
+                naming_instruction = (
+                    f"=== STRICT FILE GENERATION CONSTRAINTS ===\n"
+                    f"1. You MUST generate ONLY ONE SINGLE FILE: `pages/page_{lesson_num}.html`.\n"
+                    f"2. Do NOT generate multiple pages (e.g. page_X, page_Y). Focus ONLY on the requested plan.\n"
+                    f"3. Do NOT split the page into multiple parts (e.g. `_part1`, `_part2`, or `_cont`). You must fit everything into the single requested file.\n"
+                    f"4. Do NOT edit `styles/main.css` or any other existing project files. Your only output should be the new HTML file in the `pages/` directory.\n"
+                    f"5. Do NOT place the file inside `Jules-workspace/pages/`. It MUST be in the root `pages/` directory.\n"
+                )
                 naming_instruction += (
                     f"\n[CONSTRAINTS & PROTOCOLS]\n"
                     f"1. Source of Truth: Adhere strictly to BOOK_RULES.md and elements_index.md\n"
@@ -237,7 +244,14 @@ class JulesPageGenerator:
                     f"15. **Exam Section**: ONLY include the `TEMPLATE_C_EXAM.html` block if the provided raw text slice actually contains test/exam questions (e.g., keywords like \"تطبيق\", \"امتحان\"). Do NOT hallucinate an exam if it is not in the source text. **CRITICAL:** If an exam or exercise contains the answers in the raw text, you MUST use `TEMPLATE_C_EXAM_SOLVED.html` instead of `TEMPLATE_C_EXAM.html`.\n"
                 )
             else:
-                naming_instruction = f"The output file should follow the strict naming convention: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html`. CRITICAL: Do NOT place the file inside `Jules-workspace/pages/`. It MUST be in the root `pages/` directory.\n"
+                naming_instruction = (
+                    f"=== STRICT FILE GENERATION CONSTRAINTS ===\n"
+                    f"1. You MUST generate ONLY ONE SINGLE FILE: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html`.\n"
+                    f"2. Do NOT generate multiple pages. Focus ONLY on the requested plan.\n"
+                    f"3. Do NOT split the page into multiple parts (e.g. `_part1`, `_part2`).\n"
+                    f"4. Do NOT edit `styles/main.css` or any other existing project files. Your only output should be the new HTML file in the `pages/` directory.\n"
+                    f"5. Do NOT place the file inside `Jules-workspace/pages/`. It MUST be in the root `pages/` directory.\n"
+                )
 
             prompt = (
                 f"Generate the HTML page for the following plan.\n"
@@ -246,9 +260,16 @@ class JulesPageGenerator:
                 f"2. You are FORBIDDEN from adding inline CSS styles (no `style=`). Use only the utility classes specified in `styles/main.css`.\n"
                 f"3. You must preserve EXACT Tashkeel and output 100% Arabic text (except HTML tags).\n"
                 f"4. EVERY content block must have a unique ID (e.g., id='bXXXXX').\n"
-                f"5. Maintain continuity of style: use `.highlight-red` for primary focus, `.highlight-blue` for secondary. `.irab-word` MUST remain white.\n"
-                f"{naming_instruction}"
-                f"{auditor_rules}"
+                f"5. Maintain continuity of style: use `.highlight-red` for primary focus, `.highlight-blue` for secondary. `.irab-word` MUST remain white.\n\n"
+                f"{naming_instruction}\n"
+                f"{auditor_rules}\n"
+                f"=== NON-INTERACTIVE EXECUTION PROTOCOL (CRITICAL) ===\n"
+                f"1. You are running in a headless, automated batch environment.\n"
+                f"2. NEVER ask the user questions. There is no user to answer you.\n"
+                f"3. NEVER ask for permission to continue, finalize, or clean up.\n"
+                f"4. If you encounter an error (like an overflow in verify_layout.py), you MUST solve it autonomously using the provided tools and rules (e.g., adjusting padding/margins). Do NOT ask for a recommendation.\n"
+                f"5. Execute ALL steps, from generation to verification to final cleanup, in a SINGLE continuous process.\n"
+                f"6. Once finished, just output a final summary of what you did. Do NOT end with a question like 'Should I continue?' or 'Is there anything else?'.\n\n"
                 f"PLAN:\n{plan_content}{elements_text}"
             )
 
@@ -269,7 +290,7 @@ class JulesPageGenerator:
 
             # Network-aware session creation: retry on connection errors
             session = None
-            _max_create_attempts = 4
+            _max_create_attempts = 15
             for _attempt in range(_max_create_attempts):
                 try:
                     session = self.jules_client.create_session(
@@ -281,12 +302,21 @@ class JulesPageGenerator:
                     callback(lesson_title, "API_BLOCKED", "API Quota/Limit Reached")
                     return False
                 except Exception as e:
-                    if _is_network_error(e) and _attempt < _max_create_attempts - 1:
-                        callback(lesson_title, "WARN", f"Network error on create: {e}. Waiting for internet...")
-                        if not _wait_for_network(callback, lesson_title):
-                            callback(lesson_title, "ERROR", "Internet did not recover. Giving up.")
-                            return False
-                        callback(lesson_title, "RUNNING", "Internet restored. Retrying session create...")
+                    is_precondition = False
+                    if hasattr(e, 'response') and e.response is not None:
+                        if e.response.status_code == 400 and "FAILED_PRECONDITION" in e.response.text:
+                            is_precondition = True
+
+                    if (is_precondition or _is_network_error(e)) and _attempt < _max_create_attempts - 1:
+                        if is_precondition:
+                            callback(lesson_title, "WARN", f"Jules API busy (Precondition Failed). Waiting 60s...")
+                            time.sleep(60)
+                        else:
+                            callback(lesson_title, "WARN", f"Network error on create: {e}. Waiting for internet...")
+                            if not _wait_for_network(callback, lesson_title):
+                                callback(lesson_title, "ERROR", "Internet did not recover. Giving up.")
+                                return False
+                        callback(lesson_title, "RUNNING", "Retrying session create...")
                     else:
                         callback(lesson_title, "ERROR", f"Session create failed: {e}")
                         return False
@@ -325,8 +355,9 @@ class JulesPageGenerator:
         details = self.jules_client.get_session_details(session_id)
 
         branch = details.get("branch")
-        if not branch:
-            callback(lesson_title, "ERROR", "No Branch info found.")
+        pr_number = details.get("pr_number")
+        if not branch and not pr_number:
+            callback(lesson_title, "ERROR", "No Branch or PR info found.")
             return False
 
         repo_full_name = f"{self.jules_client.repo_owner}/{self.jules_client.repo_name}"
