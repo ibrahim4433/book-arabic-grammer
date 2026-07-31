@@ -206,45 +206,60 @@ class JulesPageGenerator:
                 if auditor_path.exists():
                     auditor_rules = f"\n\n--- 1-PAGE STRICT RULES ---\n{auditor_path.read_text(encoding='utf-8')}\n"
 
+            # 1. Goal
+            goal_section = (
+                f"=== 1. GOAL ===\n"
+                f"You are the Expert HTML Generation Agent for the Arabic Grammar Book project.\n"
+                f"Your task is to generate a single, pristine HTML file in the `pages/` directory based EXACTLY on the provided PLAN.\n"
+                f"You are running in a headless, automated batch environment. Do NOT ask questions. Solve problems autonomously.\n"
+            )
+
+            # 2. Tools and Docs
+            tools_and_docs = (
+                f"=== 2. TOOLS AND DOCS ===\n"
+                f"You have access to predefined templates. You MUST strictly use the HTML snippets defined in the Elements Index Dictionary.\n"
+                f"You have workspace tools available:\n"
+                f"- `verify_layout.py`: To check if the page fits on 1 A4 page without overflow.\n"
+                f"- `lint_pages.py`: To validate HTML structure and rule compliance.\n"
+                f"- `id_manager.py`: To generate sequential unique IDs (`bXXXXX`).\n"
+            )
+            if elements_text:
+                tools_and_docs += f"{elements_text}\n"
+
+            # 4. Rules and Elements Usage
             if self.is_1_page_mode:
-                naming_instruction = (
+                target_file = f"`pages/page_{lesson_num}.html`" if lesson_num else "`pages/[LESSON_TITLE].html`"
+                naming_constraints = (
                     f"=== STRICT FILE GENERATION CONSTRAINTS ===\n"
-                    f"1. You MUST generate ONLY ONE SINGLE FILE: `pages/page_{lesson_num}.html`.\n"
+                    f"1. You MUST generate ONLY ONE SINGLE FILE: {target_file}.\n"
                     f"2. Do NOT generate multiple pages (e.g. page_X, page_Y). Focus ONLY on the requested plan.\n"
                     f"3. Do NOT split the page into multiple parts (e.g. `_part1`, `_part2`, or `_cont`). You must fit everything into the single requested file.\n"
                     f"4. Do NOT edit `styles/main.css` or any other existing project files. Your only output should be the new HTML file in the `pages/` directory.\n"
                     f"5. Do NOT place the file inside `Jules-workspace/pages/`. It MUST be in the root `pages/` directory.\n"
                 )
-                naming_instruction += (
-                    f"\n[CONSTRAINTS & PROTOCOLS]\n"
-                    f"1. Source of Truth: Adhere strictly to BOOK_RULES.md and elements_index.md\n"
-                    f"2. Strict 1-Page Fit: The generated content MUST visually fit on exactly one A4 page when rendered. You MUST verify this using `verify_layout.py` or equivalent tools. If it overflows, it is a catastrophic failure. Do NOT try to solve overflow by deleting text (Strict Typographer Rule). Solve it by choosing denser templates or omitting optional white-space.\n"
-                    f"2.5 Cut Content: If content is violently split by the page boundary, strictly follow the [CUT CONTENT HANDLING] rules using `TEMPLATE_CUT_BOX_PART_1.html` and `TEMPLATE_CUT_BOX_PART_2.html`. Ensure exact visual continuity (same title, same classes).\n"
-                    f"2.6 Cut Content Determinism: When handling cut content or starting a page mid-section, you MUST use the Keyword-to-Template Deterministic Mapping in elements_index.md to identify the correct template to use for the continuation. You are forbidden from guessing. Scan the raw text for the preceding keyword to determine the active template and apply the correct `_PART_2.html` wrapping.\n"
-                    f"3. text Content: 100% Arabic with full Harakat. Must use EVERY WORD from the provided text slice.\n"
-                    f"4. Highlighting: Use `.highlight-red` for primary focus words and `.highlight-blue`,`.highlight-green` for secondary.\n"
-                    f"5. Definitions: Must use `.text-accent` class.\n"
-                    f"6. Mandatory Style Guide:\n"
-                    f"*   **Rule:** NO INLINE STYLES.\n"
-                    f"*   **Rule:** Irab Words inside `.irab-word` MUST be white. Do NOT use `.highlight-*` classes.\n"
-                    f"*   **Mapping:**\n"
-                    f"    *   `style=\"width: 20%\"` -> `class=\"w-20pct\"`\n"
-                    f"    *   `style=\"margin-top: 2mm\"` -> `class=\"mt-2mm\"`\n"
-                    f"    *   `style=\"text-align: center\"` -> `class=\"text-center\"`\n"
-                    f"    *   `style=\"font-weight: bold\"` -> `class=\"font-bold\"`\n"
-                    f"6. Templates: You are forbidden from inventing new HTML tags or classes or template elements. You must map all content using Jules-workspace/Templates/ components. **CRITICAL 1-PAGE MODE RULE**: You MUST NOT use `<section>` tags when applying templates. Replace any `<section>` tags from the templates with `<div>` tags (keep `<header>` for page headers as is).\n"
-                    f"7. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). The ID MUST be applied to the `<div>` tag that replaced the `<section>` tag. Use Jules-workspace/id_manager.py to generate or verify them.\n"
-                    f"8. **Self-Correction:** Run Jules-workspace/lint_pages.py --one-page-mode <filename> after creating html files. If it fails, you MUST fix the errors (usually inline styles or forbidden section tags) before submitting.\n"
-                    f"9. Do not summarize examples.\n"
-                    f"10. Do not provide uncompleted text content using (...) .\n"
-                    f"11. You MUST preserve the EXACT Tashkeel (Harakat) from the input. Stripping diacritics is a critical failure. Do not generate bare Arabic letters without their vowels.\n"
-                    f"12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.\n"
-                    f"13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of all teal\n"
-                    f"14. **Page Wrappers**: The compiler will automatically wrap the final page in `TEMPLATE_C_PAGE_WRAPPER.html`. Do NOT include this template in your HTML.\n"
-                    f"15. **Exam Section**: ONLY include the `TEMPLATE_C_EXAM.html` block if the provided raw text slice actually contains test/exam questions (e.g., keywords like \"تطبيق\", \"امتحان\"). Do NOT hallucinate an exam if it is not in the source text. **CRITICAL:** If an exam or exercise contains the answers in the raw text, you MUST use `TEMPLATE_C_EXAM_SOLVED.html` instead of `TEMPLATE_C_EXAM.html`.\n"
+                specific_rules = (
+                    f"=== 1-PAGE STRICT RULES & CONSTRAINTS ===\n"
+                    f"1. Strict 1-Page Fit: The generated content MUST visually fit on exactly one A4 page when rendered. You MUST verify this using `verify_layout.py` or equivalent tools. If it overflows, it is a catastrophic failure. Do NOT try to solve overflow by deleting text (Strict Typographer Rule). Solve it by choosing denser templates or omitting optional white-space.\n"
+                    f"2. Cut Content: If content is violently split by the page boundary, strictly follow the [CUT CONTENT HANDLING] rules using `TEMPLATE_CUT_BOX_PART_1.html` and `TEMPLATE_CUT_BOX_PART_2.html`. Ensure exact visual continuity (same title, same classes).\n"
+                    f"3. Cut Content Determinism: When handling cut content or starting a page mid-section, you MUST use the Keyword-to-Template Deterministic Mapping in elements_index.md to identify the correct template to use for the continuation. You are forbidden from guessing. Scan the raw text for the preceding keyword to determine the active template and apply the correct `_PART_2.html` wrapping.\n"
+                    f"4. Templates: You are forbidden from inventing new HTML tags or classes or template elements. You must map all content using Jules-workspace/Templates/ components. **CRITICAL 1-PAGE MODE RULE**: You MUST NOT use `<section>` tags when applying templates. Replace any `<section>` tags from the templates with `<div>` tags (keep `<header>` for page headers as is).\n"
+                    f"5. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). The ID MUST be applied to the `<div>` tag that replaced the `<section>` tag. Use Jules-workspace/id_manager.py to generate or verify them.\n"
+                    f"6. Self-Correction: Run Jules-workspace/lint_pages.py --one-page-mode <filename> after creating html files. If it fails, you MUST fix the errors (usually inline styles or forbidden section tags) before submitting.\n"
+                    f"7. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.\n"
+                    f"8. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of all teal\n"
+                    f"9. Page Wrappers: The compiler will automatically wrap the final page in `TEMPLATE_C_PAGE_WRAPPER.html`. Do NOT include this template in your HTML.\n"
+                    f"10. Exam Section: ONLY include the `TEMPLATE_C_EXAM.html` block if the provided raw text slice actually contains test/exam questions (e.g., keywords like \"تطبيق\", \"امتحان\"). Do NOT hallucinate an exam if it is not in the source text. **CRITICAL:** If an exam or exercise contains the answers in the raw text, you MUST use `TEMPLATE_C_EXAM_SOLVED.html` instead of `TEMPLATE_C_EXAM.html`.\n"
+                    f"11. **EXTREME CONDENSATION PROTOCOL (AUTHORIZED)**: If the content overflows A4, you are explicitly authorized to deviate from the Architect's suggested templates to maximize density:\n"
+                    f"    - **Split the Page:** Use `TEMPLATE_C_TWO_COLUMNS_WRAPPER.html` or `<div class=\"split-grid\">` to split the page into left/right halves and pack independent blocks side-by-side.\n"
+                    f"    - **Template Overrides:** If a vertical `TEMPLATE_C_LIST` was suggested, you may override it and use `TEMPLATE_C_CHIPS` (for single words) or `TEMPLATE_C_COMPACT_QA_TABLE` if it saves vertical space.\n"
+                    f"    - **Zero Margins:** Safely strip non-essential vertical spacing by applying `mb-0`, `p-0`, or `mt-0` utility classes defined in `main.css`.\n"
+                    f"12. **LAST RESORT (OVERFLOW ESCAPE HATCH)**: If you have exhausted all spacing utilities and aggressive 2-column groupings, and the page STILL overflows, **you MUST submit the file anyway with the overflow**.\n"
+                    f"    - Do NOT split the output into multiple files (no `_part1`, `_part2`).\n"
+                    f"    - Do NOT pause to ask a question or request permission.\n"
+                    f"    - Submit the best possible condensed version so a human can manually review the physical overflow later.\n"
                 )
             else:
-                naming_instruction = (
+                naming_constraints = (
                     f"=== STRICT FILE GENERATION CONSTRAINTS ===\n"
                     f"1. You MUST generate ONLY ONE SINGLE FILE: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html`.\n"
                     f"2. Do NOT generate multiple pages. Focus ONLY on the requested plan.\n"
@@ -252,25 +267,64 @@ class JulesPageGenerator:
                     f"4. Do NOT edit `styles/main.css` or any other existing project files. Your only output should be the new HTML file in the `pages/` directory.\n"
                     f"5. Do NOT place the file inside `Jules-workspace/pages/`. It MUST be in the root `pages/` directory.\n"
                 )
+                specific_rules = (
+                    f"=== STRICT RULES & CONSTRAINTS ===\n"
+                    f"1. Templates: You are forbidden from inventing new HTML tags or classes. You must map all content using `Jules-workspace/Templates/` components.\n"
+                    f"2. Unique IDs: All content blocks must have a unique ID (`id='bXXXXX'`). Use `Jules-workspace/id_manager.py` to generate or verify them.\n"
+                    f"3. Self-Correction: Run `Jules-workspace/lint_pages.py <filename>` after creating html files. You MUST fix any errors before submitting.\n"
+                )
 
-            prompt = (
-                f"Generate the HTML page for the following plan.\n"
-                f"CRITICAL RULES (ANTI-HALLUCINATION):\n"
-                f"1. You are FORBIDDEN from inventing raw HTML structures. You MUST strictly use the HTML snippets from `Jules-workspace/Templates/` as defined in `elements_index.md`.\n"
-                f"2. You are FORBIDDEN from adding inline CSS styles (no `style=`). Use only the utility classes specified in `styles/main.css`.\n"
-                f"3. You must preserve EXACT Tashkeel and output 100% Arabic text (except HTML tags).\n"
-                f"4. EVERY content block must have a unique ID (e.g., id='bXXXXX').\n"
-                f"5. Maintain continuity of style: use `.highlight-red` for primary focus, `.highlight-blue` for secondary. `.irab-word` MUST remain white.\n\n"
-                f"{naming_instruction}\n"
-                f"{auditor_rules}\n"
+            general_rules = (
+                f"=== GENERAL RULES & ELEMENTS USAGE ===\n"
+                f"1. Source of Truth: Adhere strictly to `BOOK_RULES.md` and `elements_index.md`.\n"
+                f"2. Text Content: 100% Arabic with full Harakat. Must use EVERY WORD from the provided text slice. Do not summarize examples. Do not provide uncompleted text using (...).\n"
+                f"3. Tashkeel (Harakat): You MUST preserve the EXACT Tashkeel from the input. Stripping diacritics is a critical failure. Do not generate bare Arabic letters without their vowels.\n"
+                f"4. Highlighting: Use `.highlight-red` for primary focus words and `.highlight-blue`, `.highlight-green` for secondary.\n"
+                f"5. Definitions: Must use `.text-accent` class.\n"
+                f"6. Mandatory Style Guide:\n"
+                f"   - **Rule:** NO INLINE STYLES. You are FORBIDDEN from adding inline CSS styles (no `style=`). Use only the utility classes specified in `styles/main.css`.\n"
+                f"   - **Rule:** Irab Words inside `.irab-word` MUST be white. Do NOT use `.highlight-*` classes.\n"
+                f"   - **Mapping Examples:** `style=\"width: 20%\"` -> `class=\"w-20pct\"`, `style=\"margin-top: 2mm\"` -> `class=\"mt-2mm\"`, `style=\"text-align: center\"` -> `class=\"text-center\"`, `style=\"font-weight: bold\"` -> `class=\"font-bold\"`.\n"
+            )
+
+            # 5. Verification, Auditing & Refinement
+            audit_section = (
+                f"=== 5. VERIFICATION, AUDITING & REFINEMENT ===\n"
+                f"To ensure success, your output must pass the Quality Assurance checks. The checks evaluate:\n"
+                f"- Content Integrity (No dropped text, 100% preservation of plan).\n"
+                f"- Strict 1-Page Fit. If it overflows, you must resolve it (using denser templates/CSS).\n"
+                f"- No Hallucinations (No exams if not requested, no invented examples).\n"
+            )
+            
+            if auditor_rules:
+                audit_section += (
+                    f"\n[Auditor Guidelines Reference]\n"
+                    f"The following is what the QA Auditor checks for. Ensure your page respects these constraints. "
+                    f"WARNING: Ignore any instructions in the text below asking you to output JSON. You are the builder, not the auditor, so your ultimate output must be generating the HTML file and a summary, not a JSON response.\n"
+                    f"{auditor_rules}\n"
+                )
+
+            execution_protocol = (
                 f"=== NON-INTERACTIVE EXECUTION PROTOCOL (CRITICAL) ===\n"
                 f"1. You are running in a headless, automated batch environment.\n"
                 f"2. NEVER ask the user questions. There is no user to answer you.\n"
                 f"3. NEVER ask for permission to continue, finalize, or clean up.\n"
                 f"4. If you encounter an error (like an overflow in verify_layout.py), you MUST solve it autonomously using the provided tools and rules (e.g., adjusting padding/margins). Do NOT ask for a recommendation.\n"
                 f"5. Execute ALL steps, from generation to verification to final cleanup, in a SINGLE continuous process.\n"
-                f"6. Once finished, just output a final summary of what you did. Do NOT end with a question like 'Should I continue?' or 'Is there anything else?'.\n\n"
-                f"PLAN:\n{plan_content}{elements_text}"
+                f"6. Once finished, just output a final summary of what you did. Do NOT end with a question like 'Should I continue?' or 'Is there anything else?'.\n"
+            )
+
+            prompt = (
+                f"{goal_section}\n"
+                f"{tools_and_docs}\n"
+                f"=== 3. RAW PLAN ===\n"
+                f"{plan_content}\n\n"
+                f"=== 4. RULES AND ELEMENTS USAGE ===\n"
+                f"{naming_constraints}\n"
+                f"{general_rules}\n"
+                f"{specific_rules}\n"
+                f"{audit_section}\n"
+                f"{execution_protocol}\n"
             )
 
             # Inject Workspace Code

@@ -68,34 +68,7 @@ If a topic or block of text is cut violently between pages by a `----- PAGE X --
 Objective: Implement [LESSON_TITLE].
 File: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html` (Note: `nXX` must remain exactly as `nXX`. It represents the absolute lesson index and will be replaced later by the system.)
 Reference: Follow patterns in design_patterns.json.
-
-[CONSTRAINTS & PROTOCOLS]
-1. Source of Truth: Adhere strictly to BOOK_RULES.md and elements_index.md
-2. Page Breaking: Do NOT estimate length manually , instead Use `Jules-workspace/verify_layout.py` after every block to determine exactly where to cut the content to ensure it fits the A4 constraints perfectly. If page is "FULL", continue in `pages/[LESSON_NUMBER].1_...` if page have a lot of blank space add exam elements from the lesson.
-2.5 Cut Content: If content is violently split by the page boundary, strictly follow the [CUT CONTENT HANDLING] rules using `TEMPLATE_CUT_BOX_PART_1.html` and `TEMPLATE_CUT_BOX_PART_2.html`. Ensure exact visual continuity (same title, same classes).
-2.6 Cut Content Determinism: When handling cut content or starting a page mid-section, you MUST use the "Keyword-to-Template Deterministic Mapping" in `elements_index.md` to identify the correct template to use for the continuation. You are forbidden from guessing. Scan the raw text for the preceding keyword to determine the active template and apply the correct `_PART_2.html` wrapping.
-3. text Content: 100% Arabic with full Harakat.
-4. Highlighting: Use `.highlight-red` for primary focus words and `.highlight-blue`,`.highlight-green`  for secondary.
-5. Definitions: Must use `.text-accent` class.
-6. Mandatory Style Guide:
-*   **Rule:** NO INLINE STYLES.
-*   **Rule:** Irab Words inside `.irab-word` MUST be white. Do NOT use `.highlight-*` classes.
-*   **Mapping:**
-    *   `style="width: 20%"` -> `class="w-20pct"`
-    *   `style="margin-top: 2mm"` -> `class="mt-2mm"`
-    *   `style="text-align: center"` -> `class="text-center"`
-    *   `style="font-weight: bold"` -> `class="font-bold"`
-6. Templates: You are forbidden from inventing new HTML tags or classes or template elements. You must map all content using "Jules-workspace/Templates/" components as the STREAM says in suitable way.
-7. Unique IDs: All content blocks must have a unique ID (id='bXXXXX'). use "Jules-workspace/id_manager.py" to generate or verify them.
-8. **Self-Correction:** Run "Jules-workspace/lint_pages.py" after creating html files. If it fails, you MUST fix the errors (usually inline styles) before submitting.
-9. Do not summarize examples. 
-10. Do not provide uncompleted text content using (...) .
-11. You MUST preserve the EXACT Tashkeel (Harakat) from the input. Stripping diacritics is a critical failure. Do not generate bare Arabic letters without their vowels.
-12. Visual Density: The page must be dense. Do NOT leave empty space. If content is split, ensure the remaining page is filled with relevant exercises or benefits.
-13. balanced page colors between teal and orange : make sure every page have minimum 1 element in orange instead of all teal 
-14. **Page Wrappers**: The compiler will automatically wrap the final page in `TEMPLATE_C_PAGE_WRAPPER.html`. Do NOT include this template in your `[CONTENT STREAM]` blocks.
-15. **Exam Section**: ONLY include the `TEMPLATE_C_EXAM.html` block if the provided raw text slice actually contains test/exam questions (e.g., keywords like "تطبيق", "امتحان"). Do NOT hallucinate an exam if it is not in the source text. **CRITICAL:** If an exam or exercise contains the answers in the raw text, you MUST use `TEMPLATE_C_EXAM_SOLVED.html` instead of `TEMPLATE_C_EXAM.html`.
-16. **Poet Biography**: If the text contains information about a poet's life or history, you MUST use `TEMPLATE_C_POET_BIO.html`. When you use this template, you MUST add an explicit instruction block before the Content Stream that tells the Jules Page Generator agent: "Create a dummy picture at `input/integrated-pictures/pic_[PAGE_NUMBER].jpg` (e.g. using `touch` or `cp` in bash)."
+*(If the text contains information about a poet's life or history, you MUST use TEMPLATE_C_POET_BIO.html and include this explicit instruction here: "Create a dummy picture at input/integrated-pictures/pic_[PAGE_NUMBER].jpg (e.g. using touch or cp in bash).")*
 
 [CONTENT STREAM]
 

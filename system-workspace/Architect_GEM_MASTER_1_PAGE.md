@@ -57,7 +57,7 @@ To fit massive amounts of text onto a single A4 page without deleting anything, 
 # 🎨 SEQUENTIAL CONTENT MAPPING:
 
 In 1-Page Mode, you MUST strictly follow the exact sequential order of the provided raw text. Do NOT force a predefined "Golden Flow" or reorder content. 
-- **Poet Biography**: If the text contains information about a poet's life or history, you MUST use `TEMPLATE_C_POET_BIO.html`. When you use this template, you MUST add an explicit instruction block before the Content Stream that tells the Jules Page Generator agent: "Create a dummy picture at `input/integrated-pictures/pic_[PAGE_NUMBER].jpg` (e.g. using `touch` or `cp` in bash)."
+- **Poet Biography**: If the text contains information about a poet's life or history, you MUST use `TEMPLATE_C_POET_BIO.html`. When you use this template, you MUST add an explicit instruction in the `[TASK DEFINITION]` block that tells the Jules Page Generator agent: "Create a dummy picture at `input/integrated-pictures/pic_[PAGE_NUMBER].jpg` (e.g. using `touch` or `cp` in bash)."
 Simply read the raw text slice from top to bottom, and map each section to the most appropriate template chronologically.
 - Start with `TEMPLATE_C_HEADER.html`.
 - Map the rest exactly as it appears in the text slice.
@@ -76,8 +76,8 @@ Simply read the raw text slice from top to bottom, and map each section to the m
 [TASK DEFINITION]
 Objective: Implement page [PAGE_NUMBER].
 File: `pages/page_[PAGE_NUMBER].html` (Note: Use the exact page number.)
-Reference: Follow patterns in design_patterns.json.
-
+Reference: Follow patterns in design_patterns.json. Use Jules-workspace/id_manager.py to generate unique IDs if necessary.
+*(If the text contains information about a poet's life or history, you MUST use TEMPLATE_C_POET_BIO.html and include this explicit instruction here: "Create a dummy picture at input/integrated-pictures/pic_[PAGE_NUMBER].jpg (e.g. using touch or cp in bash).")*
 
 [CONTENT STREAM]
 

@@ -23,7 +23,9 @@ Compare the Plan against the Source and Rules. Detect missing content, weak stru
 
 ## 2. Design Compliance (Critical)
 *   **Sequential Flow:** Does the plan strictly follow the sequential order of the raw text without skipping or reordering sections?
-*   **One-Page Law (PLANNER PHASE):** Does the plan use dense templates if the source text is extremely long? Do NOT fail a plan for being 'too long' or 'overflowing' because the Strict Typographer Rule mandates 100% inclusion. The HTML generator handles actual overflow.
+*   **The Overflow Exception (Builder Phase):** If auditing an HTML output, do NOT reject a page for `OVERFLOW` if the builder has clearly attempted to condense the content using dense templates (e.g., `split-grid`, `m-0`, `p-0`). Physical overflow is acceptable as a Last Resort due to the Strict Typographer rule. However, if the builder left huge margins or used sparse vertical templates instead of dense horizontal ones, you MUST reject it.
+*   **Strict Split Prohibition:** If the builder split the output into multiple files (e.g., `_part1`, `_part2`) to "solve" an overflow, **FAIL** it immediately. It must remain a single file, even if it overflows physically.
+*   **One-Page Law (Planner Phase):** Does the plan use dense templates if the source text is extremely long? Do NOT fail a plan for being 'too long' or 'overflowing' because the Strict Typographer Rule mandates 100% inclusion. The HTML generator handles actual overflow.
 *   **Exam Block Hallucination:** Did the Architect include an Exam block when there were no exam questions in the raw text? If they hallucinated an exam, **FAIL**.
 
 ## 3. Technical & Anti-Bloat Constraints (Critical)
