@@ -809,3 +809,6 @@ body {
 .spacer-col { width: 2%; border-bottom: none !important; }
 .dynamic-page::after { content: target-counter(attr(href), page, arabic-indic); }
 
+
+.gap-1-5mm { gap: 1.5mm; }
+.mt-1-5mm { margin-top: 1.5mm; }
