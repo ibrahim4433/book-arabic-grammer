@@ -89,7 +89,7 @@ class JulesClient:
 
         try:
             logging.info(f"🚀 JulesClient: Dispatching Session '{title}'...")
-            resp = requests.post(self.base_url, headers=headers, json=payload, timeout=30)
+            resp = requests.post(self.base_url, headers=headers, json=payload, timeout=(10, 30))
             resp.raise_for_status()
 
             data = resp.json()
