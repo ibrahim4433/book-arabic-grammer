@@ -809,3 +809,16 @@ body {
 .spacer-col { width: 2%; border-bottom: none !important; }
 .dynamic-page::after { content: target-counter(attr(href), page, arabic-indic); }
 
+
+/* Appending missing classes */
+.col-left {
+    flex: 1;
+}
+
+.col-right {
+    flex: 1;
+}
+
+.solved {
+    /* Required marker class */
+}
