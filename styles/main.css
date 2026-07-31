@@ -809,3 +809,9 @@ body {
 .spacer-col { width: 2%; border-bottom: none !important; }
 .dynamic-page::after { content: target-counter(attr(href), page, arabic-indic); }
 
+
+.col-left { }
+.col-right { }
+.leading-tight { line-height: 1.25; }
+
+.hidden { display: none !important; }
