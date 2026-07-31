@@ -2246,8 +2246,8 @@ def auto_pull_jules_batch(file_type, workspace_code):
                 )
                 for f in diff_out.splitlines():
                     if not f.strip(): continue
-                    if file_type == "plans" and not f.startswith("plans/"): continue
-                    if file_type == "pages" and not f.startswith("pages/"): continue
+                    if file_type == "plans" and not (f.startswith("plans/") or f.startswith("Jules-workspace/plans/")): continue
+                    if file_type == "pages" and not (f.startswith("pages/") or f.startswith("Jules-workspace/pages/")): continue
                     if workspace_code.lower() not in f.lower(): continue
                     
                     found_files.append((branch_ref, f))
@@ -2266,7 +2266,23 @@ def auto_pull_jules_batch(file_type, workspace_code):
     for branch, f in found_files:
         console.print(f"[dim]Pulling {f} from {branch}...[/dim]")
         try:
-            subprocess.run(["git", "checkout", branch, "--", f], cwd=PROJECT_ROOT, check=True, capture_output=True)
+            # We use git show to get the content directly instead of checkout, so we can write it strictly to the right place
+            content = subprocess.check_output(["git", "show", f"{branch}:{f}"], cwd=PROJECT_ROOT)
+            
+            # Map stray Jules-workspace paths to root paths
+            out_name = Path(f).name
+            if file_type == "plans":
+                out_path = PROJECT_ROOT / "plans" / out_name
+            else:
+                out_path = PROJECT_ROOT / "pages" / out_name
+                
+            out_path.parent.mkdir(exist_ok=True)
+            out_path.write_bytes(content)
+            
+            # If the path was stray, let the user know we auto-fixed it
+            if "Jules-workspace/" in f:
+                console.print(f"[bold yellow]✨ Auto-fixed misplaced file from {f} -> {out_path.relative_to(PROJECT_ROOT)}[/bold yellow]")
+                
             success += 1
         except subprocess.CalledProcessError as e:
             failures.append((branch, f))

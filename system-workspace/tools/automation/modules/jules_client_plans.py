@@ -137,6 +137,19 @@ class JulesPlanClient(JulesClient):
                     logging.info(f"✅ Finalization complete for {file_path}")
                     return True
                 else:
+                    # Smart Recovery for misplaced files
+                    import shutil
+                    from pathlib import Path
+                    file_name = Path(file_path).name
+                    file_type = "plans" if "plan" in file_name.lower() else "pages"
+                    stray_path = self.project_root / "Jules-workspace" / file_type / file_name
+                    if stray_path.exists():
+                        target_path = self.project_root / file_path
+                        target_path.parent.mkdir(exist_ok=True, parents=True)
+                        shutil.move(str(stray_path), str(target_path))
+                        logging.info(f"✨ Auto-fixed misplaced file: moved from Jules-workspace/{file_type}/{file_name} to {file_path}")
+                        return True
+                        
                     logging.warning(f"⚠️ File {file_path} not found after pull.")
                     return False
             else:
@@ -259,14 +272,36 @@ class JulesPlanClient(JulesClient):
                     target_filename if "/" in target_filename else f"plans/{target_filename}"
                 )
                 checkout_cmd = ["git", "checkout", checkout_ref, "--", repo_path]
-                subprocess.run(
-                    checkout_cmd,
-                    check=True,
-                    cwd=self.project_root,
-                    capture_output=True,
-                    timeout=60,
-                    env=git_env,
-                )
+                try:
+                    subprocess.run(
+                        checkout_cmd,
+                        check=True,
+                        cwd=self.project_root,
+                        capture_output=True,
+                        timeout=60,
+                        env=git_env,
+                    )
+                except subprocess.CalledProcessError:
+                    # Fallback: Maybe Jules created it in Jules-workspace/
+                    file_name = target_filename.split("/")[-1]
+                    file_type = "plans" if "plan" in file_name.lower() else "pages"
+                    stray_repo_path = f"Jules-workspace/{file_type}/{file_name}"
+                    subprocess.run(
+                        ["git", "checkout", checkout_ref, "--", stray_repo_path],
+                        check=True,
+                        cwd=self.project_root,
+                        capture_output=True,
+                        timeout=60,
+                        env=git_env,
+                    )
+                    # Move to correct location
+                    import shutil
+                    from pathlib import Path
+                    stray_local = self.project_root / stray_repo_path
+                    correct_local = self.project_root / repo_path
+                    correct_local.parent.mkdir(exist_ok=True, parents=True)
+                    shutil.move(str(stray_local), str(correct_local))
+                    logging.info(f"✨ Auto-fixed misplaced file from {stray_repo_path} to {repo_path}")
 
             logging.info(f"✅ Successfully pulled {target_filename}")
 

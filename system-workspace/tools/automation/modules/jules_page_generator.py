@@ -207,7 +207,7 @@ class JulesPageGenerator:
                     auditor_rules = f"\n\n--- 1-PAGE STRICT RULES ---\n{auditor_path.read_text(encoding='utf-8')}\n"
 
             if self.is_1_page_mode:
-                naming_instruction = f"The output file should follow the strict naming convention: `pages/page_{lesson_num}.html`.\n"
+                naming_instruction = f"The output file should follow the strict naming convention: `pages/page_{lesson_num}.html`. CRITICAL: Do NOT place the file inside `Jules-workspace/pages/`. It MUST be in the root `pages/` directory.\n"
                 naming_instruction += (
                     f"\n[CONSTRAINTS & PROTOCOLS]\n"
                     f"1. Source of Truth: Adhere strictly to BOOK_RULES.md and elements_index.md\n"
@@ -237,7 +237,7 @@ class JulesPageGenerator:
                     f"15. **Exam Section**: ONLY include the `TEMPLATE_C_EXAM.html` block if the provided raw text slice actually contains test/exam questions (e.g., keywords like \"تطبيق\", \"امتحان\"). Do NOT hallucinate an exam if it is not in the source text. **CRITICAL:** If an exam or exercise contains the answers in the raw text, you MUST use `TEMPLATE_C_EXAM_SOLVED.html` instead of `TEMPLATE_C_EXAM.html`.\n"
                 )
             else:
-                naming_instruction = f"The output file should follow the strict naming convention: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html`.\n"
+                naming_instruction = f"The output file should follow the strict naming convention: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html`. CRITICAL: Do NOT place the file inside `Jules-workspace/pages/`. It MUST be in the root `pages/` directory.\n"
 
             prompt = (
                 f"Generate the HTML page for the following plan.\n"

@@ -326,6 +326,8 @@ class JulesPlanner:
         if workspace_code and workspace_code != "None":
             mega_prompt += f"\n\nIMPORTANT INSTRUCTION: You MUST append the batch workspace code '_{workspace_code}' to the filename of the generated plan (e.g. before the .md extension, like 01-plan_{workspace_code}.md)."
 
+        mega_prompt += f"\n\nCRITICAL PATH INSTRUCTION: Do NOT place the generated plan inside `Jules-workspace/plans/`. You MUST place the generated plan in the root `plans/` directory."
+
 
         # 4. Check or Create Session
         session_id = None
