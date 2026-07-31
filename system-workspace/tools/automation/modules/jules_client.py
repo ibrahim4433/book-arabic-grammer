@@ -238,8 +238,24 @@ class JulesClient:
                 status_callback(state)
 
             if state in ["SUCCEEDED", "COMPLETED", "FAILED", "CANCELLED"]:
+                if state in ["FAILED", "CANCELLED"]:
+                    try:
+                        acts = self.get_activities(session_id)
+                        if acts:
+                            acts.sort(key=lambda x: x.get("createTime", ""), reverse=True)
+                            for act in acts:
+                                if "progressUpdated" in act and "title" in act["progressUpdated"]:
+                                    logging.error(f"❌ Jules Error Detail: {act['progressUpdated']['title']} - {act['progressUpdated'].get('description', '')}")
+                                    break
+                    except Exception as e:
+                        pass
                 logging.info(f"✅ JulesClient: Session finished with state: {state}")
                 return state
+                
+            if state in ["WAITING_FOR_INPUT", "ACTION_REQUIRED"]:
+                logging.info("💬 JulesClient: Agent needs input. Auto-replying to continue...")
+                self.send_response(session_id, "Please continue generating the plan strictly according to the original instructions. Do not ask for further confirmation.")
+                time.sleep(10)
 
             time.sleep(check_interval)
 

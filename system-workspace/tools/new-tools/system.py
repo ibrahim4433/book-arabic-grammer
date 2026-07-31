@@ -2200,7 +2200,9 @@ def auto_pull_jules_batch(file_type, workspace_code):
         return
         
     token = token_path.read_text().strip()
-    import urllib.request, json, subprocess
+    import urllib.request, json, subprocess, requests
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.retry import Retry
     
     try:
         repo_url = subprocess.check_output(["git", "config", "--get", "remote.origin.url"], cwd=PROJECT_ROOT, text=True).strip()
@@ -2211,14 +2213,20 @@ def auto_pull_jules_batch(file_type, workspace_code):
         
     console.print(f"[dim]Fetching open PRs from API for {repo_name}...[/dim]")
     url = f"https://api.github.com/repos/{repo_name}/pulls?state=open&per_page=100"
-    req = urllib.request.Request(url)
-    req.add_header("Authorization", f"token {token}")
-    req.add_header("Accept", "application/vnd.github.v3+json")
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json"
+    }
     
     try:
-        with urllib.request.urlopen(req, timeout=15) as response:
-            prs = json.loads(response.read())
-    except Exception as e:
+        session = requests.Session()
+        retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+        session.mount("https://", HTTPAdapter(max_retries=retries))
+        
+        response = session.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        prs = response.json()
+    except requests.exceptions.RequestException as e:
         console.print(f"[red]❌ API Request failed: {e}[/red]")
         return
         
@@ -2231,7 +2239,7 @@ def auto_pull_jules_batch(file_type, workspace_code):
         for pr in prs:
             branch_ref = pr['head']['ref']
             try:
-                subprocess.run(["git", "fetch", "origin", f"pull/{pr['number']}/head:{branch_ref}"], cwd=PROJECT_ROOT, check=True, capture_output=True)
+                subprocess.run(["git", "fetch", "origin", f"pull/{pr['number']}/head:{branch_ref}", "-f"], cwd=PROJECT_ROOT, check=True, capture_output=True)
                 diff_out = subprocess.check_output(
                     ["git", "diff", "--name-only", f"main...{branch_ref}"], 
                     cwd=PROJECT_ROOT, text=True, stderr=subprocess.DEVNULL

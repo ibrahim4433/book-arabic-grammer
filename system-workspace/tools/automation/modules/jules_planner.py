@@ -203,6 +203,10 @@ class JulesPlanner:
             for future in as_completed(future_to_lesson):
                 pass  # The callback handles updates inside the future
 
+        if hasattr(self, "pull_threads"):
+            for t in self.pull_threads:
+                t.join()
+
     def process_lesson_with_callback(self, lesson_title, range_info, callback):
         """Wrapper for process_lesson that uses callback."""
         callback(lesson_title, "RUNNING", "Starting...")
@@ -402,12 +406,16 @@ class JulesPlanner:
                 callback(lesson_title, "SUCCESS", f"Plan saved: {filename}")
             else:
                 callback(lesson_title, "ERROR", "Pull Failed")
-                
+
         import threading
-        t = threading.Thread(target=bg_pull, daemon=True)
+        t = threading.Thread(target=bg_pull, daemon=False)
+        if not hasattr(self, "pull_threads"):
+            self.pull_threads = []
+        self.pull_threads.append(t)
         t.start()
         
-        # We don't wait for bg_pull. The thread pool is immediately freed!
+        # We don't wait for bg_pull here to free the executor slot, 
+        # but we will join it at the end of run_batch_planning.
         return True
 
 

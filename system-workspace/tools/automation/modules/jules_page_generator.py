@@ -387,7 +387,10 @@ class JulesPageGenerator:
                 callback(lesson_title, "ERROR", "Pull Failed")
 
         import threading
-        t = threading.Thread(target=bg_pull, daemon=True)
+        t = threading.Thread(target=bg_pull, daemon=False)
+        if not hasattr(self, "pull_threads"):
+            self.pull_threads = []
+        self.pull_threads.append(t)
         t.start()
         
         return True
@@ -436,6 +439,16 @@ class JulesPageGenerator:
             if state in ["SUCCEEDED", "COMPLETED"]:
                 return "SUCCEEDED"
             if state in ["FAILED", "CANCELLED"]:
+                try:
+                    acts = self.jules_client.get_activities(session_id)
+                    if acts:
+                        acts.sort(key=lambda x: x.get("createTime", ""), reverse=True)
+                        for act in acts:
+                            if "progressUpdated" in act and "title" in act["progressUpdated"]:
+                                callback(lesson_title, "WARN", f"Jules Error: {act['progressUpdated']['title']} - {act['progressUpdated'].get('description', '')}")
+                                break
+                except:
+                    pass
                 return state
 
             if state in ["ACTION_REQUIRED", "WAITING_FOR_INPUT"]:
@@ -586,3 +599,7 @@ class JulesPageGenerator:
 
             for future in as_completed(future_to_plan):
                 pass  # Callbacks handle updates
+
+        if hasattr(self, "pull_threads"):
+            for t in self.pull_threads:
+                t.join()
