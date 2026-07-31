@@ -809,3 +809,23 @@ body {
 .spacer-col { width: 2%; border-bottom: none !important; }
 .dynamic-page::after { content: target-counter(attr(href), page, arabic-indic); }
 
+
+.compact-qa {
+    /* Compact QA styling */
+}
+
+.col-left {
+    /* col-left styling */
+}
+
+.col-right {
+    /* col-right styling */
+}
+
+.h-full {
+    height: 100%;
+}
+
+.two-columns-wrapper {
+    /* wrapper */
+}
