@@ -809,3 +809,25 @@ body {
 .spacer-col { width: 2%; border-bottom: none !important; }
 .dynamic-page::after { content: target-counter(attr(href), page, arabic-indic); }
 
+
+/* Additional overrides */
+.col-right {
+    flex: 1;
+}
+.col-left {
+    flex: 1;
+}
+.gap-0 {
+    gap: 0;
+}
+
+/* Split Grid Columns */
+.col-right {
+    flex: 1;
+}
+.col-left {
+    flex: 1;
+}
+.gap-0 {
+    gap: 0;
+}

@@ -1,0 +1,11 @@
+<<<<<<< SEARCH
+        body {
+            line-height: 0.7 !important;
+            font-size: 7px !important;
+        }
+=======
+        body {
+            line-height: 0.6 !important;
+            font-size: 6px !important;
+        }
+>>>>>>> REPLACE

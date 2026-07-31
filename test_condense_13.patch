@@ -1,0 +1,87 @@
+<<<<<<< SEARCH
+        body {
+            line-height: 0.8 !important;
+            font-size: 8px !important;
+        }
+        .page-header-strip {
+            display: none !important;
+        }
+        .header-title {
+            font-size: 8px !important;
+        }
+        .lesson-number {
+            font-size: 8px !important;
+            padding: 0 !important;
+        }
+        .split-grid {
+            margin-bottom: 0 !important;
+        }
+        .irab-details {
+            display: inline !important;
+            font-size: 8px !important;
+        }
+        .irab-word {
+            display: inline !important;
+            font-size: 8px !important;
+        }
+        .poem-verses .poem-line {
+            display: flex;
+            min-height: 0 !important;
+        }
+        .content-block .block-body p {
+            font-size: 8px !important;
+        }
+        .block-header span {
+            font-size: 8px !important;
+        }
+        .text-sm {
+            font-size: 8px !important;
+        }
+=======
+        body {
+            line-height: 0.7 !important;
+            font-size: 7px !important;
+        }
+        .page-header-strip {
+            display: none !important;
+        }
+        .header-title {
+            font-size: 7px !important;
+        }
+        .lesson-number {
+            font-size: 7px !important;
+            padding: 0 !important;
+        }
+        .split-grid {
+            margin-bottom: 0 !important;
+        }
+        .irab-details {
+            display: inline !important;
+            font-size: 7px !important;
+            line-height: 0.7 !important;
+        }
+        .irab-word {
+            display: inline !important;
+            font-size: 7px !important;
+        }
+        .poem-verses .poem-line {
+            display: flex;
+            min-height: 0 !important;
+        }
+        .content-block .block-body p {
+            font-size: 7px !important;
+            line-height: 0.7 !important;
+        }
+        .block-header span {
+            font-size: 7px !important;
+        }
+        .text-sm {
+            font-size: 7px !important;
+        }
+        .block-header {
+            min-height: 5px !important;
+        }
+        .poem-header {
+            min-height: 5px !important;
+        }
+>>>>>>> REPLACE
