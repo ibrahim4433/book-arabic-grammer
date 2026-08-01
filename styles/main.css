@@ -42,8 +42,8 @@
     --color-white: #ffffff;
     
     /* DENSITY VARIABLES */
-    --spacing-tight: 1mm;
-    --spacing-std: 1.2mm;
+    --spacing-tight: 0.8mm;
+    --spacing-std: 1.0mm;
     --radius: 4px; /* Tighter radius = More professional */
     
     /* TYPOGRAPHY SCALING */
@@ -112,7 +112,7 @@ body {
 }
 
 .header-section.right {
-    gap: 4mm;
+    gap: 3mm;
 }
 
 .header-section.center {
@@ -265,7 +265,7 @@ body {
 .split-grid {
     display: flex;
     flex-direction: row;
-    gap: 3mm;
+    gap: 2mm;
 }
 
 .split-grid > * {
@@ -401,7 +401,7 @@ body {
 }
 
 .poem-verses {
-    margin-bottom: 2mm;
+    margin-bottom: 1.5mm;
 }
 
 
@@ -409,7 +409,7 @@ body {
 .irab-box {
     border: 1px solid #E0E0E0;
     border-radius: var(--radius);
-    margin-bottom: 2mm;
+    margin-bottom: 1.5mm;
     display: flex;
     align-items: stretch;
     background: white;
@@ -438,7 +438,7 @@ body {
 /* 5. BIO BOX (For Poets) */
 .bio-card {
     display: flex;
-    gap: 3mm;
+    gap: 2mm;
     background-color: #ECEFF1; /* Blue Grey Light */
     padding: 3mm;
     border-radius: var(--radius);
@@ -460,7 +460,7 @@ body {
 
 /* 6. EXAM / QUIZ STYLES */
 .exam-question, .exercise-question {
-    margin-bottom: 2mm;
+    margin-bottom: 1.5mm;
     border-bottom: 1px dashed #BDBDBD;
     padding-bottom: 3mm;
 }
@@ -692,6 +692,7 @@ body {
 /* Expanded Utilities (Refactoring to Golden Standard) */
 .mt-0 { margin-top: 0 !important; }
 .mt-1mm { margin-top: 1mm !important; }
+.mt-1-5mm { margin-top: 1.5mm !important; }
 
 .mb-0 { margin-bottom: 0 !important; }
 .mb-1mm { margin-bottom: 1mm !important; }
@@ -793,6 +794,7 @@ body {
 /* New Utilities for Munada */
 .block { display: block !important; }
 .gap-1mm { gap: 1mm !important; }
+.gap-1-5mm { gap: 1.5mm !important; }
 .border-bottom { border-bottom: 1px solid #EEE !important; }
 
 /* Custom Utilities for generated content */
