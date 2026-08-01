@@ -155,7 +155,7 @@ def run_ai_css_tuner(project_root=None):
     Please start by slightly tightening the margins and grid gaps in `styles/main.css` to see if it fixes the overflow.
     """
 
-    session_data = client.create_session(sys_prompt, title=f"CSS Tuning for {target_html.name}", automation_mode="INTERACTIVE")
+    session_data = client.create_session(sys_prompt, title=f"CSS Tuning for {target_html.name}", automation_mode="AUTO_CREATE_PR")
     if not session_data:
         console.print("[red]❌ Failed to start Jules session.[/red]")
         return
