@@ -1,0 +1,19 @@
+--- plans/page_150-plan_6pqjt.md
++++ plans/page_150-plan_6pqjt.md
+@@ -19,13 +19,13 @@
+ [AUTHOR_PHONE]: 994066850 963+
+
+ === BLOCK 2: Cut Content ===
+-(Component: TEMPLATE_C_BLOCK.html)
+-Title: تتمة
++(Component: TEMPLATE_CUT_BOX_PART_2.html)
++[BLOCK_TITLE]: [Original Title of Cut Section]
+ Content: ج - الهوى: الفَعَل، يُطاولنِي: يُفاعِلُنِي، الدَّهْر: الفَعْل، أَرْكَزْتُ: أَفْعَلْتُ، النجوم: الفُعُول، قبابِي: فِعَالِي.
+
+ === BLOCK 3: Title ===
+ (Component: TEMPLATE_C_BLOCK.html)
+ Title: أسئلة تطبيقية حول المنهج النفسي في النقد الأدبي
+-Content: اقرأ الأبيات الآتية ثم أجب عن الأسئلة:
++Content:
+
+ === BLOCK 4: Poem 1 ===
