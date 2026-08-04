@@ -15,6 +15,7 @@ Usage:
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 import argparse
 import json
 import logging
