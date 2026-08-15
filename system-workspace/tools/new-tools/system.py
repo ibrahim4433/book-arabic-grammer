@@ -2305,6 +2305,69 @@ def auto_pull_jules_batch(file_type, workspace_code):
                 
     console.print("[bold cyan]✅ Auto-Pull Complete![/bold cyan]")
     
+def run_close_all_prs():
+    console.clear()
+    console.print(Panel("[bold]Close All Open Pull Requests[/bold]", style="red"))
+    
+    if not questionary.confirm("Are you sure you want to close ALL open pull requests in this repository?").ask():
+        return
+        
+    token_path = PROJECT_ROOT / "secrets/Github_Token.txt"
+    if not token_path.exists():
+        console.print("[red]❌ secrets/Github_Token.txt not found![/red]")
+        return
+        
+    token = token_path.read_text().strip()
+    import urllib.request, json, subprocess
+    
+    try:
+        repo_url = subprocess.check_output(["git", "config", "--get", "remote.origin.url"], cwd=PROJECT_ROOT, text=True).strip()
+        repo_name = repo_url.split("github.com/")[-1].replace(".git", "")
+    except Exception as e:
+        console.print(f"[dim red]DEBUG repo parsing: {e}[/dim red]")
+        repo_name = questionary.text("Could not detect repo name. Please enter it (e.g. ibrahim4433/book-arabic-grammer):").ask()
+        if not repo_name: return
+        
+    console.print(f"[dim]Fetching open PRs from API for {repo_name}...[/dim]")
+    url = f"https://api.github.com/repos/{repo_name}/pulls?state=open&per_page=100"
+    req = urllib.request.Request(url)
+    req.add_header("Authorization", f"token {token}")
+    req.add_header("Accept", "application/vnd.github.v3+json")
+    
+    try:
+        with urllib.request.urlopen(req, timeout=15) as response:
+            prs = json.loads(response.read())
+    except Exception as e:
+        console.print(f"[red]❌ API Request failed:[/red] [dim red]{e}[/dim red]")
+        return
+        
+    if not prs:
+        console.print("[yellow]⚠️ No open PRs found![/yellow]")
+        return
+        
+    console.print(f"Found {len(prs)} open PRs. Closing them...")
+    
+    closed_count = 0
+    for pr in prs:
+        pr_number = pr['number']
+        patch_url = f"https://api.github.com/repos/{repo_name}/pulls/{pr_number}"
+        patch_req = urllib.request.Request(patch_url, method='PATCH')
+        patch_req.add_header("Authorization", f"token {token}")
+        patch_req.add_header("Accept", "application/vnd.github.v3+json")
+        patch_req.add_header("Content-Type", "application/json")
+        data = json.dumps({"state": "closed"}).encode('utf-8')
+        try:
+            with urllib.request.urlopen(patch_req, data=data, timeout=15) as patch_response:
+                if patch_response.status == 200:
+                    console.print(f"[green]✅ Closed PR #{pr_number}: {pr['title']}[/green]")
+                    closed_count += 1
+                else:
+                    console.print(f"[red]❌ Failed to close PR #{pr_number}: HTTP {patch_response.status}[/red]")
+        except Exception as e:
+            console.print(f"[red]❌ Error closing PR #{pr_number}: {e}[/red]")
+            
+    console.print(f"\n[bold green]Successfully closed {closed_count}/{len(prs)} pull requests.[/bold green]")
+
 def run_auto_smart_merging():
     console.clear()
     console.print(Panel("[bold]Auto Smart Merging/Pulling Tool[/bold]", style="cyan"))
@@ -2637,12 +2700,13 @@ def main():
                 "6) Clear History",
                 "7) auto smart merging/pulling tool",
                 "8) refresh workspace code",
-                "9) Quit",
+                "9) Close all open pull requests",
+                "0) Quit",
             ],
             style=menu_style,
         ).ask()
 
-        if not main_choice or main_choice.startswith("9"):
+        if not main_choice or main_choice.startswith("0"):
             console.print("Goodbye.")
             sys.exit(0)
 
@@ -2781,6 +2845,10 @@ def main():
         elif main_op == "8":
             op_ran = True
             run_refresh_workspace_code()
+            
+        elif main_op == "9":
+            op_ran = True
+            run_close_all_prs()
 
         if op_ran:
             console.print(
