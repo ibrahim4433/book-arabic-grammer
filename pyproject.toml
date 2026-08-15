@@ -8,6 +8,7 @@ dependencies = [
     "beautifulsoup4>=4.15.0",
     "lxml>=5.0",
     "pypdf>=5.0.0",
+    "playwright>=1.62.0",
 ]
 
 [project.optional-dependencies]

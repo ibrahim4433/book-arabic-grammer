@@ -1,19 +1,18 @@
 #!/bin/bash
 
 # Stop the script if any command fails
-set -e 
+set -e
 
-if [ ! -d "venv" ]; then
-    python3 -m venv venv
-    echo "    Created new virtual environment."
-else
-    echo "    Virtual environment already exists."
-fi
+# Resolve repository root directory (one level up from scripts/)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-./venv/bin/pip install -r requirements.txt
+cd "$REPO_ROOT"
 
-echo "==> ✅ Dependencies installed! Running system.py..."
+echo "==> 1. Syncing dependencies with uv..."
+uv sync --all-extras
+
+echo "==> 2. Building Debug PDF with visible IDs (Playwright)..."
 echo "---------------------------------------------------"
 
-# Run the python script using the virtual environment's python
-./venv/bin/python debuging/build-with-id.py
+uv run python "$SCRIPT_DIR/build-with-id.py" "$@"

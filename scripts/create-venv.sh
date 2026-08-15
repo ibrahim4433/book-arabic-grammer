@@ -1,22 +1,18 @@
 #!/bin/bash
 
 # Stop the script if any command fails
-set -e 
+set -e
 
-echo "==> 1. Installing system tools (you might need to enter your password)..."
-sudo apt update
-sudo apt install -y python3-full libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-echo "==> 2. Checking for virtual environment..."
-if [ ! -d "venv" ]; then
-    python3 -m venv venv
-    echo "    Created new virtual environment."
-else
-    echo "    Virtual environment already exists."
-fi
+cd "$REPO_ROOT"
 
-echo "==> 3. Installing Python requirements..."
-./venv/bin/pip install -r requirements.txt
+echo "==> 1. Installing / Syncing virtual environment via uv..."
+uv sync --all-extras
 
-echo "==> ✅ Dependencies installed!
+echo "==> 2. Installing Playwright Chromium browser..."
+uv run playwright install chromium
+
+echo "==> ✅ Environment and dependencies are ready!"
 echo "---------------------------------------------------"
