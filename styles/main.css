@@ -179,7 +179,7 @@ body {
     box-shadow: var(--shadow-card);
     margin-bottom: var(--spacing-std);
     overflow: hidden; /* Ensures header color doesn't bleed */
-    page-break-inside: avoid; /* Keep blocks intact */
+    page-break-inside: auto; /* Allow blocks to break across pages to prevent large blank spaces */
 }
 
 /* Split Content Modifications */

@@ -1078,7 +1078,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
         pages_dir = PROJECT_ROOT / "pages"
         if pages_dir.exists():
             for f in pages_dir.glob("*.html"):
-                target_files.append(str(f))
+                target_files.append(f)
 
         issues = 0
         for f in target_files:
@@ -1880,7 +1880,7 @@ def run_audit_and_verify(state_manager):
         if any(part in excluded_folders for part in rel_path.parts):
             continue
 
-        target_files.append(str(f))
+        target_files.append(f)
 
     if not target_files:
         console.print("[yellow]No files to process.[/yellow]")
@@ -1893,7 +1893,7 @@ def run_audit_and_verify(state_manager):
     if id_manager:
         try:
             # Initialize IDManager with root_dir so it scans ALL files for uniqueness
-            manager = id_manager.IDManager(root_dir=str(pages_dir))
+            manager = id_manager.IDManager(root_dir=pages_dir)
             # But only auto-tag the target files
             manager.auto_tag(files=target_files)
         except Exception as e:
