@@ -4,7 +4,6 @@
 Objective: Implement page 265.
 File: `pages/page_265.html`
 Reference: Follow patterns in design_patterns.json. Use Jules-workspace/id_manager.py to generate unique IDs if necessary.
-Create a dummy picture at input/integrated-pictures/pic_265.jpg (e.g. using touch or cp in bash).
 
 [CONTENT STREAM]
 
@@ -26,9 +25,9 @@ Content:
 الاعْتِزَازُ بِطَهَارَةِ الوَطَنِ وَقَدَاسَتِهِ:
 
 === BLOCK 3: عدنان مردم بك ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: عدنان مردم بك
-[POET_BIO]:
+
 
 === BLOCK 4: Poem عدنان مردم بك ===
 (Component: TEMPLATE_C_POEM.html)
@@ -43,9 +42,9 @@ Content:
 - التعبير عن الحزن لانقطاع الوَصْلِ مَعَ الْمَحْبُوبَةِ (التَّعْبِيرُ عَنِ الحَسْرَةِ على انْقِطَاعِ الوِصَالِ مَعَ الْمَحْبُوبَةِ):
 
 === BLOCK 6: بدر الدين الحامد 1 ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: بَدْرُ الدِّين الحامد
-[POET_BIO]:
+
 
 === BLOCK 7: Poem الحزن لانقطاع الوصل ===
 (Component: TEMPLATE_C_POEM.html)
@@ -61,9 +60,9 @@ Content:
 - التَّعْبير عن المعاناة مِنْ قسوة الزمان (التَّعْبِيرُ عَنِ الْحَسْرَةِ على انقطاع الوِصَالِ مَعَ الْمَحْبُوبَةِ):
 
 === BLOCK 9: بدر الدين الحامد 2 ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: بَدْرُ الدِّين الحامد
-[POET_BIO]:
+
 
 === BLOCK 10: Poem المعاناة ===
 (Component: TEMPLATE_C_POEM.html)
@@ -90,9 +89,9 @@ Content:
 - لَوْمُ المُحِب على الإِسْرَافِ فِي الحَزْنِ :
 
 === BLOCK 14: بدر الدين الحامد 3 ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: بَدْرُ الدِّين الحامد
-[POET_BIO]:
+
 
 === BLOCK 15: Poem لوم المحب ===
 (Component: TEMPLATE_C_POEM.html)
@@ -107,9 +106,9 @@ Content:
 - بُكَاءُ المَحِبِّ غَيْرُ مُسْتَغْرَبٍ :
 
 === BLOCK 17: بدر الدين الحامد 4 ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: بَدْرُ الدِّين الحامد
-[POET_BIO]:
+
 
 === BLOCK 18: Poem بكاء المحب ===
 (Component: TEMPLATE_C_POEM.html)
@@ -124,9 +123,9 @@ Content:
 - شِدَّةُ التَّعَلُّقِ بِالمَحْبُوبَةِ :
 
 === BLOCK 20: بدر الدين الحامد 5 ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: بَدْرُ الدين الحامد
-[POET_BIO]:
+
 
 === BLOCK 21: Poem شدة التعلق ===
 (Component: TEMPLATE_C_POEM.html)
@@ -141,9 +140,9 @@ Content:
 - الرَّغْبَةُ العارِمَةُ فِي تَحَقِيقِ الوِصَالِ مَعَ الْمَحْبُوبَةِ (التَّعْبِيرُ عَنِ الحَسْرَةِ على انقطاع الوِصَالِ مَعَ الْمَحْبُوبَةِ):
 
 === BLOCK 23: بدر الدين الحامد 6 ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: بَدْرُ الدِّين الحامد
-[POET_BIO]:
+
 
 === BLOCK 24: Poem الرغبة ===
 (Component: TEMPLATE_C_POEM.html)
@@ -158,9 +157,9 @@ Content:
 - التعبيرُ عَنِ الفَرَحِ عِنْدَمَا يَصْفُو الزَّمَانُ بِصُحْبَةِ الْمَحْبُوبَةِ :
 
 === BLOCK 26: بدر الدين الحامد 7 ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: بَدْرُ الدين الحامد
-[POET_BIO]:
+
 
 === BLOCK 27: Poem التعبير عن الفرح ===
 (Component: TEMPLATE_C_POEM.html)
@@ -175,9 +174,9 @@ Content:
 - تَمَنِّي عَدَمَ حُصُولِ اللَّقَاءِ مَعَ الْمَحْبُوبَةِ بِسَبِبِ انْقِطَاعِ وِصَالِهَا (التَّعْبِيرُ عَنِ الحَسْرَةِ على انْقِطَاعِ الْوِصَالِ مَعَ الْمَحْبُوبَةِ):
 
 === BLOCK 29: بدر الدين الحامد 8 ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: بدْرُ الدِّين الحامد
-[POET_BIO]:
+
 
 === BLOCK 30: Poem تمني عدم اللقاء ===
 (Component: TEMPLATE_C_POEM.html)
@@ -192,9 +191,9 @@ Content:
 - التَّغَنِّي بِعَطَاءِ الْمَحْبُوبَةِ وَجُودِهَا :
 
 === BLOCK 32: أبو القاسم الشابي ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: أبو القاسم الشابِي
-[POET_BIO]:
+
 
 === BLOCK 33: Poem التغني ===
 (Component: TEMPLATE_C_POEM.html)
@@ -210,9 +209,9 @@ Content:
 - عَدَمُ القُدْرَةِ على كِتَابَةِ الرِّثَاءِ بِسَبَبِ شِدَّةِ الْحَزْنِ :
 
 === BLOCK 35: نزار قباني 1 ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: نِزَارُ قَبَّانِي
-[POET_BIO]:
+
 
 === BLOCK 36: Poem نزار قباني 1 ===
 (Component: TEMPLATE_C_POEM.html)
@@ -225,9 +224,9 @@ Content:
 وقد مَلَأَ الدَّمْعُ كُلَّ الدَّوَاةِ ..
 
 === BLOCK 37: نزار قباني 2 ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: نِزَارُ قَبَّانِي
-[POET_BIO]:
+
 
 === BLOCK 38: Poem نزار قباني 2 ===
 (Component: TEMPLATE_C_POEM.html)
@@ -245,9 +244,9 @@ Content:
 - تصوير مَشْهَدِ وَفَاةِ الْمَرْثِيِّ:
 
 === BLOCK 40: نزار قباني 3 ===
-(Component: TEMPLATE_C_POET_BIO.html)
+(Component: TEMPLATE_C_POEM.html)
 [POET_NAME]: نِزَارُ قَبَّانِي
-[POET_BIO]:
+
 
 === BLOCK 41: Poem تصوير مشهد الوفاة ===
 (Component: TEMPLATE_C_POEM.html)
