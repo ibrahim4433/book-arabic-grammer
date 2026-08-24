@@ -23,7 +23,11 @@ def get_chapter_map():
 
         # 2. STANDARD CASE: Detect Numbered Chapters
         try:
-            prefix = filename.split("_")[0]
+            parts = filename.split("_")
+            if parts[0] == "page" and len(parts) > 1:
+                prefix = parts[1]
+            else:
+                prefix = parts[0]
             number = float(prefix)
             chapter_map[str(prefix)] = filename  # Store as string keys
         except ValueError:
