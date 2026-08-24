@@ -807,7 +807,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
             with lock:
                 for title, data in tasks.items():
                     if data.get("status") in ["FAILED", "ERROR", "WARN"]:
-                        match = re.search(r"(?:^|page[_\s]*)(\d+)", title, re.IGNORECASE)
+                        match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", title, re.IGNORECASE)
                         lesson_num = match.group(1) if match else None
                         if lesson_num:
                             clean_t = re.sub(r"^\d+\s*-\s*", "", title).replace("-plan", "").strip()
@@ -914,7 +914,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False):
     with lock:
         for title, data in tasks.items():
             if data.get("status") in ["FAILED", "ERROR", "WARN"]:
-                match = re.search(r"(?:^|page[_\s]*)(\d+)", title, re.IGNORECASE)
+                match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", title, re.IGNORECASE)
                 lesson_num = match.group(1) if match else None
                 if lesson_num:
                     clean_t = re.sub(r"^\d+\s*-\s*", "", title).replace("-plan", "").strip()
@@ -1132,7 +1132,7 @@ def run_retry_planning_and_generation_ui(state_manager):
     deleted = 0
     if plans_dir.exists():
         for plan in plans_dir.glob("*.md"):
-            match = re.search(r"(?:^|page[_\s]*)(\d+)", plan.name, re.IGNORECASE)
+            match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", plan.name, re.IGNORECASE)
             if match and match.group(1) in only_lessons:
                 plan.unlink()
                 deleted += 1
@@ -1140,7 +1140,7 @@ def run_retry_planning_and_generation_ui(state_manager):
 
     if pages_dir.exists():
         for page in pages_dir.glob("*.html"):
-            match = re.search(r"(?:^|page[_\s]*)(\d+)", page.name, re.IGNORECASE)
+            match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", page.name, re.IGNORECASE)
             if match and match.group(1) in only_lessons:
                 page.unlink()
                 deleted += 1
@@ -2368,6 +2368,103 @@ def run_close_all_prs():
             
     console.print(f"\n[bold green]Successfully closed {closed_count}/{len(prs)} pull requests.[/bold green]")
 
+def run_delete_all_branches():
+    console.clear()
+    console.print(Panel("[bold]Delete All Branches (Except Default)[/bold]", style="red"))
+    
+    if not questionary.confirm("Are you sure you want to delete ALL remote branches (except default) in this repository?").ask():
+        return
+        
+    token_path = PROJECT_ROOT / "secrets/Github_Token.txt"
+    if not token_path.exists():
+        console.print("[red]❌ secrets/Github_Token.txt not found![/red]")
+        return
+        
+    token = token_path.read_text().strip()
+    import urllib.request, urllib.error, urllib.parse, json, subprocess
+    
+    try:
+        repo_url = subprocess.check_output(["git", "config", "--get", "remote.origin.url"], cwd=PROJECT_ROOT, text=True).strip()
+        repo_name = repo_url.split("github.com/")[-1].replace(".git", "")
+    except Exception as e:
+        console.print(f"[dim red]DEBUG repo parsing: {e}[/dim red]")
+        repo_name = questionary.text("Could not detect repo name. Please enter it (e.g. ibrahim4433/book-arabic-grammer):").ask()
+        if not repo_name: return
+        
+    console.print(f"[dim]Fetching repository info for {repo_name}...[/dim]")
+    url = f"https://api.github.com/repos/{repo_name}"
+    req = urllib.request.Request(url)
+    req.add_header("Authorization", f"token {token}")
+    req.add_header("Accept", "application/vnd.github.v3+json")
+    
+    try:
+        with urllib.request.urlopen(req, timeout=15) as response:
+            repo_info = json.loads(response.read())
+            default_branch = repo_info.get("default_branch", "main")
+    except Exception as e:
+        console.print(f"[red]❌ API Request failed to get default branch:[/red] [dim red]{e}[/dim red]")
+        return
+
+    console.print(f"[dim]Default branch is '{default_branch}'. Fetching all branches...[/dim]")
+    
+    branches = []
+    page = 1
+    while True:
+        url = f"https://api.github.com/repos/{repo_name}/branches?per_page=100&page={page}"
+        req = urllib.request.Request(url)
+        req.add_header("Authorization", f"token {token}")
+        req.add_header("Accept", "application/vnd.github.v3+json")
+        try:
+            with urllib.request.urlopen(req, timeout=15) as response:
+                page_branches = json.loads(response.read())
+                if not page_branches:
+                    break
+                branches.extend(page_branches)
+                page += 1
+        except Exception as e:
+            console.print(f"[red]❌ API Request failed:[/red] [dim red]{e}[/dim red]")
+            return
+        
+    branches_to_delete = [b for b in branches if b['name'] != default_branch]
+    if not branches_to_delete:
+        console.print("[yellow]⚠️ No remote branches found to delete (besides default)![/yellow]")
+    else:
+        console.print(f"Found {len(branches_to_delete)} remote branches to delete. Deleting them...")
+        deleted_count = 0
+        for branch in branches_to_delete:
+            branch_name = branch['name']
+            delete_url = f"https://api.github.com/repos/{repo_name}/git/refs/heads/{urllib.parse.quote(branch_name)}"
+            delete_req = urllib.request.Request(delete_url, method='DELETE')
+            delete_req.add_header("Authorization", f"token {token}")
+            delete_req.add_header("Accept", "application/vnd.github.v3+json")
+            try:
+                with urllib.request.urlopen(delete_req, timeout=15) as delete_response:
+                    if delete_response.status == 204:
+                        console.print(f"[green]✅ Deleted remote branch: {branch_name}[/green]")
+                        deleted_count += 1
+            except urllib.error.HTTPError as e:
+                console.print(f"[red]❌ Error deleting remote branch {branch_name}: HTTP {e.code}[/red]")
+            except Exception as e:
+                console.print(f"[red]❌ Error deleting remote branch {branch_name}: {e}[/red]")
+        console.print(f"\n[bold green]Successfully deleted {deleted_count}/{len(branches_to_delete)} remote branches.[/bold green]")
+
+    if questionary.confirm("Do you also want to delete all local branches except the default branch?").ask():
+        try:
+            local_branches_raw = subprocess.check_output(["git", "branch", "--format=%(refname:short)"], cwd=PROJECT_ROOT, text=True)
+            local_branches = [b.strip() for b in local_branches_raw.splitlines() if b.strip()]
+            local_deleted = 0
+            for lb in local_branches:
+                if lb != default_branch:
+                    try:
+                        subprocess.run(["git", "branch", "-D", lb], cwd=PROJECT_ROOT, check=True, capture_output=True)
+                        console.print(f"[green]✅ Deleted local branch: {lb}[/green]")
+                        local_deleted += 1
+                    except subprocess.CalledProcessError as e:
+                        console.print(f"[red]❌ Failed to delete local branch {lb}: {e.stderr.decode() if e.stderr else 'Unknown error'}[/red]")
+            console.print(f"\n[bold green]Successfully deleted {local_deleted} local branches.[/bold green]")
+        except Exception as e:
+            console.print(f"[red]❌ Error cleaning up local branches: {e}[/red]")
+
 def run_auto_smart_merging():
     console.clear()
     console.print(Panel("[bold]Auto Smart Merging/Pulling Tool[/bold]", style="cyan"))
@@ -2701,6 +2798,7 @@ def main():
                 "7) auto smart merging/pulling tool",
                 "8) refresh workspace code",
                 "9) Close all open pull requests",
+                "D) Delete all branches (except main)",
                 "0) Quit",
             ],
             style=menu_style,
@@ -2849,6 +2947,10 @@ def main():
         elif main_op == "9":
             op_ran = True
             run_close_all_prs()
+            
+        elif main_op == "D":
+            op_ran = True
+            run_delete_all_branches()
 
         if op_ran:
             console.print(

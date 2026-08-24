@@ -148,7 +148,7 @@ class JulesPageGenerator:
         lesson_title = plan_path.stem
 
         # Extract Lesson Number
-        match = re.search(r"(?:^|page[_\s]*)(\d+)", lesson_title, re.IGNORECASE)
+        match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", lesson_title, re.IGNORECASE)
         lesson_num = match.group(1) if match else None
 
         # 1. Check Existing Session
@@ -580,13 +580,15 @@ class JulesPageGenerator:
         all_plans = sorted(list(plans_dir.glob("*.md")))
         count = 0
         for plan in all_plans:
-            match = re.search(r"(?:^|page[_\s]*)(\d+)", plan.name, re.IGNORECASE)
+            match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", plan.name, re.IGNORECASE)
             lesson_num = match.group(1) if match else None
 
-            if lesson_num and excluded_lessons and (lesson_num in excluded_lessons or str(int(lesson_num)) in excluded_lessons):
-                continue
-            if lesson_num and only_lessons and (lesson_num not in only_lessons and str(int(lesson_num)) not in only_lessons):
-                continue
+            if excluded_lessons:
+                if not lesson_num or (lesson_num in excluded_lessons or str(int(lesson_num)) in excluded_lessons):
+                    continue
+            if only_lessons:
+                if not lesson_num or (lesson_num not in only_lessons and str(int(lesson_num)) not in only_lessons):
+                    continue
 
             html_exists = False
             if lesson_num:
@@ -642,7 +644,7 @@ class JulesPageGenerator:
 
         for plan in all_plans:
             # Check Lesson Number (Assuming "09-Title-plan.md" or "page_09-plan.md")
-            match = re.search(r"(?:^|page[_\s]*)(\d+)", plan.name, re.IGNORECASE)
+            match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", plan.name, re.IGNORECASE)
             lesson_num = match.group(1) if match else None
 
             # Smart check if output exists (Jules uses dynamic names like 09.0_nXX_title.html)
@@ -668,27 +670,21 @@ class JulesPageGenerator:
                     except:
                         pass
 
-            if (
-                lesson_num
-                and excluded_lessons
-                and (lesson_num in excluded_lessons or str(int(lesson_num)) in excluded_lessons)
-            ):
-                update_callback(plan.stem, "SKIP", "Excluded (Page exists)")
-                continue
+            if excluded_lessons:
+                if not lesson_num or (lesson_num in excluded_lessons or str(int(lesson_num)) in excluded_lessons):
+                    update_callback(plan.stem, "SKIP", "Excluded (Page exists)")
+                    continue
 
-            if (
-                lesson_num
-                and only_lessons
-                and (lesson_num not in only_lessons and str(int(lesson_num)) not in only_lessons)
-            ):
-                continue  # Skip if we only want specific lessons
+            if only_lessons:
+                if not lesson_num or (lesson_num not in only_lessons and str(int(lesson_num)) not in only_lessons):
+                    continue  # Skip if we only want specific lessons
 
             to_process.append(plan)
 
         update_callback("System", "INFO", f"Queued {len(to_process)} plans for generation.")
         
         def _get_num(plan_path):
-            match = re.search(r"(?:^|page[_\s]*)(\d+)", plan_path.name, re.IGNORECASE)
+            match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", plan_path.name, re.IGNORECASE)
             return int(match.group(1)) if match else 999
             
         to_process = sorted(to_process, key=_get_num)

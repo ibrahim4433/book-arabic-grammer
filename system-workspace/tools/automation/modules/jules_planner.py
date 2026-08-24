@@ -98,8 +98,10 @@ class JulesPlanner:
         count = 0
         for title, info in mapping.items():
             lesson_number = self.tp.get_lesson_number(title)
-            if excluded_lessons and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons): continue
-            if only_lessons and (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons): continue
+            if excluded_lessons:
+                if lesson_number and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons): continue
+            if only_lessons:
+                if not lesson_number or (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons): continue
             
             clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
             if getattr(self, "is_1_page_mode", False):
@@ -149,16 +151,14 @@ class JulesPlanner:
             lesson_number = self.tp.get_lesson_number(title)
 
             # Check Exclusions
-            if excluded_lessons and (
-                lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons
-            ):
-                update_callback(title, "SKIP", f"Lesson {lesson_number} excluded (Page exists)")
-                continue
+            if excluded_lessons:
+                if lesson_number and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons):
+                    update_callback(title, "SKIP", f"Lesson {lesson_number} excluded (Page exists)")
+                    continue
 
-            if only_lessons and (
-                lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons
-            ):
-                continue  # Skip if we only want specific lessons
+            if only_lessons:
+                if not lesson_number or (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons):
+                    continue  # Skip if we only want specific lessons
 
             clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
             
