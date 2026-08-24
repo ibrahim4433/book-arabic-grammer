@@ -227,17 +227,7 @@ body {
     border-bottom: 1px solid #eaeaea;
 }
 
-.fade-bottom {
-    position: relative;
-}
-.fade-bottom::after {
-    content: "";
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 15mm;
-    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
-    pointer-events: none;
-}
+
 
 
 /* Header inside the card (Like the Green/Blue titles in your photos) */
@@ -809,3 +799,15 @@ body {
 .spacer-col { width: 2%; border-bottom: none !important; }
 .dynamic-page::after { content: target-counter(attr(href), page, arabic-indic); }
 
+/* --- PRINT SAFETY RULES --- */
+/* Prevent micro-elements from being sliced horizontally across pages */
+li,
+p,
+.poem-line,
+.irab-box,
+.flex,
+.block-header,
+tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
