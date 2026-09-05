@@ -21,19 +21,16 @@ class JulesPlanner:
     Orchestrates the batch generation of plans using Jules Sessions.
     """
 
-    def __init__(self, project_root=None, state_manager=None, is_1_page_mode=False, is_1_part_mode=False, part_instruction='', part_number='1'):
+    def __init__(self, project_root, state_manager=None, is_1_page_mode=False, is_1_part_mode=False, part_instruction='', part_number=''):
+        self.project_root = Path(project_root)
+        self.state_manager = state_manager
+        self.client = JulesPlanClient(project_root=self.project_root)
+        self.tp = TextProcessor(project_root=self.project_root)
         self.is_1_page_mode = is_1_page_mode
         self.is_1_part_mode = is_1_part_mode
         self.part_instruction = part_instruction
         self.part_number = part_number
-        self.project_root = (
-            Path(project_root)
-            if project_root
-            else Path(__file__).parent.parent.parent.parent.parent
-        )
-        self.client = JulesPlanClient(project_root=self.project_root)
-        self.tp = TextProcessor(project_root=self.project_root)
-        self.state_manager = state_manager
+
         self.abort_event = threading.Event()
         self._first_task_done = False
         self._delay_lock = threading.Lock()
@@ -42,7 +39,7 @@ class JulesPlanner:
         if self.is_1_part_mode:
             master_prompt_name = "Architect_GEM_MASTER_1_PART.md"
         else:
-            master_prompt_name = "Architect_GEM_MASTER_1_PAGE.md" if is_1_page_mode else "Architect_GEM_MASTER.md"
+            master_prompt_name = "Architect_GEM_MASTER_1_PAGE.md" if self.is_1_page_mode else "Architect_GEM_MASTER.md"
             
         self.architect_prompt = (
             self.project_root / f"system-workspace/{master_prompt_name}"

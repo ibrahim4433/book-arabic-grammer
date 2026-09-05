@@ -394,7 +394,14 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
     mode_text = " (1-PAGE MODE)" if is_1_page_mode else ""
     console.print(f"[bold cyan]🚀 Starting Jules Batch Planning{mode_text}...[/bold cyan]")
 
-    planner = JulesPlanner(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode)
+    planner = JulesPlanner(
+        PROJECT_ROOT, 
+        state_manager=state_manager, 
+        is_1_page_mode=is_1_page_mode,
+        is_1_part_mode=is_1_part_mode,
+        part_instruction=part_instruction,
+        part_number=part_number
+    )
 
     tasks = {}  # title -> {status, message, start_time, duration}
     lock = threading.Lock()
@@ -1150,7 +1157,14 @@ def run_retry_planning_and_generation_ui(state_manager):
 
     # Run Planning
     console.print("\n[bold cyan]Step 1: Planning[/bold cyan]")
-    planner = JulesPlanner(PROJECT_ROOT, state_manager=state_manager)
+    planner = JulesPlanner(
+        PROJECT_ROOT, 
+        state_manager=state_manager,
+        is_1_page_mode=getattr(self, "is_1_page_mode", False),
+        is_1_part_mode=getattr(self, "is_1_part_mode", False),
+        part_instruction=getattr(self, "part_instruction", ""),
+        part_number=getattr(self, "part_number", "")
+    )
     tasks = {}
     lock = threading.Lock()
 
@@ -1286,6 +1300,12 @@ def run_full_auto_ui(state_manager, is_1_page_mode=False, is_1_part_mode=False, 
     # Shared state for UI
     ui_state = {"history": [], "last_update": time.time()}
     lock = threading.Lock()
+
+    # Pass the variables down to the background thread args
+    workflow.is_1_page_mode = is_1_page_mode
+    workflow.is_1_part_mode = is_1_part_mode
+    workflow.part_instruction = part_instruction
+    workflow.part_number = part_number
 
     # Display Class for Rich Live
     class WorkflowStatusDisplay:
