@@ -389,7 +389,7 @@ def extract_from_pr_branches(failed_lessons_data, project_root, console, is_page
     return recovered
 
 
-def run_jules_planning_ui(state_manager, is_1_page_mode=False):
+def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=False, part_instruction=''):
     console.clear()  # Clear screen for App-like feel
     mode_text = " (1-PAGE MODE)" if is_1_page_mode else ""
     console.print(f"[bold cyan]🚀 Starting Jules Batch Planning{mode_text}...[/bold cyan]")
@@ -675,7 +675,7 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False):
     questionary.press_any_key_to_continue().ask()
 
 
-def run_jules_generation_ui(state_manager, is_1_page_mode=False):
+def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=False):
     console.clear()  # Clear screen for App-like feel
 
     if not run_template_lint():
@@ -1245,7 +1245,7 @@ def run_jules_ocr_ui(state_manager):
     )
 
 
-def run_full_auto_ui(state_manager, is_1_page_mode=False):
+def run_full_auto_ui(state_manager, is_1_page_mode=False, is_1_part_mode=False, part_instruction=''):
     console.clear()
     mode_text = " (1-Page Mode)" if is_1_page_mode else ""
     console.print(f"[bold cyan]🚀 Starting Full Auto Workflow{mode_text}...[/bold cyan]")
@@ -2791,13 +2791,14 @@ def main():
             choices=[
                 "1) book making by 1-lesson-1-plan method",
                 "2) book making by 1-page-1-plan method",
-                "3) OCR tools",
-                "4) Book Style Tuning",
-                "5) Settings",
-                "6) Clear History",
-                "7) auto smart merging/pulling tool",
-                "8) refresh workspace code",
-                "9) Close all open pull requests",
+                "3) book making by 1-part method",
+                "4) OCR tools",
+                "5) Book Style Tuning",
+                "6) Settings",
+                "7) Clear History",
+                "8) auto smart merging/pulling tool",
+                "9) refresh workspace code",
+                "A) Close all open pull requests",
                 "D) Delete all branches (except main)",
                 "0) Quit",
             ],
@@ -2880,6 +2881,38 @@ def main():
 
         elif main_op == "3":
             sub_choice = questionary.select(
+                "Select Operation (1-part method):",
+                choices=[
+                    "A) Full Auto Workflow",
+                    "B) Raw Processing (Auto-Paginated Index & TOC)",
+                    "C) Plan Generation (Jules Batch - 1-Part Method)",
+                    "D) Page Generation (Jules Batch - 1-Part Method)",
+                    "E) Audit & Verify Pages",
+                    "X) Back to Main Menu",
+                ],
+                style=menu_style,
+            ).ask()
+            
+            if sub_choice and not sub_choice.startswith("X"):
+                sub_op = sub_choice[0]
+                op_ran = True
+                part_instruction = ""
+                if sub_op in ["A", "C"]:
+                    part_instruction = questionary.text("Enter custom instruction for this Part (or leave empty):").ask()
+                
+                if sub_op == "A":
+                    run_full_auto_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction)
+                elif sub_op == "B":
+                    run_raw_processing_auto(state_manager)
+                elif sub_op == "C":
+                    run_jules_planning_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction)
+                elif sub_op == "D":
+                    run_jules_generation_ui(state_manager, is_1_part_mode=True)
+                elif sub_op == "E":
+                    run_audit_and_verify(state_manager)
+
+        elif main_op == "4":
+            sub_choice = questionary.select(
                 "Select Operation (OCR tools):",
                 choices=[
                     "A) Images -> Raw ( JULES )",
@@ -2906,7 +2939,7 @@ def main():
                 elif sub_op == "E":
                     run_jules_youtube_ui(state_manager)
 
-        elif main_op == "4":
+        elif main_op == "5":
             sub_choice = questionary.select(
                 "Select Operation (Book Style Tuning):",
                 choices=[
@@ -2925,26 +2958,26 @@ def main():
                 elif sub_op == "B":
                     run_ai_css_tuner(PROJECT_ROOT)
             
-        elif main_op == "5":
+        elif main_op == "6":
             op_ran = True
             run_settings()
             
-        elif main_op == "6":
+        elif main_op == "7":
             if questionary.confirm("Are you sure you want to completely clear the project state history?").ask():
                 state_manager.state = {"lessons": {}}
                 state_manager.save_state()
                 console.print("[green]✅ History database cleared successfully![/green]")
             op_ran = True
 
-        elif main_op == "7":
+        elif main_op == "8":
             op_ran = True
             run_auto_smart_merging()
             
-        elif main_op == "8":
+        elif main_op == "9":
             op_ran = True
             run_refresh_workspace_code()
             
-        elif main_op == "9":
+        elif main_op == "A":
             op_ran = True
             run_close_all_prs()
             

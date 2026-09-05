@@ -21,8 +21,10 @@ class JulesPlanner:
     Orchestrates the batch generation of plans using Jules Sessions.
     """
 
-    def __init__(self, project_root=None, state_manager=None, is_1_page_mode=False):
+    def __init__(self, project_root=None, state_manager=None, is_1_page_mode=False, is_1_part_mode=False, part_instruction=''):
         self.is_1_page_mode = is_1_page_mode
+        self.is_1_part_mode = is_1_part_mode
+        self.part_instruction = part_instruction
         self.project_root = (
             Path(project_root)
             if project_root
@@ -36,7 +38,11 @@ class JulesPlanner:
         self._delay_lock = threading.Lock()
 
         # Load Prompts
-        master_prompt_name = "Architect_GEM_MASTER_1_PAGE.md" if is_1_page_mode else "Architect_GEM_MASTER.md"
+        if self.is_1_part_mode:
+            master_prompt_name = "Architect_GEM_MASTER_1_PART.md"
+        else:
+            master_prompt_name = "Architect_GEM_MASTER_1_PAGE.md" if is_1_page_mode else "Architect_GEM_MASTER.md"
+            
         self.architect_prompt = (
             self.project_root / f"system-workspace/{master_prompt_name}"
         ).read_text(encoding="utf-8")
@@ -47,10 +53,19 @@ class JulesPlanner:
             elements_text = elements_index_path.read_text(encoding="utf-8")
             self.architect_prompt += f"\n\n--- ELEMENTS INDEX DICTIONARY ---\n{elements_text}\n"
 
-        auditor_prompt_name = "Architect_AUDITOR_1_PAGE.md" if is_1_page_mode else "Architect_AUDITOR.md"
+        if self.is_1_part_mode:
+            auditor_prompt_name = "Architect_AUDITOR_1_PART.md"
+        else:
+            auditor_prompt_name = "Architect_AUDITOR_1_PAGE.md" if is_1_page_mode else "Architect_AUDITOR.md"
+            
         self.auditor_prompt = (
             self.project_root / f"system-workspace/{auditor_prompt_name}"
         ).read_text(encoding="utf-8")
+        
+        if self.is_1_part_mode and self.part_instruction:
+            custom_inst = f"\n\n--- CUSTOM PART INSTRUCTION ---\n{self.part_instruction}\n"
+            self.architect_prompt += custom_inst
+            self.auditor_prompt += custom_inst
 
         # Load Raw Text Index
         self.raw_text_path = self.project_root / "system-workspace/text-data/full_raw_indexed.txt"
@@ -106,6 +121,8 @@ class JulesPlanner:
             clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
             if getattr(self, "is_1_page_mode", False):
                 base_name = f"page_{lesson_number}-plan"
+            elif getattr(self, "is_1_part_mode", False):
+                base_name = f"part_{lesson_number}-plan"
             else:
                 base_name = f"{lesson_number}-{clean_title}-plan"
             if list((self.project_root / "plans").glob(f"{base_name}*.md")):
@@ -164,6 +181,8 @@ class JulesPlanner:
             
             if getattr(self, "is_1_page_mode", False):
                 base_name = f"page_{lesson_number}-plan"
+            elif getattr(self, "is_1_part_mode", False):
+                base_name = f"part_{lesson_number}-plan"
             else:
                 base_name = f"{lesson_number}-{clean_title}-plan"
 

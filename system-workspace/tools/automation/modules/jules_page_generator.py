@@ -71,8 +71,9 @@ class JulesPageGenerator:
     Handles interactive Q&A with Gemini Headless.
     """
 
-    def __init__(self, project_root=None, state_manager=None, is_1_page_mode=False):
+    def __init__(self, project_root=None, state_manager=None, is_1_page_mode=False, is_1_part_mode=False):
         self.is_1_page_mode = is_1_page_mode
+        self.is_1_part_mode = is_1_part_mode
         self.project_root = (
             Path(project_root)
             if project_root
@@ -274,6 +275,21 @@ class JulesPageGenerator:
                     f"    - Do NOT split the output into multiple files (no `_part1`, `_part2`).\n"
                     f"    - Do NOT pause to ask a question or request permission.\n"
                     f"    - Submit the best possible condensed version so a human can manually review the physical overflow later.\n"
+                )
+            elif getattr(self, "is_1_part_mode", False):
+                target_file = f"`pages/part_{lesson_num}.html`" if lesson_num else "`pages/[LESSON_TITLE].html`"
+                naming_constraints = (
+                    f"=== STRICT FILE GENERATION CONSTRAINTS ===\n"
+                    f"1. You MUST generate ONLY ONE SINGLE FILE: {target_file}.\n"
+                    f"2. Do NOT generate multiple pages. Focus ONLY on the requested plan.\n"
+                    f"3. Do NOT edit `styles/main.css` or any other existing project files. Your only output should be the new HTML file in the `pages/` directory.\n"
+                )
+                specific_rules = (
+                    f"=== 1-PART STRICT RULES & CONSTRAINTS ===\n"
+                    f"1. Natural Flow: In the 1-part method, content naturally flows and can span multiple pages. WeasyPrint handles page breaks automatically. Do NOT use forced page wrappers like `force-new-page` around the part content. Allow it to flow naturally.\n"
+                    f"2. Templates: You are forbidden from inventing new HTML tags or classes. You must map all content using `Jules-workspace/Part-Templates/` and `Jules-workspace/Templates/` components.\n"
+                    f"3. Unique IDs: All content blocks must have a unique ID (`id='bXXXXX'`). Use `Jules-workspace/id_manager.py` to generate or verify them.\n"
+                    f"4. Self-Correction: Run `Jules-workspace/lint_pages.py <filename>` after creating html files. You MUST fix any errors before submitting.\n"
                 )
             else:
                 naming_constraints = (
