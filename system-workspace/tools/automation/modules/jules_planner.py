@@ -21,10 +21,11 @@ class JulesPlanner:
     Orchestrates the batch generation of plans using Jules Sessions.
     """
 
-    def __init__(self, project_root=None, state_manager=None, is_1_page_mode=False, is_1_part_mode=False, part_instruction=''):
+    def __init__(self, project_root=None, state_manager=None, is_1_page_mode=False, is_1_part_mode=False, part_instruction='', part_number='1'):
         self.is_1_page_mode = is_1_page_mode
         self.is_1_part_mode = is_1_part_mode
         self.part_instruction = part_instruction
+        self.part_number = part_number
         self.project_root = (
             Path(project_root)
             if project_root
@@ -122,7 +123,7 @@ class JulesPlanner:
             if getattr(self, "is_1_page_mode", False):
                 base_name = f"page_{lesson_number}-plan"
             elif getattr(self, "is_1_part_mode", False):
-                base_name = f"part_{lesson_number}-plan"
+                base_name = f"part_{getattr(self, 'part_number', '1')}_lesson_{lesson_number}-plan"
             else:
                 base_name = f"{lesson_number}-{clean_title}-plan"
             if list((self.project_root / "plans").glob(f"{base_name}*.md")):
@@ -182,7 +183,7 @@ class JulesPlanner:
             if getattr(self, "is_1_page_mode", False):
                 base_name = f"page_{lesson_number}-plan"
             elif getattr(self, "is_1_part_mode", False):
-                base_name = f"part_{lesson_number}-plan"
+                base_name = f"part_{getattr(self, 'part_number', '1')}_lesson_{lesson_number}-plan"
             else:
                 base_name = f"{lesson_number}-{clean_title}-plan"
 
@@ -278,6 +279,8 @@ class JulesPlanner:
         # Determine filename based on mode
         if getattr(self, "is_1_page_mode", False):
             base_filename = f"page_{lesson_number}-plan"
+        elif getattr(self, "is_1_part_mode", False):
+            base_filename = f"part_{getattr(self, 'part_number', '1')}_lesson_{lesson_number}-plan"
         else:
             base_filename = f"{lesson_number}-{clean_title}-plan"
             

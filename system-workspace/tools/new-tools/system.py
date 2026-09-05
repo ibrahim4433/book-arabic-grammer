@@ -389,7 +389,7 @@ def extract_from_pr_branches(failed_lessons_data, project_root, console, is_page
     return recovered
 
 
-def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=False, part_instruction=''):
+def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=False, part_instruction='', part_number=''):
     console.clear()  # Clear screen for App-like feel
     mode_text = " (1-PAGE MODE)" if is_1_page_mode else ""
     console.print(f"[bold cyan]🚀 Starting Jules Batch Planning{mode_text}...[/bold cyan]")
@@ -675,7 +675,7 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
     questionary.press_any_key_to_continue().ask()
 
 
-def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=False):
+def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=False, part_number=''):
     console.clear()  # Clear screen for App-like feel
 
     if not run_template_lint():
@@ -1245,7 +1245,7 @@ def run_jules_ocr_ui(state_manager):
     )
 
 
-def run_full_auto_ui(state_manager, is_1_page_mode=False, is_1_part_mode=False, part_instruction=''):
+def run_full_auto_ui(state_manager, is_1_page_mode=False, is_1_part_mode=False, part_instruction='', part_number=''):
     console.clear()
     mode_text = " (1-Page Mode)" if is_1_page_mode else ""
     console.print(f"[bold cyan]🚀 Starting Full Auto Workflow{mode_text}...[/bold cyan]")
@@ -2897,17 +2897,21 @@ def main():
                 sub_op = sub_choice[0]
                 op_ran = True
                 part_instruction = ""
+                part_number = ""
+                if sub_op in ["A", "C", "D"]:
+                    part_number = questionary.text("Enter Part Number (e.g. 1, 2, 3, 4):").ask()
+                    if not part_number: part_number = "1"
                 if sub_op in ["A", "C"]:
                     part_instruction = questionary.text("Enter custom instruction for this Part (or leave empty):").ask()
                 
                 if sub_op == "A":
-                    run_full_auto_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction)
+                    run_full_auto_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
                 elif sub_op == "B":
                     run_raw_processing_auto(state_manager)
                 elif sub_op == "C":
-                    run_jules_planning_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction)
+                    run_jules_planning_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
                 elif sub_op == "D":
-                    run_jules_generation_ui(state_manager, is_1_part_mode=True)
+                    run_jules_generation_ui(state_manager, is_1_part_mode=True, part_number=part_number)
                 elif sub_op == "E":
                     run_audit_and_verify(state_manager)
 

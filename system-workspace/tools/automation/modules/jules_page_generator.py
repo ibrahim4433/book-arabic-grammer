@@ -71,9 +71,10 @@ class JulesPageGenerator:
     Handles interactive Q&A with Gemini Headless.
     """
 
-    def __init__(self, project_root=None, state_manager=None, is_1_page_mode=False, is_1_part_mode=False):
+    def __init__(self, project_root=None, state_manager=None, is_1_page_mode=False, is_1_part_mode=False, part_number='1'):
         self.is_1_page_mode = is_1_page_mode
         self.is_1_part_mode = is_1_part_mode
+        self.part_number = part_number
         self.project_root = (
             Path(project_root)
             if project_root
@@ -277,7 +278,8 @@ class JulesPageGenerator:
                     f"    - Submit the best possible condensed version so a human can manually review the physical overflow later.\n"
                 )
             elif getattr(self, "is_1_part_mode", False):
-                target_file = f"`pages/part_{lesson_num}.html`" if lesson_num else "`pages/[LESSON_TITLE].html`"
+                part_num = getattr(self, "part_number", "1")
+                target_file = f"`pages/part_{part_num}_lesson_{lesson_num}.html`" if lesson_num else "`pages/part_{part_num}_lesson_[LESSON_TITLE].html`"
                 naming_constraints = (
                     f"=== STRICT FILE GENERATION CONSTRAINTS ===\n"
                     f"1. You MUST generate ONLY ONE SINGLE FILE: {target_file}.\n"
@@ -478,7 +480,12 @@ class JulesPageGenerator:
 
         # If we couldn't find it dynamically, guess it
         if not found_path:
-            found_name = f"{lesson_title.replace('-plan', '')}.html"
+            if getattr(self, "is_1_part_mode", False):
+                part_num = getattr(self, "part_number", "1")
+                clean_title = lesson_title.replace("-plan", "").replace(f"part_{part_num}_lesson_", "")
+                found_name = f"part_{part_num}_lesson_{clean_title}.html"
+            else:
+                found_name = f"{lesson_title.replace('-plan', '')}.html"
             found_path = f"pages/{found_name}"
             callback(
                 lesson_title, "WARN", f"Could not determine exact filename. Guessing: {found_path}"
