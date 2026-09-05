@@ -149,13 +149,13 @@ class TextProcessor:
                 print(f"⚠️ Could not load settings: {e}")
 
         system_instruction = f"""You are an expert Arabic book editor.
-I have a file containing transcribed Arabic grammar text.
+I have a file containing transcribed Arabic grammar and literature text.
 Your task is to extract the Table of Contents (TOC) from this text and output it as a JSON object.
 CRITICAL RULES:
-1. Identify all the main lessons or topics.
+1. Identify ONLY the main, top-level lessons. Do NOT include sub-sections, author biographies (e.g. "شاعر سوري"), introductory blurbs, or comprehension question headings as separate lessons. A single Literature lesson should encompass the entire poem, its author bio, and its questions.
 2. The output MUST be a JSON object where the keys are lesson numbers (e.g., "01", "02").
 3. Each value must be an object with the exact following fields: 'title', 'level', 'Unit', 'author', 'author_number'.
-4. You MUST logically infer an appropriate 'level' (المستوى) and 'Unit' (الوحدة) for each lesson by analyzing its topic and depth in the text (e.g., Level: 'المستوى التأسيسي', Unit: 'علم النحو' or similar classifications). Do NOT leave them blank.
+4. You MUST logically infer an appropriate 'level' (المستوى) and 'Unit' (الوحدة) for each lesson by analyzing its topic and depth in the text (e.g., Level: 'المستوى التأسيسي', Unit: 'الأدب والنصوص' or 'علم النحو'). Do NOT leave them blank.
 5. For 'author', use exactly: "{author}".
 6. For 'author_number', use exactly: "{author_number}".
 7. Output ONLY a valid JSON object. No explanations.
@@ -231,13 +231,13 @@ CRITICAL RULES:
 
         # System Prompt
         system_instruction = f"""You are an expert Arabic book editor.
-I have a file containing lines from transcribed Arabic grammar images (format: [filename:line] text).
+I have a file containing lines from transcribed Arabic grammar and literature text (format: [filename:line] text).
 
 Your task is to identify the EXACT START and END line markers for every lesson/topic found in that text based on the provided Table of Contents (TOC).
 CRITICAL RULES:
 1. You MUST use the provided Table of Contents as the definitive source for lesson titles.
 2. The keys in your JSON output MUST match the exact titles from the TOC. Do not invent, paraphrase, or skip any lesson titles.
-3. Find the exact `[filename:line]` where each lesson begins (usually indicated by a title heading) and where it ends (just before the next lesson begins, or at the end of the text).
+3. Find the exact `[filename:line]` where each lesson begins (usually indicated by a title heading) and where it ends (just before the next lesson begins, or at the very end of the text). A lesson's range MUST encompass all its sub-sections, author biographies, poems, explanations, and questions. Do NOT stop the end marker prematurely.
 4. Output ONLY a valid JSON object. No explanations.
 
 === TABLE OF CONTENTS ===

@@ -286,7 +286,8 @@ class JulesPlanner:
         if getattr(self, "is_1_page_mode", False):
             base_filename = f"page_{lesson_number}-plan"
         elif getattr(self, "is_1_part_mode", False):
-            base_filename = f"part_{getattr(self, 'part_number', '1')}_lesson_{lesson_number}-plan"
+            p_num = getattr(self, "part_number", "1")
+            base_filename = f"{lesson_number}.{p_num}_nXXX_{clean_title}-plan"
         else:
             base_filename = f"{lesson_number}-{clean_title}-plan"
             
@@ -359,10 +360,11 @@ class JulesPlanner:
 
         # 4. Check or Create Session
         session_id = None
+        session_key = f"session_id_{base_filename}"
 
         # Check State Manager for existing session
         if self.state_manager:
-            session_id = self.state_manager.get_lesson_data(lesson_title, "session_id")
+            session_id = self.state_manager.get_lesson_data(lesson_title, session_key)
             if session_id:
                 callback(lesson_title, "RUNNING", f"Checking Existing Session ({session_id})...")
                 status_data = self.client.get_session_status(session_id)
@@ -401,7 +403,7 @@ class JulesPlanner:
 
             session_id = session.get("name")
             if self.state_manager:
-                self.state_manager.update_lesson_data(lesson_title, {"session_id": session_id})
+                self.state_manager.update_lesson_data(lesson_title, {session_key: session_id})
 
         callback(lesson_title, "RUNNING", f"Monitoring Session ({session_id})...")
 

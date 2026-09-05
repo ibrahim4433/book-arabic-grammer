@@ -149,8 +149,8 @@ class JulesPageGenerator:
         plan_content = plan_path.read_text(encoding="utf-8")
         lesson_title = plan_path.stem
 
-        # Extract Lesson Number
-        match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", lesson_title, re.IGNORECASE)
+        # Extract Lesson Number and Part Number (handles new 000.X prefix or legacy)
+        match = re.search(r"^(\d+\.\d+|\d+)", lesson_title)
         lesson_num = match.group(1) if match else None
 
         # 1. Check Existing Session
@@ -279,7 +279,11 @@ class JulesPageGenerator:
                 )
             elif getattr(self, "is_1_part_mode", False):
                 part_num = getattr(self, "part_number", "1")
-                target_file = f"`pages/part_{part_num}_lesson_{lesson_num}.html`" if lesson_num else "`pages/part_{part_num}_lesson_[LESSON_TITLE].html`"
+                # New standard: 001.1_nXXX_title.html
+                if lesson_num and "." in lesson_num:
+                    target_file = f"`pages/{lesson_title.replace('-plan', '')}.html`"
+                else:
+                    target_file = f"`pages/{lesson_num}.{part_num}_nXXX_[LESSON_TITLE].html`" if lesson_num else "`pages/[LESSON_TITLE].html`"
                 naming_constraints = (
                     f"=== STRICT FILE GENERATION CONSTRAINTS ===\n"
                     f"1. You MUST generate ONLY ONE SINGLE FILE: {target_file}.\n"
