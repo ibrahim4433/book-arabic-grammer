@@ -343,7 +343,7 @@ class JulesPlanner:
         )
         
         if workspace_code and workspace_code != "None":
-            mega_prompt += f"\n\nIMPORTANT INSTRUCTION: You MUST append the batch workspace code '_{workspace_code}' to the filename of the generated plan (e.g. before the .md extension, like 01-plan_{workspace_code}.md)."
+            mega_prompt += f"\n\nIMPORTANT INSTRUCTION: You MUST append the batch workspace code '_{workspace_code}' to the filename of the generated plan (e.g. {base_filename}_{workspace_code}.md)."
 
         mega_prompt += f"\n\nCRITICAL PATH INSTRUCTION: Do NOT place the generated plan inside `Jules-workspace/plans/`. You MUST place the generated plan in the root `plans/` directory."
 
@@ -380,7 +380,7 @@ class JulesPlanner:
         if not session_id:
             callback(lesson_title, "RUNNING", "Creating Session...")
             try:
-                session = self.client.create_plan_session(lesson_title, mega_prompt)
+                session = self.client.create_plan_session(base_filename, mega_prompt)
             except APIBlockError as e:
                 self.abort_event.set()
                 callback(lesson_title, "API_BLOCKED", "API Quota/Limit Reached")

@@ -327,7 +327,7 @@ def smart_recover_hidden_plans(failed_lessons_data, project_root, console, is_pa
                 console.print(
                     f"[green]✅ Found hidden plan for Lesson {l_num} at: {file_path.relative_to(project_root)}[/green]"
                 )
-                target = project_root / ("pages" if is_pages else "plans") / file_path.name
+                target = project_root / expected_path
                 import shutil
 
                 target.parent.mkdir(parents=True, exist_ok=True)
