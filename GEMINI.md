@@ -33,9 +33,9 @@ npm install -g @google/gemini-cli
 ## 📁 Project Architecture
 
 - **/pages**: The source of truth. **Rule: 1 HTML File = 1 PDF Page**.
-    - Naming convention: `XX.X_nXX_name.html` (e.g., `05.0_n15_mansubat.html`).
+    - Naming convention: `XX.X_nXXX_name.html` (e.g., `05.0_n015_mansubat.html`).
     - `XX.X`: Chapter/Sequence number.
-    - `nXX`: Absolute lesson index.
+    - `nXXX`: Absolute lesson index.
 - **/assets/Templates**: HTML snippets for all Atomic Components. **Use these, do not invent new structures.**
 - **/styles/main.css**: The global stylesheet. **Do not modify** unless fixing a critical layout bug.
 - **/output**: Destination for generated PDFs (`book.pdf`) and debug files.

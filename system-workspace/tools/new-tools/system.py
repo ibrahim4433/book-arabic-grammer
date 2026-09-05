@@ -394,13 +394,21 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
     mode_text = " (1-PAGE MODE)" if is_1_page_mode else ""
     console.print(f"[bold cyan]🚀 Starting Jules Batch Planning{mode_text}...[/bold cyan]")
 
-    planner = JulesPlanner(
+    part_numbers_list = []
+    if part_number.strip().upper() == "ALL":
+        part_numbers_list = ["1", "2", "3", "4"]
+    elif "," in part_number:
+        part_numbers_list = [p.strip() for p in part_number.split(",")]
+    else:
+        part_numbers_list = [part_number.strip()]
+
+    dummy_planner = JulesPlanner(
         PROJECT_ROOT, 
         state_manager=state_manager, 
         is_1_page_mode=is_1_page_mode,
         is_1_part_mode=is_1_part_mode,
         part_instruction=part_instruction,
-        part_number=part_number
+        part_number=part_numbers_list[0]
     )
 
     tasks = {}  # title -> {status, message, start_time, duration}
@@ -480,7 +488,7 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
         return layout
 
     # Initialize Live with the initial table
-    existing_count = planner.count_existing_plans()
+    existing_count = dummy_planner.count_existing_plans()
     force_remake = False
     if existing_count > 0:
         ans = questionary.confirm(f"Found {existing_count} existing plans. Do you want to RE-MAKE them? (No = Skip)").ask()
@@ -497,12 +505,12 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
             if '-' in part:
                 try:
                     s, e = map(int, part.split('-'))
-                    only_lessons.extend([str(i).zfill(2) for i in range(s, e + 1)])
+                    only_lessons.extend([str(i).zfill(3) for i in range(s, e + 1)])
                     only_lessons.extend([str(i) for i in range(s, e + 1)]) # handle both padded and non-padded
                 except:
                     pass
             elif part.isdigit():
-                only_lessons.append(str(int(part)).zfill(2))
+                only_lessons.append(str(int(part)).zfill(3))
                 only_lessons.append(str(int(part)))
                 
     start_all = time.time()
@@ -528,8 +536,17 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
                             tasks[title]["duration"] = 0.0
     
                 live.update(generate_layout())
-    
-            planner.run_batch_planning(max_concurrent=10, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
+            
+            for p_num in part_numbers_list:
+                planner = JulesPlanner(
+                    PROJECT_ROOT, 
+                    state_manager=state_manager, 
+                    is_1_page_mode=is_1_page_mode,
+                    is_1_part_mode=is_1_part_mode,
+                    part_instruction=part_instruction,
+                    part_number=p_num
+                )
+                planner.run_batch_planning(max_concurrent=10, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
 
         api_blocked = any(data.get("status") == "API_BLOCKED" for data in tasks.values())
         if api_blocked:
@@ -539,7 +556,6 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
                 choices=["1. Wait and Resume batch", "2. Stop and Exit batch"]
             ).ask()
             if retry_choice and retry_choice.startswith("1"):
-                planner.abort_event.clear()
                 for title, data in tasks.items():
                     if data.get("status") == "API_BLOCKED":
                         data["status"] = "PENDING"
@@ -563,11 +579,20 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
     with lock:
         for title, data in tasks.items():
             if data.get("status") in ["FAILED", "ERROR", "WARN"]:
-                lesson_num = planner.tp.get_lesson_number(title)
+                # The title might have "[Part X] " prefix
+                clean_title_no_part = re.sub(r"^\[Part \d+\]\s*", "", title)
+                lesson_num = dummy_planner.tp.get_lesson_number(clean_title_no_part)
                 if lesson_num:
-                    clean_t = re.sub(r"^\d+\s*-\s*", "", title).strip()
-                    if getattr(planner, "is_1_page_mode", False):
+                    clean_t = re.sub(r"^\d+\s*-\s*", "", clean_title_no_part).strip()
+                    
+                    # Extract part number from title for file path
+                    part_match = re.match(r"^\[Part (\d+)\]", title)
+                    p_num = part_match.group(1) if part_match else dummy_planner.part_number
+                    
+                    if is_1_page_mode:
                         expected_path = f"plans/page_{lesson_num}-plan.md"
+                    elif is_1_part_mode:
+                        expected_path = f"plans/part_{p_num}_lesson_{lesson_num}-plan.md"
                     else:
                         expected_path = f"plans/{lesson_num}-{clean_t}-plan.md"
                     failed_data.append((lesson_num, title, expected_path))
@@ -691,7 +716,15 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
     mode_text = " (1-PAGE MODE)" if is_1_page_mode else ""
     console.print(f"[bold cyan]🚀 Starting Jules Page Generation{mode_text}...[/bold cyan]")
 
-    generator = JulesPageGenerator(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode)
+    part_numbers_list = []
+    if part_number.strip().upper() == "ALL":
+        part_numbers_list = ["1", "2", "3", "4"]
+    elif "," in part_number:
+        part_numbers_list = [p.strip() for p in part_number.split(",")]
+    else:
+        part_numbers_list = [part_number.strip()]
+
+    dummy_generator = JulesPageGenerator(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode, is_1_part_mode=is_1_part_mode, part_number=part_numbers_list[0])
 
     tasks = {}
     lock = threading.Lock()
@@ -804,7 +837,9 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
                             else:
                                 tasks[title]["duration"] = 0.0
                     live.update(generate_layout())
-                generator.run_batch_generation(max_concurrent=10, update_callback=callback, only_lessons=only_lessons)
+                for p_num in part_numbers_list:
+                    generator = JulesPageGenerator(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode, is_1_part_mode=is_1_part_mode, part_number=p_num)
+                    generator.run_batch_generation(max_concurrent=10, update_callback=callback, only_lessons=only_lessons)
             # Fall through to failure-handling logic below
             total_duration = time.time() - start_all
             console.print(generate_table(full=True))
@@ -817,11 +852,17 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
                         match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", title, re.IGNORECASE)
                         lesson_num = match.group(1) if match else None
                         if lesson_num:
-                            clean_t = re.sub(r"^\d+\s*-\s*", "", title).replace("-plan", "").strip()
-                            if getattr(generator, "is_1_page_mode", False):
+                            clean_t = re.sub(r"^\d+\s*-\s*", "", clean_title_no_part).replace("-plan", "").strip()
+                            
+                            part_match = re.match(r"^\[Part (\d+)\]", title)
+                            p_num = part_match.group(1) if part_match else dummy_generator.part_number
+                            
+                            if getattr(dummy_generator, "is_1_page_mode", False):
                                 expected_path = f"pages/page_{lesson_num}.html"
+                            elif getattr(dummy_generator, "is_1_part_mode", False):
+                                expected_path = f"pages/{lesson_num}.{p_num}_nXXX_{clean_t.replace(' ', '_')}.html"
                             else:
-                                expected_path = f"pages/{lesson_num}.0_nXX_{clean_t.replace(' ', '_')}.html"
+                                expected_path = f"pages/{lesson_num}.0_nXXX_{clean_t.replace(' ', '_')}.html"
                             failed_data.append((lesson_num, title, expected_path))
             failed_lessons = [d[0] for d in failed_data]
             if failed_data:
@@ -855,12 +896,12 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
             if '-' in part:
                 try:
                     s, e = map(int, part.split('-'))
-                    only_lessons.extend([str(i).zfill(2) for i in range(s, e + 1)])
+                    only_lessons.extend([str(i).zfill(3) for i in range(s, e + 1)])
                     only_lessons.extend([str(i) for i in range(s, e + 1)])
                 except:
                     pass
             elif part.isdigit():
-                only_lessons.append(str(int(part)).zfill(2))
+                only_lessons.append(str(int(part)).zfill(3))
                 only_lessons.append(str(int(part)))
 
     start_all = time.time()
@@ -887,7 +928,9 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
     
                 live.update(generate_layout())
     
-            generator.run_batch_generation(max_concurrent=10, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
+            for p_num in part_numbers_list:
+                generator = JulesPageGenerator(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode, is_1_part_mode=is_1_part_mode, part_number=p_num)
+                generator.run_batch_generation(max_concurrent=10, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
 
         api_blocked = any(data.get("status") == "API_BLOCKED" for data in tasks.values())
         if api_blocked:
@@ -921,14 +964,21 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
     with lock:
         for title, data in tasks.items():
             if data.get("status") in ["FAILED", "ERROR", "WARN"]:
-                match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", title, re.IGNORECASE)
+                clean_title_no_part = re.sub(r"^\[Part \d+\]\s*", "", title)
+                match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", clean_title_no_part, re.IGNORECASE)
                 lesson_num = match.group(1) if match else None
                 if lesson_num:
-                    clean_t = re.sub(r"^\d+\s*-\s*", "", title).replace("-plan", "").strip()
-                    if getattr(generator, "is_1_page_mode", False):
+                    clean_t = re.sub(r"^\d+\s*-\s*", "", clean_title_no_part).replace("-plan", "").strip()
+                    
+                    part_match = re.match(r"^\[Part (\d+)\]", title)
+                    p_num = part_match.group(1) if part_match else dummy_generator.part_number
+                    
+                    if getattr(dummy_generator, "is_1_page_mode", False):
                         expected_path = f"pages/page_{lesson_num}.html"
+                    elif getattr(dummy_generator, "is_1_part_mode", False):
+                        expected_path = f"pages/{lesson_num}.{p_num}_nXXX_{clean_t.replace(' ', '_')}.html"
                     else:
-                        expected_path = f"pages/{lesson_num}.0_nXX_{clean_t.replace(' ', '_')}.html"
+                        expected_path = f"pages/{lesson_num}.0_nXXX_{clean_t.replace(' ', '_')}.html"
                     failed_data.append((lesson_num, title, expected_path))
 
     failed_lessons = [d[0] for d in failed_data]
@@ -1031,7 +1081,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
                 "3. Look for the file in the `pages/` or `Jules-workspace/pages/` folder."
             )
             console.print("4. Move the file into the `pages/` folder:")
-            console.print("   [bold]mv Jules-workspace/pages/07.0_nXX_title.html pages/[/bold]")
+            console.print("   [bold]mv Jules-workspace/pages/07.0_nXXX_title.html pages/[/bold]")
             console.print("5. Switch back to the main branch:")
             console.print("   [bold]git checkout main[/bold]")
             console.print("6. Your file will now be successfully recovered!\n")

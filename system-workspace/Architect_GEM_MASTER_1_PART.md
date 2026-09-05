@@ -70,7 +70,7 @@ Based on the `[CUSTOM PART INSTRUCTION]`, your plan must consist of the followin
 
 [TASK DEFINITION]
 Objective: Implement Part [PART_NUMBER] of [LESSON_TITLE].
-File: `pages/[LESSON_NUMBER].[PART_NUMBER]_nXX_[TITLE].html`
+File: `pages/[LESSON_NUMBER].[PART_NUMBER]_nXXX_[TITLE].html`
 Reference: Follow patterns in design_patterns.json.
 
 [CONTENT STREAM]

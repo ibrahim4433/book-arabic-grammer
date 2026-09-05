@@ -84,7 +84,7 @@ class TextProcessor:
             for number, metadata in data.items():
                 title = metadata.get("title", "").strip()
                 if title == clean_input_title:
-                    return number.zfill(2)  # Ensure 2 digits
+                    return number.zfill(3)  # Ensure 3 digits
 
             return "00"
         except Exception as e:

@@ -164,7 +164,7 @@ class UnifiedProductionManager:
                     # Infer plan path to create PAGE task
                     match = re.match(r"^(\d+)\s*-\s*(.*)", task_id)
                     if match:
-                        num = match.group(1).zfill(2)
+                        num = match.group(1).zfill(3)
                         title = match.group(2).strip()
                     else:
                         title = task_id.strip()

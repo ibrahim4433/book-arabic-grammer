@@ -392,7 +392,7 @@ You are currently operating in a BATCH MODE. You must perform the following step
     - Use the **EXACT Page Number**: {lesson_number} (Do NOT search for TOC. Trust this number).
     - Use the **EXACT Page Title**: {lesson_title} (Do NOT rename or translate).
     - **FILE NAMING**: The target HTML file in the plan MUST use the exact page number (e.g., `pages/page_{lesson_number}.html`).
-        - **CRITICAL:** Do NOT use `nXX`. Do NOT use lesson formats.
+        - **CRITICAL:** Do NOT use `nXXX`. Do NOT use lesson formats.
 
     - **METADATA INJECTION (TEMPLATE_C_HEADER):**
         - You MUST use these values when populating `TEMPLATE_C_HEADER`:
@@ -428,9 +428,9 @@ You are currently operating in a BATCH MODE. You must perform the following step
 1.  **MANDATORY INPUTS:**
     - Use the **EXACT Lesson Number**: {lesson_number} (Do NOT search for TOC. Trust this number).
     - Use the **EXACT Lesson Title**: {lesson_title} (Do NOT rename or translate).
-    - **FILE NAMING**: The target HTML file in the plan MUST use `nXX` in the filename (e.g., `pages/{lesson_number}_nXX_filename.html`).
-        - **CRITICAL:** Use `nXX` literally. DO NOT replace it with a number.
-        - **SILENCE PROTOCOL:** Do NOT ask why. Do NOT check consistency with other files. Do NOT comment on the naming scheme. Just use `nXX`.
+    - **FILE NAMING**: The target HTML file in the plan MUST use `nXXX` in the filename (e.g., `pages/{lesson_number}_nXXX_filename.html`).
+        - **CRITICAL:** Use `nXXX` literally. DO NOT replace it with a number.
+        - **SILENCE PROTOCOL:** Do NOT ask why. Do NOT check consistency with other files. Do NOT comment on the naming scheme. Just use `nXXX`.
 
     - **METADATA INJECTION (TEMPLATE_C_HEADER):**
         - You MUST use these values when populating `TEMPLATE_C_HEADER`:

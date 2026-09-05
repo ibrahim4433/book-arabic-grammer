@@ -8,7 +8,7 @@ def process_from_backup_v2(target_file):
     try:
         m = re.search(r'_n(\d+[a-z]?)_', target_file)
         if not m:
-            print(f"Could not extract nXX from {target_file}")
+            print(f"Could not extract nXXX from {target_file}")
             return
         n_num = m.group(1)
         
@@ -22,7 +22,7 @@ def process_from_backup_v2(target_file):
         if m_page:
             page_num = m_page.group(1)
             backups = glob.glob(f"pages/temp/lessons/page_{page_num}_*.html")
-            # If not found, try matching by `nXX` instead? No, backup files don't have nXX.
+            # If not found, try matching by `nXXX` instead? No, backup files don't have nXXX.
             # Some backups might be in `archive/` or other dirs?
         else:
             # If there is no page number in the target file, how do we find the backup?

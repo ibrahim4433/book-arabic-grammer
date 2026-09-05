@@ -635,9 +635,20 @@ class JulesPageGenerator:
         Main entry point.
         """
         if not update_callback:
-
-            def update_callback(t, s, m):
+            def default_callback(t, s, m):
                 logging.info(f"[{s}] {t}: {m}")
+            update_callback = default_callback
+
+        # 0. Wrap callback to include part number if in 1-part mode
+        original_callback = update_callback
+        def wrapped_callback(t, s, m):
+            if getattr(self, "is_1_part_mode", False) and not t.startswith("[Part"):
+                if t == "System":
+                    t = f"System (Part {getattr(self, 'part_number', '1')})"
+                else:
+                    t = f"[Part {getattr(self, 'part_number', '1')}] {t}"
+            original_callback(t, s, m)
+        update_callback = wrapped_callback
 
         if excluded_lessons is None:
             excluded_lessons = set()

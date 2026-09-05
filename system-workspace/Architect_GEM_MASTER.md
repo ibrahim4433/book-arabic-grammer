@@ -67,7 +67,7 @@ If a topic or block of text is cut violently between pages by a `----- PAGE X --
 
 [TASK DEFINITION]
 Objective: Implement [LESSON_TITLE].
-File: `pages/[LESSON_NUMBER].0_nXX_[TITLE].html` (Note: `nXX` must remain exactly as `nXX`. It represents the absolute lesson index and will be replaced later by the system.)
+File: `pages/[LESSON_NUMBER].0_nXXX_[TITLE].html` (Note: `nXXX` must remain exactly as `nXXX`. It represents the absolute lesson index and will be replaced later by the system.)
 Reference: Follow patterns in design_patterns.json.
 *(If the text contains information about a poet's life or history, you MUST use TEMPLATE_C_POET_BIO.html and include this explicit instruction here: "Create a dummy picture at input/integrated-pictures/pic_[PAGE_NUMBER].jpg (e.g. using touch or cp in bash).")*
 

@@ -148,6 +148,17 @@ class JulesPlanner:
 
         logging.info(f"\n🧠 Starting Jules Batch Planning (Max Concurrent: {max_concurrent})...")
 
+        # 0. Wrap callback to include part number if in 1-part mode
+        original_callback = update_callback
+        def wrapped_callback(t, s, m):
+            if getattr(self, "is_1_part_mode", False) and not t.startswith("[Part"):
+                if t == "System":
+                    t = f"System (Part {getattr(self, 'part_number', '1')})"
+                else:
+                    t = f"[Part {getattr(self, 'part_number', '1')}] {t}"
+            original_callback(t, s, m)
+        update_callback = wrapped_callback
+
         # 1. Get Lesson Index
         index_path = self.project_root / "system-workspace/text-data/raw_to_lesson_index.json"
         if not index_path.exists():
@@ -226,11 +237,9 @@ class JulesPlanner:
 
     def process_lesson_with_callback(self, lesson_title, range_info, callback):
         """Wrapper for process_lesson that uses callback."""
+        # Note: callback is already wrapped by run_batch_planning
         callback(lesson_title, "RUNNING", "Starting...")
         try:
-            # Re-implement process_lesson logic here but with callbacks?
-            # Or just call self.process_lesson and modify it to accept callback?
-            # Better to modify process_lesson signature.
             self.process_lesson(lesson_title, range_info, callback)
         except Exception as e:
             callback(lesson_title, "ERROR", str(e))
@@ -265,7 +274,7 @@ class JulesPlanner:
         match = re.match(r"^(\d+)\s*-\s*(.*)", lesson_title)
         if match:
             # Found "9 - Title"
-            inferred_number = match.group(1).zfill(2)
+            inferred_number = match.group(1).zfill(3)
             clean_title = match.group(2).strip()
             lesson_number = inferred_number
         else:
