@@ -213,8 +213,19 @@ Schema:
             # Semantic Chunking
             semantic_chunks = None
             if getattr(self, "is_1_part_mode", False) and (isinstance(self.part_number, list) and self.part_number == ['1', '2', '3', '4']):
-                update_callback(title, "RUNNING", "Generating Smart Semantic Chunks...")
-                semantic_chunks = self._get_semantic_chunks(raw_text)
+                map_path = self.project_root / f"system-workspace/text-data/semantic_maps/lesson_{lesson_number}.json"
+                if map_path.exists():
+                    update_callback(title, "RUNNING", "Loading local Semantic Map...")
+                    try:
+                        import json
+                        semantic_chunks = json.loads(map_path.read_text(encoding="utf-8"))
+                    except Exception as e:
+                        logging.error(f"Failed to load local map {map_path}: {e}")
+                        semantic_chunks = None
+                        
+                if not semantic_chunks:
+                    update_callback(title, "RUNNING", "Generating Smart Semantic Chunks...")
+                    semantic_chunks = self._get_semantic_chunks(raw_text)
 
             if semantic_chunks:
                 num_chunks = len(semantic_chunks)

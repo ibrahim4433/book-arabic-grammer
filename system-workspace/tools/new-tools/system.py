@@ -2829,6 +2829,91 @@ def run_auto_smart_merging():
     questionary.press_any_key_to_continue().ask()
 
 
+def run_semantic_mapping_ui(state_manager):
+    console.clear()
+    console.print("[bold cyan]🚀 Starting Semantic Mapping Pre-Processor...[/bold cyan]")
+    
+    dummy_planner = JulesPlanner(PROJECT_ROOT, state_manager=state_manager, is_1_part_mode=True)
+    index_path = PROJECT_ROOT / "system-workspace/text-data/raw_to_lesson_index.json"
+    if not index_path.exists():
+        console.print("[red]❌ Error: Lesson index missing. Run Raw Processing first.[/red]")
+        return
+        
+    import json
+    mapping = json.loads(index_path.read_text(encoding="utf-8"))
+    
+    maps_dir = PROJECT_ROOT / "system-workspace/text-data/semantic_maps"
+    maps_dir.mkdir(parents=True, exist_ok=True)
+    
+    tasks = {}
+    lock = threading.Lock()
+    
+    def generate_table():
+        table = Table(title="Semantic Mapping Progress", box=box.ROUNDED, expand=True)
+        table.add_column("Lesson", style="cyan")
+        table.add_column("Status", style="bold")
+        table.add_column("Details", style="dim", width=60)
+        
+        with lock:
+            sorted_tasks = sorted(tasks.items())
+            
+        for title, data in sorted_tasks:
+            s = data["status"]
+            color = "yellow" if s == "RUNNING" else "green" if s == "SUCCESS" else "red" if s == "FAILED" else "white"
+            table.add_row(title, f"[{color}]{s}[/{color}]", data["message"])
+        return table
+
+    def generate_layout():
+        layout = Table.grid(expand=True)
+        layout.add_column(ratio=7)
+        layout.add_column(ratio=3)
+        layout.add_row(generate_table(), generate_log_panel())
+        return layout
+
+    to_process = []
+    for title, info in mapping.items():
+        lesson_number = dummy_planner.tp.get_lesson_number(title)
+        if lesson_number:
+            to_process.append((title, lesson_number, info))
+            
+    if not to_process:
+        console.print("[yellow]No lessons found to map.[/yellow]")
+        return
+
+    with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
+        
+        def worker(item):
+            title, lesson_number, info = item
+            with lock:
+                tasks[title] = {"status": "RUNNING", "message": "Calling Repoless Jules API..."}
+            live.update(generate_layout())
+            
+            try:
+                raw_text = dummy_planner._extract_lesson_text(info["start"], info["end"])
+                if not raw_text:
+                    raise Exception("Failed to extract raw text.")
+                
+                chunks = dummy_planner._get_semantic_chunks(raw_text)
+                if chunks:
+                    out_path = maps_dir / f"lesson_{lesson_number}.json"
+                    out_path.write_text(json.dumps(chunks, ensure_ascii=False, indent=2), encoding="utf-8")
+                    with lock:
+                        tasks[title] = {"status": "SUCCESS", "message": f"Saved {len(chunks)} chunks to {out_path.name}"}
+                else:
+                    raise Exception("Jules returned empty or invalid JSON")
+            except Exception as e:
+                with lock:
+                    tasks[title] = {"status": "FAILED", "message": str(e)}
+            live.update(generate_layout())
+
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            executor.map(worker, to_process)
+            
+    console.print(f"[bold green]✅ Semantic Mapping Completed![/bold green]")
+    console.print(f"[cyan]You can now manually edit the JSON files in: {maps_dir}[/cyan]")
+    questionary.press_any_key_to_continue().ask()
+
 def main():
     state_manager = StateManager(PROJECT_ROOT)
 
@@ -2954,6 +3039,7 @@ def main():
                 choices=[
                     "A) Full Auto Workflow",
                     "B) Raw Processing (Auto-Paginated Index & TOC)",
+                    "B2) Pre-Process: Generate Semantic Maps (JSON)",
                     "C) Plan Generation (Jules Batch - 1-Part Method)",
                     "D) Page Generation (Jules Batch - 1-Part Method)",
                     "E) Audit & Verify Pages",
@@ -2977,6 +3063,8 @@ def main():
                     run_full_auto_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
                 elif sub_op == "B":
                     run_raw_processing_auto(state_manager)
+                elif sub_op == "B2":
+                    run_semantic_mapping_ui(state_manager)
                 elif sub_op == "C":
                     run_jules_planning_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
                 elif sub_op == "D":
