@@ -133,13 +133,25 @@ class JulesPlanner:
         try:
             client = RepolessJulesClient()
             lines = raw_text.splitlines()
-            numbered_text = "\n".join([f"{i+1}: {line}" for i, line in enumerate(lines)])
+            total_lines = len(lines)
             
-            sys_prompt = """You are a smart text chunker for an Arabic grammar textbook.
+            window_size = 800
+            all_chunks = []
+            
+            current_start = 0
+            
+            while current_start < total_lines:
+                # Extract the next window
+                window_lines = lines[current_start:current_start+window_size]
+                
+                # Use local 1-based indexing for the LLM to avoid confusion with massive line numbers
+                numbered_text = "\n".join([f"{j+1}: {line}" for j, line in enumerate(window_lines)])
+                
+                sys_prompt = """You are a smart text chunker for an Arabic grammar textbook.
 Analyze the following raw OCR text and segment it into logical parts for lesson planning.
 Each part should represent a distinct, cohesive section (e.g. a poem, a grammar rule explanation, a set of exercises, an author biography).
 You MUST output ONLY a JSON array, with no markdown formatting and no extra text.
-For each part, provide a descriptive title in Arabic and the start and end line numbers.
+For each part, provide a descriptive title in Arabic and the start and end line numbers exactly as they appear in the text.
 
 Schema:
 [
@@ -150,8 +162,35 @@ Schema:
   }
 ]
 """
-            response_json = client.generate_content(prompt=f"TEXT TO ANALYZE:\n{numbered_text}", system_instruction=sys_prompt)
-            return json.loads(response_json)
+                logging.info(f"Sending window from line {current_start+1} (up to {current_start+len(window_lines)}) for semantic chunking...")
+                response_json = client.generate_content(prompt=f"TEXT TO ANALYZE:\n{numbered_text}", system_instruction=sys_prompt)
+                window_chunks = json.loads(response_json)
+                
+                if not window_chunks:
+                    raise Exception("Jules returned empty chunks.")
+                
+                # Mathematically shift the bounds to match original global absolute index
+                for chunk in window_chunks:
+                    chunk["start_line"] += current_start
+                    chunk["end_line"] += current_start
+                    
+                # If this is the final window, append all chunks and exit
+                if current_start + window_size >= total_lines:
+                    all_chunks.extend(window_chunks)
+                    break
+                    
+                # If this is a middle window, we discard the final chunk as it may be cut randomly.
+                # We start the next window perfectly at the end of the last safe chunk!
+                if len(window_chunks) > 1:
+                    last_safe_chunk = window_chunks[-2]
+                    all_chunks.extend(window_chunks[:-1])
+                    current_start = last_safe_chunk["end_line"]
+                else:
+                    # Rare edge case: the LLM returned exactly 1 massive chunk for the whole 800 lines.
+                    all_chunks.extend(window_chunks)
+                    current_start += window_size
+                
+            return all_chunks
         except Exception as e:
             logging.error(f"Semantic chunking failed: {e}")
             return None

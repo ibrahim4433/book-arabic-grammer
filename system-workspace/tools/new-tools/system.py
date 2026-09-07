@@ -2874,6 +2874,11 @@ def run_semantic_mapping_ui(state_manager):
     for title, info in mapping.items():
         lesson_number = dummy_planner.tp.get_lesson_number(title)
         if lesson_number:
+            out_path = maps_dir / f"lesson_{lesson_number}.json"
+            if out_path.exists():
+                with lock:
+                    tasks[title] = {"status": "SKIP", "message": f"Map exists: {out_path.name}"}
+                continue
             to_process.append((title, lesson_number, info))
             
     if not to_process:

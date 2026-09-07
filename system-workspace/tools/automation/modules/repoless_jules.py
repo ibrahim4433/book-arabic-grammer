@@ -55,7 +55,7 @@ class RepolessJulesClient:
         # Poll activities
         activities_url = f"{self.base_url}/{session_id}/activities"
         
-        max_retries = 60 # 2 minutes
+        max_retries = 180 # 6 minutes to allow Jules time to process massive 3,000+ line texts
         for _ in range(max_retries):
             time.sleep(2)
             try:
