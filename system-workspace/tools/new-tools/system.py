@@ -3039,7 +3039,7 @@ def main():
                 choices=[
                     "A) Full Auto Workflow",
                     "B) Raw Processing (Auto-Paginated Index & TOC)",
-                    "B2) Pre-Process: Generate Semantic Maps (JSON)",
+                    "S) Pre-Process: Generate Semantic Maps (JSON)",
                     "C) Plan Generation (Jules Batch - 1-Part Method)",
                     "D) Page Generation (Jules Batch - 1-Part Method)",
                     "E) Audit & Verify Pages",
@@ -3063,7 +3063,7 @@ def main():
                     run_full_auto_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
                 elif sub_op == "B":
                     run_raw_processing_auto(state_manager)
-                elif sub_op == "B2":
+                elif sub_op == "S":
                     run_semantic_mapping_ui(state_manager)
                 elif sub_op == "C":
                     run_jules_planning_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
