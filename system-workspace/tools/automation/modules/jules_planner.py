@@ -14,6 +14,7 @@ sys.path.append(str(Path(__file__).parent))
 from jules_client_plans import JulesPlanClient
 from jules_client import APIBlockError
 from text_processing import TextProcessor
+from repoless_jules import RepolessJulesClient
 
 
 class JulesPlanner:
@@ -108,28 +109,52 @@ class JulesPlanner:
         index_path = self.project_root / "system-workspace/text-data/raw_to_lesson_index.json"
         if not index_path.exists(): return 0
         mapping = json.loads(index_path.read_text(encoding="utf-8"))
-        part_list = self.part_number if isinstance(self.part_number, list) else [self.part_number]
         count = 0
         
-        for p_num in part_list:
-            for title, info in mapping.items():
-                lesson_number = self.tp.get_lesson_number(title)
-                if excluded_lessons:
-                    if lesson_number and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons): continue
-                if only_lessons:
-                    if not lesson_number or (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons): continue
-                
-                clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
-                clean_title = re.sub(r'[<>:"/\\|?*]', '', clean_title)
-                if getattr(self, "is_1_page_mode", False):
-                    base_name = f"page_{lesson_number}-plan"
-                elif getattr(self, "is_1_part_mode", False):
-                    base_name = f"{lesson_number}.{p_num}_nXXX_{clean_title}-plan"
-                else:
-                    base_name = f"{lesson_number}-{clean_title}-plan"
-                if list((self.project_root / "plans").glob(f"{base_name}*.md")):
-                    count += 1
+        for title, info in mapping.items():
+            lesson_number = self.tp.get_lesson_number(title)
+            if excluded_lessons:
+                if lesson_number and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons): continue
+            if only_lessons:
+                if not lesson_number or (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons): continue
+            
+            clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
+            clean_title = re.sub(r'[<>:"/\|?*]', '', clean_title)
+            if getattr(self, "is_1_page_mode", False):
+                existing = list((self.project_root / "plans").glob(f"page_{lesson_number}-plan*.md"))
+            elif getattr(self, "is_1_part_mode", False):
+                existing = list((self.project_root / "plans").glob(f"{lesson_number}.*_nXXX_{clean_title}-plan*.md"))
+            else:
+                existing = list((self.project_root / "plans").glob(f"{lesson_number}-{clean_title}-plan*.md"))
+            count += len(existing)
         return count
+
+    def _get_semantic_chunks(self, raw_text):
+        try:
+            client = RepolessJulesClient()
+            lines = raw_text.splitlines()
+            numbered_text = "\n".join([f"{i+1}: {line}" for i, line in enumerate(lines)])
+            
+            sys_prompt = """You are a smart text chunker for an Arabic grammar textbook.
+Analyze the following raw OCR text and segment it into logical parts for lesson planning.
+Each part should represent a distinct, cohesive section (e.g. a poem, a grammar rule explanation, a set of exercises, an author biography).
+You MUST output ONLY a JSON array, with no markdown formatting and no extra text.
+For each part, provide a descriptive title in Arabic and the start and end line numbers.
+
+Schema:
+[
+  {
+    "title": "Descriptive title of the part in Arabic",
+    "start_line": 1,
+    "end_line": 40
+  }
+]
+"""
+            response_json = client.generate_content(prompt=f"TEXT TO ANALYZE:\n{numbered_text}", system_instruction=sys_prompt)
+            return json.loads(response_json)
+        except Exception as e:
+            logging.error(f"Semantic chunking failed: {e}")
+            return None
 
     def run_batch_planning(
         self, max_concurrent=10, update_callback=None, excluded_lessons=None, only_lessons=None, force_remake=False
@@ -166,26 +191,53 @@ class JulesPlanner:
 
         # 2. Filter Processed Lessons?
         to_process = []
-        part_list = self.part_number if isinstance(self.part_number, list) else [self.part_number]
         
-        for p_num in part_list:
-            for title, info in mapping.items():
-                lesson_number = self.tp.get_lesson_number(title)
+        for title, info in mapping.items():
+            lesson_number = self.tp.get_lesson_number(title)
+            
+            # Check Exclusions
+            if excluded_lessons:
+                if lesson_number and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons):
+                    update_callback(title, "SKIP", f"Lesson {lesson_number} excluded (Page exists)")
+                    continue
+
+            if only_lessons:
+                if not lesson_number or (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons):
+                    continue  # Skip if we only want specific lessons
+
+            raw_text = self._extract_lesson_text(info["start"], info["end"])
+            if not raw_text:
+                continue
+
+            lines = raw_text.splitlines()
+            # Semantic Chunking
+            semantic_chunks = None
+            if getattr(self, "is_1_part_mode", False) and (isinstance(self.part_number, list) and self.part_number == ['1', '2', '3', '4']):
+                update_callback(title, "RUNNING", "Generating Smart Semantic Chunks...")
+                semantic_chunks = self._get_semantic_chunks(raw_text)
+
+            if semantic_chunks:
+                num_chunks = len(semantic_chunks)
+                part_list = [str(i) for i in range(1, num_chunks + 1)]
+            else:
+                CHUNK_SIZE = 50
+                num_chunks = max(1, (len(lines) + CHUNK_SIZE - 1) // CHUNK_SIZE)
                 
-                display_title = f"[Part {p_num}] {title}" if getattr(self, "is_1_part_mode", False) else title
-
-                # Check Exclusions
-                if excluded_lessons:
-                    if lesson_number and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons):
-                        update_callback(display_title, "SKIP", f"Lesson {lesson_number} excluded (Page exists)")
-                        continue
-
-                if only_lessons:
-                    if not lesson_number or (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons):
-                        continue  # Skip if we only want specific lessons
-
-                clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
-                clean_title = re.sub(r'[<>:"/\\|?*]', '', clean_title)
+                if getattr(self, "is_1_part_mode", False):
+                    if isinstance(self.part_number, list) and self.part_number == ['1', '2', '3', '4']:
+                        part_list = [str(i) for i in range(1, num_chunks + 1)]
+                    elif isinstance(self.part_number, list):
+                        part_list = self.part_number
+                    else:
+                        part_list = [str(self.part_number)]
+                else:
+                    part_list = [None]
+                
+            clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
+            clean_title = re.sub(r'[<>:"/\|?*]', '', clean_title)
+            
+            for p_num in part_list:
+                display_title = f"[Part {p_num}/{num_chunks}] {title}" if p_num else title
                 
                 if getattr(self, "is_1_page_mode", False):
                     base_name = f"page_{lesson_number}-plan"
@@ -204,11 +256,29 @@ class JulesPlanner:
                                 f.unlink()
                             except:
                                 pass
+                                
+                    chunk_text = raw_text
+                    if getattr(self, "is_1_part_mode", False) and p_num:
+                        p_idx = int(p_num) - 1
+                        if semantic_chunks and p_idx < len(semantic_chunks):
+                            chunk_info = semantic_chunks[p_idx]
+                            s_line = max(1, chunk_info["start_line"]) - 1
+                            e_line = min(len(lines), chunk_info["end_line"])
+                            chunk_lines = lines[s_line:e_line]
+                            chunk_text = "\n".join(chunk_lines)
+                            display_title = f"[Part {p_num}/{num_chunks}] {chunk_info['title']}"
+                        elif not semantic_chunks and p_idx < num_chunks:
+                            chunk_lines = lines[p_idx * CHUNK_SIZE : (p_idx + 1) * CHUNK_SIZE]
+                            chunk_text = "\n".join(chunk_lines)
+                        else:
+                            continue # Skip out of bounds parts
+
                     to_process.append({
                         "title": title,
                         "display_title": display_title,
                         "info": info,
-                        "p_num": p_num
+                        "p_num": p_num,
+                        "chunk_text": chunk_text
                     })
                     update_callback(display_title, "PENDING", "Queued")
 
@@ -227,7 +297,7 @@ class JulesPlanner:
         with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
             future_to_lesson = {
                 executor.submit(
-                    self.process_lesson_with_callback, item["display_title"], item["title"], item["info"], update_callback, item["p_num"]
+                    self.process_lesson_with_callback, item["display_title"], item["title"], item["info"], update_callback, item.get("p_num"), item.get("chunk_text")
                 ): item["display_title"]
                 for item in sorted_items
             }
@@ -239,16 +309,16 @@ class JulesPlanner:
             for t in self.pull_threads:
                 t.join()
 
-    def process_lesson_with_callback(self, display_title, original_title, range_info, callback, p_num=None):
+    def process_lesson_with_callback(self, display_title, original_title, range_info, callback, p_num=None, chunk_text=None):
         """Wrapper for process_lesson that uses callback."""
         callback(display_title, "RUNNING", "Starting...")
         try:
             # We wrap the inner callback so it always emits display_title
-            self.process_lesson(original_title, range_info, lambda t, s, m: callback(display_title, s, m), force_remake=False, p_num=p_num)
+            self.process_lesson(original_title, range_info, lambda t, s, m: callback(display_title, s, m), force_remake=False, p_num=p_num, chunk_text=chunk_text)
         except Exception as e:
             callback(display_title, "ERROR", str(e))
 
-    def process_lesson(self, lesson_title, range_info, callback=None, force_remake=False, p_num=None):
+    def process_lesson(self, lesson_title, range_info, callback=None, force_remake=False, p_num=None, chunk_text=None):
         """
         Worker function for a single lesson.
         """
@@ -321,7 +391,11 @@ class JulesPlanner:
         callback(lesson_title, "RUNNING", "Extracting Text...")
 
         # 1. Extract Text
-        raw_text = self._extract_lesson_text(range_info["start"], range_info["end"])
+        if chunk_text is not None:
+            raw_text = chunk_text
+        else:
+            raw_text = self._extract_lesson_text(range_info["start"], range_info["end"])
+            
         if not raw_text:
             callback(lesson_title, "ERROR", "No text found")
             return False
@@ -362,6 +436,9 @@ class JulesPlanner:
             mega_prompt += f"\n\nIMPORTANT INSTRUCTION: You MUST append the batch workspace code '_{workspace_code}' to the filename of the generated plan (e.g. {base_filename}_{workspace_code}.md)."
 
         mega_prompt += f"\n\nCRITICAL PATH INSTRUCTION: Do NOT place the generated plan inside `Jules-workspace/plans/`. You MUST place the generated plan in the root `plans/` directory."
+        
+        # Inject chunking critical rule
+        mega_prompt += f"\n\nCRITICAL RULE (ZERO CONTENT LOSS): YOU MUST PROCESS 100% OF THE RAW TEXT SLICE PROVIDED ABOVE. Do NOT summarize. Do NOT filter by topic. Convert every single sentence of the provided text into the HTML plan, even if it seems unrelated to the lesson title '{clean_title}'! You are acting as a perfect transcriber/typesetter mapping physical chunks of text to HTML components."
 
 
         # 4. Check or Create Session
