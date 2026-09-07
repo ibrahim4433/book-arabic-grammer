@@ -230,7 +230,7 @@ def lint_file(
                 result.issues.append(
                     LintIssue(
                         level="ERROR",
-                        message=f"Class '.{cls}' is NOT defined in styles/main.css.",
+                        message=f"Class '.{cls}' is NOT defined in ../styles/main.css.",
                     )
                 )
 
