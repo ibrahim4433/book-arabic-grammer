@@ -1,4 +1,14 @@
-# **SESSION 003.3**
+import re
+
+filepath = "plans/003-الأمير الدمشقي-plan_uyvyw.md"
+with open(filepath, "r", encoding="utf-8") as f:
+    content = f.read()
+
+# I need to completely isolate Part 3 in this plan. Wait, the auditor rule says:
+# "STRICT PART ISOLATION (CRITICAL ERROR)... IF the plan contains ANY content outside of the requested part... you MUST REJECT the plan immediately. The plan must exclusively represent the requested part."
+# So I should rewrite the whole file, not just append to Part 1!
+
+new_content = """# **SESSION 003.3**
 
 [TASK DEFINITION]
 Objective: Implement Part 3 of الأمير الدمشقي.
@@ -87,7 +97,7 @@ b3_block_irab
 [EXPLANATION_CONTENT_ITEMS]
 <li>
   <span class="marker">•</span>
-  <span>لُطْفُهُ وَجَمَالُهُ، وحَاكَى نَقَاءَ زُجَاجِ الْكَنَائِسِ وَجَمَالَهُ، ومَاثَلَ جَمَالَ نَوَافِيرِ مَدِينَةِ رُومَا الْفَرِيدَةِ، إِنَّهُ سَأُحَدِّثُكُمْ عَنْ جَمَالِ عَيْنَيْهِ الَّذِي شَابَهَ جَمَالَ البَنَفْسَجِ جَمِيلٌ كَجَمَالِ يُوسُفَ عَلَيْهِ السَّلامُ ولِشِدَّةِ جَمَالِهِ كُنْتُ أَخْشَى عَلَيْهِ، وَأَخَافُ أَنْ يَلْحَقَ بِهِ مَا لَحَقَ بِيُوسُفَ عَلَيْهِ السَّلامُ، وهَا قَدْ صَدَقَتْ مَخَاوِفِي وفَارَقَنِي. بُنَيَّ تَوْفِيق.. لَا سَبِيلَ لِمَنْعِ يَدِ المَوْتِ مِنَ الامْتِدَادِ إِلَيْكَ، فَهِيَ تَتَوَخَّى كُلَّ ذِي حُسْنٍ، وَتَخْتَارُ كُلَّ جَمِيلٍ.</span>
+  <span>لُطْفُهُ وَجَمَالُهُ، وحَاكَى نَقَاءَ زُجَاجِ الْكَنَائِسِ وَجَمَالَهُ، ومَاثَلَ جَمَالَ نَوَافِيرِ مَدِينَةِ رُومَا الْفَرِيدَةِ، إِنَّهُ جَمِيلٌ كَجَمَالِ يُوسُفَ عَلَيْهِ السَّلامُ ولِشِدَّةِ جَمَالِهِ كُنْتُ أَخْشَى عَلَيْهِ، وَأَخَافُ أَنْ يَلْحَقَ بِهِ مَا لَحَقَ بِيُوسُفَ عَلَيْهِ السَّلامُ، وهَا قَدْ صَدَقَتْ مَخَاوِفِي وفَارَقَنِي. بُنَيَّ تَوْفِيق.. لَا سَبِيلَ لِمَنْعِ يَدِ المَوْتِ مِنَ الامْتِدَادِ إِلَيْكَ، فَهِيَ تَتَوَخَّى كُلَّ ذِي حُسْنٍ، وَتَخْتَارُ كُلَّ جَمِيلٍ.</span>
 </li>
 [IRAB_CONTENT_ITEMS]
 
@@ -135,7 +145,7 @@ b5_col2
 b5_block_irab
 [POEM_VERSE_HEMISTICHS]
 <div class="hemistich">بُنَيَّ تَوْفِيق.. إِنَّ جُسُورَ الزَّمَالِكِ الَّتِي اعْتَادَتْ عَلَى خَطَوَاتِكَ</div>
-<div class="hemistich">مَا زَالَتْ تَتَرَقَّبُ بِلَهْفَةٍ حَرَارَةَ قُدُومَكَ،</div>
+<div class="hemistich">مَا زَالَتْ تَتَرَقَّبُ بِلَهْفَةٍ قُدُومَكَ،</div>
 <div class="hemistich">ومَا زَالَ حَمَامُ الشَّامِ يَكُنُّ لَكَ الحُبَّ والشَّوْقَ.</div>
 [EXPLANATION_CONTENT_ITEMS]
 <li>
@@ -145,3 +155,9 @@ b5_block_irab
 [IRAB_CONTENT_ITEMS]
 
 --- END STREAM ---
+"""
+
+with open(filepath, "w", encoding="utf-8") as f:
+    f.write(new_content)
+
+print("Rewrote plans/003-الأمير الدمشقي-plan_uyvyw.md with STRICT PART ISOLATION")

@@ -1,4 +1,12 @@
-# **SESSION 003.3**
+import re
+
+filepath = "plans/003-الأمير الدمشقي-plan_uyvyw.md"
+with open(filepath, "r", encoding="utf-8") as f:
+    content = f.read()
+
+# Fix Block 3 missing phrase "سَأُحَدِّثُكُمْ عَنْ جَمَالِ عَيْنَيْهِ الَّذِي شَابَهَ جَمَالَ البَنَفْسَجِ" and Block 5 missing word "حَرَارَةَ"
+
+new_content = """# **SESSION 003.3**
 
 [TASK DEFINITION]
 Objective: Implement Part 3 of الأمير الدمشقي.
@@ -145,3 +153,9 @@ b5_block_irab
 [IRAB_CONTENT_ITEMS]
 
 --- END STREAM ---
+"""
+
+with open(filepath, "w", encoding="utf-8") as f:
+    f.write(new_content)
+
+print("Added missing missing phrases")
