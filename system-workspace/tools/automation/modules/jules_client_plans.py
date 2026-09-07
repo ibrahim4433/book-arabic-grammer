@@ -282,26 +282,59 @@ class JulesPlanClient(JulesClient):
                         env=git_env,
                     )
                 except subprocess.CalledProcessError:
-                    # Fallback: Maybe Jules created it in Jules-workspace/
-                    file_name = target_filename.split("/")[-1]
-                    file_type = "plans" if "plan" in file_name.lower() else "pages"
-                    stray_repo_path = f"Jules-workspace/{file_type}/{file_name}"
-                    subprocess.run(
-                        ["git", "checkout", checkout_ref, "--", stray_repo_path],
-                        check=True,
+                    # Smart Recovery: Jules might have hallucinated the filename
+                    # Let's find ANY markdown file added or modified in this PR branch
+                    diff_cmd = ["git", "diff", "--name-only", f"origin/main...{checkout_ref}"]
+                    diff_res = subprocess.run(
+                        diff_cmd,
+                        check=False,
                         cwd=self.project_root,
                         capture_output=True,
-                        timeout=60,
+                        text=True,
                         env=git_env,
                     )
-                    # Move to correct location
-                    import shutil
-                    from pathlib import Path
-                    stray_local = self.project_root / stray_repo_path
-                    correct_local = self.project_root / repo_path
-                    correct_local.parent.mkdir(exist_ok=True, parents=True)
-                    shutil.move(str(stray_local), str(correct_local))
-                    logging.info(f"✨ Auto-fixed misplaced file from {stray_repo_path} to {repo_path}")
+                    modified_files = diff_res.stdout.strip().split("\n") if diff_res.stdout else []
+                    md_files = [f for f in modified_files if f.endswith(".md") and ("plans/" in f or "pages/" in f)]
+                    
+                    if md_files:
+                        actual_repo_path = md_files[0]
+                        subprocess.run(
+                            ["git", "checkout", checkout_ref, "--", actual_repo_path],
+                            check=True,
+                            cwd=self.project_root,
+                            capture_output=True,
+                            timeout=60,
+                            env=git_env,
+                        )
+                        # Move to the correct target filename we expected
+                        import shutil
+                        from pathlib import Path
+                        stray_local = self.project_root / actual_repo_path
+                        correct_local = self.project_root / repo_path
+                        correct_local.parent.mkdir(exist_ok=True, parents=True)
+                        shutil.move(str(stray_local), str(correct_local))
+                        logging.info(f"✨ Auto-fixed hallucinated filename from {actual_repo_path} to {repo_path}")
+                    else:
+                        # Fallback: Maybe Jules created it in Jules-workspace/
+                        file_name = target_filename.split("/")[-1]
+                        file_type = "plans" if "plan" in file_name.lower() else "pages"
+                        stray_repo_path = f"Jules-workspace/{file_type}/{file_name}"
+                        subprocess.run(
+                            ["git", "checkout", checkout_ref, "--", stray_repo_path],
+                            check=True,
+                            cwd=self.project_root,
+                            capture_output=True,
+                            timeout=60,
+                            env=git_env,
+                        )
+                        # Move to correct location
+                        import shutil
+                        from pathlib import Path
+                        stray_local = self.project_root / stray_repo_path
+                        correct_local = self.project_root / repo_path
+                        correct_local.parent.mkdir(exist_ok=True, parents=True)
+                        shutil.move(str(stray_local), str(correct_local))
+                        logging.info(f"✨ Auto-fixed misplaced file from {stray_repo_path} to {repo_path}")
 
             logging.info(f"✅ Successfully pulled {target_filename}")
 

@@ -554,7 +554,7 @@ Schema:
             callback(lesson_title, "RUNNING", f"Status: {state}")
 
         status = self.client.wait_for_completion(
-            session_id, timeout_minutes=20, status_callback=status_update
+            session_id, timeout_minutes=45, status_callback=status_update
         )
 
         if status not in ["SUCCEEDED", "COMPLETED"]:
