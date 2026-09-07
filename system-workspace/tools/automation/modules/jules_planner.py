@@ -256,7 +256,6 @@ Schema:
                 if map_path.exists():
                     update_callback(title, "RUNNING", "Loading local Semantic Map...")
                     try:
-                        import json
                         semantic_chunks = json.loads(map_path.read_text(encoding="utf-8"))
                     except Exception as e:
                         logging.error(f"Failed to load local map {map_path}: {e}")
@@ -419,7 +418,7 @@ Schema:
             
         settings_file = self.project_root / "system-workspace/settings.json"
         workspace_code = None
-        import json
+
         if settings_file.exists():
             try:
                 with open(settings_file, encoding="utf-8") as f:
