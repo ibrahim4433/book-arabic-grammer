@@ -9,121 +9,77 @@ Reference: Follow patterns in design_patterns.json.
 
 --- START STREAM ---
 
-=== BLOCK 1: TEMPLATE_C_HEADER ===
+=== BLOCK 1: TEMPLATE_C_HEADER.html ===
 (Component: TEMPLATE_C_HEADER.html)
-[CATEGORY_HEADER]: المستوى التأسيسي
-[SECTION_HEADER]: الأدب والنصوص
-[AUTHOR_NAME]: أ. حنا خفيف
-[AUTHOR_PHONE]:
-[CHAPTER_TITLE]: الأمير الدمشقي
-[LESSON_NUMBER]: 003
+[CATEGORY_HEADER]
+المستوى التأسيسي
+[SECTION_HEADER]
+الأدب والنصوص
+[AUTHOR_NAME]
+أ. حنا خفيف
+[AUTHOR_PHONE]
 
-=== BLOCK 2: TEMPLATE_LIT_PART_1_POEM ===
+[CHAPTER_TITLE]
+الأمير الدمشقي
+[LESSON_NUMBER]
+003
+
+=== BLOCK 2: TEMPLATE_LIT_PART_1_POEM.html ===
 (Component: TEMPLATE_LIT_PART_1_POEM.html)
-[POET_NAME]:
-[POET_DATES]:
-[POET_BIO_LIST]:
-[INTRO_LIST]:
-[POEM_VERSES]:
-<div class="poem-line" id="[UNIQUE_ID_1]">
-  <div class="hemistich">Line 450</div>
-  <div class="hemistich">Line 451</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_2]">
-  <div class="hemistich">Line 452</div>
-  <div class="hemistich">Line 453</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_3]">
-  <div class="hemistich">Line 454</div>
-  <div class="hemistich">Line 455</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_4]">
-  <div class="hemistich">Line 456</div>
-  <div class="hemistich">Line 457</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_5]">
-  <div class="hemistich">Line 458</div>
-  <div class="hemistich">Line 459</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_6]">
-  <div class="hemistich">Line 460</div>
-  <div class="hemistich">Line 461</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_7]">
-  <div class="hemistich">Line 462</div>
-  <div class="hemistich">Line 463</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_8]">
-  <div class="hemistich">Line 464</div>
-  <div class="hemistich">Line 465</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_9]">
-  <div class="hemistich">Line 466</div>
-  <div class="hemistich">Line 467</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_10]">
-  <div class="hemistich">Line 468</div>
-  <div class="hemistich">Line 469</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_11]">
-  <div class="hemistich">Line 470</div>
-  <div class="hemistich">Line 471</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_12]">
-  <div class="hemistich">Line 472</div>
-  <div class="hemistich">Line 473</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_13]">
-  <div class="hemistich">Line 474</div>
-  <div class="hemistich">Line 475</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_14]">
-  <div class="hemistich">Line 476</div>
-  <div class="hemistich">Line 477</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_15]">
-  <div class="hemistich">Line 478</div>
-  <div class="hemistich">Line 479</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_16]">
-  <div class="hemistich">Line 480</div>
-  <div class="hemistich">Line 481</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_17]">
-  <div class="hemistich">Line 482</div>
-  <div class="hemistich">Line 483</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_18]">
-  <div class="hemistich">Line 484</div>
-  <div class="hemistich">Line 485</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_19]">
-  <div class="hemistich">Line 486</div>
-  <div class="hemistich">Line 487</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_20]">
-  <div class="hemistich">Line 488</div>
-  <div class="hemistich">Line 489</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_21]">
-  <div class="hemistich">Line 490</div>
-  <div class="hemistich">Line 491</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_22]">
-  <div class="hemistich">Line 492</div>
-  <div class="hemistich">Line 493</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_23]">
-  <div class="hemistich">Line 494</div>
-  <div class="hemistich">Line 495</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_24]">
-  <div class="hemistich">Line 496</div>
-  <div class="hemistich">Line 497</div>
-</div>
-<div class="poem-line" id="[UNIQUE_ID_25]">
-  <div class="hemistich">Line 498</div>
-  <div class="hemistich">Line 499</div>
-</div>
+[POET_NAME]
+Line 700
+[POET_DATES]
+Line 701
+[POET_BIO_LIST]
+Line 702
+Line 703
+Line 704
+Line 705
+Line 706
+Line 707
+Line 708
+Line 709
+Line 710
+Line 711
+Line 712
+Line 713
+Line 714
+Line 715
+[INTRO_LIST]
+Line 716
+Line 717
+Line 718
+Line 719
+Line 720
+Line 721
+Line 722
+Line 723
+Line 724
+Line 725
+[POEM_VERSES]
+Line 726
+Line 727
+Line 728
+Line 729
+Line 730
+Line 731
+Line 732
+Line 733
+Line 734
+Line 735
+Line 736
+Line 737
+Line 738
+Line 739
+Line 740
+Line 741
+Line 742
+Line 743
+Line 744
+Line 745
+Line 746
+Line 747
+Line 748
+Line 749
 
 --- END STREAM ---
