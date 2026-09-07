@@ -1,85 +1,86 @@
-# **SESSION 003.1**
+# **SESSION 003.4**
 
 [TASK DEFINITION]
-Objective: Implement Part 1 of الأمير الدمشقي.
-File: `pages/003.1_nXXX_الأمير الدمشقي.html`
+Objective: Implement Part 4 of الأمير الدمشقي.
+File: `pages/003.4_nXXX_الأمير الدمشقي.html`
 Reference: Follow patterns in design_patterns.json.
 
 [CONTENT STREAM]
 
 --- START STREAM ---
 
-=== BLOCK 1: TEMPLATE_C_HEADER.html ===
-(Component: TEMPLATE_C_HEADER.html)
-[CATEGORY_HEADER]
-المستوى التأسيسي
-[SECTION_HEADER]
-الأدب والنصوص
-[AUTHOR_NAME]
-أ. حنا خفيف
-[AUTHOR_PHONE]
+=== BLOCK 1: TEMPLATE_LIT_PART_4_COMPREHENSION.html ===
+(Component: TEMPLATE_LIT_PART_4_COMPREHENSION.html)
+[UNIQUE_ID_1]: b1
+[UNIQUE_ID_2]: q1
+[QUESTION_NUMBER_1]: ١-
+[QUESTION_TEXT_1]: اذْكُرْ مِنَ النَّصِّ خَصِيصَتَيْنِ مِنْ خَصَائِصِ الأدَبِ الوِجْدَانِيِّ، وَمَثِّلْ لِكُلٍّ مِنْهُما.
+[UNIQUE_ID_3]: a1
+[ANSWER_TEXT_1]: الاعتماد على التصوير: (مُكَسَّرَةٌ كَجُفُونِ أَبِيكَ هِيَ الكَلِمَاتُ، كُلُّ العُيُونِ أَمَامِي حَجَرٌ، رَأْسُكَ فِي رَاحَتِي وَرْدَةٌ دِمَشْقِيَّةٌ...). التراكيب المُوحِيَةُ: (وقد مَلَّ الدَّمْعُ كُلَّ الدَّوَاةِ، وكان صَدِيقَ الخِرَافِ الصَّغِيرَةِ، كَانَ صَدِيقَ العَصَافِيرِ...).
+[UNIQUE_ID_4]: block1
+[BENEFIT_TITLE]: المستوى الفني
+[BENEFIT_LIST_ITEMS]:
+<li><strong>دلالة الأفعال (١):</strong> (سأخبركم): فعل مضارع، دلالته تجدد الإخبار واستمراره. (ترقب): فعل مضارع، دلالته تجدد الترقب واستمراره.</li>
+<li><strong>دلالة الأفعال (٢):</strong> (يقطف): فعل مضارع، دلالته تجدد القطاف واستمراره. (يحزن): فعل مضارع، دلالته تجدد الحزن واستمراره.</li>
+[UNIQUE_ID_5]: q2
+[QUESTION_NUMBER_2]: ٢-
+[QUESTION_TEXT_2]: بَيِّنْ دَوْرَ صِيغَتَيِ المُضَارِعِ والمَاضِي فِي تَكْوِينِ الإِحْسَاسِ بِالمَأْسَاةِ للكلمتين (مات) و (وجدت).
+[UNIQUE_ID_6]: a2
+[ANSWER_TEXT_2]: (مات): فعل ماضٍ، دلالته تحقق الموت وثبات وقوعه. (وجدت): فعل ماضٍ، دلالته تحقق الوجود وثبات وقوعه.
 
-[CHAPTER_TITLE]
-الأمير الدمشقي
-[LESSON_NUMBER]
-003
+=== BLOCK 2: TEMPLATE_LIT_PART_4_COMPREHENSION.html ===
+(Component: TEMPLATE_LIT_PART_4_COMPREHENSION.html)
+[UNIQUE_ID_1]: b2
+[UNIQUE_ID_2]: q3
+[QUESTION_NUMBER_1]: ٣-
+[QUESTION_TEXT_1]: أَسْهَمَ الإِنْشَاءُ الطَّلَبِيُّ فِي إِثْرَاءِ الجَانِبِ العَاطِفِيِّ، وَضِّحْ ذَلِكَ مُسْتَعِيناً بِأَمْثَلَةٍ مِنَ النَّصِّ.
+[UNIQUE_ID_3]: a3
+[ANSWER_TEXT_1]: أفاد الشاعر من طاقة الإنشاء الطلبي في تجلية مشاعر شتى. (فَكَيْفَ أُقَاوِمُ سَيْفَ الزَّمَانِ وَسَيْفِي انْكَسَرْ؟): أثار مشاعر اليأس والإحباط.
+[UNIQUE_ID_4]: block2
+[BENEFIT_TITLE]: المستوى الفني - الإنشاء الطلبي
+[BENEFIT_LIST_ITEMS]:
+<li><strong>(هل تَعْرِفُونَ دُمُوعَ الثُّرَيَّاتِ حِينَ تَسِيلُ؟، هَلْ تَعْرِفُونَ نَوَافِيرَ رُومَا وحُزْنَ المَرَاكِبِ قَبْلَ الرَّحِيلِ؟):</strong> أثار مشاعر الحزن والأسى.</li>
+<li><strong>(فَهَلْ سَتُفَكِّرُ فِينَا قَلِيلاً وَتَرْجِعُ فِي آخِرِ الصَّيْفِ حَتَّى نَرَاكَ؟):</strong> أثار مشاعر الشوق والحنين.</li>
+[UNIQUE_ID_5]: q4
+[QUESTION_NUMBER_2]: ٤-
+[QUESTION_TEXT_2]: غَلَبَ التَّشْبِيهُ عَلَى مُخْتَلَفِ أَسَالِيبِ التَّصْوِيرِ فِي النَّصِّ، اشْرَحْ وَظَائِفَ الصُّورَةِ البَيَانِيَّةِ (مُكَسَّرَةٌ كَجُفُونِ أَبِيكَ هِيَ الكَلِمَاتُ).
+[UNIQUE_ID_6]: a4
+[ANSWER_TEXT_2]: نوعها: تشبيه تام الأركان. من وظائفها الشرح والتوضيح: شرحت عدم قدرة الشاعر على استعمال اللغة في رثاء الابن، وأوضحت معاناته وتقرح أجفانه من البكاء. والإيحاء: أوحت بالعجز والضعف، وأثارت مشاعر الحزن والألم.
 
-=== BLOCK 2: TEMPLATE_LIT_PART_1_POEM.html ===
-(Component: TEMPLATE_LIT_PART_1_POEM.html)
-[POET_NAME]
-Line 700
-[POET_DATES]
-Line 701
-[POET_BIO_LIST]
-Line 702
-Line 703
-Line 704
-Line 705
-Line 706
-Line 707
-Line 708
-Line 709
-Line 710
-Line 711
-Line 712
-Line 713
-Line 714
-Line 715
-[INTRO_LIST]
-Line 716
-Line 717
-Line 718
-Line 719
-Line 720
-Line 721
-Line 722
-Line 723
-Line 724
-Line 725
-[POEM_VERSES]
-Line 726
-Line 727
-Line 728
-Line 729
-Line 730
-Line 731
-Line 732
-Line 733
-Line 734
-Line 735
-Line 736
-Line 737
-Line 738
-Line 739
-Line 740
-Line 741
-Line 742
-Line 743
-Line 744
-Line 745
-Line 746
-Line 747
-Line 748
-Line 749
+=== BLOCK 3: TEMPLATE_LIT_PART_4_COMPREHENSION.html ===
+(Component: TEMPLATE_LIT_PART_4_COMPREHENSION.html)
+[UNIQUE_ID_1]: b3
+[UNIQUE_ID_2]: q5
+[QUESTION_NUMBER_1]: ٥-
+[QUESTION_TEXT_1]: اشْرَحْ وَظَائِفَ الصُّورَةِ البَيَانِيَّةِ (وَكُلُّ الوُجُوهِ أَمَامِي نُحَاسٌ).
+[UNIQUE_ID_3]: a5
+[ANSWER_TEXT_1]: نوعها: تشبيه بليغ. الشرح والتوضيح: شرحت عدم تأثر الحضور بموت الابن. الإيحاء: أوحت بالوحدة والغربة، وأوضحت وحدة الشاعر وهو يواجه موت ابنه وأثارت مشاعر الحزن والنقمة.
+[UNIQUE_ID_4]: block3
+[BENEFIT_TITLE]: المستوى الفني - الصور البيانية
+[BENEFIT_LIST_ITEMS]:
+<li><strong>(كَانَ كَيُوسُفَ حُسْناً):</strong> نوعها تشبيه تام الأركان. من وظائف الصورة: المبالغة: بالغ في تصوير جمال ابنه، ليبلغ الحد الأعلى من الجمال.</li>
+[UNIQUE_ID_5]: q6
+[QUESTION_NUMBER_2]: ٦-
+[QUESTION_TEXT_2]: مِنْ عَنَاصِرِ الإِيقَاعِ الخَارِجِيِّ تَنَوُّعُ القَوَافِي، مَثِّلْ لِذَلِكَ فِي النَّصِّ السَّابِقِ.
+[UNIQUE_ID_6]: a6
+[ANSWER_TEXT_2]: (كَانَ كَيُوسُفَ حُسْناً.. وَكُنْتُ أَخَافُ عَلَيهِ مِنَ الذِّئْبِ / كُنْتُ أَخَافُ عَلَى شَعْرِهِ الذَّهَبِيِّ الطَّوِيلِ / وأَمْسِ أَتَوْا يَحْمِلُونَ قَمِيصَ حَبِيبِي).
+
+=== BLOCK 4: TEMPLATE_LIT_PART_4_COMPREHENSION.html ===
+(Component: TEMPLATE_LIT_PART_4_COMPREHENSION.html)
+[UNIQUE_ID_1]: b4
+[UNIQUE_ID_2]: q7
+[QUESTION_NUMBER_1]: ٧-
+[QUESTION_TEXT_1]: مَثِّلْ لِلتَّنَوُّعِ فِي طُولِ الأَسْطُرِ الشِّعْرِيَّةِ وَقِصَرِهَا فِي النَّصِّ.
+[UNIQUE_ID_3]: a7
+[ANSWER_TEXT_1]: (إِنِّي جَبَانٌ / فَهَلْ سَتُفَكِّرُ فِينَا قَلِيلاً؟ / وَتَرْجِعُ فِي آخِرِ الصَّيْفِ حَتَّى نَرَاكَ.. / أَتَوْفِيقُ.. / أَمَامَ رِثَائِكَ.. / فَارْحَمْ أَبَاكَ...).
+[UNIQUE_ID_4]: block4
+[BENEFIT_TITLE]: المستوى الفني - الإيقاع الخارجي
+[BENEFIT_LIST_ITEMS]:
+<li><strong>تفعيلة البحر:</strong> المتقارب (فَعُولُنْ).</li>
+[UNIQUE_ID_5]: q8
+[QUESTION_NUMBER_2]: ٨-
+[QUESTION_TEXT_2]: قَطِّعْ عَروضِيّاً السَّطْرَ الشِّعْرِيَّ الآتِي، ثُمَّ سَمِّ تَفْعِيلَةَ البَحْرِ الَّتِي بُنِيَ عَلَيْهَا النَّصُّ (وَأَلْثُمُ قُمْصَانَكَ العَاطِرَاتِ).
+[UNIQUE_ID_6]: a8
+[ANSWER_TEXT_2]: وَأَلْثُمُ قُمْصَا / نَكَ الْعَا / طِرَاتِ. التقطيع: (//٠/ //٠/٠ //٠/٠ //٠٠) (فَعُولُ فَعُولُنْ فَعُولُنْ فَعُولْ).
 
 --- END STREAM ---
