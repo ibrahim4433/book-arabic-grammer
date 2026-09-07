@@ -31,6 +31,7 @@ class JulesClient:
                 "Jules API Key not found. Set JULES_API_KEY env var or check secrets/Jules_API.txt"
             )
             
+        self.session = requests.Session()
         self.source_context = self._discover_source()
 
     def _load_api_key(self):
@@ -50,7 +51,7 @@ class JulesClient:
         headers = {"X-Goog-Api-Key": self.api_key}
         url = "https://jules.googleapis.com/v1alpha/sources"
         try:
-            resp = requests.get(url, headers=headers, timeout=30)
+            resp = self.session.get(url, headers=headers, timeout=30)
             resp.raise_for_status()
             sources = resp.json().get("sources", [])
             for s in sources:
@@ -91,7 +92,7 @@ class JulesClient:
 
         try:
             logging.info(f"🚀 JulesClient: Dispatching Session '{title}'...")
-            resp = requests.post(self.base_url, headers=headers, json=payload, timeout=(10, 30))
+            resp = self.session.post(self.base_url, headers=headers, json=payload, timeout=(30, 120))
             resp.raise_for_status()
 
             data = resp.json()
@@ -128,7 +129,7 @@ class JulesClient:
         )
 
         try:
-            resp = requests.get(url, headers=headers, timeout=30)
+            resp = self.session.get(url, headers=headers, timeout=30)
             resp.raise_for_status()
             return resp.json()
 
@@ -152,7 +153,7 @@ class JulesClient:
         url = f"https://jules.googleapis.com/v1alpha/{session_path}/activities?pageSize={page_size}"
         
         try:
-            resp = requests.get(url, headers=headers, timeout=30)
+            resp = self.session.get(url, headers=headers, timeout=30)
             resp.raise_for_status()
             return resp.json().get("activities", [])
         except requests.exceptions.Timeout:
@@ -177,7 +178,7 @@ class JulesClient:
 
         try:
             logging.info(f"📤 Sending response to {session_path}...")
-            resp = requests.post(url, headers=headers, json=payload, timeout=30)
+            resp = self.session.post(url, headers=headers, json=payload, timeout=30)
             resp.raise_for_status()
             logging.info("✅ Response sent.")
             return True

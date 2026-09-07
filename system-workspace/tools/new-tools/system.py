@@ -537,16 +537,15 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
     
                 live.update(generate_layout())
             
-            for p_num in part_numbers_list:
-                planner = JulesPlanner(
-                    PROJECT_ROOT, 
-                    state_manager=state_manager, 
-                    is_1_page_mode=is_1_page_mode,
-                    is_1_part_mode=is_1_part_mode,
-                    part_instruction=part_instruction,
-                    part_number=p_num
-                )
-                planner.run_batch_planning(max_concurrent=10, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
+            planner = JulesPlanner(
+                PROJECT_ROOT, 
+                state_manager=state_manager, 
+                is_1_page_mode=is_1_page_mode,
+                is_1_part_mode=is_1_part_mode,
+                part_instruction=part_instruction,
+                part_number=part_numbers_list
+            )
+            planner.run_batch_planning(max_concurrent=10, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
 
         api_blocked = any(data.get("status") == "API_BLOCKED" for data in tasks.values())
         if api_blocked:

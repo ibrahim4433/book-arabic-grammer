@@ -108,23 +108,27 @@ class JulesPlanner:
         index_path = self.project_root / "system-workspace/text-data/raw_to_lesson_index.json"
         if not index_path.exists(): return 0
         mapping = json.loads(index_path.read_text(encoding="utf-8"))
+        part_list = self.part_number if isinstance(self.part_number, list) else [self.part_number]
         count = 0
-        for title, info in mapping.items():
-            lesson_number = self.tp.get_lesson_number(title)
-            if excluded_lessons:
-                if lesson_number and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons): continue
-            if only_lessons:
-                if not lesson_number or (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons): continue
-            
-            clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
-            if getattr(self, "is_1_page_mode", False):
-                base_name = f"page_{lesson_number}-plan"
-            elif getattr(self, "is_1_part_mode", False):
-                base_name = f"part_{getattr(self, 'part_number', '1')}_lesson_{lesson_number}-plan"
-            else:
-                base_name = f"{lesson_number}-{clean_title}-plan"
-            if list((self.project_root / "plans").glob(f"{base_name}*.md")):
-                count += 1
+        
+        for p_num in part_list:
+            for title, info in mapping.items():
+                lesson_number = self.tp.get_lesson_number(title)
+                if excluded_lessons:
+                    if lesson_number and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons): continue
+                if only_lessons:
+                    if not lesson_number or (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons): continue
+                
+                clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
+                clean_title = re.sub(r'[<>:"/\\|?*]', '', clean_title)
+                if getattr(self, "is_1_page_mode", False):
+                    base_name = f"page_{lesson_number}-plan"
+                elif getattr(self, "is_1_part_mode", False):
+                    base_name = f"{lesson_number}.{p_num}_nXXX_{clean_title}-plan"
+                else:
+                    base_name = f"{lesson_number}-{clean_title}-plan"
+                if list((self.project_root / "plans").glob(f"{base_name}*.md")):
+                    count += 1
         return count
 
     def run_batch_planning(
@@ -148,17 +152,6 @@ class JulesPlanner:
 
         logging.info(f"\n🧠 Starting Jules Batch Planning (Max Concurrent: {max_concurrent})...")
 
-        # 0. Wrap callback to include part number if in 1-part mode
-        original_callback = update_callback
-        def wrapped_callback(t, s, m):
-            if getattr(self, "is_1_part_mode", False) and not t.startswith("[Part"):
-                if t == "System":
-                    t = f"System (Part {getattr(self, 'part_number', '1')})"
-                else:
-                    t = f"[Part {getattr(self, 'part_number', '1')}] {t}"
-            original_callback(t, s, m)
-        update_callback = wrapped_callback
-
         # 1. Get Lesson Index
         index_path = self.project_root / "system-workspace/text-data/raw_to_lesson_index.json"
         if not index_path.exists():
@@ -172,60 +165,71 @@ class JulesPlanner:
             return
 
         # 2. Filter Processed Lessons?
-        to_process = {}
-        for title, info in mapping.items():
-            lesson_number = self.tp.get_lesson_number(title)
+        to_process = []
+        part_list = self.part_number if isinstance(self.part_number, list) else [self.part_number]
+        
+        for p_num in part_list:
+            for title, info in mapping.items():
+                lesson_number = self.tp.get_lesson_number(title)
+                
+                display_title = f"[Part {p_num}] {title}" if getattr(self, "is_1_part_mode", False) else title
 
-            # Check Exclusions
-            if excluded_lessons:
-                if lesson_number and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons):
-                    update_callback(title, "SKIP", f"Lesson {lesson_number} excluded (Page exists)")
-                    continue
+                # Check Exclusions
+                if excluded_lessons:
+                    if lesson_number and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons):
+                        update_callback(display_title, "SKIP", f"Lesson {lesson_number} excluded (Page exists)")
+                        continue
 
-            if only_lessons:
-                if not lesson_number or (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons):
-                    continue  # Skip if we only want specific lessons
+                if only_lessons:
+                    if not lesson_number or (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons):
+                        continue  # Skip if we only want specific lessons
 
-            clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
-            
-            if getattr(self, "is_1_page_mode", False):
-                base_name = f"page_{lesson_number}-plan"
-            elif getattr(self, "is_1_part_mode", False):
-                base_name = f"part_{getattr(self, 'part_number', '1')}_lesson_{lesson_number}-plan"
-            else:
-                base_name = f"{lesson_number}-{clean_title}-plan"
+                clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
+                clean_title = re.sub(r'[<>:"/\\|?*]', '', clean_title)
+                
+                if getattr(self, "is_1_page_mode", False):
+                    base_name = f"page_{lesson_number}-plan"
+                elif getattr(self, "is_1_part_mode", False):
+                    base_name = f"{lesson_number}.{p_num}_nXXX_{clean_title}-plan"
+                else:
+                    base_name = f"{lesson_number}-{clean_title}-plan"
 
-            existing = list((self.project_root / "plans").glob(f"{base_name}*.md"))
-            if existing and not force_remake:
-                update_callback(title, "SKIP", "Plan exists")
-            else:
-                if force_remake and existing:
-                    for f in existing:
-                        try:
-                            f.unlink()
-                        except:
-                            pass
-                to_process[title] = info
-                update_callback(title, "PENDING", "Queued")
+                existing = list((self.project_root / "plans").glob(f"{base_name}*.md"))
+                if existing and not force_remake:
+                    update_callback(display_title, "SKIP", "Plan exists")
+                else:
+                    if force_remake and existing:
+                        for f in existing:
+                            try:
+                                f.unlink()
+                            except:
+                                pass
+                    to_process.append({
+                        "title": title,
+                        "display_title": display_title,
+                        "info": info,
+                        "p_num": p_num
+                    })
+                    update_callback(display_title, "PENDING", "Queued")
 
         if not to_process:
             update_callback("System", "DONE", "All plans exist.")
             return
 
         # 3. Execute Batch
-        def _get_num(t):
+        def _get_num(item):
             import re
-            m = re.match(r"^(\d+)", t)
+            m = re.match(r"^(\d+)", item["title"])
             return int(m.group(1)) if m else 999
             
-        sorted_items = sorted(to_process.items(), key=lambda x: _get_num(x[0]))
+        sorted_items = sorted(to_process, key=_get_num)
         
         with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
             future_to_lesson = {
                 executor.submit(
-                    self.process_lesson_with_callback, title, info, update_callback
-                ): title
-                for title, info in sorted_items
+                    self.process_lesson_with_callback, item["display_title"], item["title"], item["info"], update_callback, item["p_num"]
+                ): item["display_title"]
+                for item in sorted_items
             }
 
             for future in as_completed(future_to_lesson):
@@ -235,16 +239,16 @@ class JulesPlanner:
             for t in self.pull_threads:
                 t.join()
 
-    def process_lesson_with_callback(self, lesson_title, range_info, callback):
+    def process_lesson_with_callback(self, display_title, original_title, range_info, callback, p_num=None):
         """Wrapper for process_lesson that uses callback."""
-        # Note: callback is already wrapped by run_batch_planning
-        callback(lesson_title, "RUNNING", "Starting...")
+        callback(display_title, "RUNNING", "Starting...")
         try:
-            self.process_lesson(lesson_title, range_info, callback)
+            # We wrap the inner callback so it always emits display_title
+            self.process_lesson(original_title, range_info, lambda t, s, m: callback(display_title, s, m), force_remake=False, p_num=p_num)
         except Exception as e:
-            callback(lesson_title, "ERROR", str(e))
+            callback(display_title, "ERROR", str(e))
 
-    def process_lesson(self, lesson_title, range_info, callback=None, force_remake=False):
+    def process_lesson(self, lesson_title, range_info, callback=None, force_remake=False, p_num=None):
         """
         Worker function for a single lesson.
         """
@@ -282,11 +286,13 @@ class JulesPlanner:
             clean_title = lesson_title.strip()
             lesson_number = self.tp.get_lesson_number(clean_title)
 
+        clean_title = re.sub(r'[<>:"/\\|?*]', '', clean_title)
+
         # Determine filename based on mode
         if getattr(self, "is_1_page_mode", False):
             base_filename = f"page_{lesson_number}-plan"
         elif getattr(self, "is_1_part_mode", False):
-            p_num = getattr(self, "part_number", "1")
+            p_num = p_num or getattr(self, "part_number", "1")
             base_filename = f"{lesson_number}.{p_num}_nXXX_{clean_title}-plan"
         else:
             base_filename = f"{lesson_number}-{clean_title}-plan"
@@ -390,15 +396,24 @@ class JulesPlanner:
 
         if not session_id:
             callback(lesson_title, "RUNNING", "Creating Session...")
-            try:
-                session = self.client.create_plan_session(base_filename, mega_prompt)
-            except APIBlockError as e:
-                self.abort_event.set()
-                callback(lesson_title, "API_BLOCKED", "API Quota/Limit Reached")
-                return
+            session = None
+            for _attempt in range(10):
+                try:
+                    session = self.client.create_plan_session(base_filename, mega_prompt)
+                    if session:
+                        break
+                    callback(lesson_title, "WARN", "Network error during create. Retrying in 10s...")
+                    time.sleep(10)
+                except APIBlockError as e:
+                    self.abort_event.set()
+                    callback(lesson_title, "API_BLOCKED", "API Quota/Limit Reached")
+                    return False
+                except Exception as e:
+                    callback(lesson_title, "WARN", f"Error during create: {e}. Retrying in 10s...")
+                    time.sleep(10)
 
             if not session:
-                callback(lesson_title, "ERROR", "Session Creation Failed")
+                callback(lesson_title, "ERROR", "Session Creation Failed after retries")
                 return False
 
             session_id = session.get("name")
