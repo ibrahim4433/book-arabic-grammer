@@ -281,7 +281,8 @@ class JulesPageGenerator:
                 part_num = getattr(self, "part_number", "1")
                 # New standard: 001.1_nXXX_title.html
                 if lesson_num and "." in lesson_num:
-                    target_file = f"`pages/{lesson_title.replace('-plan', '')}.html`"
+                    clean_lesson_title = re.sub(r"_[a-z0-9]{5}$", "", lesson_title)
+                    target_file = f"`pages/{clean_lesson_title.replace('-plan', '')}.html`"
                 else:
                     target_file = f"`pages/{lesson_num}.{part_num}_nXXX_[LESSON_TITLE].html`" if lesson_num else "`pages/[LESSON_TITLE].html`"
                 naming_constraints = (
@@ -662,8 +663,29 @@ class JulesPageGenerator:
         plans_dir = self.project_root / "plans"
         all_plans = sorted(list(plans_dir.glob("*.md")))
 
+        filtered_plans = []
+        seen_core_names = set()
+        
+        for plan in all_plans:
+            if getattr(self, "is_1_part_mode", False):
+                part_match = re.search(r"^\d+\.(\d+)", plan.name)
+                if part_match:
+                    plan_p_num = part_match.group(1)
+                    if str(plan_p_num) != str(getattr(self, "part_number", "1")):
+                        continue
+                else:
+                    continue
+            
+            core_name = re.sub(r"_[a-z0-9]{5}\.md$", ".md", plan.name)
+            if core_name in seen_core_names:
+                continue
+            seen_core_names.add(core_name)
+            filtered_plans.append(plan)
+            
+        all_plans = filtered_plans
+
         if not all_plans:
-            update_callback("System", "WARN", "No plans found.")
+            update_callback("System", "WARN", "No matching plans found for this part.")
             return
 
         to_process = []

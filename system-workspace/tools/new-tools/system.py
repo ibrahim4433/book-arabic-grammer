@@ -396,7 +396,7 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
 
     part_numbers_list = []
     if part_number.strip().upper() == "ALL":
-        part_numbers_list = ["1", "2", "3", "4"]
+        part_numbers_list = [str(i) for i in range(1, 51)]
     elif "," in part_number:
         part_numbers_list = [p.strip() for p in part_number.split(",")]
     elif "-" in part_number:
@@ -720,7 +720,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
 
     part_numbers_list = []
     if part_number.strip().upper() == "ALL":
-        part_numbers_list = ["1", "2", "3", "4"]
+        part_numbers_list = [str(i) for i in range(1, 51)]
     elif "," in part_number:
         part_numbers_list = [p.strip() for p in part_number.split(",")]
     elif "-" in part_number:

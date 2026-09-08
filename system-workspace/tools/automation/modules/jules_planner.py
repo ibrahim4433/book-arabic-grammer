@@ -257,7 +257,7 @@ Schema:
             lines = raw_text.splitlines()
             # Semantic Chunking
             semantic_chunks = None
-            if getattr(self, "is_1_part_mode", False) and (isinstance(self.part_number, list) and self.part_number == ['1', '2', '3', '4']):
+            if getattr(self, "is_1_part_mode", False):
                 map_path = self.project_root / f"system-workspace/text-data/semantic_maps/lesson_{lesson_number}.json"
                 if map_path.exists():
                     update_callback(title, "RUNNING", "Loading local Semantic Map...")
