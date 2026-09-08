@@ -379,7 +379,7 @@ Schema:
         callback(display_title, "RUNNING", "Starting...")
         try:
             # We wrap the inner callback so it always emits display_title
-            self.process_lesson(original_title, range_info, lambda t, s, m: callback(display_title, s, m), force_remake=False, p_num=p_num, chunk_text=chunk_text)
+            self.process_lesson(original_title, range_info, lambda t, s, m, **kwargs: callback(display_title, s, m, **kwargs), force_remake=False, p_num=p_num, chunk_text=chunk_text)
         except Exception as e:
             callback(display_title, "ERROR", str(e))
 
@@ -391,10 +391,8 @@ Schema:
             return
 
         if not callback:
-
-            def default_callback(t, s, m):
+            def default_callback(t, s, m, **kwargs):
                 logging.info(f"[{s}] {t}: {m}")
-
             callback = default_callback
 
         # API Safety Delay (5-15s) to prevent burst
@@ -446,14 +444,16 @@ Schema:
             filename = f"{base_filename}_{workspace_code}.md"
         else:
             filename = f"{base_filename}.md"
+            
+        expected_path = f"plans/{filename}"
 
         # 0. Check if Plan Exists (Early Exit)
         existing_files = list((self.project_root / "plans").glob(f"{base_filename}*.md"))
         if existing_files and not force_remake:
-            callback(lesson_title, "SUCCESS", f"Plan exists: {existing_files[0].name}")
+            callback(lesson_title, "SUCCESS", f"Plan exists: {existing_files[0].name}", lesson_num=lesson_number, expected_path=expected_path)
             return True
 
-        callback(lesson_title, "RUNNING", "Extracting Text...")
+        callback(lesson_title, "RUNNING", "Extracting Text...", lesson_num=lesson_number, expected_path=expected_path)
 
         # 1. Extract Text
         if chunk_text is not None:
@@ -498,7 +498,10 @@ Schema:
         )
         
         if workspace_code and workspace_code != "None":
-            mega_prompt += f"\n\nIMPORTANT INSTRUCTION: You MUST append the batch workspace code '_{workspace_code}' to the filename of the generated plan (e.g. {base_filename}_{workspace_code}.md)."
+            filename = f"{base_filename}_{workspace_code}.md"
+        else:
+            filename = f"{base_filename}.md"
+        mega_prompt += f"\n\nCRITICAL FILENAME INSTRUCTION: You MUST name the generated plan EXACTLY: `{filename}`. Do NOT deviate from this filename."
 
         mega_prompt += f"\n\nCRITICAL PATH INSTRUCTION: Do NOT place the generated plan inside `Jules-workspace/plans/`. You MUST place the generated plan in the root `plans/` directory."
         
@@ -510,8 +513,10 @@ Schema:
         session_id = None
         session_key = f"session_id_{base_filename}"
 
-        # Check State Manager for existing session
-        if self.state_manager:
+        if force_remake:
+            if self.state_manager:
+                self.state_manager.update_lesson_data(lesson_title, {session_key: None})
+        elif self.state_manager:
             session_id = self.state_manager.get_lesson_data(lesson_title, session_key)
             if session_id:
                 callback(lesson_title, "RUNNING", f"Checking Existing Session ({session_id})...")

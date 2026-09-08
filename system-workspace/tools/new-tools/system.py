@@ -521,11 +521,12 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
     while True:
         with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
     
-            def callback(title, status, msg):
+            def callback(title, status, msg, **kwargs):
                 with lock:
                     if title not in tasks:
                         tasks[title] = {}
-    
+                    
+                    tasks[title].update(kwargs)
                     tasks[title]["status"] = status
                     tasks[title]["message"] = msg
     
@@ -581,23 +582,30 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
     with lock:
         for title, data in tasks.items():
             if data.get("status") in ["FAILED", "ERROR", "WARN"]:
-                # The title might have "[Part X] " prefix
-                clean_title_no_part = re.sub(r"^\[Part \d+\]\s*", "", title)
-                lesson_num = dummy_planner.tp.get_lesson_number(clean_title_no_part)
-                if lesson_num:
-                    clean_t = re.sub(r"^\d+\s*-\s*", "", clean_title_no_part).strip()
-                    
-                    # Extract part number from title for file path
-                    part_match = re.match(r"^\[Part (\d+)\]", title)
-                    p_num = part_match.group(1) if part_match else dummy_planner.part_number
-                    
-                    if is_1_page_mode:
-                        expected_path = f"plans/page_{lesson_num}-plan.md"
-                    elif is_1_part_mode:
-                        expected_path = f"plans/part_{p_num}_lesson_{lesson_num}-plan.md"
-                    else:
-                        expected_path = f"plans/{lesson_num}-{clean_t}-plan.md"
+                # If we passed lesson_num and expected_path via kwargs, use them!
+                lesson_num = data.get("lesson_num")
+                expected_path = data.get("expected_path")
+                
+                if lesson_num and expected_path:
                     failed_data.append((lesson_num, title, expected_path))
+                else:
+                    # The title might have "[Part X] " prefix
+                    clean_title_no_part = re.sub(r"^\[Part \d+(?:/\d+)?\]\s*", "", title)
+                    lesson_num = dummy_planner.tp.get_lesson_number(clean_title_no_part)
+                    if lesson_num:
+                        clean_t = re.sub(r"^\d+\s*-\s*", "", clean_title_no_part).strip()
+                        
+                        # Extract part number from title for file path
+                        part_match = re.match(r"^\[Part (\d+)(?:/\d+)?\]", title)
+                        p_num = part_match.group(1) if part_match else dummy_planner.part_number
+                        
+                        if is_1_page_mode:
+                            expected_path = f"plans/page_{lesson_num}-plan.md"
+                        elif is_1_part_mode:
+                            expected_path = f"plans/part_{p_num}_lesson_{lesson_num}-plan.md"
+                        else:
+                            expected_path = f"plans/{lesson_num}-{clean_t}-plan.md"
+                        failed_data.append((lesson_num, title, expected_path))
 
     failed_lessons = [d[0] for d in failed_data]
 
@@ -640,12 +648,6 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
                     if regen:
                         with lock:
                             tasks.clear()
-                        if planner.state_manager:
-                            for l_num, l_title, _ in failed_data:
-                                if l_num in still_failed:
-                                    planner.state_manager.update_lesson_data(
-                                        l_title, {"session_id": None}
-                                    )
                         with Live(
                             generate_layout(), refresh_per_second=4, vertical_overflow="crop"
                         ) as live:
@@ -653,19 +655,16 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
                                 max_concurrent=10,
                                 update_callback=callback,
                                 only_lessons=still_failed,
+                                force_remake=True
                             )
 
         elif choice and choice.startswith("2"):
             console.print("[cyan]Force-regenerating failed plans...[/cyan]")
             with lock:
                 tasks.clear()
-            if planner.state_manager:
-                for l_num, l_title, _ in failed_data:
-                    if l_num in failed_lessons:
-                        planner.state_manager.update_lesson_data(l_title, {"session_id": None})
             with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
                 planner.run_batch_planning(
-                    max_concurrent=10, update_callback=callback, only_lessons=failed_lessons
+                    max_concurrent=10, update_callback=callback, only_lessons=failed_lessons, force_remake=True
                 )
             console.print("[bold green]✅ Recovery Completed![/bold green]")
 
@@ -859,7 +858,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
                         if lesson_num:
                             clean_t = re.sub(r"^\d+\s*-\s*", "", clean_title_no_part).replace("-plan", "").strip()
                             
-                            part_match = re.match(r"^\[Part (\d+)\]", title)
+                            part_match = re.match(r"^\[Part (\d+)(?:/\d+)?\]", title)
                             p_num = part_match.group(1) if part_match else dummy_generator.part_number
                             
                             if getattr(dummy_generator, "is_1_page_mode", False):
@@ -969,13 +968,13 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
     with lock:
         for title, data in tasks.items():
             if data.get("status") in ["FAILED", "ERROR", "WARN"]:
-                clean_title_no_part = re.sub(r"^\[Part \d+\]\s*", "", title)
+                clean_title_no_part = re.sub(r"^\[Part \d+(?:/\d+)?\]\s*", "", title)
                 match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", clean_title_no_part, re.IGNORECASE)
                 lesson_num = match.group(1) if match else None
                 if lesson_num:
                     clean_t = re.sub(r"^\d+\s*-\s*", "", clean_title_no_part).replace("-plan", "").strip()
                     
-                    part_match = re.match(r"^\[Part (\d+)\]", title)
+                    part_match = re.match(r"^\[Part (\d+)(?:/\d+)?\]", title)
                     p_num = part_match.group(1) if part_match else dummy_generator.part_number
                     
                     if getattr(dummy_generator, "is_1_page_mode", False):

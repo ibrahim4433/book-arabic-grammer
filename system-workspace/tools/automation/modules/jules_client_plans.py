@@ -284,7 +284,7 @@ class JulesPlanClient(JulesClient):
                 except subprocess.CalledProcessError:
                     # Smart Recovery: Jules might have hallucinated the filename
                     # Let's find ANY markdown file added or modified in this PR branch
-                    diff_cmd = ["git", "diff", "--name-only", f"origin/main...{checkout_ref}"]
+                    diff_cmd = ["git", "-c", "core.quotePath=false", "diff", "--name-only", f"origin/main...{checkout_ref}"]
                     diff_res = subprocess.run(
                         diff_cmd,
                         check=False,
