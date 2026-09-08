@@ -22,40 +22,21 @@
    * **Part Number:** [PART_NUMBER] (Provided in the Custom Part Instruction)
    * **Title:** [TITLE]
 3. **Strict Part Isolation (CRITICAL):** You will receive a `[CUSTOM PART INSTRUCTION]` at the end of this prompt telling you EXACTLY which Part (1, 2, 3, or 4) to generate. You MUST completely IGNORE all text belonging to other parts. Do not generate the entire lesson.
-4. **Structural Templates (CRITICAL):** Do NOT use atomic templates (`TEMPLATE_C_BLOCK.html`, `TEMPLATE_C_POEM.html`, etc.) for the main structure. You MUST use the massive structural templates designed for this method:
-   - **Part 1 (The Poem):** Use ONLY `TEMPLATE_LIT_PART_1_POEM.html`.
-   - **Part 2 (Skills):** Use ONLY `TEMPLATE_LIT_PART_2_SKILLS.html`.
-   - **Part 3 (Explanation):** Use ONLY `TEMPLATE_LIT_PART_3_EXPLANATION.html` (Use this repeatedly, one block per verse).
-   - **Part 4 (Comprehension):** Use ONLY `TEMPLATE_LIT_PART_4_COMPREHENSION.html`.
+4. **Valid Templates (CRITICAL):** You MUST ONLY use the existing atomic templates from `Jules-workspace/Templates/` (e.g., `TEMPLATE_C_HEADER.html`, `TEMPLATE_C_POEM.html`, `TEMPLATE_C_BLOCK.html`, `TEMPLATE_C_EXAM.html`, `TEMPLATE_C_BENEFIT.html`). Do NOT hallucinate large structures like `TEMPLATE_LIT_PART_1_POEM.html`!
+5. **Unique ID System (CRITICAL):** Every structural block you output must be assigned a unique ID in the format `id="bXXXXX"` (e.g., `id="b83920"`). NEVER use placeholder IDs like `id="intro_1"` or `id="comp_block_1"`.
 
 ---
 
-# 🎨 THE 1-PART "GOLDEN FLOW" :
+# 🎨 THE 1-PART "GOLDEN FLOW" (DYNAMIC MAPPING) :
 
-Based on the `[CUSTOM PART INSTRUCTION]`, your plan must consist of the following:
+Based on the `[CUSTOM PART INSTRUCTION]`, you will receive a specific chunk of text (Part 1, Part 5, Part 12, etc.).
 
-**IF PART 1 IS REQUESTED:**
-1. **HEADER STRIP:** `TEMPLATE_C_HEADER.html` (Only included in Part 1).
-2. **POEM STRUCTURE:** `TEMPLATE_LIT_PART_1_POEM.html`
-   * Populate `[POET_NAME]`, `[POET_DATES]`, `[POET_BIO_LIST]`.
-   * Populate `[INTRO_LIST]` (مدخل إلى النص).
-   * Populate `[POEM_VERSES]` with the exact verses.
+Instead of hardcoding what Part 1 or Part 5 should be, you MUST:
+1. **Analyze the Raw Text Chunk**: Read the content of the part assigned to you.
+2. **Classify the Content**: Match the content to one of the structural categories defined in the attached `--- PART MAPPING JSON ---` at the bottom of this prompt.
+3. **Select Templates**: Strictly use only the `templates` listed for that category in the JSON mapping to construct your HTML elements.
 
-**IF PART 2 IS REQUESTED:**
-1. **SKILLS STRUCTURE:** `TEMPLATE_LIT_PART_2_SKILLS.html`
-   * Populate `[LISTENING_QA_ROWS]` with Q&A from "مهارات الاستماع" (Use `TEMPLATE_C_TABLE_ROW_QA.html` or similar table row mapping).
-   * Populate `[READING_QA_ROWS]` with Q&A from "مهارات القراءة".
-
-**IF PART 3 IS REQUESTED:**
-1. **EXPLANATION STRUCTURE:** `TEMPLATE_LIT_PART_3_EXPLANATION.html`
-   * For **EACH** verse in the poem, generate a distinct block using this template.
-   * Populate `[POEM_VERSE_HEMISTICHS]` with the specific verse.
-   * Populate `[EXPLANATION_CONTENT_ITEMS]` with vocabulary and explanation.
-   * Populate `[IRAB_CONTENT_ITEMS]` with the grammatical irab for that verse.
-
-**IF PART 4 IS REQUESTED:**
-1. **COMPREHENSION STRUCTURE:** `TEMPLATE_LIT_PART_4_COMPREHENSION.html`
-   * Populate the comprehension questions, exam questions, and benefit boxes related to the intellectual and artistic levels (المستوى الفكري والمستوى الفني).
+For example, if the chunk contains vocabulary and verse explanations, match it to `verse_explanation` from the JSON, and use `TEMPLATE_C_SPLIT.html`, `TEMPLATE_C_BLOCK.html`, or `TEMPLATE_C_TABLE.html` to lay it out. If it contains exam questions, match it to `comprehension_and_exams` and use `TEMPLATE_C_EXAM.html`.
 
 ---
 
@@ -77,9 +58,17 @@ Reference: Follow patterns in design_patterns.json.
 
 --- START STREAM ---
 
-=== BLOCK 1: [Name of the Structural Template] ===
-(Component: TEMPLATE_LIT_PART_X...)
-[Populate exactly according to the template placeholders]
+=== BLOCK 1: [Name of the Atomic Template (e.g., TEMPLATE_C_HEADER.html)] ===
+(Component: TEMPLATE_C_...)
+<header class="page-header-strip" id="b12345">
+... fully resolved HTML matching the template with bXXXXX IDs ...
+</header>
+
+=== BLOCK 2: TEMPLATE_C_BLOCK.html ===
+(Component: TEMPLATE_C_BLOCK.html)
+<div class="content-block" id="b54321">
+... fully resolved HTML ...
+</div>
 
 *(Generate only the blocks relevant to the requested Part)*
 

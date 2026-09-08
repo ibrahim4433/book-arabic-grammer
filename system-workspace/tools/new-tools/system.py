@@ -884,7 +884,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
             return
 
     # Initialize Live with the initial table
-    existing_count = generator.count_existing_pages()
+    existing_count = dummy_generator.count_existing_pages()
     force_remake = False
     if existing_count > 0:
         ans = questionary.confirm(f"Found {existing_count} existing pages. Do you want to RE-MAKE them? (No = Skip)").ask()

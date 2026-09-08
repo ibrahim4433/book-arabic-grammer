@@ -53,6 +53,12 @@ class JulesPlanner:
             self.architect_prompt += f"\n\n--- ELEMENTS INDEX DICTIONARY ---\n{elements_text}\n"
 
         if self.is_1_part_mode:
+            part_mapping_path = self.project_root / "system-workspace/part_mapping.json"
+            if part_mapping_path.exists():
+                mapping_text = part_mapping_path.read_text(encoding="utf-8")
+                self.architect_prompt += f"\n\n--- PART MAPPING JSON ---\n{mapping_text}\n"
+
+        if self.is_1_part_mode:
             auditor_prompt_name = "Architect_AUDITOR_1_PART.md"
         else:
             auditor_prompt_name = "Architect_AUDITOR_1_PAGE.md" if is_1_page_mode else "Architect_AUDITOR.md"
@@ -267,7 +273,17 @@ Schema:
 
             if semantic_chunks:
                 num_chunks = len(semantic_chunks)
-                part_list = [str(i) for i in range(1, num_chunks + 1)]
+                chunk_parts = [str(i) for i in range(1, num_chunks + 1)]
+                
+                if getattr(self, "is_1_part_mode", False):
+                    if isinstance(self.part_number, list) and self.part_number == ['1', '2', '3', '4']:
+                        part_list = chunk_parts
+                    elif isinstance(self.part_number, list):
+                        part_list = [p for p in self.part_number if p in chunk_parts]
+                    else:
+                        part_list = [str(self.part_number)] if str(self.part_number) in chunk_parts else []
+                else:
+                    part_list = chunk_parts
             else:
                 CHUNK_SIZE = 50
                 num_chunks = max(1, (len(lines) + CHUNK_SIZE - 1) // CHUNK_SIZE)

@@ -1,24 +1,39 @@
 {
-  "literature_sequence": {
-    "part_1": {
+  "part_categories": {
+    "poem_and_biography": {
       "name": "Poem and Biography",
-      "template": "TEMPLATE_LIT_PART_1_POEM.html",
-      "description": "The poem text, an introduction to the text, and a discussion of the poet's life."
+      "templates": [
+        "TEMPLATE_C_HEADER.html",
+        "TEMPLATE_C_POET_BIO.html",
+        "TEMPLATE_C_POEM.html"
+      ],
+      "description": "Used for the beginning of literature lessons containing the author's biography and the poem."
     },
-    "part_2": {
+    "skills": {
       "name": "Listening and Reading Skills",
-      "template": "TEMPLATE_LIT_PART_2_SKILLS.html",
-      "description": "Questions and answers for listening skills and reading skills."
+      "templates": [
+        "TEMPLATE_C_BLOCK.html",
+        "TEMPLATE_C_LIST.html"
+      ],
+      "description": "Used for reading and listening comprehension skills."
     },
-    "part_3": {
+    "verse_explanation": {
       "name": "Detailed Analysis",
-      "template": "TEMPLATE_LIT_PART_3_EXPLANATION.html",
-      "description": "A detailed analysis of the verses' content, including explanations, vocabulary, theme, rhetoric, and grammatical analysis of each verse individually."
+      "templates": [
+        "TEMPLATE_C_SPLIT.html",
+        "TEMPLATE_C_BLOCK.html",
+        "TEMPLATE_C_TABLE.html"
+      ],
+      "description": "Used for detailed analysis of verses, vocabulary, and grammar. This will be used frequently for middle chunks."
     },
-    "part_4": {
+    "comprehension_and_exams": {
       "name": "Comprehension and Understanding",
-      "template": "TEMPLATE_LIT_PART_4_COMPREHENSION.html",
-      "description": "Comprehension, understanding, and analysis questions, often using the exam-question format."
+      "templates": [
+        "TEMPLATE_C_EXAM.html",
+        "TEMPLATE_C_BENEFIT.html",
+        "TEMPLATE_C_LIST.html"
+      ],
+      "description": "Used for exam questions, comprehension, and understanding sections."
     }
   }
 }
