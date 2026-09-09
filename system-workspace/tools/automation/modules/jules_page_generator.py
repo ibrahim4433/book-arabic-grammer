@@ -74,7 +74,12 @@ class JulesPageGenerator:
     def __init__(self, project_root=None, state_manager=None, is_1_page_mode=False, is_1_part_mode=False, part_number='1'):
         self.is_1_page_mode = is_1_page_mode
         self.is_1_part_mode = is_1_part_mode
-        self.part_number = part_number
+        # Normalize part_number to a list for batch support
+        if isinstance(part_number, list):
+            self.part_numbers = part_number
+        else:
+            self.part_numbers = [str(part_number)]
+        self.part_number = self.part_numbers[0]  # Keep for backward compat
         self.project_root = (
             Path(project_root)
             if project_root
@@ -161,7 +166,7 @@ class JulesPageGenerator:
             # Try to find matching key in StateManager
             all_lessons = self.state_manager.get_all_lessons()
             for key in all_lessons.keys():
-                if key.startswith(f"{lesson_num} -") or key.startswith(f"{int(lesson_num)!s} -") or key.startswith(f"page {lesson_num}") or key.startswith(f"page {int(lesson_num)!s}"):
+                if key.startswith(f"{lesson_num} -") or key.startswith(f"{int(float(lesson_num))!s} -") or key.startswith(f"page {lesson_num}") or key.startswith(f"page {int(float(lesson_num))!s}"):
                     state_key = key
                     break
 
@@ -472,7 +477,7 @@ class JulesPageGenerator:
                             lesson_num
                             and (
                                 f["name"].startswith(lesson_num)
-                                or f["name"].startswith(str(int(lesson_num)))
+                                or f["name"].startswith(str(int(float(lesson_num))))
                             )
                         ) or (not lesson_num and lesson_title.replace("-plan", "") in f["name"]):
                             found_name = f["name"]
@@ -637,7 +642,8 @@ class JulesPageGenerator:
         self, max_concurrent=10, update_callback=None, excluded_lessons=None, only_lessons=None, force_remake=False
     ):
         """
-        Main entry point.
+        Main entry point. Collects plans for ALL part numbers and dispatches them
+        concurrently to a single ThreadPoolExecutor (batch of 10).
         """
         if not update_callback:
             def default_callback(t, s, m):
@@ -645,13 +651,17 @@ class JulesPageGenerator:
             update_callback = default_callback
 
         # 0. Wrap callback to include part number if in 1-part mode
+        #    Extract part number from plan filename dynamically (since we now handle multiple parts)
         original_callback = update_callback
         def wrapped_callback(t, s, m):
             if getattr(self, "is_1_part_mode", False) and not t.startswith("[Part"):
                 if t == "System":
-                    t = f"System (Part {getattr(self, 'part_number', '1')})"
-                else:
-                    t = f"[Part {getattr(self, 'part_number', '1')}] {t}"
+                    original_callback(t, s, m)
+                    return
+                # Try to extract part number from the title (plan stem like "001.3_nXXX_title-plan")
+                pm = re.search(r"^\d+\.(\d+)", t)
+                p_label = pm.group(1) if pm else getattr(self, 'part_number', '1')
+                t = f"[Part {p_label}] {t}"
             original_callback(t, s, m)
         update_callback = wrapped_callback
 
@@ -663,6 +673,9 @@ class JulesPageGenerator:
         plans_dir = self.project_root / "plans"
         all_plans = sorted(list(plans_dir.glob("*.md")))
 
+        # Collect plans across ALL part numbers (not just one)
+        part_nums = getattr(self, "part_numbers", [getattr(self, "part_number", "1")])
+
         filtered_plans = []
         seen_core_names = set()
         
@@ -671,7 +684,7 @@ class JulesPageGenerator:
                 part_match = re.search(r"^\d+\.(\d+)", plan.name)
                 if part_match:
                     plan_p_num = part_match.group(1)
-                    if str(plan_p_num) != str(getattr(self, "part_number", "1")):
+                    if str(plan_p_num) not in [str(p) for p in part_nums]:
                         continue
                 else:
                     continue
@@ -685,7 +698,7 @@ class JulesPageGenerator:
         all_plans = filtered_plans
 
         if not all_plans:
-            update_callback("System", "WARN", "No matching plans found for this part.")
+            update_callback("System", "WARN", "No matching plans found for the selected parts.")
             return
 
         to_process = []

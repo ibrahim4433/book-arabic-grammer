@@ -594,6 +594,7 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
                     lesson_num = dummy_planner.tp.get_lesson_number(clean_title_no_part)
                     if lesson_num:
                         clean_t = re.sub(r"^\d+\s*-\s*", "", clean_title_no_part).strip()
+                        clean_t = re.sub(r'[<>:"/\\|?*]', '', clean_t)
                         
                         # Extract part number from title for file path
                         part_match = re.match(r"^\[Part (\d+)(?:/\d+)?\]", title)
@@ -602,7 +603,7 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
                         if is_1_page_mode:
                             expected_path = f"plans/page_{lesson_num}-plan.md"
                         elif is_1_part_mode:
-                            expected_path = f"plans/part_{p_num}_lesson_{lesson_num}-plan.md"
+                            expected_path = f"plans/{lesson_num}.{p_num}_nXXX_{clean_t}-plan.md"
                         else:
                             expected_path = f"plans/{lesson_num}-{clean_t}-plan.md"
                         failed_data.append((lesson_num, title, expected_path))
@@ -728,7 +729,7 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
     else:
         part_numbers_list = [part_number.strip()]
 
-    dummy_generator = JulesPageGenerator(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode, is_1_part_mode=is_1_part_mode, part_number=part_numbers_list[0])
+    dummy_generator = JulesPageGenerator(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode, is_1_part_mode=is_1_part_mode, part_number=part_numbers_list)
 
     tasks = {}
     lock = threading.Lock()
@@ -841,9 +842,8 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
                             else:
                                 tasks[title]["duration"] = 0.0
                     live.update(generate_layout())
-                for p_num in part_numbers_list:
-                    generator = JulesPageGenerator(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode, is_1_part_mode=is_1_part_mode, part_number=p_num)
-                    generator.run_batch_generation(max_concurrent=10, update_callback=callback, only_lessons=only_lessons)
+                generator = JulesPageGenerator(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode, is_1_part_mode=is_1_part_mode, part_number=part_numbers_list)
+                generator.run_batch_generation(max_concurrent=10, update_callback=callback, only_lessons=only_lessons)
             # Fall through to failure-handling logic below
             total_duration = time.time() - start_all
             console.print(generate_table(full=True))
@@ -932,9 +932,8 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
     
                 live.update(generate_layout())
     
-            for p_num in part_numbers_list:
-                generator = JulesPageGenerator(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode, is_1_part_mode=is_1_part_mode, part_number=p_num)
-                generator.run_batch_generation(max_concurrent=10, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
+            generator = JulesPageGenerator(PROJECT_ROOT, state_manager=state_manager, is_1_page_mode=is_1_page_mode, is_1_part_mode=is_1_part_mode, part_number=part_numbers_list)
+            generator.run_batch_generation(max_concurrent=10, update_callback=callback, force_remake=force_remake, only_lessons=only_lessons)
 
         api_blocked = any(data.get("status") == "API_BLOCKED" for data in tasks.values())
         if api_blocked:

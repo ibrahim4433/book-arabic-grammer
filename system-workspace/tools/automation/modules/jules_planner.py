@@ -362,7 +362,7 @@ Schema:
         with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
             future_to_lesson = {
                 executor.submit(
-                    self.process_lesson_with_callback, item["display_title"], item["title"], item["info"], update_callback, item.get("p_num"), item.get("chunk_text")
+                    self.process_lesson_with_callback, item["display_title"], item["title"], item["info"], update_callback, item.get("p_num"), item.get("chunk_text"), force_remake
                 ): item["display_title"]
                 for item in sorted_items
             }
@@ -374,12 +374,12 @@ Schema:
             for t in self.pull_threads:
                 t.join()
 
-    def process_lesson_with_callback(self, display_title, original_title, range_info, callback, p_num=None, chunk_text=None):
+    def process_lesson_with_callback(self, display_title, original_title, range_info, callback, p_num=None, chunk_text=None, force_remake=False):
         """Wrapper for process_lesson that uses callback."""
         callback(display_title, "RUNNING", "Starting...")
         try:
             # We wrap the inner callback so it always emits display_title
-            self.process_lesson(original_title, range_info, lambda t, s, m, **kwargs: callback(display_title, s, m, **kwargs), force_remake=False, p_num=p_num, chunk_text=chunk_text)
+            self.process_lesson(original_title, range_info, lambda t, s, m, **kwargs: callback(display_title, s, m, **kwargs), force_remake=force_remake, p_num=p_num, chunk_text=chunk_text)
         except Exception as e:
             callback(display_title, "ERROR", str(e))
 
@@ -584,22 +584,23 @@ Schema:
 
         # 6. Pull Result asynchronously to free up the thread for a new session immediately
         def bg_pull():
-            callback(lesson_title, "PULLING", "Pulling Plan in background...")
+            _kw = {"lesson_num": lesson_number, "expected_path": expected_path}
+            callback(lesson_title, "PULLING", "Pulling Plan in background...", **_kw)
             details = self.client.get_session_details(session_id)
             if not details:
-                callback(lesson_title, "WARN", "No PR found. Manual check needed.")
+                callback(lesson_title, "WARN", "No PR found. Manual check needed.", **_kw)
                 return
 
             target_path = f"plans/{filename}"
 
             def pr_callback(ignored_path, state, msg):
-                callback(lesson_title, state, msg)
+                callback(lesson_title, state, msg, **_kw)
 
             success = self.client.finalize_pr_and_pull(details, target_path, callback=pr_callback)
             if success:
-                callback(lesson_title, "SUCCESS", f"Plan saved: {filename}")
+                callback(lesson_title, "SUCCESS", f"Plan saved: {filename}", **_kw)
             else:
-                callback(lesson_title, "ERROR", "Pull Failed")
+                callback(lesson_title, "ERROR", "Pull Failed", **_kw)
 
         import threading
         t = threading.Thread(target=bg_pull, daemon=False)
