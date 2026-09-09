@@ -107,6 +107,13 @@ class JulesClient:
                 status = e.response.status_code
                 if status in [429, 403, 400] and ("quota" in e.response.text.lower() or "limit" in e.response.text.lower() or status in [429, 403]):
                     raise APIBlockError("Jules API limit or quota reached.") from e
+                if status == 400 and "FAILED_PRECONDITION" in e.response.text:
+                    raise  # Re-raise so callers can handle precondition delays
+            
+            # Re-raise network errors so callers can handle retry loops
+            if isinstance(e, (requests.exceptions.ConnectionError, requests.exceptions.Timeout, requests.exceptions.ChunkedEncodingError)):
+                raise
+                
             return None
 
     def get_session_status(self, session_id):

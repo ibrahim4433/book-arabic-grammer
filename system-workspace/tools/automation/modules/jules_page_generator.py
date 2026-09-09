@@ -613,22 +613,27 @@ class JulesPageGenerator:
         all_plans = sorted(list(plans_dir.glob("*.md")))
         count = 0
         for plan in all_plans:
-            match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", plan.name, re.IGNORECASE)
+            match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+(?:\.\d+)?)", plan.name, re.IGNORECASE)
             lesson_num = match.group(1) if match else None
 
             if excluded_lessons:
-                if not lesson_num or (lesson_num in excluded_lessons or str(int(lesson_num)) in excluded_lessons):
+                if not lesson_num or (lesson_num in excluded_lessons or str(int(float(lesson_num))) in excluded_lessons):
                     continue
             if only_lessons:
-                if not lesson_num or (lesson_num not in only_lessons and str(int(lesson_num)) not in only_lessons):
+                if not lesson_num or (lesson_num not in only_lessons and str(int(float(lesson_num))) not in only_lessons):
                     continue
 
             html_exists = False
             if lesson_num:
                 for f in pages_dir.glob("*.html"):
-                    if f.name.startswith(f"{lesson_num}.") or f.name.startswith(f"{lesson_num}_"):
-                        html_exists = True
-                        break
+                    if "." in lesson_num:
+                        if f.name.startswith(f"{lesson_num}_"):
+                            html_exists = True
+                            break
+                    else:
+                        if f.name.startswith(f"{lesson_num}.") or f.name.startswith(f"{lesson_num}_"):
+                            html_exists = True
+                            break
             else:
                 html_name = plan.name.replace("-plan.md", ".html")
                 if (pages_dir / html_name).exists():
@@ -716,16 +721,22 @@ class JulesPageGenerator:
                 update_callback("System", "INFO", f"Moved stray file: {stray_file.name} -> pages/")
 
         for plan in all_plans:
-            # Check Lesson Number (Assuming "09-Title-plan.md" or "page_09-plan.md")
-            match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+)", plan.name, re.IGNORECASE)
+            # Check Lesson Number (captures decimal part for 1-part mode like 001.11)
+            match = re.search(r"(?:^|page[_\s]*|plan[_\s]*)(\d+(?:\.\d+)?)", plan.name, re.IGNORECASE)
             lesson_num = match.group(1) if match else None
 
             # Smart check if output exists (Jules uses dynamic names like 09.0_nXX_title.html)
             existing_htmls = []
             if lesson_num:
                 for f in pages_dir.glob("*.html"):
-                    if f.name.startswith(f"{lesson_num}.") or f.name.startswith(f"{lesson_num}_"):
-                        existing_htmls.append(f)
+                    if "." in lesson_num:
+                        # 1-part mode: must match specific part EXACTLY (e.g. 001.11_)
+                        if f.name.startswith(f"{lesson_num}_"):
+                            existing_htmls.append(f)
+                    else:
+                        # 1-page mode: match 09_ or 09.
+                        if f.name.startswith(f"{lesson_num}.") or f.name.startswith(f"{lesson_num}_"):
+                            existing_htmls.append(f)
             else:
                 html_name = plan.name.replace("-plan.md", ".html")
                 f = pages_dir / html_name
@@ -744,12 +755,12 @@ class JulesPageGenerator:
                         pass
 
             if excluded_lessons:
-                if not lesson_num or (lesson_num in excluded_lessons or str(int(lesson_num)) in excluded_lessons):
+                if not lesson_num or (lesson_num in excluded_lessons or str(int(float(lesson_num))) in excluded_lessons):
                     update_callback(plan.stem, "SKIP", "Excluded (Page exists)")
                     continue
 
             if only_lessons:
-                if not lesson_num or (lesson_num not in only_lessons and str(int(lesson_num)) not in only_lessons):
+                if not lesson_num or (lesson_num not in only_lessons and str(int(float(lesson_num))) not in only_lessons):
                     continue  # Skip if we only want specific lessons
 
             to_process.append(plan)
