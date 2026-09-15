@@ -297,11 +297,16 @@ class JulesPageGenerator:
                     f"3. Do NOT edit `styles/main.css` or any other existing project files. Your only output should be the new HTML file in the `pages/` directory.\n"
                 )
                 specific_rules = (
-                    f"=== 1-PART STRICT RULES & CONSTRAINTS ===\n"
-                    f"1. Natural Flow: In the 1-part method, content naturally flows and can span multiple pages. WeasyPrint handles page breaks automatically. Do NOT use forced page wrappers like `force-new-page` around the part content. Allow it to flow naturally.\n"
-                    f"2. Templates: You are forbidden from inventing new HTML tags or classes. You must map all content using `Jules-workspace/Part-Templates/` and `Jules-workspace/Templates/` components.\n"
-                    f"3. Unique IDs: All content blocks must have a unique ID (`id='bXXXXX'`). Use `Jules-workspace/id_manager.py` to generate or verify them.\n"
-                    f"4. Self-Correction: Run `Jules-workspace/lint_pages.py <filename>` after creating html files. You MUST fix any errors before submitting.\n"
+                    f"=== 1-PART STRICT RULES & CONSTRAINTS ===\\n"
+                    f"1. Natural Flow: In the 1-part method, content naturally flows and can span multiple pages. WeasyPrint handles page breaks automatically. Do NOT use forced page wrappers like `force-new-page` around the part content. Allow it to flow naturally.\\n"
+                    f"2. Templates: You are forbidden from inventing new HTML tags or classes. You must map all content using `Jules-workspace/Part-Templates/` and `Jules-workspace/Templates/` components.\\n"
+                    f"3. Unique IDs: All content blocks must have a unique ID (`id='bXXXXX'`). Use `Jules-workspace/id_manager.py` to generate or verify them.\\n"
+                    f"4. Self-Correction: Run `Jules-workspace/lint_pages.py <filename>` after creating html files. You MUST fix any errors before submitting.\\n"
+                    f"5. **DYNAMIC STRUCTURAL TEMPLATE MAPPING (CRITICAL)**:\\n"
+                    f"   - If the raw text is 'مدخل إلى النص' or similar introduction: Use `TEMPLATE_C_POET_BIO.html` (if there's a poet bio) followed by `TEMPLATE_C_BLOCK.html`. Ensure dummy images are created for the bio.\\n"
+                    f"   - If the raw text is 'مهارات الاستماع', 'مهارات القراءة', 'الاستيعاب والفهم', 'المستوى الفكري', etc.: Use `TEMPLATE_C_EXAM.html`. If the answers are already provided in the text, use `TEMPLATE_C_EXAM_SOLVED.html`. Do NOT use `TEMPLATE_C_BLOCK.html` for Q&A.\\n"
+                    f"   - If the raw text is 'تحليل مفصل لمضمون الأبيات' or 'اعراب النص': Use `TEMPLATE_C_POEM_DETAIL.html` if explaining a verse, or `TEMPLATE_C_IRAB.html` / `TEMPLATE_C_IRAB_ROW.html` for grammatical parsing.\\n"
+                    f"   - Maintain a consistent visual theme. Do NOT mix and match random templates for the same type of content across the file.\\n"
                 )
             else:
                 naming_constraints = (
