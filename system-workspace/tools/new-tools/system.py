@@ -88,22 +88,18 @@ def generate_log_panel():
 
 
 # --- MODULE IMPORTS ---
-try:
-    from modules.full_auto_workflow import FullAutoWorkflow
-    from modules.jules_ocr import JulesOCR
-    from modules.jules_page_generator import JulesPageGenerator
-    from modules.jules_planner import JulesPlanner
-    from modules.planner import Planner
-    from modules.state_manager import StateManager
-    from modules.text_processing import TextProcessor
-    from modules.vision import VisionClient
-    from modules.youtube_ui import run_jules_youtube_ui
-    from modules.calibration_workflow import run_calibration_ui
-    from modules.ai_css_tuner import run_ai_css_tuner
-except ImportError as e:
-    logging.critical(f"Failed to import modules: {e}")
-    print("❌ Critical Error: Failed to import modules. See system.log for details.")
-    sys.exit(1)
+# Heavy AI modules are lazy-loaded in main() to ensure fast boot UI
+FullAutoWorkflow = None
+JulesOCR = None
+JulesPageGenerator = None
+JulesPlanner = None
+Planner = None
+StateManager = None
+TextProcessor = None
+VisionClient = None
+run_jules_youtube_ui = None
+run_calibration_ui = None
+run_ai_css_tuner = None
 
 # Import Jules Workspace Tools
 id_manager = None
@@ -2855,6 +2851,49 @@ def backup_raw_file():
         shutil.copy2(raw_file, backup_path)
         console.print(f"[green]✅ Backup created at {backup_path}[/green]")
 
+def run_setup_part_instructions():
+    console.print("\n[bold cyan]=== Setup Part Structural Instructions ===[/bold cyan]")
+    import json
+    
+    map_path = PROJECT_ROOT / "system-workspace/text-data/global_semantic_map.json"
+    if not map_path.exists():
+        console.print("[red]❌ global_semantic_map.json not found. Run Semantic Mapping first.[/red]")
+        return
+        
+    try:
+        global_chunks = json.loads(map_path.read_text(encoding="utf-8"))
+    except Exception as e:
+        console.print(f"[red]❌ Failed to parse global map: {e}[/red]")
+        return
+        
+    unique_parts = set()
+    for chunk in global_chunks:
+        title = chunk.get("title", "").strip()
+        if title:
+            unique_parts.add(title)
+            
+    inst_dir = PROJECT_ROOT / "system-workspace/part_instructions"
+    inst_dir.mkdir(parents=True, exist_ok=True)
+    
+    created = 0
+    for part in unique_parts:
+        safe_name = re.sub(r'[\\/*?:"<>|]', "", part)
+        md_file = inst_dir / f"{safe_name}.md"
+        if not md_file.exists():
+            md_file.write_text(f"<!-- DYNAMIC INSTRUCTION FOR PART: {part} -->\n\nWrite your structural instructions for this part here. You can use markdown and HTML snippets.\n\n", encoding="utf-8")
+            created += 1
+            
+    console.print(f"[green]✅ Found {len(unique_parts)} unique parts.[/green]")
+    if created > 0:
+        console.print(f"[green]✨ Created {created} new markdown files![/green]")
+        
+    console.print(f"\n[bold yellow]👉 Action Required:[/bold yellow]")
+    console.print(f"Open the folder [cyan]system-workspace/part_instructions/[/cyan] in your code editor.")
+    console.print(f"Write your layout and template rules inside the corresponding `.md` files.")
+    console.print(f"When you run Plan Generation, these instructions will be automatically injected!\n")
+    
+    questionary.press_any_key_to_continue().ask()
+
 def run_interactive_purge_ui(state_manager):
     console.clear()
     console.print("[bold cyan]🚀 Starting Interactive Content Purging...[/bold cyan]")
@@ -3175,6 +3214,25 @@ def run_semantic_mapping_ui(state_manager):
     questionary.press_any_key_to_continue().ask()
 
 def main():
+    with console.status("[bold cyan]Loading heavy AI modules...[/bold cyan]", spinner="dots"):
+        global FullAutoWorkflow, JulesOCR, JulesPageGenerator, JulesPlanner, Planner, StateManager, TextProcessor, VisionClient, run_jules_youtube_ui, run_calibration_ui, run_ai_css_tuner
+        try:
+            from modules.full_auto_workflow import FullAutoWorkflow
+            from modules.jules_ocr import JulesOCR
+            from modules.jules_page_generator import JulesPageGenerator
+            from modules.jules_planner import JulesPlanner
+            from modules.planner import Planner
+            from modules.state_manager import StateManager
+            from modules.text_processing import TextProcessor
+            from modules.vision import VisionClient
+            from modules.youtube_ui import run_jules_youtube_ui
+            from modules.calibration_workflow import run_calibration_ui
+            from modules.ai_css_tuner import run_ai_css_tuner
+        except ImportError as e:
+            logging.critical(f"Failed to import modules: {e}")
+            print(f"❌ Critical Error: Failed to import modules: {e}")
+            sys.exit(1)
+
     state_manager = StateManager(PROJECT_ROOT)
 
     menu_style = questionary.Style(
@@ -3302,9 +3360,10 @@ def main():
                     "C) Pre-Process: Generate Semantic Maps (JSON)",
                     "D) Purge Unwanted Content (Interactive)",
                     "E) Generate Nested TOC (1-Part Method)",
-                    "F) Plan Generation (Jules Batch - 1-Part Method)",
-                    "G) Page Generation (Jules Batch - 1-Part Method)",
-                    "H) Audit & Verify Pages",
+                    "F) Setup Part Structural Instructions (Markdown)",
+                    "G) Plan Generation (Jules Batch - 1-Part Method)",
+                    "H) Page Generation (Jules Batch - 1-Part Method)",
+                    "I) Audit & Verify Pages",
                     "X) Back to Main Menu",
                 ],
                 style=menu_style,
@@ -3315,11 +3374,9 @@ def main():
                 op_ran = True
                 part_instruction = ""
                 part_number = ""
-                if sub_op in ["A", "F", "G"]:
+                if sub_op in ["A", "G", "H"]:
                     part_number = questionary.text("Enter Part Number (e.g. 1, 2, 3, 4):").ask()
                     if not part_number: part_number = "1"
-                if sub_op in ["A", "F"]:
-                    part_instruction = questionary.text("Enter custom instruction for this Part (or leave empty):").ask()
                 
                 if sub_op == "A":
                     run_full_auto_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
@@ -3335,10 +3392,12 @@ def main():
                     tp.generate_nested_toc_from_semantic_maps()
                     questionary.press_any_key_to_continue().ask()
                 elif sub_op == "F":
-                    run_jules_planning_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
+                    run_setup_part_instructions()
                 elif sub_op == "G":
-                    run_jules_generation_ui(state_manager, is_1_part_mode=True, part_number=part_number)
+                    run_jules_planning_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
                 elif sub_op == "H":
+                    run_jules_generation_ui(state_manager, is_1_part_mode=True, part_number=part_number)
+                elif sub_op == "I":
                     run_audit_and_verify(state_manager)
 
         elif main_op == "4":

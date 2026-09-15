@@ -74,12 +74,13 @@ class JulesPlanner:
             
         self.part_instructions_map = {}
         if self.is_1_part_mode:
-            part_inst_path = self.project_root / "system-workspace/part_instructions.json"
-            if part_inst_path.exists():
-                try:
-                    self.part_instructions_map = json.loads(part_inst_path.read_text(encoding="utf-8"))
-                except Exception as e:
-                    logging.error(f"Failed to load part_instructions.json: {e}")
+            part_inst_dir = self.project_root / "system-workspace/part_instructions"
+            if part_inst_dir.exists() and part_inst_dir.is_dir():
+                for md_file in part_inst_dir.glob("*.md"):
+                    key = md_file.stem
+                    content = md_file.read_text(encoding="utf-8").strip()
+                    if content:
+                        self.part_instructions_map[key] = content
 
         # Load Raw Text Index
         self.raw_text_path = self.project_root / "system-workspace/text-data/full_raw_indexed.txt"
