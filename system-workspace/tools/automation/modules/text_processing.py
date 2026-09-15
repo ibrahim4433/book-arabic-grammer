@@ -374,6 +374,179 @@ CRITICAL RULES:
 
         print(f"✅ Auto-Paginated Index generated with {len(mapping)} pages!")
         return True
+
+    def generate_toc_and_index_from_markdown(self):
+        """
+        Parses input/TOC.md to generate deterministic TOC.json and raw_to_lesson_index.json
+        by matching explicit page numbers to ----- PAGE X ----- markers in raw text.
+        """
+        md_path = self.project_root / "input/TOC.md"
+        if not md_path.exists():
+            print("❌ Error: input/TOC.md not found.")
+            return False
+            
+        merged_path = self.merge_raw_text()
+        if not merged_path:
+            return False
+            
+        print("🔍 Parsing TOC from Markdown...")
+        
+        # Helper to convert Arabic-Indic digits to ASCII
+        def arabic_to_ascii(text):
+            trans = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
+            return text.translate(trans)
+            
+        # 1. Scan raw text to build a map of Page Number -> File/Line Ref
+        page_to_ref = {}
+        last_ref = None
+        lines = merged_path.read_text(encoding="utf-8").splitlines()
+        page_pattern = re.compile(r'^-+\s*PAGE\s+(.+?)\s*-+', re.IGNORECASE)
+        
+        for line in lines:
+            tag_match = re.match(r'^\[(raw_[^:]+:\d+)\]\s*(.*)$', line)
+            if not tag_match:
+                continue
+                
+            file_line_ref = tag_match.group(1)
+            actual_content = tag_match.group(2).strip()
+            last_ref = file_line_ref
+            
+            page_match = page_pattern.match(actual_content)
+            if page_match:
+                page_num_str = arabic_to_ascii(page_match.group(1).strip())
+                page_to_ref[page_num_str] = file_line_ref
+                
+        # 2. Parse Markdown
+        toc_data = {}
+        lessons = [] # To keep order and compute start/end
+        
+        current_unit = "Unknown Unit"
+        lesson_counter = 1
+        
+        md_lines = md_path.read_text(encoding="utf-8").splitlines()
+        for line in md_lines:
+            line = line.strip()
+            if line.startswith("## "):
+                current_unit = line[3:].strip()
+            elif line.startswith("* **"):
+                # Example: * **١٠١** | (القراءة التمهيدية) أدب القضايا الوطنية والقومية
+                match = re.match(r'^\*\s*\*\*(.*?)\*\*\s*\|\s*(.*)$', line)
+                if match:
+                    page_ar = match.group(1).strip()
+                    page_ascii = arabic_to_ascii(page_ar)
+                    
+                    # Handle ranges like 215 - 216 by taking the first number
+                    page_ascii = page_ascii.split('-')[0].strip()
+                    
+                    title = match.group(2).strip()
+                    
+                    lesson_num_str = str(lesson_counter).zfill(3)
+                    
+                    settings_file = self.project_root / "system-workspace" / "settings.json"
+                    author = "أ. حنا خفيف"
+                    author_number = " "
+                    
+                    toc_data[lesson_num_str] = {
+                        "title": title,
+                        "level": current_unit, # Using Unit as level as a proxy, user can edit
+                        "Unit": current_unit,
+                        "author": author,
+                        "author_number": author_number,
+                        "page_number": page_ascii
+                    }
+                    
+                    lessons.append({
+                        "id": lesson_num_str,
+                        "title": f"{lesson_num_str} - {title}",
+                        "page": page_ascii
+                    })
+                    
+                    lesson_counter += 1
+                    
+        # 3. Build Mapping
+        mapping = {}
+        for i, lesson in enumerate(lessons):
+            page_str = lesson["page"]
+            start_ref = page_to_ref.get(page_str)
+            if not start_ref:
+                print(f"⚠️ Warning: Could not find '----- PAGE {page_str} -----' in raw text for lesson '{lesson['title']}'. Mapping may fail.")
+                start_ref = "UNKNOWN"
+                
+            # End ref is start of next lesson
+            if i + 1 < len(lessons):
+                next_page = lessons[i+1]["page"]
+                end_ref = page_to_ref.get(next_page, "UNKNOWN")
+            else:
+                end_ref = last_ref
+                
+            mapping[lesson["title"]] = {
+                "start": start_ref,
+                "end": end_ref
+            }
+            
+        # 4. Save files
+        self.toc_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.toc_path, "w", encoding="utf-8") as f:
+            json.dump(toc_data, f, ensure_ascii=False, indent=2)
+
+        self.index_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.index_file, "w", encoding="utf-8") as f:
+            json.dump(mapping, f, ensure_ascii=False, indent=2)
+            
+        print(f"✅ Successfully generated TOC and Index from Markdown ({len(lessons)} lessons).")
+        return True
+
+    def generate_nested_toc_from_semantic_maps(self):
+        """
+        Generates a nested TOC.json using the existing flat TOC.json 
+        and the part chunks from semantic maps for the 1-part method.
+        """
+        if not self.toc_path.exists():
+            print("❌ Base TOC.json not found. Run standard TOC generation first.")
+            return False
+
+        maps_dir = self.project_root / "system-workspace/text-data/semantic_maps"
+        if not maps_dir.exists():
+            print("❌ Semantic maps directory not found.")
+            return False
+
+        try:
+            toc_data = json.loads(self.toc_path.read_text(encoding="utf-8"))
+        except Exception as e:
+            print(f"❌ Failed to read TOC.json: {e}")
+            return False
+
+        nested_toc = {}
+        
+        for num, metadata in toc_data.items():
+            lesson_number = num.zfill(3)
+            map_path = maps_dir / f"lesson_{lesson_number}.json"
+            
+            # Copy base metadata
+            nested_toc[num] = metadata.copy()
+            nested_toc[num]["parts"] = []
+            
+            if map_path.exists():
+                try:
+                    chunks = json.loads(map_path.read_text(encoding="utf-8"))
+                    for i, chunk in enumerate(chunks):
+                        nested_toc[num]["parts"].append({
+                            "part_index": i + 1,
+                            "title": chunk.get("title", ""),
+                            "start_line": chunk.get("start_line", 0),
+                            "end_line": chunk.get("end_line", 0)
+                        })
+                except Exception as e:
+                    print(f"⚠️ Failed to parse map for lesson {lesson_number}: {e}")
+
+        # Save nested TOC
+        nested_toc_path = self.project_root / "input/TOC_1part.json"
+        nested_toc_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(nested_toc_path, "w", encoding="utf-8") as f:
+            json.dump(nested_toc, f, ensure_ascii=False, indent=2)
+
+        print(f"✅ Nested TOC generated at {nested_toc_path}")
+        return True
 if __name__ == "__main__":
     tp = TextProcessor()
     tp.validate_toc()

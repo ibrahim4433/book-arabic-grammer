@@ -71,6 +71,15 @@ class JulesPlanner:
             custom_inst = f"\n\n--- CUSTOM PART INSTRUCTION ---\n{self.part_instruction}\n"
             self.architect_prompt += custom_inst
             self.auditor_prompt += custom_inst
+            
+        self.part_instructions_map = {}
+        if self.is_1_part_mode:
+            part_inst_path = self.project_root / "system-workspace/part_instructions.json"
+            if part_inst_path.exists():
+                try:
+                    self.part_instructions_map = json.loads(part_inst_path.read_text(encoding="utf-8"))
+                except Exception as e:
+                    logging.error(f"Failed to load part_instructions.json: {e}")
 
         # Load Raw Text Index
         self.raw_text_path = self.project_root / "system-workspace/text-data/full_raw_indexed.txt"
@@ -153,16 +162,32 @@ class JulesPlanner:
                 # Use local 1-based indexing for the LLM to avoid confusion with massive line numbers
                 numbered_text = "\n".join([f"{j+1}: {line}" for j, line in enumerate(window_lines)])
                 
-                sys_prompt = """You are a smart text chunker for an Arabic grammar textbook.
-Analyze the following raw OCR text and segment it into logical parts for lesson planning.
-Each part should represent a distinct, cohesive section (e.g. a poem, a grammar rule explanation, a set of exercises, an author biography).
+                sys_prompt = """You are an expert Arabic book structure analyzer.
+Analyze the following raw OCR text (a lesson) and segment it strictly into granular, cohesive parts.
+You MUST map every segment of the text to one of the following exact part categories based on its content:
+
+[ALLOWED PART TITLES]
+- "poem" (includes poet bio, intro, and verses)
+- "explain poem verses" (معاني النص، شرح المفردات الصعبة، شرح مقاطع)
+- "exercises on the poem" (مهارات الاستماع، الاستيعاب، التحليل، التطبيقات اللغوية)
+- "poem verses in detail" / "اعراب النص" (تحليل مفصل للأبيات أو الإعراب)
+- "اسطر النص المتتمة" (or ملحق الابيات المتممة - parts marked for deletion)
+- "التعبير الكتابي" / "التعبير الادبي"
+- "الموضوعات المقترحة المكتوبة"
+- "الموضوعات المقترحة غير المكتوبة"
+- "reading lesson content" (مطالعة)
+- "exercises" (أسئلة مقترحة)
+- "other content" (e.g., أسئلة الرواية)
+
+CRITICAL RULE: The `title` field in your JSON output MUST be chosen exactly from the above allowed part titles (e.g., "poem", "exercises on the poem", "اسطر النص المتتمة"). Do NOT invent new titles.
+
 You MUST output ONLY a JSON array, with no markdown formatting and no extra text.
-For each part, provide a descriptive title in Arabic and the start and end line numbers exactly as they appear in the text.
+Provide the start and end line numbers exactly as they appear in the text.
 
 Schema:
 [
   {
-    "title": "Descriptive title of the part in Arabic",
+    "title": "poem",
     "start_line": 1,
     "end_line": 40
   }
@@ -332,9 +357,11 @@ Schema:
                             chunk_lines = lines[s_line:e_line]
                             chunk_text = "\n".join(chunk_lines)
                             display_title = f"[Part {p_num}/{num_chunks}] {chunk_info['title']}"
+                            chunk_title = chunk_info['title']
                         elif not semantic_chunks and p_idx < num_chunks:
                             chunk_lines = lines[p_idx * CHUNK_SIZE : (p_idx + 1) * CHUNK_SIZE]
                             chunk_text = "\n".join(chunk_lines)
+                            chunk_title = None
                         else:
                             continue # Skip out of bounds parts
 
@@ -343,7 +370,8 @@ Schema:
                         "display_title": display_title,
                         "info": info,
                         "p_num": p_num,
-                        "chunk_text": chunk_text
+                        "chunk_text": chunk_text,
+                        "chunk_title": chunk_title if 'chunk_title' in locals() else None
                     })
                     update_callback(display_title, "PENDING", "Queued")
 
@@ -362,7 +390,7 @@ Schema:
         with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
             future_to_lesson = {
                 executor.submit(
-                    self.process_lesson_with_callback, item["display_title"], item["title"], item["info"], update_callback, item.get("p_num"), item.get("chunk_text"), force_remake
+                    self.process_lesson_with_callback, item["display_title"], item["title"], item["info"], update_callback, item.get("p_num"), item.get("chunk_text"), force_remake, item.get("chunk_title")
                 ): item["display_title"]
                 for item in sorted_items
             }
@@ -374,16 +402,16 @@ Schema:
             for t in self.pull_threads:
                 t.join()
 
-    def process_lesson_with_callback(self, display_title, original_title, range_info, callback, p_num=None, chunk_text=None, force_remake=False):
+    def process_lesson_with_callback(self, display_title, original_title, range_info, callback, p_num=None, chunk_text=None, force_remake=False, chunk_title=None):
         """Wrapper for process_lesson that uses callback."""
         callback(display_title, "RUNNING", "Starting...")
         try:
             # We wrap the inner callback so it always emits display_title
-            self.process_lesson(original_title, range_info, lambda t, s, m, **kwargs: callback(display_title, s, m, **kwargs), force_remake=force_remake, p_num=p_num, chunk_text=chunk_text)
+            self.process_lesson(original_title, range_info, lambda t, s, m, **kwargs: callback(display_title, s, m, **kwargs), force_remake=force_remake, p_num=p_num, chunk_text=chunk_text, chunk_title=chunk_title)
         except Exception as e:
             callback(display_title, "ERROR", str(e))
 
-    def process_lesson(self, lesson_title, range_info, callback=None, force_remake=False, p_num=None, chunk_text=None):
+    def process_lesson(self, lesson_title, range_info, callback=None, force_remake=False, p_num=None, chunk_text=None, chunk_title=None):
         """
         Worker function for a single lesson.
         """
@@ -496,6 +524,13 @@ Schema:
         mega_prompt = self.client.construct_mega_prompt(
             lesson_data, self.architect_prompt, self.auditor_prompt, getattr(self, "is_1_page_mode", False)
         )
+        
+        if getattr(self, "is_1_part_mode", False) and chunk_title and self.part_instructions_map:
+            # Inject dynamic part instruction if chunk_title matches
+            for key, instruction in self.part_instructions_map.items():
+                if key in chunk_title or chunk_title in key:
+                    mega_prompt += f"\n\n--- DYNAMIC INSTRUCTION FOR PART: {chunk_title} ---\n{instruction}\n"
+                    break
         
         if workspace_code and workspace_code != "None":
             filename = f"{base_filename}_{workspace_code}.md"

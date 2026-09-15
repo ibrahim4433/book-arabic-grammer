@@ -2833,6 +2833,155 @@ def run_auto_smart_merging():
     questionary.press_any_key_to_continue().ask()
 
 
+def backup_raw_file():
+    import shutil
+    import datetime
+    raw_dir = PROJECT_ROOT / "system-workspace/text-data/raw"
+    backup_dir = PROJECT_ROOT / "system-workspace/text-data/backups"
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    for raw_file in raw_dir.glob("*.txt"):
+        backup_path = backup_dir / f"{raw_file.stem}_{timestamp}{raw_file.suffix}"
+        shutil.copy2(raw_file, backup_path)
+        console.print(f"[green]✅ Backup created at {backup_path}[/green]")
+
+def run_interactive_purge_ui(state_manager):
+    console.clear()
+    console.print("[bold cyan]🚀 Starting Interactive Content Purging...[/bold cyan]")
+    
+    maps_dir = PROJECT_ROOT / "system-workspace/text-data/semantic_maps"
+    index_path = PROJECT_ROOT / "system-workspace/text-data/raw_to_lesson_index.json"
+    full_raw_path = PROJECT_ROOT / "system-workspace/text-data/full_raw_indexed.txt"
+    
+    if not maps_dir.exists() or not index_path.exists() or not full_raw_path.exists():
+        console.print("[red]❌ Error: Missing required files. Run Raw Processing and Semantic Mapping first.[/red]")
+        questionary.press_any_key_to_continue().ask()
+        return
+        
+    import json
+    import re
+    from modules.text_processing import TextProcessor
+    
+    # Collect all unique part titles from semantic maps
+    all_parts = set()
+    for map_file in maps_dir.glob("*.json"):
+        try:
+            chunks = json.loads(map_file.read_text(encoding="utf-8"))
+            for chunk in chunks:
+                all_parts.add(chunk["title"])
+        except:
+            pass
+
+    if not all_parts:
+        console.print("[yellow]No mapped parts found.[/yellow]")
+        questionary.press_any_key_to_continue().ask()
+        return
+
+    # Pre-select known unwanted parts
+    default_deletions = [
+        "اسطر النص المتتمة",
+        "ملحق الابيات المتممة",
+        "الموضوعات المقترحة المكتوبة",
+        "الموضوعات المقترحة غير المكتوبة"
+    ]
+    
+    choices = []
+    for part in sorted(all_parts):
+        checked = any(default in part for default in default_deletions)
+        choices.append(questionary.Choice(title=part, checked=checked))
+
+    selected_parts = questionary.checkbox(
+        "Select the part groups to purge (their content will be deleted until the start of the next lesson):",
+        choices=choices
+    ).ask()
+
+    if not selected_parts:
+        console.print("[yellow]No parts selected for purging.[/yellow]")
+        questionary.press_any_key_to_continue().ask()
+        return
+
+    # Backup raw text
+    console.print("[cyan]Creating backups of raw text files...[/cyan]")
+    backup_raw_file()
+
+    # Apply purging
+    console.print("[cyan]Identifying lines to purge...[/cyan]")
+    
+    mapping = json.loads(index_path.read_text(encoding="utf-8"))
+    full_raw_lines = full_raw_path.read_text(encoding="utf-8").splitlines()
+    tp = TextProcessor(project_root=PROJECT_ROOT)
+    
+    files_to_edit = {} # raw_filename -> list of (start_line, end_line) to delete
+    
+    for title, info in mapping.items():
+        lesson_number = tp.get_lesson_number(title)
+        map_path = maps_dir / f"lesson_{lesson_number}.json"
+        if not map_path.exists():
+            continue
+            
+        chunks = json.loads(map_path.read_text(encoding="utf-8"))
+        for chunk in chunks:
+            if chunk["title"] in selected_parts:
+                start_idx = chunk["start_line"] - 1 # 0-indexed in full_raw_lines
+                end_marker = info["end"]
+                
+                if start_idx < len(full_raw_lines):
+                    start_line_text = full_raw_lines[start_idx]
+                    start_match = re.match(r'^\[(raw_[^:]+):(\d+)\]', start_line_text)
+                    if start_match:
+                        raw_filename = start_match.group(1)
+                        raw_start_line = int(start_match.group(2))
+                        
+                        end_match = re.match(r'^(raw_[^:]+):(\d+)$', end_marker)
+                        if end_match and end_match.group(1) == raw_filename:
+                            raw_end_line = int(end_match.group(2))
+                            
+                            if raw_filename not in files_to_edit:
+                                files_to_edit[raw_filename] = []
+                            files_to_edit[raw_filename].append((raw_start_line, raw_end_line))
+                break # delete rest of the lesson
+
+    raw_dir = PROJECT_ROOT / "system-workspace/text-data/raw"
+    total_deleted = 0
+    for raw_filename, ranges in files_to_edit.items():
+        raw_path = raw_dir / raw_filename
+        if not raw_path.exists():
+            continue
+            
+        lines = raw_path.read_text(encoding="utf-8").splitlines()
+        ranges.sort()
+        merged_ranges = []
+        for r in ranges:
+            if not merged_ranges:
+                merged_ranges.append(r)
+            else:
+                last_r = merged_ranges[-1]
+                if r[0] <= last_r[1]:
+                    merged_ranges[-1] = (last_r[0], max(last_r[1], r[1]))
+                else:
+                    merged_ranges.append(r)
+                    
+        new_lines = []
+        for i, line in enumerate(lines):
+            line_num = i + 1
+            delete = False
+            for start, end in merged_ranges:
+                if start <= line_num <= end:
+                    delete = True
+                    break
+            if not delete:
+                new_lines.append(line)
+            else:
+                total_deleted += 1
+                
+        raw_path.write_text("\n".join(new_lines), encoding="utf-8")
+        console.print(f"[green]Purged {len(lines) - len(new_lines)} lines from {raw_filename}[/green]")
+        
+    console.print(f"[bold green]✅ Purge Complete! Total lines deleted: {total_deleted}[/bold green]")
+    console.print("[bold yellow]⚠️ Note: You must now re-run 'Raw Processing' and 'Semantic Mapping' to update the indexes![/bold yellow]")
+    questionary.press_any_key_to_continue().ask()
+
 def run_semantic_mapping_ui(state_manager):
     console.clear()
     console.print("[bold cyan]🚀 Starting Semantic Mapping Pre-Processor...[/bold cyan]")
@@ -3047,8 +3196,10 @@ def main():
                 "Select Operation (1-part method):",
                 choices=[
                     "A) Full Auto Workflow",
-                    "B) Raw Processing (Auto-Paginated Index & TOC)",
+                    "B) Raw Processing (Merge & Index)",
                     "S) Pre-Process: Generate Semantic Maps (JSON)",
+                    "P) Purge Unwanted Content (Interactive)",
+                    "T) Generate Nested TOC (1-Part Method)",
                     "C) Plan Generation (Jules Batch - 1-Part Method)",
                     "D) Page Generation (Jules Batch - 1-Part Method)",
                     "E) Audit & Verify Pages",
@@ -3071,9 +3222,16 @@ def main():
                 if sub_op == "A":
                     run_full_auto_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
                 elif sub_op == "B":
-                    run_raw_processing_auto(state_manager)
+                    run_raw_processing(state_manager)
                 elif sub_op == "S":
                     run_semantic_mapping_ui(state_manager)
+                elif sub_op == "P":
+                    run_interactive_purge_ui(state_manager)
+                elif sub_op == "T":
+                    from modules.text_processing import TextProcessor
+                    tp = TextProcessor(project_root=PROJECT_ROOT)
+                    tp.generate_nested_toc_from_semantic_maps()
+                    questionary.press_any_key_to_continue().ask()
                 elif sub_op == "C":
                     run_jules_planning_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
                 elif sub_op == "D":
