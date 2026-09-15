@@ -3197,12 +3197,12 @@ def main():
                 choices=[
                     "A) Full Auto Workflow",
                     "B) Raw Processing (Merge & Index)",
-                    "S) Pre-Process: Generate Semantic Maps (JSON)",
-                    "P) Purge Unwanted Content (Interactive)",
-                    "T) Generate Nested TOC (1-Part Method)",
-                    "C) Plan Generation (Jules Batch - 1-Part Method)",
-                    "D) Page Generation (Jules Batch - 1-Part Method)",
-                    "E) Audit & Verify Pages",
+                    "C) Pre-Process: Generate Semantic Maps (JSON)",
+                    "D) Purge Unwanted Content (Interactive)",
+                    "E) Generate Nested TOC (1-Part Method)",
+                    "F) Plan Generation (Jules Batch - 1-Part Method)",
+                    "G) Page Generation (Jules Batch - 1-Part Method)",
+                    "H) Audit & Verify Pages",
                     "X) Back to Main Menu",
                 ],
                 style=menu_style,
@@ -3213,30 +3213,30 @@ def main():
                 op_ran = True
                 part_instruction = ""
                 part_number = ""
-                if sub_op in ["A", "C", "D"]:
+                if sub_op in ["A", "F", "G"]:
                     part_number = questionary.text("Enter Part Number (e.g. 1, 2, 3, 4):").ask()
                     if not part_number: part_number = "1"
-                if sub_op in ["A", "C"]:
+                if sub_op in ["A", "F"]:
                     part_instruction = questionary.text("Enter custom instruction for this Part (or leave empty):").ask()
                 
                 if sub_op == "A":
                     run_full_auto_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
                 elif sub_op == "B":
                     run_raw_processing(state_manager)
-                elif sub_op == "S":
+                elif sub_op == "C":
                     run_semantic_mapping_ui(state_manager)
-                elif sub_op == "P":
+                elif sub_op == "D":
                     run_interactive_purge_ui(state_manager)
-                elif sub_op == "T":
+                elif sub_op == "E":
                     from modules.text_processing import TextProcessor
                     tp = TextProcessor(project_root=PROJECT_ROOT)
                     tp.generate_nested_toc_from_semantic_maps()
                     questionary.press_any_key_to_continue().ask()
-                elif sub_op == "C":
+                elif sub_op == "F":
                     run_jules_planning_ui(state_manager, is_1_part_mode=True, part_instruction=part_instruction, part_number=part_number)
-                elif sub_op == "D":
+                elif sub_op == "G":
                     run_jules_generation_ui(state_manager, is_1_part_mode=True, part_number=part_number)
-                elif sub_op == "E":
+                elif sub_op == "H":
                     run_audit_and_verify(state_manager)
 
         elif main_op == "4":
