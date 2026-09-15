@@ -71,6 +71,12 @@ class TextProcessor:
         """
         Retrieves the lesson number for a given title from TOC.json.
         """
+        # First, attempt to extract the number directly if the title has a "XXX - Title" format
+        match = re.match(r'^(\d+)', lesson_title.strip())
+        if match:
+            return match.group(1).zfill(3)
+
+        # Fallback for titles that don't have a number prefix
         if not self.toc_path.exists():
             return "00"
 
@@ -78,13 +84,12 @@ class TextProcessor:
             content = self.toc_path.read_text(encoding="utf-8")
             data = json.loads(content)
 
-            # Clean the input title by removing prefix (e.g., "9 - Title" -> "Title")
             clean_input_title = re.sub(r"^\d+\s*-\s*", "", lesson_title).strip()
 
             for number, metadata in data.items():
                 title = metadata.get("title", "").strip()
                 if title == clean_input_title:
-                    return number.zfill(3)  # Ensure 3 digits
+                    return str(number).zfill(3)
 
             return "00"
         except Exception as e:
@@ -546,6 +551,87 @@ CRITICAL RULES:
             json.dump(nested_toc, f, ensure_ascii=False, indent=2)
 
         print(f"✅ Nested TOC generated at {nested_toc_path}")
+
+    def merge_semantic_maps_globally(self):
+        """
+        Loads all lesson_XXX.json semantic maps, converts their relative bounds to absolute
+        global line numbers based on raw_to_lesson_index.json, and merges contiguous chunks
+        that share the same title into a unified global_semantic_map.json.
+        """
+        print("🌍 Merging semantic maps into global sequence...")
+        index_path = self.project_root / "system-workspace/text-data/raw_to_lesson_index.json"
+        maps_dir = self.project_root / "system-workspace/text-data/semantic_maps"
+        full_raw_path = self.project_root / "system-workspace/text-data/full_raw_indexed.txt"
+        
+        if not index_path.exists() or not full_raw_path.exists():
+            print("❌ Error: Missing index or raw file for global merge.")
+            return False
+            
+        # 1. Build a marker -> absolute line number mapping
+        marker_to_abs = {}
+        lines = full_raw_path.read_text(encoding="utf-8").splitlines()
+        for idx, line in enumerate(lines):
+            match = re.match(r"^\[(.*?)\]", line)
+            if match:
+                marker_to_abs[match.group(1)] = idx  # 0-indexed absolute line
+                
+        # 2. Iterate through lessons in order
+        mapping = json.loads(index_path.read_text(encoding="utf-8"))
+        global_chunks = []
+        
+        for title, info in mapping.items():
+            lesson_number = self.get_lesson_number(title)
+            map_path = maps_dir / f"lesson_{lesson_number}.json"
+            if not map_path.exists():
+                continue
+                
+            start_marker = info["start"]
+            if start_marker not in marker_to_abs:
+                print(f"⚠️ Warning: Start marker {start_marker} not found in full_raw_indexed.txt")
+                continue
+                
+            abs_start_offset = marker_to_abs[start_marker]
+            
+            try:
+                chunks = json.loads(map_path.read_text(encoding="utf-8"))
+                for chunk in chunks:
+                    abs_start = abs_start_offset + chunk["start_line"] - 1
+                    abs_end = abs_start_offset + chunk["end_line"] - 1
+                    
+                    global_chunks.append({
+                        "lesson_id": str(lesson_number),
+                        "title": chunk["title"],
+                        "start_line": abs_start,
+                        "end_line": abs_end
+                    })
+            except Exception as e:
+                print(f"Error reading {map_path.name}: {e}")
+                
+        # 3. Merge contiguous chunks with the same title
+        if not global_chunks:
+            print("❌ No chunks found to merge.")
+            return False
+            
+        merged_chunks = []
+        current_chunk = global_chunks[0].copy()
+        
+        for i in range(1, len(global_chunks)):
+            next_chunk = global_chunks[i]
+            
+            # If same title, merge them (ignore the gap)
+            if next_chunk["title"] == current_chunk["title"]:
+                current_chunk["end_line"] = next_chunk["end_line"]
+            else:
+                merged_chunks.append(current_chunk)
+                current_chunk = next_chunk.copy()
+                
+        merged_chunks.append(current_chunk)
+        
+        # 4. Save
+        out_path = self.project_root / "system-workspace/text-data/global_semantic_map.json"
+        out_path.write_text(json.dumps(merged_chunks, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"✅ Created global_semantic_map.json with {len(merged_chunks)} unified parts!")
+        return True
         return True
 if __name__ == "__main__":
     tp = TextProcessor()

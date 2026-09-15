@@ -1670,10 +1670,19 @@ def run_raw_processing(state_manager):
         choices=[
             "1. Manually select/use existing input/TOC.json",
             "2. Auto-generate new TOC.json using AI from raw text",
+            "3. Load TOC and Index deterministically from input/TOC.md",
         ],
     ).ask()
 
     if not toc_choice:
+        return
+
+    if toc_choice.startswith("3"):
+        if tp.generate_toc_and_index_from_markdown():
+            console.print("[bold green]✅ Deterministic Raw Processing Complete![/bold green]")
+        else:
+            console.print("[bold red]❌ Deterministic Raw Processing Failed![/bold red]")
+        questionary.press_any_key_to_continue().ask()
         return
 
     start_time = time.time()
@@ -2923,27 +2932,36 @@ def run_interactive_purge_ui(state_manager):
         chunks = json.loads(map_path.read_text(encoding="utf-8"))
         for chunk in chunks:
             if chunk["title"] in selected_parts:
-                start_idx = chunk["start_line"] - 1 # 0-indexed in full_raw_lines
-                end_marker = info["end"]
-                
-                if start_idx < len(full_raw_lines):
-                    start_line_text = full_raw_lines[start_idx]
-                    start_match = re.match(r'^\[(raw_[^:]+):(\d+)\]', start_line_text)
-                    if start_match:
-                        raw_filename = start_match.group(1)
-                        raw_start_line = int(start_match.group(2))
+                lesson_start = info["start"]
+                lesson_start_idx = -1
+                for i, line in enumerate(full_raw_lines):
+                    if line.startswith(f"[{lesson_start}]"):
+                        lesson_start_idx = i
+                        break
                         
-                        end_match = re.match(r'^(raw_[^:]+):(\d+)$', end_marker)
-                        if end_match and end_match.group(1) == raw_filename:
-                            raw_end_line = int(end_match.group(2))
+                if lesson_start_idx != -1:
+                    start_idx = lesson_start_idx + chunk["start_line"] - 1
+                    end_marker = info["end"]
+                    
+                    if start_idx < len(full_raw_lines):
+                        start_line_text = full_raw_lines[start_idx]
+                        start_match = re.match(r'^\[(raw_[^:]+):(\d+)\]', start_line_text)
+                        if start_match:
+                            raw_filename = start_match.group(1)
+                            raw_start_line = int(start_match.group(2))
                             
-                            if raw_filename not in files_to_edit:
-                                files_to_edit[raw_filename] = []
-                            files_to_edit[raw_filename].append((raw_start_line, raw_end_line))
+                            end_match = re.match(r'^(raw_[^:]+):(\d+)$', end_marker)
+                            if end_match and end_match.group(1) == raw_filename:
+                                raw_end_line = int(end_match.group(2))
+                                
+                                if raw_filename not in files_to_edit:
+                                    files_to_edit[raw_filename] = []
+                                files_to_edit[raw_filename].append((raw_start_line, raw_end_line))
                 break # delete rest of the lesson
 
     raw_dir = PROJECT_ROOT / "system-workspace/text-data/raw"
     total_deleted = 0
+    all_merged_ranges = {}
     for raw_filename, ranges in files_to_edit.items():
         raw_path = raw_dir / raw_filename
         if not raw_path.exists():
@@ -2962,6 +2980,8 @@ def run_interactive_purge_ui(state_manager):
                 else:
                     merged_ranges.append(r)
                     
+        all_merged_ranges[raw_filename] = merged_ranges
+        
         new_lines = []
         for i, line in enumerate(lines):
             line_num = i + 1
@@ -2978,8 +2998,58 @@ def run_interactive_purge_ui(state_manager):
         raw_path.write_text("\n".join(new_lines), encoding="utf-8")
         console.print(f"[green]Purged {len(lines) - len(new_lines)} lines from {raw_filename}[/green]")
         
-    console.print(f"[bold green]✅ Purge Complete! Total lines deleted: {total_deleted}[/bold green]")
-    console.print("[bold yellow]⚠️ Note: You must now re-run 'Raw Processing' and 'Semantic Mapping' to update the indexes![/bold yellow]")
+    console.print("[cyan]Mathematically recalculating index offsets...[/cyan]")
+    def calculate_shift(original_line, deleted_ranges):
+        shift = 0
+        for start, end in deleted_ranges:
+            if end < original_line:
+                shift += (end - start + 1)
+            elif start <= original_line <= end:
+                shift += (original_line - start)
+        return original_line - shift
+        
+    for title, info in mapping.items():
+        start_m = re.match(r'^(raw_[^:]+):(\d+)$', info["start"])
+        if start_m and start_m.group(1) in all_merged_ranges:
+            s_file = start_m.group(1)
+            s_line = int(start_m.group(2))
+            s_line = calculate_shift(s_line, all_merged_ranges[s_file])
+            info["start"] = f"{s_file}:{s_line}"
+            
+        end_m = re.match(r'^(raw_[^:]+):(\d+)$', info["end"])
+        if end_m and end_m.group(1) in all_merged_ranges:
+            e_file = end_m.group(1)
+            e_line = int(end_m.group(2))
+            e_line = calculate_shift(e_line, all_merged_ranges[e_file])
+            info["end"] = f"{e_file}:{e_line}"
+            
+    index_path.write_text(json.dumps(mapping, ensure_ascii=False, indent=2), encoding="utf-8")
+    
+    console.print("[cyan]Cleaning deleted chunks from semantic maps...[/cyan]")
+    for title, info in mapping.items():
+        lesson_number = tp.get_lesson_number(title)
+        map_path = maps_dir / f"lesson_{lesson_number}.json"
+        if not map_path.exists(): continue
+        try:
+            chunks = json.loads(map_path.read_text(encoding="utf-8"))
+            new_chunks = []
+            for chunk in chunks:
+                if chunk["title"] not in selected_parts:
+                    new_chunks.append(chunk)
+                else:
+                    break
+            if len(new_chunks) != len(chunks):
+                map_path.write_text(json.dumps(new_chunks, ensure_ascii=False, indent=2), encoding="utf-8")
+        except:
+            pass
+
+    console.print("[cyan]Rebuilding Master Text Index (full_raw_indexed.txt)...[/cyan]")
+    tp.merge_raw_text()
+    
+    console.print("[cyan]Rebuilding Global Semantic Map...[/cyan]")
+    tp.merge_semantic_maps_globally()
+
+    console.print(f"[bold green]✅ Smart Purge Complete! Removed {total_deleted} lines and instantly re-indexed the book![/bold green]")
     questionary.press_any_key_to_continue().ask()
 
 def run_semantic_mapping_ui(state_manager):
@@ -3023,19 +3093,45 @@ def run_semantic_mapping_ui(state_manager):
         layout.add_row(generate_table(), generate_log_panel())
         return layout
 
-    to_process = []
+    from modules.repoless_jules import RepolessJulesClient
+    import queue
+    client_pool = queue.Queue()
+    # Pre-initialize exactly 5 clients to act as our session pool
+    for _ in range(5):
+        client_pool.put(RepolessJulesClient())
+
+    existing_count = 0
     for title, info in mapping.items():
         lesson_number = dummy_planner.tp.get_lesson_number(title)
         if lesson_number:
             out_path = maps_dir / f"lesson_{lesson_number}.json"
             if out_path.exists():
+                existing_count += 1
+                
+    overwrite_existing = False
+    if existing_count > 0:
+        choice = questionary.select(
+            f"Found {existing_count} existing semantic maps. What would you like to do?",
+            choices=["Skip existing (default)", "Overwrite/Retry existing"]
+        ).ask()
+        if not choice: return
+        overwrite_existing = "Overwrite" in choice
+
+    to_process = []
+    for title, info in mapping.items():
+        lesson_number = dummy_planner.tp.get_lesson_number(title)
+        if lesson_number:
+            out_path = maps_dir / f"lesson_{lesson_number}.json"
+            if out_path.exists() and not overwrite_existing:
                 with lock:
                     tasks[title] = {"status": "SKIP", "message": f"Map exists: {out_path.name}"}
                 continue
             to_process.append((title, lesson_number, info))
             
     if not to_process:
-        console.print("[yellow]No lessons found to map.[/yellow]")
+        console.print("[yellow]No lessons found to map (all skipped).[/yellow]")
+        dummy_planner.tp.merge_semantic_maps_globally()
+        questionary.press_any_key_to_continue().ask()
         return
 
     with Live(generate_layout(), refresh_per_second=4, vertical_overflow="crop") as live:
@@ -3051,7 +3147,12 @@ def run_semantic_mapping_ui(state_manager):
                 if not raw_text:
                     raise Exception("Failed to extract raw text.")
                 
-                chunks = dummy_planner._get_semantic_chunks(raw_text)
+                client = client_pool.get()
+                try:
+                    chunks = dummy_planner._get_semantic_chunks(raw_text, client=client)
+                finally:
+                    client_pool.put(client)
+                
                 if chunks:
                     out_path = maps_dir / f"lesson_{lesson_number}.json"
                     out_path.write_text(json.dumps(chunks, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -3069,6 +3170,7 @@ def run_semantic_mapping_ui(state_manager):
             executor.map(worker, to_process)
             
     console.print(f"[bold green]✅ Semantic Mapping Completed![/bold green]")
+    dummy_planner.tp.merge_semantic_maps_globally()
     console.print(f"[cyan]You can now manually edit the JSON files in: {maps_dir}[/cyan]")
     questionary.press_any_key_to_continue().ask()
 

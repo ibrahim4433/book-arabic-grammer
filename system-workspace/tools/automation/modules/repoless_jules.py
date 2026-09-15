@@ -24,36 +24,52 @@ class RepolessJulesClient:
             raise ValueError("JULES_API_KEY not found.")
             
         self.base_url = "https://jules.googleapis.com/v1alpha"
+        self.session_id = None
+        self.expected_responses = 0
 
     def generate_content(self, prompt, system_instruction=""):
         full_prompt = f"{system_instruction}\n\n{prompt}"
-        
-        payload = {
-            "title": "Repoless Chunking",
-            "prompt": full_prompt,
-            "requirePlanApproval": False
-        }
         
         headers = {
             "X-Goog-Api-Key": self.api_key,
             "Content-Type": "application/json"
         }
         
-        logging.info("Creating repoless Jules session...")
-        create_resp = requests.post(f"{self.base_url}/sessions", json=payload, headers=headers)
-        
-        if create_resp.status_code != 200:
-            raise Exception(f"Failed to create session: {create_resp.text}")
+        if not self.session_id:
+            payload = {
+                "title": "Repoless Chunking",
+                "prompt": full_prompt,
+                "requirePlanApproval": False
+            }
+            logging.info("Creating repoless Jules session...")
+            create_resp = requests.post(f"{self.base_url}/sessions", json=payload, headers=headers)
             
-        session_data = create_resp.json()
-        session_id = session_data.get("name")
-        if not session_id:
-            raise Exception("No session ID returned.")
-            
-        logging.info(f"Session created: {session_id}. Polling for response...")
+            if create_resp.status_code != 200:
+                raise Exception(f"Failed to create session: {create_resp.text}")
+                
+            session_data = create_resp.json()
+            self.session_id = session_data.get("name")
+            if not self.session_id:
+                raise Exception("No session ID returned.")
+            self.expected_responses = 1
+            logging.info(f"Session created: {self.session_id}. Polling for response...")
+        else:
+            payload = {"prompt": full_prompt}
+            # Extract just the session path if it contains the full url
+            session_path = self.session_id
+            if "https" in session_path:
+                session_path = session_path.split("v1alpha/")[-1]
+                
+            url = f"{self.base_url}/{session_path}:sendMessage"
+            logging.info(f"Reusing session {session_path}. Sending message...")
+            resp = requests.post(url, headers=headers, json=payload, timeout=30)
+            if resp.status_code != 200:
+                raise Exception(f"Failed to send message to existing session: {resp.text}")
+            self.expected_responses += 1
+            logging.info(f"Message sent. Polling for response #{self.expected_responses}...")
         
         # Poll activities
-        activities_url = f"{self.base_url}/{session_id}/activities"
+        activities_url = f"{self.base_url}/{self.session_id}/activities"
         
         max_retries = 180 # 6 minutes to allow Jules time to process massive 3,000+ line texts
         for _ in range(max_retries):
@@ -65,12 +81,16 @@ class RepolessJulesClient:
                 if act_resp.status_code == 200:
                     activities_data = act_resp.json()
                     activities = activities_data.get("activities", [])
-                    for act in activities:
-                        if "agentMessaged" in act:
-                            msg = act["agentMessaged"].get("agentMessage", act.get("description", ""))
-                            return self._clean_json(msg)
-                        elif "progressUpdated" in act:
-                            pass
+                    
+                    # Find all agent responses
+                    agent_messages = [act for act in activities if "agentMessaged" in act]
+                    
+                    if len(agent_messages) >= self.expected_responses:
+                        # Ensure we get the absolute latest message
+                        agent_messages.sort(key=lambda x: x.get("createTime", ""), reverse=True)
+                        latest_act = agent_messages[0]
+                        msg = latest_act["agentMessaged"].get("agentMessage", latest_act.get("description", ""))
+                        return self._clean_json(msg)
             except Exception as e:
                 logging.error(f"Polling error: {e}")
                 

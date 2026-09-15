@@ -111,7 +111,10 @@ class JulesPlanner:
             if capturing:
                 # Remove the [marker] prefix for cleaner prompt
                 clean_line = re.sub(r"^\[.*?\]\s*", "", line)
-                extracted.append(clean_line)
+                if re.match(r'^-+\s*PAGE\s+\d+\s*-+', clean_line, re.IGNORECASE):
+                    extracted.append("")
+                else:
+                    extracted.append(clean_line)
 
             if end_pattern in line:
                 capturing = False
@@ -144,9 +147,10 @@ class JulesPlanner:
             count += len(existing)
         return count
 
-    def _get_semantic_chunks(self, raw_text):
+    def _get_semantic_chunks(self, raw_text, client=None):
         try:
-            client = RepolessJulesClient()
+            if client is None:
+                client = RepolessJulesClient()
             lines = raw_text.splitlines()
             total_lines = len(lines)
             
@@ -247,94 +251,111 @@ Schema:
 
         logging.info(f"\n🧠 Starting Jules Batch Planning (Max Concurrent: {max_concurrent})...")
 
-        # 1. Get Lesson Index
-        index_path = self.project_root / "system-workspace/text-data/raw_to_lesson_index.json"
-        if not index_path.exists():
-            update_callback("System", "WARN", "Lesson index missing. Generating...")
-            mapping = self.tp.generate_lesson_index()
-        else:
-            mapping = json.loads(index_path.read_text(encoding="utf-8"))
-
-        if not mapping:
-            update_callback("System", "ERROR", "No lessons to process.")
-            return
-
-        # 2. Filter Processed Lessons?
+        # 1. Dispatch based on Mode
+        is_1_part_mode = getattr(self, "is_1_part_mode", False)
         to_process = []
         
-        for title, info in mapping.items():
-            lesson_number = self.tp.get_lesson_number(title)
+        if is_1_part_mode:
+            map_path = self.project_root / "system-workspace/text-data/global_semantic_map.json"
+            if not map_path.exists():
+                update_callback("System", "ERROR", "Global semantic map missing. Run Semantic Mapping first.")
+                return
+                
+            try:
+                global_chunks = json.loads(map_path.read_text(encoding="utf-8"))
+            except Exception as e:
+                update_callback("System", "ERROR", f"Failed to parse global map: {e}")
+                return
+                
+            full_raw_path = self.project_root / "system-workspace/text-data/full_raw_indexed.txt"
+            raw_lines = full_raw_path.read_text(encoding="utf-8").splitlines()
             
-            # Check Exclusions
-            if excluded_lessons:
-                if lesson_number and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons):
-                    update_callback(title, "SKIP", f"Lesson {lesson_number} excluded (Page exists)")
+            lesson_counters = {}
+            for chunk in global_chunks:
+                lesson_number = chunk.get("lesson_id", "000")
+                chunk_title = chunk.get("title", "Unknown")
+                start_line = chunk.get("start_line", 0)
+                end_line = chunk.get("end_line", 0)
+                
+                if excluded_lessons and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons):
+                    continue
+                if only_lessons and (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons):
+                    continue
+                    
+                lesson_counters[lesson_number] = lesson_counters.get(lesson_number, 0) + 1
+                p_num = str(lesson_counters[lesson_number])
+                
+                if isinstance(self.part_number, list) and self.part_number != ['1', '2', '3', '4']:
+                    if p_num not in self.part_number:
+                        continue
+                elif isinstance(self.part_number, str) and self.part_number and self.part_number.upper() != "ALL":
+                    if p_num != self.part_number:
+                        continue
+                        
+                display_title = f"[Part {p_num}] {chunk_title}"
+                clean_title = re.sub(r'[<>:"/\|?*]', '', chunk_title)
+                base_name = f"{lesson_number}.{p_num}_nXXX_{clean_title}-plan"
+                
+                existing = list((self.project_root / "plans").glob(f"{base_name}*.md"))
+                if existing and not force_remake:
+                    update_callback(display_title, "SKIP", "Plan exists")
+                    continue
+                if force_remake and existing:
+                    for f in existing:
+                        try: f.unlink()
+                        except: pass
+                        
+                s_idx = max(0, start_line)
+                e_idx = min(len(raw_lines), end_line + 1)
+                
+                cleaned_chunk_lines = []
+                for line in raw_lines[s_idx:e_idx]:
+                    clean_line = re.sub(r"^\[.*?\]\s*", "", line)
+                    if re.match(r'^-+\s*PAGE\s+\d+\s*-+', clean_line, re.IGNORECASE):
+                        cleaned_chunk_lines.append("")
+                    else:
+                        cleaned_chunk_lines.append(clean_line)
+                        
+                chunk_text = "\n".join(cleaned_chunk_lines)
+                
+                to_process.append({
+                    "title": f"{lesson_number} - {chunk_title}",
+                    "display_title": display_title,
+                    "info": {"start": "Global", "end": "Global"},
+                    "p_num": p_num,
+                    "chunk_text": chunk_text,
+                    "chunk_title": chunk_title
+                })
+                update_callback(display_title, "PENDING", "Queued")
+                
+        else:
+            # ORIGINAL LOGIC for 1-PAGE MODE
+            index_path = self.project_root / "system-workspace/text-data/raw_to_lesson_index.json"
+            if not index_path.exists():
+                update_callback("System", "WARN", "Lesson index missing. Generating...")
+                mapping = self.tp.generate_lesson_index()
+            else:
+                mapping = json.loads(index_path.read_text(encoding="utf-8"))
+
+            if not mapping:
+                update_callback("System", "ERROR", "No lessons to process.")
+                return
+
+            for title, info in mapping.items():
+                lesson_number = self.tp.get_lesson_number(title)
+                
+                if excluded_lessons and (lesson_number in excluded_lessons or str(int(lesson_number)) in excluded_lessons):
+                    update_callback(title, "SKIP", f"Lesson {lesson_number} excluded")
+                    continue
+                if only_lessons and (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons):
                     continue
 
-            if only_lessons:
-                if not lesson_number or (lesson_number not in only_lessons and str(int(lesson_number)) not in only_lessons):
-                    continue  # Skip if we only want specific lessons
+                raw_text = self._extract_lesson_text(info["start"], info["end"])
+                if not raw_text:
+                    continue
 
-            raw_text = self._extract_lesson_text(info["start"], info["end"])
-            if not raw_text:
-                continue
-
-            lines = raw_text.splitlines()
-            # Semantic Chunking
-            semantic_chunks = None
-            if getattr(self, "is_1_part_mode", False):
-                map_path = self.project_root / f"system-workspace/text-data/semantic_maps/lesson_{lesson_number}.json"
-                if map_path.exists():
-                    update_callback(title, "RUNNING", "Loading local Semantic Map...")
-                    try:
-                        semantic_chunks = json.loads(map_path.read_text(encoding="utf-8"))
-                    except Exception as e:
-                        logging.error(f"Failed to load local map {map_path}: {e}")
-                        semantic_chunks = None
-                        
-                if not semantic_chunks:
-                    update_callback(title, "RUNNING", "Generating Smart Semantic Chunks...")
-                    semantic_chunks = self._get_semantic_chunks(raw_text)
-
-            if semantic_chunks:
-                num_chunks = len(semantic_chunks)
-                chunk_parts = [str(i) for i in range(1, num_chunks + 1)]
-                
-                if getattr(self, "is_1_part_mode", False):
-                    if isinstance(self.part_number, list) and self.part_number == ['1', '2', '3', '4']:
-                        part_list = chunk_parts
-                    elif isinstance(self.part_number, list):
-                        part_list = [p for p in self.part_number if p in chunk_parts]
-                    else:
-                        part_list = [str(self.part_number)] if str(self.part_number) in chunk_parts else []
-                else:
-                    part_list = chunk_parts
-            else:
-                CHUNK_SIZE = 50
-                num_chunks = max(1, (len(lines) + CHUNK_SIZE - 1) // CHUNK_SIZE)
-                
-                if getattr(self, "is_1_part_mode", False):
-                    if isinstance(self.part_number, list) and self.part_number == ['1', '2', '3', '4']:
-                        part_list = [str(i) for i in range(1, num_chunks + 1)]
-                    elif isinstance(self.part_number, list):
-                        part_list = self.part_number
-                    else:
-                        part_list = [str(self.part_number)]
-                else:
-                    part_list = [None]
-                
-            clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
-            clean_title = re.sub(r'[<>:"/\|?*]', '', clean_title)
-            
-            for p_num in part_list:
-                display_title = f"[Part {p_num}/{num_chunks}] {title}" if p_num else title
-                
-                if getattr(self, "is_1_page_mode", False):
-                    base_name = f"page_{lesson_number}-plan"
-                elif getattr(self, "is_1_part_mode", False):
-                    base_name = f"{lesson_number}.{p_num}_nXXX_{clean_title}-plan"
-                else:
-                    base_name = f"{lesson_number}-{clean_title}-plan"
+                display_title = title
+                base_name = f"page_{lesson_number}-plan"
 
                 existing = list((self.project_root / "plans").glob(f"{base_name}*.md"))
                 if existing and not force_remake:
@@ -342,36 +363,16 @@ Schema:
                 else:
                     if force_remake and existing:
                         for f in existing:
-                            try:
-                                f.unlink()
-                            except:
-                                pass
+                            try: f.unlink()
+                            except: pass
                                 
-                    chunk_text = raw_text
-                    if getattr(self, "is_1_part_mode", False) and p_num:
-                        p_idx = int(p_num) - 1
-                        if semantic_chunks and p_idx < len(semantic_chunks):
-                            chunk_info = semantic_chunks[p_idx]
-                            s_line = max(1, chunk_info["start_line"]) - 1
-                            e_line = min(len(lines), chunk_info["end_line"])
-                            chunk_lines = lines[s_line:e_line]
-                            chunk_text = "\n".join(chunk_lines)
-                            display_title = f"[Part {p_num}/{num_chunks}] {chunk_info['title']}"
-                            chunk_title = chunk_info['title']
-                        elif not semantic_chunks and p_idx < num_chunks:
-                            chunk_lines = lines[p_idx * CHUNK_SIZE : (p_idx + 1) * CHUNK_SIZE]
-                            chunk_text = "\n".join(chunk_lines)
-                            chunk_title = None
-                        else:
-                            continue # Skip out of bounds parts
-
                     to_process.append({
                         "title": title,
                         "display_title": display_title,
                         "info": info,
-                        "p_num": p_num,
-                        "chunk_text": chunk_text,
-                        "chunk_title": chunk_title if 'chunk_title' in locals() else None
+                        "p_num": None,
+                        "chunk_text": raw_text,
+                        "chunk_title": None
                     })
                     update_callback(display_title, "PENDING", "Queued")
 
