@@ -512,6 +512,44 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
                 only_lessons.append(str(int(part)).zfill(3))
                 only_lessons.append(str(int(part)))
                 
+    calculated_sessions = 0
+    if is_1_part_mode:
+        map_path = PROJECT_ROOT / "system-workspace/text-data/global_semantic_map.json"
+        if map_path.exists():
+            try:
+                import json
+                chunks = json.loads(map_path.read_text(encoding="utf-8"))
+                lesson_counters = {}
+                for chunk in chunks:
+                    ln = chunk.get("lesson_id", "000")
+                    if only_lessons and (ln not in only_lessons and str(int(ln)) not in only_lessons): continue
+                    
+                    lesson_counters[ln] = lesson_counters.get(ln, 0) + 1
+                    p_num = str(lesson_counters[ln]).zfill(3)
+                    
+                    if part_numbers_list and part_numbers_list != [str(i) for i in range(1, 51)]:
+                        if str(lesson_counters[ln]) not in part_numbers_list and p_num not in part_numbers_list:
+                            continue
+                            
+                    calculated_sessions += 1
+            except: pass
+    else:
+        index_path = PROJECT_ROOT / "system-workspace/text-data/raw_to_lesson_index.json"
+        if index_path.exists():
+            try:
+                import json
+                mapping = json.loads(index_path.read_text(encoding="utf-8"))
+                for title in mapping:
+                    ln = dummy_planner.tp.get_lesson_number(title)
+                    if only_lessons and (ln not in only_lessons and str(int(ln)) not in only_lessons): continue
+                    calculated_sessions += 1
+            except: pass
+            
+    if calculated_sessions > 0:
+        console.print(f"\n[bold cyan]📊 Calculated Total Jules Sessions Needed: [white]{calculated_sessions}[/white][/bold cyan]")
+        if not questionary.confirm("Do you want to proceed and launch the batch?").ask():
+            return
+            
     start_all = time.time()
     
     while True:
@@ -904,6 +942,41 @@ def run_jules_generation_ui(state_manager, is_1_page_mode=False, is_1_part_mode=
                 only_lessons.append(str(int(part)).zfill(3))
                 only_lessons.append(str(int(part)))
 
+    calculated_sessions = 0
+    plans_dir = PROJECT_ROOT / "plans"
+    if plans_dir.exists():
+        import re
+        for plan_file in plans_dir.glob("*.md"):
+            name = plan_file.name
+            if is_1_page_mode and name.startswith("page_"):
+                m = re.search(r"page_(\d+)-plan", name)
+                if m:
+                    ln = m.group(1)
+                    if only_lessons and (ln not in only_lessons and str(int(ln)) not in only_lessons): continue
+                    calculated_sessions += 1
+            elif is_1_part_mode and re.match(r"^\d+\.\d+", name):
+                m = re.match(r"^(\d+)\.\d+", name)
+                if m:
+                    ln = m.group(1)
+                    if only_lessons and (ln not in only_lessons and str(int(ln)) not in only_lessons): continue
+                    
+                    if part_numbers_list and part_numbers_list != [str(i) for i in range(1, 51)]:
+                        p_num = name.split(".")[1].split("_")[0]
+                        if p_num not in part_numbers_list and str(int(p_num)) not in part_numbers_list:
+                            continue
+                    calculated_sessions += 1
+            elif not is_1_page_mode and not is_1_part_mode and re.match(r"^\d{3}_", name):
+                m = re.match(r"^(\d{3})_", name)
+                if m:
+                    ln = m.group(1)
+                    if only_lessons and (ln not in only_lessons and str(int(ln)) not in only_lessons): continue
+                    calculated_sessions += 1
+
+    if calculated_sessions > 0:
+        console.print(f"\n[bold cyan]📊 Calculated Total Jules Sessions Needed: [white]{calculated_sessions}[/white][/bold cyan]")
+        if not questionary.confirm("Do you want to proceed and launch the batch?").ask():
+            return
+            
     start_all = time.time()
     
     while True:
