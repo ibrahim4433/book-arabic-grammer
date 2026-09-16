@@ -1,0 +1,22 @@
+[
+  {
+    "title": "other content",
+    "start_line": 1,
+    "end_line": 10
+  },
+  {
+    "title": "reading lesson content",
+    "start_line": 11,
+    "end_line": 29
+  },
+  {
+    "title": "exercises",
+    "start_line": 30,
+    "end_line": 70
+  },
+  {
+    "title": "poem",
+    "start_line": 71,
+    "end_line": 89
+  }
+]
