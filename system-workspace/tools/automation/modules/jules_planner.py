@@ -264,6 +264,13 @@ Schema:
                 
             try:
                 global_chunks = json.loads(map_path.read_text(encoding="utf-8"))
+                
+                # SAFETY CHECK: If any lesson (other than 001) starts at 0, the map is corrupt (relative lines instead of absolute)
+                if any(str(c.get("lesson_id")) != "001" and c.get("start_line", -1) == 0 for c in global_chunks):
+                    update_callback("System", "WARNING", "Detected corrupted global semantic map (relative lines). Auto-regenerating...")
+                    self.tp.merge_semantic_maps_globally()
+                    global_chunks = json.loads(map_path.read_text(encoding="utf-8"))
+                    
             except Exception as e:
                 update_callback("System", "ERROR", f"Failed to parse global map: {e}")
                 return

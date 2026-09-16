@@ -12,3 +12,5 @@ You MUST use `TEMPLATE_C_SPLIT.html` (`<div class="split-grid">`) to create a si
 2. BOTTOM SECTION (VERSES):
 Underneath the split grid, you MUST use `TEMPLATE_C_POEM.html` (`.poem-container`) for the poem verses. 
 - Ensure all verses are centered and cleanly split into right and left hemistichs using the template placeholders.
+- CRITICAL: You MUST extract BOTH hemistichs (شطرين) for every single verse. DO NOT leave the first hemistich empty.
+- If the source text is merged or poorly separated, you must intelligently split it based on poetic rhythm and meaning before outputting.

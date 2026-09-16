@@ -19,6 +19,10 @@ You MUST use `TEMPLATE_C_EXAM.html` (`.exam-question`) for questions that requir
 - To prevent A4 overflow, you MUST group smaller, related blocks (like two short tables or an exam question and a small table) horizontally using `TEMPLATE_C_SPLIT.html` (`<div class="split-grid">`).
 - NEVER group non-sequential blocks side-by-side. Only logically adjacent items may be split this way.
 
-4. GENERAL RULE:
+4. POEM VERSES (IF APPLICABLE):
+- If the raw text includes any poem verses (e.g., for extraction or reading questions), you MUST use `TEMPLATE_C_POEM.html` for those verses.
+- CRITICAL: You MUST extract BOTH hemistichs (شطرين) for every single verse. DO NOT leave the first hemistich empty. If the source text is merged, intelligently split it based on rhythm and meaning.
+
+5. GENERAL RULE:
 - All content blocks, exam questions, and tables MUST have unique IDs (`id="bXXXXX"`).
 - Maintain Arabic-Indic numbers (١, ٢, ٣...) for all numbered lists and questions.
