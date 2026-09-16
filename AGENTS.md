@@ -1,7 +1,7 @@
 # AGENTS INSTRUCTIONS
 
 Welcome! This file contains programmatic checks, rules, and guidance for all AI agents working in this repository.
-The scope of this file is the entire directory tree. This repository uses two distinct workflows: **1-Page Mode** (for printing single A4 pages) and **Standard Lesson Mode** (for logical lesson flow). You must adhere to the rules of the specific mode you are tasked with.
+The scope of this file is the entire directory tree. This repository uses three distinct workflows: **1-Page Mode** (for printing single A4 pages), **Standard Lesson Mode** (for logical lesson flow), and **1-Part Mode** (for modular, component-based assembly). You must adhere to the rules of the specific mode you are tasked with.
 
 ## Universal Book Generation Rules (Applies to ALL Modes)
 
@@ -24,6 +24,13 @@ The goal is to fit content exactly on a single A4 page for rendering via WeasyPr
 The goal is to map entire logical lessons into HTML, allowing content to naturally flow across multiple pages.
 1. **Semantic Sections:** Maintain the default `<section>` tags provided in the templates (unlike 1-Page mode).
 2. **Logical Flow:** Map the content sequentially following the pedagogical flow of the lesson. 
+
+### C. 1-Part Mode (Modular Part-Based Workflow)
+The goal is to construct specific logical components of a lesson (e.g., poem analysis, exercises, reading comprehension) using predefined structural blueprints.
+1. **Consult Part Instructions:** You MUST first read the specific instruction file located in `system-workspace/part_instructions/` that corresponds to the part you are building (e.g., `explain poem verses.md`, `exercises on the poem.md`, etc.).
+2. **Strict Blueprint Adherence:** You must exactly follow the visual hierarchy, HTML template mappings (like `TEMPLATE_C_BLOCK`, `TEMPLATE_C_SPLIT`), and CSS classes defined in that specific part's instruction file.
+3. **Modular Assembly:** Ensure your generated HTML is self-contained and modular, capable of being seamlessly integrated into the larger lesson structure without breaking surrounding layouts.
+4. **Unique IDs:** As always, maintain unique IDs (`id="bXXXXX"`) for all generated blocks, grids, and tables as dictated by the part's blueprint.
 
 ## Tools
 
