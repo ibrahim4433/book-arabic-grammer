@@ -366,7 +366,7 @@ class JulesPlanClient(JulesClient):
             logging.error(f"   Stderr: {e.stderr.decode() if e.stderr else ''}")
             return False
 
-    def construct_mega_prompt(self, lesson_data, architect_prompt, auditor_prompt, is_1_page_mode=False):
+    def construct_mega_prompt(self, lesson_data, architect_prompt, auditor_prompt, is_1_page_mode=False, is_1_part_mode=False):
         """
         Constructs the combined prompt for Generation -> Verification -> Refinement.
         """
@@ -414,7 +414,39 @@ class JulesPlanClient(JulesClient):
             architect_prompt = architect_prompt.replace(key, replacements[key])
 
         # Instructions for the "One-Shot" Iteration
-        if is_1_page_mode:
+        if is_1_part_mode:
+            refinement_instruction = f"""
+================================================================================
+CRITICAL INSTRUCTION: BATCH MODE ENFORCEMENT
+================================================================================
+You are currently operating in a BATCH MODE. You must perform the following steps IN ORDER:
+
+1.  **MANDATORY INPUTS:**
+    - Use the **EXACT Lesson Number**: {lesson_number}
+    - Use the **EXACT Lesson Title**: {lesson_title}
+
+    - **METADATA INJECTION:**
+        - **IF** your specific `[CUSTOM PART INSTRUCTION]` requires you to use `TEMPLATE_C_HEADER` (typically only Part 1 of a lesson does), you MUST use these values:
+        - [CATEGORY_HEADER] (Level): {level}
+        - [SECTION_HEADER] (Unit): {unit}
+        - [AUTHOR_NAME]: {author}
+        - [AUTHOR_PHONE]: {author_number}
+        - [CHAPTER_TITLE]: {lesson_title}
+        - [LESSON_NUMBER]: {lesson_number}
+        - **OTHERWISE**, do NOT hallucinate a header if the blueprint does not ask for it.
+
+2.  **ACT AS THE ARCHITECT:** Generate the initial plan using the raw text.
+    - **CRITICAL:** Do NOT expand or summarize. Map 100% of the raw text exactly as it is into the HTML blueprints provided in the `[CUSTOM PART INSTRUCTION]`.
+
+3.  **ACT AS THE AUDITOR:** Review your plan against the updated Auditor Rules.
+    - Ensure there are no hallucinated HTML structures, and the CSS classes exactly match the blueprint.
+
+4.  **REFINE:** Fix any errors found by the Auditor.
+
+5.  **FINAL OUTPUT:** Output ONLY the final, verified, and corrected plan file.
+    - The file must be valid Markdown.
+"""
+        elif is_1_page_mode:
             refinement_instruction = f"""
 ================================================================================
 CRITICAL INSTRUCTION: SELF-CORRECTION LOOP (STRICT ENFORCEMENT)

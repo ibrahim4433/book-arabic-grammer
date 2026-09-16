@@ -21,27 +21,16 @@
    * **Lesson Number:** [LESSON_NUMBER]
    * **Part Number:** [PART_NUMBER] (Provided in the Custom Part Instruction)
    * **Title:** [TITLE]
-3. **Strict Part Isolation (CRITICAL):** You will receive a `[CUSTOM PART INSTRUCTION]` at the end of this prompt telling you EXACTLY which Part (1, 2, 3, or 4) to generate. You MUST completely IGNORE all text belonging to other parts. Do not generate the entire lesson.
-4. **Valid Templates (CRITICAL):** You MUST ONLY use the existing atomic templates from `Jules-workspace/Templates/` (e.g., `TEMPLATE_C_HEADER.html`, `TEMPLATE_C_POEM.html`, `TEMPLATE_C_BLOCK.html`, `TEMPLATE_C_EXAM.html`, `TEMPLATE_C_BENEFIT.html`). Do NOT hallucinate large structures like `TEMPLATE_LIT_PART_1_POEM.html`!
+3. **Blueprint Adherence (CRITICAL):** You will receive a `[CUSTOM PART INSTRUCTION]` appended to this prompt. You MUST strictly follow the exact structural blueprint, HTML hierarchy, and CSS classes defined within it.
+4. **Valid Templates (CRITICAL):** You MUST ONLY use the templates explicitly specified for this part in your `[CUSTOM PART INSTRUCTION]`. Do NOT hallucinate structures or tags not present in the blueprint.
 5. **Unique ID System (CRITICAL):** Every structural block you output must be assigned a unique ID in the format `id="bXXXXX"` (e.g., `id="b83920"`). NEVER use placeholder IDs like `id="intro_1"` or `id="comp_block_1"`.
 
----
 
-# 🎨 THE 1-PART "GOLDEN FLOW" (DYNAMIC MAPPING) :
-
-Based on the `[CUSTOM PART INSTRUCTION]`, you will receive a specific chunk of text (Part 1, Part 5, Part 12, etc.).
-
-Instead of hardcoding what Part 1 or Part 5 should be, you MUST:
-1. **Analyze the Raw Text Chunk**: Read the content of the part assigned to you.
-2. **Classify the Content**: Match the content to one of the structural categories defined in the attached `--- PART MAPPING JSON ---` at the bottom of this prompt.
-3. **Select Templates**: Strictly use only the `templates` listed for that category in the JSON mapping to construct your HTML elements.
-
-For example, if the chunk contains vocabulary and verse explanations, match it to `verse_explanation` from the JSON, and use `TEMPLATE_C_SPLIT.html`, `TEMPLATE_C_BLOCK.html`, or `TEMPLATE_C_TABLE.html` to lay it out. If it contains exam questions, match it to `comprehension_and_exams` and use `TEMPLATE_C_EXAM.html`.
 
 ---
 
 # YOUR "OUTPUT" FORMAT :
-* File name: `part_[PART_NUMBER]_lesson_[LESSON_NUMBER]-plan.md`
+* File name: `[LESSON_NUMBER].[PART_NUMBER]_nXXX_[PART_NAME]-plan_[WORKSPACE_CODE].md`
 * Output location: `plans` folder
 * You must only type your plan in the STREAM section, leave everything else as it is.
 * Output file content:
@@ -51,8 +40,7 @@ For example, if the chunk contains vocabulary and verse explanations, match it t
 
 [TASK DEFINITION]
 Objective: Implement Part [PART_NUMBER] of [LESSON_TITLE].
-File: `pages/[LESSON_NUMBER].[PART_NUMBER]_nXXX_[TITLE].html`
-Reference: Follow patterns in design_patterns.json.
+File: `pages/[LESSON_NUMBER].[PART_NUMBER]_nXXX_[PART_NAME]-page_[WORKSPACE_CODE].html`
 
 [CONTENT STREAM]
 

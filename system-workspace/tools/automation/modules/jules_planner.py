@@ -35,6 +35,7 @@ class JulesPlanner:
         self.abort_event = threading.Event()
         self._first_task_done = False
         self._delay_lock = threading.Lock()
+        self._git_lock = threading.Lock()
 
         # Load Prompts
         if self.is_1_part_mode:
@@ -508,10 +509,14 @@ Schema:
         if self.tp.toc_path.exists():
             try:
                 toc_data = json.loads(self.tp.toc_path.read_text(encoding="utf-8"))
-                # Try to find by number (stripping leading zeros if key is integer-like string)
-                key = str(int(lesson_number)) if lesson_number.isdigit() else lesson_number
-                if key in toc_data:
-                    lesson_metadata = toc_data[key]
+                
+                key_int = str(int(lesson_number)) if lesson_number.isdigit() else lesson_number
+                key_padded = str(lesson_number).zfill(3) if lesson_number.isdigit() else lesson_number
+                
+                if key_padded in toc_data:
+                    lesson_metadata = toc_data[key_padded]
+                elif key_int in toc_data:
+                    lesson_metadata = toc_data[key_int]
                 else:
                     # Fallback: search by title
                     for k, v in toc_data.items():
@@ -532,7 +537,7 @@ Schema:
             "author_number": lesson_metadata.get("author_number", ""),
         }
         mega_prompt = self.client.construct_mega_prompt(
-            lesson_data, self.architect_prompt, self.auditor_prompt, getattr(self, "is_1_page_mode", False)
+            lesson_data, self.architect_prompt, self.auditor_prompt, getattr(self, "is_1_page_mode", False), getattr(self, "is_1_part_mode", False)
         )
         
         if getattr(self, "is_1_part_mode", False) and chunk_title and self.part_instructions_map:
@@ -559,6 +564,15 @@ Schema:
             filename = f"{base_filename}_{workspace_code}.md"
         else:
             filename = f"{base_filename}.md"
+            
+        # Inject the new 1-Part specific variables into the prompt
+        if getattr(self, "is_1_part_mode", False):
+            mega_prompt = mega_prompt.replace("[PART_NUMBER]", str(p_num))
+            mega_prompt = mega_prompt.replace("[PART_NAME]", str(clean_title))
+            ws_code_str = workspace_code if workspace_code and workspace_code != "None" else "None"
+            mega_prompt = mega_prompt.replace("[WORKSPACE_CODE]", str(ws_code_str))
+            mega_prompt = mega_prompt.replace("[LESSON_TITLE]", str(lesson_metadata.get("title", clean_title)))
+            
         mega_prompt += f"\n\nCRITICAL FILENAME INSTRUCTION: You MUST name the generated plan EXACTLY: `{filename}`. Do NOT deviate from this filename."
 
         mega_prompt += f"\n\nCRITICAL PATH INSTRUCTION: Do NOT place the generated plan inside `Jules-workspace/plans/`. You MUST place the generated plan in the root `plans/` directory."
@@ -602,20 +616,27 @@ Schema:
         if not session_id:
             callback(lesson_title, "RUNNING", "Creating Session...")
             session = None
+            backoff = 10
             for _attempt in range(10):
                 try:
                     session = self.client.create_plan_session(base_filename, mega_prompt)
                     if session:
                         break
-                    callback(lesson_title, "WARN", "Network error during create. Retrying in 10s...")
-                    time.sleep(10)
+                    callback(lesson_title, "WARN", f"Network error during create. Retrying in {backoff}s...")
+                    time.sleep(backoff)
+                    backoff = min(backoff * 1.5, 60)
                 except APIBlockError as e:
                     self.abort_event.set()
                     callback(lesson_title, "API_BLOCKED", "API Quota/Limit Reached")
                     return False
                 except Exception as e:
-                    callback(lesson_title, "WARN", f"Error during create: {e}. Retrying in 10s...")
-                    time.sleep(10)
+                    err_msg = str(e)
+                    if "400 Client Error" in err_msg or "FAILED_PRECONDITION" in err_msg:
+                        callback(lesson_title, "WARN", f"Rate limit/Precondition failed. Backing off for {backoff}s...")
+                    else:
+                        callback(lesson_title, "WARN", f"Error during create: {e}. Retrying in {backoff}s...")
+                    time.sleep(backoff)
+                    backoff = min(backoff * 1.5, 60)
 
             if not session:
                 callback(lesson_title, "ERROR", "Session Creation Failed after retries")
@@ -654,7 +675,9 @@ Schema:
             def pr_callback(ignored_path, state, msg):
                 callback(lesson_title, state, msg, **_kw)
 
-            success = self.client.finalize_pr_and_pull(details, target_path, callback=pr_callback)
+            with self._git_lock:
+                success = self.client.finalize_pr_and_pull(details, target_path, callback=pr_callback)
+            
             if success:
                 callback(lesson_title, "SUCCESS", f"Plan saved: {filename}", **_kw)
             else:
