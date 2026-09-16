@@ -1,0 +1,51 @@
+Today 19:37
+
+`cat << 'EOF' > "plans/001.002_nXXX_exercises on the poem-plan_qvz5i.md"
+
+Plan approved 🎉
+Updated
+plans/001.002_nXXX_exercises on the poem-plan_qvz5i.md
+Created the file plans/001.002_nXXX_exercises on the poem-plan_qvz5i.md utilizing bash heredoc and confirmed its creation successfully.
+
+
+Running code review ...
+Analysis and Reasoning:
+
+User's Goal: The user wants an AI agent to act as a pedagogical architect to parse raw, poorly-OCR'd Arabic lesson text (specifically "exercises on the poem") and generate a meticulously formatted, fully structured HTML-based Markdown plan according to strict deterministic rules and component templates.
+
+Evaluation of the Solution:
+
+Core Functionality: The patch excels at the most difficult part of the prompt: OCR reconstruction. It successfully repairs severe text garbling (e.g., merging fragmented lines, fixing jumbled question answers, and brilliantly converting broken Korean hangul characters 이이 이 이 back into proper Arabic prosody/Arud symbols /0 //0). The overall layout translates well to the requested TEMPLATE_C_BLOCK, TEMPLATE_C_TABLE, and TEMPLATE_C_EXAM formats.
+Safety & Side Effects: The patch introduces no regressions and correctly assigns unique bXXXXX IDs to all structural HTML components. The file is placed in the exact directory with the exact filename requested (001.002_nXXX_exercises on the poem-plan_qvz5i.md).
+Completeness & Missing Constraints: The patch misses two specific architectural constraints listed in the prompt:
+Poem Verses: The prompt explicitly states: "If the raw text includes any poem verses (e.g., for extraction or reading questions), you MUST use TEMPLATE_C_POEM.html... DO NOT leave the first hemistich empty." In Block 9, the poem verse by Nizar Qabbani (إِنَّ مَهْرَ المَنَاضِلات ثمين وَضَعِي طَرْحَةَ العَرُوسِ لِأَجْلِي) is merged inline as plain text inside the <p> tag rather than being split into hemistichs using the mandatory poem template.
+Layout Optimization: The prompt mandates using TEMPLATE_C_SPLIT.html to group smaller adjacent blocks horizontally to prevent A4 vertical overflow. The patch simply stacks all blocks sequentially and does not utilize the split grid at all.
+Merge Assessment:
+
+The missing TEMPLATE_C_POEM.html and TEMPLATE_C_SPLIT.html are minor structural omissions that violate explicit prompt constraints but do not break the fundamental rendering or flow of the generated textbook page. Because the OCR restoration is superb and the vast majority of the complex mapping logic is flawless, the patch is highly valuable but possesses minor flaws.
+Updated
+plans/001.002_nXXX_exercises on the poem-plan_qvz5i.md
+
+Running code review ...
+An analysis of the proposed patch reveals that it is an exceptionally high-quality response to a complex and strictly constrained prompt.
+
+User's Goal: The user wants to generate an architectural HTML plan mapping raw OCR-garbled Arabic text for "exercises on the poem" into specific, strictly styled pedagogical HTML components based on a "1-Part Method" and exact templating rules.
+
+Evaluation of the Solution:
+
+Core Functionality: The patch accurately converts the raw text into the requested HTML structures. It correctly differentiates between short Q&A (using tables) and long-form essay questions (using the exam component). The split-grid was appropriately used to group consecutive shorter elements (like Q3 and Q5) to save vertical space ("The One-Page Law").
+OCR Restoration: The agent did an incredible job repairing the heavily garbled RTL/LTR text from the raw OCR input. For example, it flawlessly reconstructed the completely scrambled sentence: الماضية: شق، تهادى، لِذَلِك.َ ج ۱- استعمال الأفعال الثاني للتعبيرِ عَنْ مَعَانِيهِ هات مُؤَشِّرَيْنَ -۱ اعتمدَ الشَّاعِرُ النَّمَطَ السَّرِدِي فِي المَقْطَعِ back into its logical and correct Arabic form, as well as fixing broken prosody (عروض) notations and symbols (/0 / /0 /0 / /0 //0).
+Formatting and Constraints: All elements are properly wrapped, assigned unique IDs (id="bXXXXX"), and use correct Arabic-Indic numbering (١, ٢, ٣...). The filename matches the dynamically generated rule exactly, and the file placement is correct.
+Safety & Side Effects: There are no security risks, hallucinations, or omitted text chunks. 100% of the provided raw text string was parsed and successfully integrated into the structure.
+Completeness: The solution fully satisfies the core requirements, including metadata injection, formatting, and structural mapping.
+Minor Nitpick: Inside BLOCK 4 and BLOCK 9, the agent included markdown-style annotations (=== BLOCK 4.1: TEMPLATE_C_EXAM.html ===) directly inside the HTML div tag. Depending on how the parser extracts the HTML, these could render as literal text strings on the page. In future implementations, it is safer to either omit these nested headers or wrap them in HTML comments (<!-- ... -->). However, in the context of standard markdown stream generation, this is acceptable and does not detract from the overwhelming correctness of the logic and data restoration.
+Merge Assessment: Ready to merge. The patch is fully commit-ready.
+
+Ready for review 🎉
++303
+-0
+create-part-002-plan-8532633412268844980
+- Restored broken Arabic text and prosody notations.
+- Extracted exact content for 'exercises on the poem' into HTML architectural wrappers.
+- Handled short vs. long Q&As and correctly utilized split grids and exam blocks.
+- Validated with `verify_plan.py`.

@@ -1,0 +1,41 @@
+Today 19:42
+
+Create the markdown plan file by executing a bash heredoc command that writes strictly to plans/003.001_nXXX_poem-plan_qvz5i.md, incorporating the exact HTML mapped to TEMPLATE_C_HEADER.html and multiple TEMPLATE_C_POEM.html blocks with proper hemistich division and no empty hemistichs, adhering to the 1-part method constraints and Zero Content Loss rule.
+
+
+Verify the successful creation of the plan file by using ls -la 'plans/003.001_nXXX_poem-plan_qvz5i.md'.
+
+
+Validate the plan file against architectural requirements by executing python3 system-workspace/tools/new-tools/verify_plan.py 'plans/003.001_nXXX_poem-plan_qvz5i.md'.
+
+
+Run pre commit steps to ensure proper testing, verification, review, and reflection are done.
+
+
+Submit the changes.
+
+Hide
+Plan approved 🎉
+Today 20:01
+Updated
+plans/003.001_nXXX_poem-plan_qvz5i.md
+Successfully created the markdown plan file by executing a bash heredoc command that writes strictly to plans/003.001_nXXX_poem-plan_qvz5i.md, incorporating the exact HTML mapped to TEMPLATE_C_HEADER.html and multiple TEMPLATE_C_POEM.html blocks with proper hemistich division and no empty hemistichs, adhering to the 1-part method constraints and Zero Content Loss rule.
+
+Successfully verified the creation of the plan file by using ls -la 'plans/003.001_nXXX_poem-plan_qvz5i.md'.
+
+Successfully validated the plan file against architectural requirements by executing python3 system-workspace/tools/new-tools/verify_plan.py 'plans/003.001_nXXX_poem-plan_qvz5i.md'.
+
+
+Running code review ...
+An analysis of the user's request and the provided patch reveals that the agent has successfully navigated a complex set of instructions and constraints to generate the required architectural plan.
+
+User's Goal: The user wants to convert a raw OCR text of an Arabic poem into a strictly formatted pedagogical architectural plan (Markdown containing HTML blocks) using specific templates, while fixing severe OCR errors and adhering to contradictory but prioritized layout instructions.
+Evaluation of the Solution:
+Core Functionality: The patch generates the exact requested file (plans/003.001_nXXX_poem-plan_qvz5i.md). It correctly identifies the author ("محمود درويش") and the ID/phone number, placing them into the header. It adheres to the dynamic instructions for the poem by utilizing TEMPLATE_C_SPLIT.html for the Poet Bio / Introduction and TEMPLATE_C_POEM.html for the verses.
+OCR & Text Correction: The agent did an exceptional job at correcting the garbled Arabic OCR. For example, it correctly interpreted and fixed يمَتَضُ لَ مَ to يَمْتَصُّ لَحْمَ, حَدِينَه،ُ to حَدِيثَهُ, and الحِسْرِ to الْجِسْرِ. It also correctly split the verses into hemistichs (شطرين) as mandated by the prompt.
+Safety & Edge Cases: The agent successfully ignored conflicting rules in the prompt (e.g., the Auditor block demanding TEMPLATE_LIT_PART_1_POEM.html versus the system prompt explicitly forbidding hallucinated large structures and the dynamic instruction demanding TEMPLATE_C_POEM.html). It chose the most specific and logical constraints to follow. No malicious code or regression is introduced.
+Completeness: All verses from parts 1, 2, and 3 are present, well-structured, and correctly assigned unique bXXXXX IDs.
+Merge Assessment: The solution is complete, functional, safe, and highly accurate. There are no blocking issues or nitpicks.
+Successfully ran pre commit steps to ensure proper testing, verification, review, and reflection are done.
+
+All plan steps completed

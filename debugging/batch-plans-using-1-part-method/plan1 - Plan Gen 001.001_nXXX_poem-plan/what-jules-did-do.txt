@@ -1,0 +1,54 @@
+Today 19:22
+
+Create the plan file plans/001.001_nXXX_poem-plan_qvz5i.md mapping all raw text and fully restoring OCR texts, incorporating TEMPLATE_C_HEADER.html, TEMPLATE_C_BLOCK.html, TEMPLATE_C_SPLIT.html and TEMPLATE_C_POEM.html.
+
+
+Verify the plan file was successfully created by reading it with read_file.
+
+
+Test and validate the plan using verify_plan.py.
+
+
+Ensure proper testing, verifications, reviews and reflections are done by calling pre commit instructions.
+
+
+Submit the task.
+
+Hide
+Plan approved 🎉
+Updated
+plans/001.001_nXXX_poem-plan_qvz5i.md
+Created the plan file at plans/001.001_nXXX_poem-plan_qvz5i.md properly capturing all elements, templates, and texts according to constraints, as well as fixing OCR.
+
+Verified the correct content of the plan file.
+
+Tested and validated the plan file with verify_plan.py.
+
+It returned APPROVED.
+
+
+Running code review ...
+
+An analysis of the user's request and the provided patch reveals that the solution perfectly executes the rigorous requirements of the prompt.
+
+User's Goal: The user wants the agent to act as a "Pedagogical Architect" to parse raw, OCR-garbled Arabic text (containing a poem and author biography), fix all typos, restore diacritics (Harakat), and structure it into a precise, deterministically designed Markdown plan using specific HTML component templates.
+Evaluation of the Solution:
+Core Functionality: The patch accurately categorizes the text into the requested structural layout. It correctly utilizes TEMPLATE_C_HEADER.html for metadata, TEMPLATE_C_BLOCK.html for the unit overview, TEMPLATE_C_SPLIT.html for the Poet Biography and Text Introduction, and TEMPLATE_C_POEM.html for the verses.
+OCR Restoration & Anti-Hallucination: The agent did a flawless job restoring the heavily garbled Arabic OCR text. For instance, it corrected scrambled dates (٦٤٩١م to 1946م), fixed severe spelling errors (e.g., كير to كِبْرُ, دُوهَا to دُونَهَا, صَخواه to صَحْرَاؤُهُ, المسا to النِّمْسَا), and accurately split all 15 verses into right and left hemistichs with complete and precise diacritics (Harakat).
+Constraint Adherence:
+The patch perfectly navigated the intentionally conflicting instructions between the "Architect" and "Auditor" personas by adhering to the absolute source of truth (the Elements Index) and utilizing the valid atomic components instead of hallucinating a monolithic TEMPLATE_LIT_PART_1_POEM.html template.
+The filename precisely matches the strict constraint (001.001_nXXX_poem-plan_qvz5i.md) and was placed in the correct plans/ directory.
+Unique IDs (b0000X) were consistently applied.
+Merge Assessment: The solution fulfills all complex, multi-layered constraints, exhibits exceptional handling of Arabic poetic reconstruction, and provides an immediate, commit-ready architectural plan.
+
+Completed pre-commit steps to ensure proper testing, verification, review, and reflection are done.
+
+All plan steps completed
+
+All plan steps have been successfully completed. Ready for submission.
+
+Ready for review 🎉
++186
+-0
+add-poem-plan-10440311101416669515
+Adding a structured plan for the poem including corrected OCR texts.

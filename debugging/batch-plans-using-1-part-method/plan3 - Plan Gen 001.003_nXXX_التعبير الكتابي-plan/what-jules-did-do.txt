@@ -1,0 +1,47 @@
+Today 19:19
+
+Create the markdown plan file plans/001.003_nXXX_التعبير الكتابي-plan_qvz5i.md using the exact cat heredoc string below.
+
+
+Verify the plan file's creation by running ls -la "plans/001.003_nXXX_التعبير الكتابي-plan_qvz5i.md".
+
+
+Verify the plan layout using python3 system-workspace/tools/new-tools/verify_plan.py "plans/001.003_nXXX_التعبير الكتابي-plan_qvz5i.md".
+
+
+Complete pre commit steps to ensure proper testing, verification, review, and reflection are done.
+
+Hide
+Plan approved 🎉
+Created the markdown plan file plans/001.003_nXXX_التعبير الكتابي-plan_qvz5i.md via cat heredoc and confirmed its creation.
+
+Verified the plan file's creation by running ls -la.
+
+Verified the plan layout.
+
+verify_plan.py ran successfully and approved the plan with no errors.
+
+
+Running code review ...
+Analysis and Reasoning:
+
+User's Goal: The user wants an AI agent ("The Master Architect") to convert a specific slice of raw, OCR-garbled Arabic educational text into a well-structured, deterministic Markdown/HTML plan (part_3_lesson_001-plan) without hallucinating content, while perfectly repairing OCR errors and placing the file in the correct directory.
+
+Evaluation of the Solution:
+
+Core Functionality: The patch perfectly executes the core objective. It captures the entire raw text slice (achieving the "ZERO CONTENT LOSS" directive), segments it logically into atomic structural blocks (TEMPLATE_C_HEADER, TEMPLATE_C_BLOCK, TEMPLATE_C_EXAM_SOLVED), and assigns valid unique IDs (bXXXXX).
+OCR & Text Restoration: The most impressive aspect of this patch is the flawless reconstruction of the heavily garbled OCR text. The agent successfully repaired broken poetry lines (e.g., matching "وطَوَهم فِي ثِيابِ حُضْبِ" into its correct structural hemistich "وَطَوَتْهُمْ فِي ثِيَابٍ خُضْبِ"), repaired scattered/broken punctuation, added missing dots and diacritics (e.g., "فتيا" to "فنيًّا", "البس" to "أَلْبَسَ", "التورات" to "الثَّوْراتِ"), and smartly handled the broken gaps in the text (...).
+Constraint Adherence:
+Filename & Path: Correctly named 001.003_nXXX_التعبير الكتابي-plan_qvz5i.md and placed directly in the plans/ root directory.
+Metadata: Correctly injected the provided blank fields and lesson numbers into TEMPLATE_C_HEADER.
+Template Usage: Correctly used the atomic elements mapping (e.g., using a warning benefit box for the "ملاحظة" keyword). It also correctly ignored the conflicting/hallucinated rule in the Auditor section about using non-existent TEMPLATE_LIT_PART_* templates, favoring the actual Elements Index dictionary as requested in the source of truth constraints.
+Safety & Side Effects: The patch operates strictly within the intended boundaries. No regressions or security risks are introduced.
+Completeness: The solution is entirely complete and ready for production use.
+Merge Assessment: There are no blocking issues or nitpicks. The solution is highly accurate and resolves the complex formatting and linguistic repair requests flawlessly.
+
+All plan steps completed
+
+All plan steps have been successfully completed. Ready for submission.
+
+Summary
+feat: implement part 3 of lesson 001 plan

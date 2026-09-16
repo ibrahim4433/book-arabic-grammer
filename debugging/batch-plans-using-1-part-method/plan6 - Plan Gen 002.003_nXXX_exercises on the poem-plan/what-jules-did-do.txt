@@ -1,0 +1,38 @@
+Today 19:19
+
+Create the plan file plans/002.003_nXXX_exercises on the poem-plan_qvz5i.md using a bash heredoc.
+
+Plan approved 🎉
+Updated
+generate_plan.py
+and
+plans/002.003_nXXX_exercises on the poem-plan_qvz5i.md
+Created the plan file plans/002.003_nXXX_exercises on the poem-plan_qvz5i.md using a bash heredoc.
+
+Updated
+generate_plan.py
+
+Running code review ...
+An analysis of the patch reveals that it perfectly aligns with the requested requirements, constraints, and specific instructions for generating the "1-Part Method" architectural plan.
+
+User's Goal: The user wants to generate a highly structured, valid HTML plan in Markdown format for the "exercises on the poem" part of an Arabic grammar lesson, properly restoring OCR errors and adhering to specific template structures.
+
+Evaluation of the Solution:
+
+Core Functionality: The patch provides exactly what was requested. It outputs a complete .md plan file containing a sequence of HTML templates (TEMPLATE_C_HEADER.html, TEMPLATE_C_BLOCK.html, .exam-question, etc.).
+OCR Restoration & Anti-Hallucination: The agent executed this perfectly. For instance, the garbled وارْمى كير الليالي دُوهَا was accurately corrected and restored to the actual poetic verse وَارْمِ بِكِبْرِ اللَّيَالِي دُونَهَا. Missing dots and garbled words like مَتَى تَمْشَى were corrected to مَشَى مَمْشَى, and Arabic-Indic numbers were properly mapped. The entire text was correctly vowelized (Tashkeel/Harakat). No external information was hallucinated; all answers stay true to the raw input.
+Template Constraints: The instructions correctly applied the .exam-question pattern paired with the .benefit-box structure for the answers to accommodate the more complex, essay-style format of these literary applications. The required headers and metadata match constraints.
+Formatting: The exact filename requested (002.003_nXXX_exercises on the poem-plan_qvz5i.md) and the file path (plans/) are strictly respected. All elements have the mandatory unique id="bXXXXX" assignment.
+Merge Assessment:
+
+The output is functional, extremely accurate in its Arabic language reconstruction, and perfectly compliant with the strict templating and metadata requirements outlined in the prompt. There are no blocking issues or nitpicks.
+Ready for review 🎉
++119
+-0
+feat/exercises-on-the-poem-part-3-4758561699845918537
+Generated the architect plan for Part 3 of "exercises on the poem" (Lesson 002), strictly following the 1-Part Method constraints.
+
+- Created `plans/002.003_nXXX_exercises on the poem-plan_qvz5i.md`.
+- Properly restored OCR garbled text, fixed missing dots, and restored missing Harakat.
+- Used the required atomic templates (`TEMPLATE_C_HEADER.html`, `TEMPLATE_C_BLOCK.html`, `.exam-question`, and `.benefit-box`) to match the provided layout blueprint for long-form answers.
+- Kept the requested specific file naming convention and zero content loss mandate.

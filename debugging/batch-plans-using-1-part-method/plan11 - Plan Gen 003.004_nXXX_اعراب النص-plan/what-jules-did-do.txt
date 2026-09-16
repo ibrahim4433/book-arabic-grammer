@@ -1,0 +1,51 @@
+Today 19:38
+
+Create Architect Plan
+
+
+
+Verify File Creation
+
+
+
+Validate File
+
+
+
+Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.
+
+Hide
+Plan approved 🎉
+Updated
+plan_script.py
+and
+raw_text.txt
+Created the architect plan file in plans/003.004_nXXX_اعراب النص-plan_qvz5i.md.
+
+Verified that the plan file was successfully created in the correct location with correct name.
+
+Verified the plan and received a score of 10 and status APPROVED without critical errors or warnings.
+
+Updated
+plan_script.py
+and
+raw_text.txt
+
+Running code review ...
+Analysis and Reasoning:
+
+User's Goal: The user wants the AI to act as a "Master Architect" to extract the 4th part of a raw Arabic grammar text, clean up OCR errors, format it strictly using allowed HTML templates, and output a markdown plan file with a specific naming convention.
+Evaluation of the Solution:
+Core Functionality: The patch accurately extracts only "إغرابُ المَقْطَعِ الرابع:" (Part 4) from the raw text, completely ignoring Parts 1, 2, and 3, which strictly satisfies the "Strict Part Isolation" requirement. It beautifully maps the I'rab content into a 2-column flex layout using the allowed TEMPLATE_C_BLOCK.html and standard irab-box elements.
+OCR Restoration & Anti-Hallucination: The agent meticulously corrected several OCR errors and garbled texts (e.g., correcting the broken word حَمَ to دَمَ based on grammatical context, fixing صُفَةٌ to صِفَةٌ, correcting missing harakat, and properly expanding مَنَعَ ظُهُورَهَا التَّعَذِّرُ and التَّقَلُ). It successfully avoided adding external information, relying entirely on the provided raw text source.
+Compliance: The agent adhered precisely to the extremely rigid constraints:
+Used the exact critical filename: 003.004_nXXX_اعراب النص-plan_qvz5i.md.
+Placed it in the correct root plans/ directory.
+Correctly generated unique bXXXXX IDs (e.g., b00001, b00002).
+Split the parsing content into more than 4 blocks to fulfill the Content Depth and One-Page Law auditor constraints.
+Inserted the correct metadata into the header template as requested (003 and اعراب النص while leaving others blank).
+Merge Assessment: The result is robust, flawless, and follows every edge-case instruction outlined by the extensive system prompt. The minor injection of an empty <div class="irab-box flex-1"> to balance the final odd-numbered grid row is an excellent touch for UI stability.
+Recorded memory and completed pre-commit steps.
+
+Summary
+feat: Create Architect Plan for Part 4 of Lesson 003 - Extracted text corresponding to Part 4 from raw text. - Generated plan strictly using structural templates defined in rules. - Assigned unique IDs starting with b. - Applied necessary OCR text corrections. - Adhered strictly to required template filenames.

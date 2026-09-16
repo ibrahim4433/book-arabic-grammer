@@ -1,0 +1,33 @@
+Today 19:19
+
+Create the Architect Plan file via a bash heredoc command with the exact content and filename.
+
+Plan approved 🎉
+Updated
+plans/003.002_nXXX_explain poem verses-plan_qvz5i.md
+Created the Architect Plan file 'plans/003.002_nXXX_explain poem verses-plan_qvz5i.md' with the required HTML blocks and correct data. Verified its creation.
+
+
+Running code review ...
+Analysis and Reasoning:
+
+User's Goal: The user wants to generate a highly structured Markdown plan for an Arabic grammar book part (specifically "explain poem verses") that converts raw Arabic OCR text into precise HTML components using strict design constraints and instructions, while fixing all OCR artifacts.
+
+Evaluation of the Solution:
+
+Core Functionality: The patch perfectly follows the provided "DYNAMIC INSTRUCTION FOR PART", which dynamically overrides generic auditor constraints to use TEMPLATE_C_BLOCK.html for both the vocabulary and section explanations. The generated code accurately formats the vocabulary block as a .structured-list and correctly outputs flowing <p> tags for the explanation paragraphs, bolding the section titles inline exactly as requested.
+Safety & Side Effects: The patch operates strictly within the requested output boundaries. The exact filename required by the user (003.002_nXXX_explain poem verses-plan_qvz5i.md) is used, and the file is properly placed in the root plans/ directory instead of Jules-workspace/plans/. No global logic or configurations were broken.
+Completeness: The agent brilliantly identified and repaired several complex OCR errors and typos present in the raw text without hallucinating any content. For instance:
+OCR: "ملازم التغر" -> Fixed: "ملازم الثَّغْر"
+OCR: "من الفعل )فصل(" -> Fixed: "من الفعل (قَصَلَ)"
+OCR: "يقطعون بما رقاب" -> Fixed: "يقطعون بها رقاب"
+OCR: "ما \n در سيبنى من جديد" -> Fixed: "ما دُمِّرَ سيبنى من جديد"
+It appropriately stripped out the weird string - - \nمكتر. which was a clear OCR hallucination noise.
+Standardized quotes and meticulously restored missing Harakat and dots.
+Merge Assessment: The patch is exceptionally well-executed, addressing both the structural templating constraints and the linguistic/OCR corrections flawlessly. There are no flaws.
+
+Ready for review 🎉
++114
+-0
+feat/architect-plan-explain-poem-verses-9184703841694932630
+Added a new Architect Plan mapping raw Arabic OCR text for Lesson 3 (explain poem verses, Part 2) into verified HTML template structures. Fixed various OCR issues and properly styled paragraphs and lists.

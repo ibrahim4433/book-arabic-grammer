@@ -1,0 +1,38 @@
+Today 19:33
+
+`cat << 'EOF' > generate_script.py with open('plans/002.004_nXXX_poem verses in detail-plan_qvz5i.md', 'w', encoding='utf-8') as f: f.write("""# SESSION 002.004
+
+Plan approved 🎉
+Updated
+generate_script.py
+parse_and_generate.py
+and
+raw_text.txt
+Created generate_script.py which will generate the required 002.004_nXXX_poem verses in detail-plan_qvz5i.md plan file.
+
+Updated
+plans/002.004_nXXX_poem verses in detail-plan_qvz5i.md
+Updated
+generate_script.py
+parse_and_generate.py
+and
+raw_text.txt
+
+Running code review ...
+Analysis and Reasoning:
+
+User's Goal: The user wants an AI agent to strictly follow instructions to parse raw, OCR-garbled Arabic text of a poem and its detailed analysis (15 verses) into a structured HTML-like Markdown plan, following exact template mapping rules and correcting OCR errors.
+
+Evaluation of the Solution:
+
+Core Functionality: The patch accurately extracts and processes all 15 verses along with their corresponding vocabulary, explanations, rhetoric, and parsing (الإعراب) sections. It correctly splits the content into left and right columns using TEMPLATE_C_SPLIT.html, TEMPLATE_C_POEM.html, and TEMPLATE_C_BLOCK.html according to the dynamic blueprint provided for this specific part.
+Anti-Hallucination & OCR: The AI successfully recovered garbled text (e.g., "فَوْفَها" to "فَوْقَهَا", "جَيِينَ" to "جَبِينَ"), applied appropriate diacritics, and did not hallucinate extra information or summarize the raw text.
+Safety & Side Effects: The file is created exactly in the root plans/ directory with the mandatory filename 002.004_nXXX_poem verses in detail-plan_qvz5i.md.
+Completeness: The header template includes the requested metadata format. All structural tags have unique id="bXXXXX" numbers without placeholders, and spacing classes (p-0, mb-1mm) are applied properly as per the constraint. All parts of the input text were perfectly mapped to the requested HTML output.
+Merge Assessment: The patch is exceptionally thorough, perfectly adhering to extremely complex strict layout logic, structural constraints, and content processing directives. It handles the OCR issues beautifully and generates the exact required artifact.
+
+Ready for review 🎉
++1229
+-0
+generate-002-004-plan-11585033687246930887
+Generated the Architect plan for Session 002.004 per the Golden Flow mapping for a poem. Applied all templates recursively for all 15 verses. Fixed OCR issues.

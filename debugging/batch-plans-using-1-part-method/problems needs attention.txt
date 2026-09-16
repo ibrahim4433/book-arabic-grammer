@@ -1,0 +1,41 @@
+# from the "what jules did receive" files I did see some problems that needs our attention :
+
+1. there is wrong file naming instructed in the prompts "part_[PART_NUMBER]_lesson_001-plan.md", "File name: part_[PART_NUMBER]_lesson_001-plan.md" , "The filename MUST follow the format: part_[PART_NUMBER]_lesson_[LESSON_NUMBER]-plan.md.", "The file must be placed in plans/001-poem-plan.md."
+"
+2. "Part Number: [PART_NUMBER] (Provided in the Custom Part Instruction)" why just not replace the [PART_NUMBER] dynamically with the correct one accurately before sending the prompt session to jules 
+3. "Strict Part Isolation (CRITICAL): You will receive a [CUSTOM PART INSTRUCTION] at the end of this prompt telling you EXACTLY which Part (1, 2, 3, or 4) to generate. You MUST completely IGNORE all text belonging to other parts. Do not generate the entire lesson." in this 1-part method jules will only receive his part lines of raw text content accurately so this is not a good phrase to say (not needed)
+4. "🎨 THE 1-PART "GOLDEN FLOW" (DYNAMIC MAPPING) :/nBased on the [CUSTOM PART INSTRUCTION], you will receive a specific chunk of text (Part 1, Part 5, Part 12, etc.)./n/nInstead of hardcoding what Part 1 or Part 5 should be, you MUST:/n/nAnalyze the Raw Text Chunk: Read the content of the part assigned to you./nClassify the Content: Match the content to one of the structural categories defined in the attached --- PART MAPPING JSON --- at the bottom of this prompt." there is no need for this and also there is no current "--- PART MAPPING JSON ---" section in the prompt anyways
+5. "Select Templates: Strictly use only the templates listed for that category in the JSON mapping to construct your HTML elements.
+For example, if the chunk contains vocabulary and verse explanations, match it to verse_explanation from the JSON, and use TEMPLATE_C_SPLIT.html, TEMPLATE_C_BLOCK.html, or TEMPLATE_C_TABLE.html to lay it out. If it contains exam questions, match it to comprehension_and_exams and use TEMPLATE_C_EXAM.html." we are currently using more accurate custom part-instructions that are more detailed than this..
+6. "Reference: Follow patterns in design_patterns.json." the 1-part method do not need this
+7. "Keyword-to-Template Deterministic Mapping (For Cut Content)/nTo ensure visual continuity when content is cut across two pages, you MUST use the following strict mapping to deduce the correct template for a given text section. Both the page ending the cut and the page starting the cut must use the same element type defined here:.........................................templates": [ "TEMPLATE_C_EXAM.html", "TEMPLATE_C_BENEFIT.html", "TEMPLATE_C_LIST.html" ], "description": "Used for exam questions, comprehension, and understanding sections." } } }
+" in the 1-part method we will not have a sliced content because we did slice every part to be in one plan so that there will be no other part of it in another plan (no need for sliced rules and elements in this 1-part method )
+8. "STRICT PART ISOLATION (CRITICAL ERROR)
+You will receive a [CUSTOM PART INSTRUCTION] detailing which specific part (1, 2, 3, or 4) the Architect was supposed to generate.
+FAILURE CONDITION: If the plan contains ANY content outside of the requested part (e.g., if Part 1 was requested, but the plan includes "مهارات الاستماع" or Exam questions), you MUST REJECT the plan immediately. The plan must exclusively represent the requested part." in the 1-part method jules will only receive his part lines of raw text content accurately so this is not a good phrase to say (not needed)
+9. "2. TEMPLATE COMPLIANCE (CRITICAL ERROR)
+FAILURE CONDITION: If the Architect used atomic templates (e.g., TEMPLATE_C_BLOCK.html, TEMPLATE_C_POEM.html) instead of the required TEMPLATE_LIT_PART_* templates, you MUST REJECT the plan.
+For Part 1: Must use TEMPLATE_LIT_PART_1_POEM.html.
+For Part 2: Must use TEMPLATE_LIT_PART_2_SKILLS.html.
+For Part 3: Must use TEMPLATE_LIT_PART_3_EXPLANATION.html (repeated for each verse).
+For Part 4: Must use TEMPLATE_LIT_PART_4_COMPREHENSION.html." no need for this as there will not be a sliced content to 2 parts anyways in this method
+10. "[AUDIT: REJECTED]
+[CRITICAL ERROR - PART ISOLATION]: The plan included content from Part 2 (Listening Skills) even though only Part 1 was requested.
+[CRITICAL ERROR - TEMPLATE COMPLIANCE]: The plan used TEMPLATE_C_POEM.html instead of the mandatory TEMPLATE_LIT_PART_1_POEM.html." no need for this as there will not be a sliced content to 2 parts anyways in this method , maybe replace them with a 1-part rules or other suitable things to verify
+11. two naming for the pages conflicted "The target HTML file MUST be pages/[LESSON_NUMBER].[PART_NUMBER]_nXX_[TITLE].html." , "FILE NAMING: The target HTML file in the plan MUST use nXXX in the filename (e.g., pages/001_nXXX_filename.html)."
+12. "You MUST use these values when populating TEMPLATE_C_HEADER:
+[CATEGORY_HEADER] (Level):
+[SECTION_HEADER] (Unit):
+[AUTHOR_NAME]:
+[AUTHOR_PHONE]:" why all values are empty ?!
+13. "CRITICAL: If the raw text is short, you MUST EXPAND on the examples.
+FORBIDDEN: Do NOT produce a single "Summary Table" plan. Break it down!
+GOAL: The plan must fill a full A4 page. Use multiple Example Blocks, Definition Blocks, and Benefit Boxes." this is non valid for the 1-part method (just use the provided content text no need for filling pages with extra content and no need to handle A4 precise cutting because in 1-part method all content will be streamed by parts and only a new page start is going to be when a new part / unit/ lesson coming (A4 slicing is handeled automatically by the internal syling and book building to pdf anyways automatically)
+14. "Check for Content Depth. If the plan has fewer than 4 content blocks, FAIL and RE-GENERATE with more detail.
+Check for One-Page Law. If it looks empty, ADD MORE EXAMPLES from your knowledge base (keeping the grammar rules strict)." in the 1-part method those 2 things are not suitable (no need)
+
+---
+
+# the full definition and description of the 1-part method and what it differ from others (1-plan , 1-page):
+- we must agree on all the points and have a solid definition and description of this method so we can continue developing and have a clear eye to know what suitable and what not !, start by making a full draft comparison between all 3 methods using all data you currently have in this project and tools and docs , and then I will fix it and discuss wth you about it until we finish...
+ 
