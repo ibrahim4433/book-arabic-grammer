@@ -284,13 +284,14 @@ Schema:
                     continue
                     
                 lesson_counters[lesson_number] = lesson_counters.get(lesson_number, 0) + 1
-                p_num = str(lesson_counters[lesson_number])
+                p_num = str(lesson_counters[lesson_number]).zfill(3)
                 
+                # Compare as integer if self.part_number specifies string integers
                 if isinstance(self.part_number, list) and self.part_number != ['1', '2', '3', '4']:
-                    if p_num not in self.part_number:
+                    if str(lesson_counters[lesson_number]) not in self.part_number and p_num not in self.part_number:
                         continue
                 elif isinstance(self.part_number, str) and self.part_number and self.part_number.upper() != "ALL":
-                    if p_num != self.part_number:
+                    if str(lesson_counters[lesson_number]) != self.part_number and p_num != self.part_number:
                         continue
                         
                 display_title = f"[Part {p_num}] {chunk_title}"
