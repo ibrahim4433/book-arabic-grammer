@@ -302,7 +302,7 @@ Schema:
                     if str(lesson_counters[lesson_number]) != self.part_number and p_num != self.part_number:
                         continue
                         
-                display_title = f"[Part {p_num}] {chunk_title}"
+                display_title = f"[Lesson {lesson_number}] [Part {p_num}] {chunk_title}"
                 clean_title = re.sub(r'[<>:"/\|?*]', '', chunk_title)
                 base_name = f"{lesson_number}.{p_num}_nXXX_{clean_title}-plan"
                 
