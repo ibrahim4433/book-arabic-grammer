@@ -587,8 +587,20 @@ CRITICAL RULES:
                 
             start_marker = info["start"]
             if start_marker not in marker_to_abs:
-                print(f"⚠️ Warning: Start marker {start_marker} not found in full_raw_indexed.txt")
-                continue
+                # Fallback: search forward for the next available marker
+                m = re.match(r'^(raw_[^:]+):(\d+)$', start_marker)
+                found = False
+                if m:
+                    file_name, line_num = m.group(1), int(m.group(2))
+                    for offset in range(1, 50):
+                        test_marker = f"{file_name}:{line_num + offset}"
+                        if test_marker in marker_to_abs:
+                            start_marker = test_marker
+                            found = True
+                            break
+                if not found:
+                    print(f"⚠️ Warning: Start marker {info['start']} not found in full_raw_indexed.txt (even after fallback)")
+                    continue
                 
             abs_start_offset = marker_to_abs[start_marker]
             
