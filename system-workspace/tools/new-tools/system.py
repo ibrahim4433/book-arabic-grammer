@@ -2838,18 +2838,100 @@ def run_auto_smart_merging():
     questionary.press_any_key_to_continue().ask()
 
 
-def backup_raw_file():
+def backup_for_purge(files_to_edit):
     import shutil
     import datetime
-    raw_dir = PROJECT_ROOT / "system-workspace/text-data/raw"
-    backup_dir = PROJECT_ROOT / "system-workspace/text-data/backups"
-    backup_dir.mkdir(parents=True, exist_ok=True)
     
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    for raw_file in raw_dir.glob("*.txt"):
-        backup_path = backup_dir / f"{raw_file.stem}_{timestamp}{raw_file.suffix}"
-        shutil.copy2(raw_file, backup_path)
-        console.print(f"[green]✅ Backup created at {backup_path}[/green]")
+    snapshot_dir = PROJECT_ROOT / "system-workspace/text-data/backups/purge_snapshots" / timestamp
+    snapshot_dir.mkdir(parents=True, exist_ok=True)
+    
+    # 1. Backup raw files
+    raw_dir = PROJECT_ROOT / "system-workspace/text-data/raw"
+    raw_backup = snapshot_dir / "raw"
+    raw_backup.mkdir(exist_ok=True)
+    for raw_filename in files_to_edit.keys():
+        src = raw_dir / raw_filename
+        if src.exists():
+            shutil.copy2(src, raw_backup / raw_filename)
+            
+    # 2. Backup index and full text
+    index_path = PROJECT_ROOT / "system-workspace/text-data/raw_to_lesson_index.json"
+    full_raw_path = PROJECT_ROOT / "system-workspace/text-data/full_raw_indexed.txt"
+    global_map = PROJECT_ROOT / "system-workspace/text-data/global_semantic_map.json"
+    
+    if index_path.exists(): shutil.copy2(index_path, snapshot_dir / "raw_to_lesson_index.json")
+    if full_raw_path.exists(): shutil.copy2(full_raw_path, snapshot_dir / "full_raw_indexed.txt")
+    if global_map.exists(): shutil.copy2(global_map, snapshot_dir / "global_semantic_map.json")
+    
+    # 3. Backup semantic maps
+    maps_dir = PROJECT_ROOT / "system-workspace/text-data/semantic_maps"
+    maps_backup = snapshot_dir / "semantic_maps"
+    maps_backup.mkdir(exist_ok=True)
+    if maps_dir.exists():
+        for map_file in maps_dir.glob("*.json"):
+            shutil.copy2(map_file, maps_backup / map_file.name)
+            
+    console.print(f"[green]✅ Full state snapshot saved to backups/purge_snapshots/{timestamp}[/green]")
+    return timestamp
+
+def run_restore_purge_snapshot(state_manager):
+    console.clear()
+    console.print("[bold cyan]⏪ Starting Purge Snapshot Restoration...[/bold cyan]")
+    
+    snapshots_dir = PROJECT_ROOT / "system-workspace/text-data/backups/purge_snapshots"
+    if not snapshots_dir.exists():
+        console.print("[yellow]No snapshots found![/yellow]")
+        questionary.press_any_key_to_continue().ask()
+        return
+        
+    snapshots = sorted([d for d in snapshots_dir.iterdir() if d.is_dir()], reverse=True)
+    if not snapshots:
+        console.print("[yellow]No snapshots found![/yellow]")
+        questionary.press_any_key_to_continue().ask()
+        return
+        
+    choices = [questionary.Choice(title=s.name, value=s) for s in snapshots]
+    selected_snapshot = questionary.select(
+        "Select a snapshot to restore from (newest first):",
+        choices=choices
+    ).ask()
+    
+    if not selected_snapshot:
+        return
+        
+    if not questionary.confirm(f"⚠️ Are you sure you want to completely overwrite current state with snapshot {selected_snapshot.name}?").ask():
+        return
+        
+    import shutil
+    # Restore raw files
+    raw_backup = selected_snapshot / "raw"
+    raw_dir = PROJECT_ROOT / "system-workspace/text-data/raw"
+    if raw_backup.exists():
+        for f in raw_backup.glob("*.txt"):
+            shutil.copy2(f, raw_dir / f.name)
+            
+    # Restore semantic maps
+    maps_backup = selected_snapshot / "semantic_maps"
+    maps_dir = PROJECT_ROOT / "system-workspace/text-data/semantic_maps"
+    if maps_backup.exists():
+        for f in maps_backup.glob("*.json"):
+            shutil.copy2(f, maps_dir / f.name)
+            
+    # Restore top level files
+    index_path = PROJECT_ROOT / "system-workspace/text-data/raw_to_lesson_index.json"
+    full_raw_path = PROJECT_ROOT / "system-workspace/text-data/full_raw_indexed.txt"
+    global_map = PROJECT_ROOT / "system-workspace/text-data/global_semantic_map.json"
+    
+    if (selected_snapshot / "raw_to_lesson_index.json").exists():
+        shutil.copy2(selected_snapshot / "raw_to_lesson_index.json", index_path)
+    if (selected_snapshot / "full_raw_indexed.txt").exists():
+        shutil.copy2(selected_snapshot / "full_raw_indexed.txt", full_raw_path)
+    if (selected_snapshot / "global_semantic_map.json").exists():
+        shutil.copy2(selected_snapshot / "global_semantic_map.json", global_map)
+        
+    console.print(f"[bold green]✅ Successfully restored all files to state at {selected_snapshot.name}![/bold green]")
+    questionary.press_any_key_to_continue().ask()
 
 def run_setup_part_instructions():
     console.print("\n[bold cyan]=== Setup Part Structural Instructions ===[/bold cyan]")
@@ -2949,10 +3031,6 @@ def run_interactive_purge_ui(state_manager):
         questionary.press_any_key_to_continue().ask()
         return
 
-    # Backup raw text
-    console.print("[cyan]Creating backups of raw text files...[/cyan]")
-    backup_raw_file()
-
     # Apply purging
     console.print("[cyan]Identifying lines to purge...[/cyan]")
     
@@ -2961,6 +3039,7 @@ def run_interactive_purge_ui(state_manager):
     tp = TextProcessor(project_root=PROJECT_ROOT)
     
     files_to_edit = {} # raw_filename -> list of (start_line, end_line) to delete
+    lesson_deletions = []
     
     for title, info in mapping.items():
         lesson_number = tp.get_lesson_number(title)
@@ -2996,17 +3075,35 @@ def run_interactive_purge_ui(state_manager):
                                 if raw_filename not in files_to_edit:
                                     files_to_edit[raw_filename] = []
                                 files_to_edit[raw_filename].append((raw_start_line, raw_end_line))
+                                
+                                trigger_reached = False
+                                swept_parts = []
+                                for c in chunks:
+                                    if c["title"] == chunk["title"]:
+                                        trigger_reached = True
+                                    if trigger_reached:
+                                        swept_parts.append(c["title"])
+                                        
+                                snippet_text = re.sub(r'^\[.*?\]\s*', '', start_line_text).strip()
+                                if not snippet_text and (start_idx + 1) < len(full_raw_lines):
+                                    snippet_text = re.sub(r'^\[.*?\]\s*', '', full_raw_lines[start_idx + 1]).strip()
+                                snippet = snippet_text[:60] + "..." if len(snippet_text) > 60 else snippet_text
+                                
+                                lesson_deletions.append({
+                                    "lesson": title,
+                                    "filename": raw_filename,
+                                    "swept_parts": swept_parts,
+                                    "snippet": snippet
+                                })
                 break # delete rest of the lesson
 
     raw_dir = PROJECT_ROOT / "system-workspace/text-data/raw"
-    total_deleted = 0
     all_merged_ranges = {}
+    total_lines_to_delete = 0
+    report_lines = []
+    
+    # 1. DRY RUN ANALYSIS
     for raw_filename, ranges in files_to_edit.items():
-        raw_path = raw_dir / raw_filename
-        if not raw_path.exists():
-            continue
-            
-        lines = raw_path.read_text(encoding="utf-8").splitlines()
         ranges.sort()
         merged_ranges = []
         for r in ranges:
@@ -3020,6 +3117,45 @@ def run_interactive_purge_ui(state_manager):
                     merged_ranges.append(r)
                     
         all_merged_ranges[raw_filename] = merged_ranges
+        
+        file_deleted_count = sum(end - start + 1 for start, end in merged_ranges)
+        total_lines_to_delete += file_deleted_count
+        report_lines.append(f"\n  📄 [bold cyan]{raw_filename}[/bold cyan]: [red]{file_deleted_count}[/red] lines will be deleted.")
+        
+        for ld in lesson_deletions:
+            if ld["filename"] == raw_filename:
+                parts_str = ", ".join(ld["swept_parts"])
+                report_lines.append(f"      [dim]• Lesson: {ld['lesson']}[/dim]")
+                report_lines.append(f"        [yellow]Start Snippet: \"{ld['snippet']}\"[/yellow]")
+                report_lines.append(f"        [red]Sweeps up parts: {parts_str}[/red]")
+
+    if not files_to_edit or total_lines_to_delete == 0:
+        console.print("[yellow]No content matched the selected parts for purging.[/yellow]")
+        questionary.press_any_key_to_continue().ask()
+        return
+
+    # 2. DRY RUN REPORT & CONFIRMATION
+    console.print("\n[bold yellow]⚠️ DRY RUN REPORT: The following content will be permanently purged:[/bold yellow]")
+    for r_line in report_lines:
+        console.print(r_line)
+    console.print(f"[bold red]Total lines to be purged across all files: {total_lines_to_delete}[/bold red]\n")
+    
+    if not questionary.confirm("Are you sure you want to apply these deletions?").ask():
+        console.print("[yellow]Purge operation cancelled by user.[/yellow]")
+        return
+        
+    # Backup raw text and mappings
+    console.print("[cyan]Creating snapshot of all related files before modification...[/cyan]")
+    backup_for_purge(files_to_edit)
+
+    # 3. APPLY DELETIONS
+    total_deleted = 0
+    for raw_filename, merged_ranges in all_merged_ranges.items():
+        raw_path = raw_dir / raw_filename
+        if not raw_path.exists():
+            continue
+            
+        lines = raw_path.read_text(encoding="utf-8").splitlines()
         
         new_lines = []
         for i, line in enumerate(lines):
@@ -3364,6 +3500,7 @@ def main():
                     "G) Plan Generation (Jules Batch - 1-Part Method)",
                     "H) Page Generation (Jules Batch - 1-Part Method)",
                     "I) Audit & Verify Pages",
+                    "R) Restore from Purge Snapshot",
                     "X) Back to Main Menu",
                 ],
                 style=menu_style,
@@ -3399,6 +3536,8 @@ def main():
                     run_jules_generation_ui(state_manager, is_1_part_mode=True, part_number=part_number)
                 elif sub_op == "I":
                     run_audit_and_verify(state_manager)
+                elif sub_op == "R":
+                    run_restore_purge_snapshot(state_manager)
 
         elif main_op == "4":
             sub_choice = questionary.select(
