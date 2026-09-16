@@ -529,10 +529,23 @@ Schema:
         
         if getattr(self, "is_1_part_mode", False) and chunk_title and self.part_instructions_map:
             # Inject dynamic part instruction if chunk_title matches
-            for key, instruction in self.part_instructions_map.items():
-                if key in chunk_title or chunk_title in key:
-                    mega_prompt += f"\n\n--- DYNAMIC INSTRUCTION FOR PART: {chunk_title} ---\n{instruction}\n"
+            def normalize_title(t):
+                return re.sub(r'[^\w\s]', '', t).strip().lower()
+            
+            norm_chunk_title = normalize_title(chunk_title)
+            
+            best_match_key = None
+            for key in self.part_instructions_map.keys():
+                norm_key = normalize_title(key)
+                if norm_key == norm_chunk_title:
+                    best_match_key = key
                     break
+            
+            if best_match_key:
+                instruction = self.part_instructions_map[best_match_key]
+                mega_prompt += f"\n\n--- DYNAMIC INSTRUCTION FOR PART: {chunk_title} ---\n{instruction}\n"
+            else:
+                logging.warning(f"⚠️ Could not find a matching part instruction file for chunk title: '{chunk_title}'")
         
         if workspace_code and workspace_code != "None":
             filename = f"{base_filename}_{workspace_code}.md"
