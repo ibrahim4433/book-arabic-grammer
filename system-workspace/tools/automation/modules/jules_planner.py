@@ -303,7 +303,8 @@ Schema:
                         continue
                         
                 display_title = f"[Lesson {lesson_number}] [Part {p_num}] {chunk_title}"
-                clean_title = re.sub(r'[<>:"/\|?*]', '', chunk_title)
+                clean_title = re.sub(r'[<>:"/\|?*]', '', chunk_title).strip()
+                clean_title = re.sub(r'\s+', '-', clean_title)
                 base_name = f"{lesson_number}.{p_num}_nXXX_{clean_title}-plan"
                 
                 existing = list((self.project_root / "plans").glob(f"{base_name}*.md"))
