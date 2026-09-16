@@ -1,0 +1,516 @@
+import re
+
+content = """# **SESSION 019.004**
+
+[TASK DEFINITION]
+Objective: Implement Part 004 of poem verses in detail.
+File: `pages/019.004_nXXX_poem verses in detail-page_snaep.html`
+
+[CONTENT STREAM]
+
+--- START STREAM ---
+
+=== BLOCK 1: VERSE 1 ===
+(Component: TEMPLATE_C_POEM.html)
+<div class="poem-container" id="b19401">
+    <div class="poem-verses">
+        <div class="poem-line flex justify-between items-center mb-2mm">
+            <div class="hemistich w-45pct text-center font-bold">غَمَرَتْهُ الأَحلامُ بِالشَّفَقِ الوَرْدِي</div>
+            <div class="hemistich w-45pct text-center font-bold">يُغْرِيهِ بِالمنى تَعْلِيلا</div>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 2: ANALYSIS VERSE 1 ===
+(Component: TEMPLATE_C_SPLIT.html)
+<div class="split-grid" id="b19402">
+    <div class="content-block w-50pct" id="b19403">
+        <div class="block-header bg-accent p-0 text-xs">
+            <span>المفردات والشرح والبلاغة</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">المفردات:</span> غَمَرَتْهُ: غَطَّتْهُ. الشَّفَقِ: حُمْرَةٌ تَظْهَرُ فِي الْأُفْقِ حَيْثُ تَغْرُبُ الشَّمْسُ. الوَرْدِي: لون أحمر يضرب إلى صُفْرَةٍ حَسَنَةٍ فِي كل شيء. يُغْرِيهِ: يُولِعُهُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الشرح:</span> فَاضَتْ عَلَيْهِ الأَحْلَامُ، وَتَزَاحَمَتْ فِي فِكْرِهِ الأَمَانِي رَاسِمَةً لَهُ عَالَمًا مُزْدَهِرًا فَاتِنًا، بَدَا كَحَسْنَاءِ جَمِيلَةٍ نَصَبَتْ لَهُ أَشْرَاكَ الغَرَامِ. وأَمَامَ هذا الإِغْرَاءِ هَامَ على وَجْهِهِ يَحُثُّ الخُطَا صَوْبَ ذَاكَ العَالَمِ الوَرْدِي الرائع.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الفكرة:</span> اغترار المغترب بأحلام الغربة.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">البلاغة:</span> (غَمَرَتْهُ الأَحلام)، (الشفق يُغْرِيهِ): استعارَةٌ مِكْنِيَّةٌ.</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content-block w-50pct" id="b19404">
+        <div class="block-header p-0 text-xs">
+            <span>الإعراب</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">غَمَرَتْهُ:</span> فِعْلٌ مَاضٍ مَبْنِي على الفَتْحَةِ؛ لاتِصَالِهِ بِتَاءِ التَّانيثِ السَّاكِنَةِ. والتَّاءُ، حَرْفُ تأنيث لا مَحَلَّ لَهُ مِنَ الإعراب. والهاء، ضمير متصل، مَبْنِي على الضَّمِّ فِي مَحَلِّ نَصْبٍ، مَفْعُولٌ بِهِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">الأَحْلامُ:</span> فَاعِلٌ مَرْفُوعٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">الوَرْدِي:</span> صِفَةٌ مَجْرُورَةٌ وَعَلَامَةُ جَرِّهَا الكَسْرَةُ الظَّاهِرَةُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">يُغْرِيهِ:</span> فِعْلٌ مُضَارِعٌ مَرْفُوعٌ، وعلامَةُ رَفْعِهِ الضَّمَّةُ المُقَدَّرَةُ على الياء، مَنَعَ ظُهُورَها الثقل. والهاء، ضمير مُتَّصِل، مبني على الكسر في مَحَلِّ نَصْبٍ، مَفْعُولٌ بِهِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">تَعْلِيلا:</span> حال مَنْصُوبَةٌ، وعلامَةُ نَصْبِهَا الفَتْحَةُ الظَّاهِرَةُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (غَمَرَتْهُ الأَحلام):</span> ابْتِدَائِيَّةٌ، لا محل لها مِنَ الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (يُغْرِيهِ):</span> حاليَّةٌ، مَحَلُّهَا النَّصْبُ.</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 3: VERSE 2 ===
+(Component: TEMPLATE_C_POEM.html)
+<div class="poem-container" id="b19405">
+    <div class="poem-verses">
+        <div class="poem-line flex justify-between items-center mb-2mm">
+            <div class="hemistich w-45pct text-center font-bold">وتلاشتْ حُلمًا فَحُلْمًا إلى اللاشيء</div>
+            <div class="hemistich w-45pct text-center font-bold">تمشي بِهِ قَلِيلًا قَلِيلا</div>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 4: ANALYSIS VERSE 2 ===
+(Component: TEMPLATE_C_SPLIT.html)
+<div class="split-grid" id="b19406">
+    <div class="content-block w-50pct" id="b19407">
+        <div class="block-header bg-accent p-0 text-xs">
+            <span>المفردات والشرح والبلاغة</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">المفردات:</span> تلاشت: زَالَتْ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الشرح:</span> عُمْرُ الْمُغْتَرَبِ بَدَأَ بِالتَّسَرَّبِ وَالنَّفَادِ والضَّياع دُونَ أَنْ يُحَقِّقَ حُلُمًا مِنَ الأَحْلَامِ التِي رَاوَدَتْ نَفْسَهُ، أو يَبْلُغَ أُمْنِيَةً مِنَ الأَمَانِي التِي دَاعَبَتْ فِكْرَهُ. وَبَعْدَ أَنْ أَدْرَكَ سَرَابَ الأَحْلَامِ، وَوَعَى وَهْمَ الْأَمَانِي بَدَأَ التَّنَازُلَ عَنْ أَحْلَامِهِ الوَرْدِيَّةِ الوَاحِدَ تِلْوَ الآخر، حَتَّى تَلَاشَتْ مِن نَفْسِهِ مُخَلَّفَةً مَكَانَهَا أَلَمًا عَمِيقًا وَيَأْسًا رَاسِخًا.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الفكرة:</span> تنازُلُ الْمُغْتَرَبِ وَتَخَلِّيهِ عَنْ أَحْلَامِهِ (عَدَمُ قُدْرَةِ المُغْتَرَبِ عَلى تَحْقِيقِ أَحلامه).</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content-block w-50pct" id="b19408">
+        <div class="block-header p-0 text-xs">
+            <span>الإعراب</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">وتلاشَتْ:</span> الواو، حَرْفُ عَطْفٍ. تلاشَتْ، فعل ماض، مَبْنِي على الفَتْحَةِ المُقَدَّرَةِ عَلَى الْأَلِفِ الْمَحْذُوفَةِ لاتِصَالِهِ بِتَاءِ التَّانِيثِ السَّاكِنَةِ. وَالتَّاءُ، حَرْفُ تَأْنيثٍ لَا مَحَلَّ لَهُ مِنَ الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">حلما:</span> حالٌ مَنْصُوبَةٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">فَحُلمًا:</span> الفاء، حَرْفُ عَطْفٍ. حلمًا، اسم مَعْطُوفٌ مَنْصُوبٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">قَلِيلًا:</span> نائِبُ مَفْعُولٍ مُطْلَقٍ مَنْصُوبٌ. هذا الإعراب على تَقْدِير: تَمْشِي بِهِ مَشْيًا قليلًا، وَيَصِحُ فِي إعرابها وجه آخَرُ (لا خلاف حَوْلَه)، وهو: نائِبُ مَفْعُولٍ فِيهِ ظَرْفُ زَمَانٍ مَنْصُوبٌ مُتَعَلِّقٌ بِالفِعْلِ (تَمْشِي) على تَقْدِيرِ: تَمْشِي بِهِ زَمَنًا قليلا.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (تلاشَتْ):</span> مَعْطُوفَةٌ، لا محل لها من الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (تمشي):</span> حاليَّةٌ، مَحَلُّهَا النَّصْبُ.</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 5: VERSE 3 ===
+(Component: TEMPLATE_C_POEM.html)
+<div class="poem-container" id="b19409">
+    <div class="poem-verses">
+        <div class="poem-line flex justify-between items-center mb-2mm">
+            <div class="hemistich w-45pct text-center font-bold">هو في مَيْعَةِ الشَّبَابِ ولو حَدَّقْتَ فِيهِ</div>
+            <div class="hemistich w-45pct text-center font-bold">أَبْصَرْتَ شَيْخًا هَزِيلا</div>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 6: ANALYSIS VERSE 3 ===
+(Component: TEMPLATE_C_SPLIT.html)
+<div class="split-grid" id="b19410">
+    <div class="content-block w-50pct" id="b19411">
+        <div class="block-header bg-accent p-0 text-xs">
+            <span>المفردات والشرح والبلاغة</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">المفردات:</span> مَيْعَةِ الشباب: الصبا، أوله ونشاطه ورَيْعَانُهُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الشرح:</span> تَرَكَتْ شِدَّةُ الْمُعَانَاةِ آثَارَهَا على ذَلِكَ الشَّابِ الْمُغْتَرِبِ الفَتِيِّ الذي يَرْزَحُ تَحْتَ وَطْأَةِ العَيْشِ، فَصَيَّرَتْهُ شَيْخًا طَاعِنًا فِي السِّنِّ ضَعِيفًا نَاحِلًا وَاهِنًا.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الفكرة:</span> تصويرُ بُرُوزِ آثَارِ مُعَانَاةِ الْمُغْتَرَبِ (انعِكَاسِ عَذَابَاتِ المغترب ومعاناته على مُحَيَّاه)، (تصوير آثار الغُرْبَةِ الجَسَدِيَّةِ).</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content-block w-50pct" id="b19412">
+        <div class="block-header p-0 text-xs">
+            <span>الإعراب</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">هو:</span> ضمير رفع منفصل، مَبْنِي على الفتح فِي مَحَلِّ رَفْعٍ، مُبْتَدَأٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">الشَّبَابِ:</span> مُضَافٌ إِلَيْهِ مَجْرُورٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">ولو حَدَّقْتَ:</span> الواو، واو الحال. لو، حَرْفُ شَرْطٍ غَيْرُ جَازِمٍ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">شَيْخًا:</span> مَفْعُولٌ بِهِ مَنْصُوبٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">هَزِيْلًا:</span> صِفَةٌ مَنْصُوبَةٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (هو فِي مَيْعَةِ الشَّبَابِ):</span> اسْتِئْنَافِيَّةٌ، لَا مَحَلَّ لها مِنَ الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (لو حَدَّقْتَ فِيهِ أَبْصَرْتَ):</span> حاليَّةٌ، محلها النصب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (حَدَّقْتَ):</span> جُمْلَةُ الشَّرْطِ غير الظرفي، لا محل لها مِنَ الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (أَبْصَرْتَ):</span> جَوَابُ الشَّرْطِ، لَا مَحَلَّ لها مِنَ الإعراب.</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 7: VERSE 4 ===
+(Component: TEMPLATE_C_POEM.html)
+<div class="poem-container" id="b19413">
+    <div class="poem-verses">
+        <div class="poem-line flex justify-between items-center mb-2mm">
+            <div class="hemistich w-45pct text-center font-bold">بِقَوَامٍ كَأَنَّ قَاصِمَةَ الظَّهْرِ</div>
+            <div class="hemistich w-45pct text-center font-bold">أَنَاخَتْ عَلَيْهِ حِمْلًا ثَقِيلا</div>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 8: ANALYSIS VERSE 4 ===
+(Component: TEMPLATE_C_SPLIT.html)
+<div class="split-grid" id="b19414">
+    <div class="content-block w-50pct" id="b19415">
+        <div class="block-header bg-accent p-0 text-xs">
+            <span>المفردات والشرح والبلاغة</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الشرح:</span> بدا مُقَوَّسَ القَامَةِ حَانِيَ الظَّهْرِ، يَنُوءُ بِحِمْلِ هُمُومٍ جِسَامٍ، وَمَصَائِبَ عِظَامٍ أُلْقِيَتْ على كاهِلِهِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الفكرة:</span> تَصْوِيرُ بُرُوزِ آثَارِ مُعَانَاةِ المُغْتَرَبِ (انعِكَاسِ عَذَابَاتِ المغترب ومعاناته على مُحَيَّاه)، (تصوير آثار الغربة الجسدية).</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content-block w-50pct" id="b19416">
+        <div class="block-header p-0 text-xs">
+            <span>الإعراب</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">كَأَنَّ:</span> حرف مُشَبَّهٌ بِالفِعْلِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">قَاصِمَةَ:</span> اسم إِنَّ مَنْصُوبٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">الظَّهْرِ:</span> مُضَافٌ إليهِ مَجْرُورٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">حِمْلًا:</span> مَفْعُولٌ بِهِ مَنْصُوبٌ، وعلامَةُ نَصْبِهِ الفَتْحَةُ الظَّاهِرَةُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">ثَقِيلا:</span> صِفَةٌ مَنْصُوبَةٌ، وعلامَةُ نَصْبِهَا الفَتْحَةُ الظَّاهِرَةُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (كَأَنَّ قَاصِمَةَ الظَّهْرِ أَنَاخَتْ):</span> صِفَةٌ، مَحَلُّهَا الجر.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (أَنَاخَتْ):</span> خَبَرَيَّةٌ، مَحَلَّهَا الرَّفْعُ.</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 9: VERSE 5 ===
+(Component: TEMPLATE_C_POEM.html)
+<div class="poem-container" id="b19417">
+    <div class="poem-verses">
+        <div class="poem-line flex justify-between items-center mb-2mm">
+            <div class="hemistich w-45pct text-center font-bold">وَجَبِينٍ أَلْقَتْ عَلَيْهِ شُجُونُ النَّفْسِ</div>
+            <div class="hemistich w-45pct text-center font-bold">ظِلًّا مِنَ العُبُوسِ ظَلِيلا</div>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 10: ANALYSIS VERSE 5 ===
+(Component: TEMPLATE_C_SPLIT.html)
+<div class="split-grid" id="b19418">
+    <div class="content-block w-50pct" id="b19419">
+        <div class="block-header bg-accent p-0 text-xs">
+            <span>المفردات والشرح والبلاغة</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الشرح:</span> إِنَّ ذَلِكَ الجَبِينَ المُقَطَّبَ الْمُغَضَّنَ الَّذِي لَفَعَتْهُ أَحْزَانُ النَّفْسِ وَشُجُونُهَا بِظِلٍّ قَاتِمٍ كَئِيبٍ، قَدْ بَاتَ مَحْرُومًا مِنَ السَّعَادَةِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الفكرة:</span> تصوير بُرُوز آثارِ مُعَانَاةِ الْمُغْتَرَبِ (انعِكَاسَ عَذَابَاتِ المغترب ومعاناته على محياه)، (تصوير آثار الغُرْبَةِ الجَسَدِيَّةِ).</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content-block w-50pct" id="b19420">
+        <div class="block-header p-0 text-xs">
+            <span>الإعراب</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">وَجَبِينٍ:</span> الواو، حَرْفُ عَطْفٍ. جَبِينٍ، اسمٌ مَعْطُوفٌ مَجْرُورٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">أَلْقَتْ:</span> فعل ماض، مَبْنِي على الفَتْحَةِ المُقَدَّرَةِ على الأَلِفِ المَحْذُوفَةِ؛ لاتِصَالِهِ بتَاءِ التَّأْنِيثِ السَّاكِنَةِ. وَالتَّاءُ، حَرْفُ تَأْنِيثٍ لَا مَحَلَّ لَهُ مِنَ الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">شُجُونُ:</span> فَاعِلٌ مَرْفُوعٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">النَّفْسِ:</span> مُضَافٌ إِلَيْهِ مَجْرُورٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">ظِلًّا:</span> مَفْعُولٌ بِهِ مَنْصُوبٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">ظَلِيلا:</span> صفَةٌ مَنْصُوبَةٌ، وعلامَةُ نَصْبِهَا الفَتْحَةُ الظَّاهِرَةُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (أَلْقَتْ عَلَيْهِ شُجُونُ النَّفْسِ):</span> صِفَةٌ، مَحَلَّهَا الجر.</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 11: VERSE 6 ===
+(Component: TEMPLATE_C_POEM.html)
+<div class="poem-container" id="b19421">
+    <div class="poem-verses">
+        <div class="poem-line flex justify-between items-center mb-2mm">
+            <div class="hemistich w-45pct text-center font-bold">فهو لا يَعْرِفُ التَّبَسُّمَ إِلَّا</div>
+            <div class="hemistich w-45pct text-center font-bold">عِنْدَمَا يَسْتَعِيدُ حُلْمًا جَمِيلا</div>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 12: ANALYSIS VERSE 6 ===
+(Component: TEMPLATE_C_SPLIT.html)
+<div class="split-grid" id="b19422">
+    <div class="content-block w-50pct" id="b19423">
+        <div class="block-header bg-accent p-0 text-xs">
+            <span>المفردات والشرح والبلاغة</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الشرح:</span> لا تَرْتَسِمُ الابْتِسَامَةُ على مُحَيَّاهُ العَابِسِ إِلَّا إِذَا اسْتَعَادَ يَوْمَ سَعْدٍ غَابِرٍ، أو لَاحَ لَهُ طَيْفُ ذِكْرَى جَمِيلَةٍ سَالِفَةٍ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الفكرة:</span> تَصْوِير آثار الغُرْبَةِ النَّفْسِيَّةِ (سَيْطَرَةُ اليَأْسِ وَالتَّشَاؤُمِ عَلى نَفْسِ المغترب).</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content-block w-50pct" id="b19424">
+        <div class="block-header p-0 text-xs">
+            <span>الإعراب</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">فهو:</span> الفاء، حَرْفُ اسْتِئناف. هو، ضميرُ رَفْعِ مُنْفَصِلٌ مَبْنِيٌّ على الفتح فِي مَحَلِّ رَفْعٍ، مُبْتَدَأٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">لا يَعْرِفُ:</span> لا، حَرْفُ نَفي. يَعْرِفُ فِعْلٌ مُضَارِعٌ مَرْفُوعٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">التَّبَسُّمَ:</span> مَفْعُولٌ بِهِ مَنْصُوبٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">إِلَّا:</span> أداةُ حَصْرٍ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">عِنْدَمَا:</span> عِنْدَ، مَفْعُولٌ فِيهِ ظَرْفٌ زَمَانٍ مَنْصُوبٌ. ما، حَرْفٌ مَصْدَرِي. وَالْمَصْدَرُ الْمُؤَوَّلُ (ما يَسْتَعِيدُ) فِي مَحَلِّ جَرٍّ، مُضافٌ إِلَيْهِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">حُلمًا:</span> مَفْعُولٌ بِهِ مَنْصُوبٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جَمِيلًا:</span> صِفَةٌ مَنْصُوبَةٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (هو لَا يَعْرِفُ):</span> اسْتِثْنَافِيَّةٌ، لَا مَحَلَّ لها مِنَ الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (لا يعرف):</span> خَبَرَيَّةٌ، مَحَلَّهَا الرَّفْعُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (يَسْتَعِيدُ):</span> صِلَةُ المَوْصُولِ، لا محل لها مِنَ الإعراب.</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 13: VERSE 7 ===
+(Component: TEMPLATE_C_POEM.html)
+<div class="poem-container" id="b19425">
+    <div class="poem-verses">
+        <div class="poem-line flex justify-between items-center mb-2mm">
+            <div class="hemistich w-45pct text-center font-bold">أَلِفَ اليَأْسَ قَلْبُهُ فَهو واليأس</div>
+            <div class="hemistich w-45pct text-center font-bold">يُحَاكِي بُثَيْنَةً وَجَمِيلا</div>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 14: ANALYSIS VERSE 7 ===
+(Component: TEMPLATE_C_SPLIT.html)
+<div class="split-grid" id="b19426">
+    <div class="content-block w-50pct" id="b19427">
+        <div class="block-header bg-accent p-0 text-xs">
+            <span>المفردات والشرح والبلاغة</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الشرح:</span> لِأَنَّ اليَأْسَ قَدِ اتَّخَذَ قَلْبَهُ سَكَنًا دَائِمًا وحُضْنًا دَافِئًا انْعَقَدَتْ بَيْنَهُمَا أَوَاصِرُ مَوَدَّةٍ وطِيدَةٍ مَاثَلَتْ بِمَتَانَتِهَا مَتَانَةَ عُرَى عَلَاقَةِ العِشْقِ التِي جَمَعَتْ جَمِيلًا بِمَحْبُوبَتِهِ بُثَيْنَةَ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الفكرة:</span> تَصْوِيرُ آثَارِ الغُرْبَةِ النَّفْسِيَّةِ (سَيْطَرَةُ اليَأْسِ وَالتَّشَاؤُمِ على نَفْسِ الْمُغْتَرَبِ).</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content-block w-50pct" id="b19428">
+        <div class="block-header p-0 text-xs">
+            <span>الإعراب</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">أَلِفَ:</span> فعل ماض، مَبْنِي على الفَتْحَةِ الظَّاهِرَةِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">اليَأْسَ:</span> مَفْعُولٌ بِهِ مَنْصُوبٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">قَلْبُهُ:</span> فَاعِلٌ مَرْفوع، وعلامَةُ رَفْعِهِ الضَّمَّةُ الظَّاهِرَةُ، وَالهَاءُ، ضمير متصل مبني على الضم في محل جر، مضافٌ إِلَيْهِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">فهو:</span> الفاء، حَرْفُ اسْتِثْنَافٍ. هو، ضميرُ رَفْعِ مُنْفَصِلٌ مَبْنِي على الفَتْحِ فِي مَحَلِّ رَفْعٍ، مُبْتَدَأٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">واليأس:</span> الواو، حَرْفُ عَطْفٍ. والياس، اسم مَعْطُوفٌ مَرْفُوعٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">يُحَاكِي:</span> فِعْلٌ مُضَارِعٌ مَرْفُوعٌ، وعلامَةُ رَفْعِهِ الضَّمَّةُ المُقَدَّرَةُ على الياء، مَنَعَ ظُهُورَهَا التَّقَلُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">بُثَيْنَةً:</span> مَفْعُولٌ بِهِ مَنْصُوبٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">وجميلا:</span> الواو، حَرْفُ عَطْفٍ. وجَمِيلا، اسمٌ مَعْطُوفٌ مَنْصُوبٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (أَلِفَ اليَأْسَ قَلْبُهُ):</span> اسْتِثْنَافِيَّةٌ، لا محل لها من الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (هو والياس يُحاكي):</span> اسْتِثْنَافِيَّةٌ، لَا محل لها من الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (يُحَاكِي):</span> خَبَرَيَّةٌ، مَحَلُّهَا الرَّفْعُ.</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 15: VERSE 8 ===
+(Component: TEMPLATE_C_POEM.html)
+<div class="poem-container" id="b19429">
+    <div class="poem-verses">
+        <div class="poem-line flex justify-between items-center mb-2mm">
+            <div class="hemistich w-45pct text-center font-bold">وإذا اليَأْسُ صَدَّ عَنْهُ قَلِيلَا</div>
+            <div class="hemistich w-45pct text-center font-bold">رَاحَ يَبْكي على نَوَاهُ طَوِيلا</div>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 16: ANALYSIS VERSE 8 ===
+(Component: TEMPLATE_C_SPLIT.html)
+<div class="split-grid" id="b19430">
+    <div class="content-block w-50pct" id="b19431">
+        <div class="block-header bg-accent p-0 text-xs">
+            <span>المفردات والشرح والبلاغة</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">المفردات:</span> نواه: بُعْدَهُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الشرح:</span> لِشِدَّةِ تَعَلُّقِ الْمُغْتَرِبِ بِاليَأْسِ وَلِلْحَمِيمِيَّةِ والأُلْفَةِ التِي تَمَّتْ بَيْنَهُما، فَإِنَّهُ يَحْزَنُ وَيَتَأَلَّمُ إِذَا مَا جَافَاهُ اليَأْسُ وفَتَرَ عَنْهُ لَحْظَةً، بل يبكي فراقه ومجافاته وصدوده بكاء عاشق متيم انفصل عن مَحْبُوبَتِهِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الفكرة:</span> تَصْوِيرُ آثَارِ الْغُرْبَةِ النَّفْسِيَّةِ (سَيْطَرَةُ اليَأْسِ والتَّشَاؤُم على نَفْسِ المُغْتَرِبِ).</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content-block w-50pct" id="b19432">
+        <div class="block-header p-0 text-xs">
+            <span>الإعراب</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">وإذا:</span> الواو، حرف اسْتِئْنَافٍ. وإذا، اسمُ شَرْطٍ غَيْرُ جازم، مَبْنِي على السُّكُون، فِي مَحَلِّ نَصْبٍ، مَفْعُولٌ فِيهِ ظَرْفُ زَمَانٍ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">اليَأْسُ:</span> فَاعِلٌ لِفِعْلٍ مَحْذُوفٍ يُفَسِّرُهُ الْمَذْكُورُ بَعْدَهُ مَرْفُوعٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">قَلِيلًا:</span> نَائِبُ مَفْعُولٍ فِيهِ ظَرْفُ زَمَانٍ مَنْصُوبٌ. هذا الإعراب على تَقْدِير: صَدَّ عَنْهُ زَمَنًا قَلِيلًا، وَيَصِحُ فِي إعرابها وجه آخر (لا خلاف حَوْلَهُ)، وهو نائِبُ مَفْعُولٍ مُطْلَقٌ مَنْصُوبٌ، وعلامَةُ نَصْبِهِ الفَتْحَةُ الظَّاهِرَةُ على تَقْدِيرِ: صَدَّ عَنْهُ صُدُودًا قليلا.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">راح:</span> فعل ماض ناقص، مَبْنِي على الفَتْحَةِ الظَّاهِرَةِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">طَوِيلا:</span> نَائِبُ مَفْعُولٍ فِيهِ ظَرْفُ زَمَانٍ مَنْصُوبٌ. هذا الإعراب على تَقْدِير: يَبْكي على نَوَاهُ زَمَنًا طَوِيْلًا، وَيَصِحُ فِي إعرابها وجه آخر (لا خلاف حَوْلَهُ)، وهو: نائِبُ مَفْعُولٍ مُطْلَقٌ مَنْصُوبٌ. على تَقْدِيرِ: يبكي على نَوَاهُ بُكاء طويلا.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (إذا اليَأْسُ صَدَّ عَنْهُ قَلِيْلًا رَاحَ يَبْكي):</span> اسْتِثْنَافِيَّةٌ، لَا مَحَلَّ لها مِنَ الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (صد):</span> تَفْسِيرية، لا محل لها مِنَ الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (راح يبكي):</span> جَوَابُ الشَّرْطِ، لا مَحَلَّ لها مِنَ الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (يبكي):</span> خَبَرَيَّةٌ، مَحَلَّهَا النَّصْبُ.</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 17: VERSE 9 ===
+(Component: TEMPLATE_C_POEM.html)
+<div class="poem-container" id="b19433">
+    <div class="poem-verses">
+        <div class="poem-line flex justify-between items-center mb-2mm">
+            <div class="hemistich w-45pct text-center font-bold">وإذا ما النَّسِيمُ مَرَّ عَلَيْهِ</div>
+            <div class="hemistich w-45pct text-center font-bold">فَعَلِيلٌ أَتَى يَعُودُ عَلِيلا</div>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 18: ANALYSIS VERSE 9 ===
+(Component: TEMPLATE_C_SPLIT.html)
+<div class="split-grid" id="b19434">
+    <div class="content-block w-50pct" id="b19435">
+        <div class="block-header bg-accent p-0 text-xs">
+            <span>المفردات والشرح والبلاغة</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">المفردات:</span> عليل: مريض. يعود: يَزُورُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الشرح:</span> إِنَّ النَّسَمَاتِ الرَّقِيقَةَ الواهِنَةَ الضَّعِيفَةَ، حِينَمَا تَلْفَحُ ذَلِكَ الْمُغْتَرَبَ، وتُدَاعِبُ وَجْهَهُ تَجِدُهُ مَرِيضًا سَقِيمًا مَهْمُومًا، فَتَبْدُو كَمَرِيضٍ وَاهِنٍ أَتَى يَعُودُ مَرِيضًا وَاهِنًا ضَعِيفًا.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الفكرة:</span> مشاركةُ الطَّبِيعَةِ الشَّاعِرَ آلامَهُ.</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content-block w-50pct" id="b19436">
+        <div class="block-header p-0 text-xs">
+            <span>الإعراب</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">وإذا:</span> الواو، حَرْفُ عَطْفٍ. وإذا، اسمُ شَرْطٍ غَيْرُ جازم، مَبْنِي على السُّكُون، في مَحَلِّ نَصْبٍ، مَفْعُولٌ فِيهِ ظَرْفُ زَمَانٍ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">ما:</span> حَرْفٌ زَائِدٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">النَّسِيمُ:</span> فَاعِلٌ لِفِعْلٍ مَحْذُوفٍ يُفَسِّرُهُ الْمَذْكُورُ بَعْدَهُ مَرْفُوعٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">فَعَلِيلٌ:</span> الفَاءُ، حَرْفٌ رابط لِجَوَابِ الشَّرْطِ. عَلِيلٌ خَبَرٌ لِمُبْتَدَأٍ مَحْذُوفٍ مرفوع.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">أتى:</span> فعل ماض، مَبْنِي على الفَتْحَةِ المُقَدَّرَةِ على الأَلِفِ مَنَعَ ظُهُورَهَا التَّعَذُّرُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">عَلِيلا:</span> مَفْعُولٌ بِهِ مَنْصُوبٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (إذا ما النَّسِيمُ مَرَّ عَلَيْهِ فَعَلِيلٌ أَتَى):</span> مَعْطُوفَةٌ، لَا مَحَلَّ لَهَا مِنَ الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (مَرَّ النَّسِيمُ):</span> مُضَافٌ إِلَيْهِ، مَحَلَّهَا الجر.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (مَرَّ):</span> تَفْسِيرِيَّةٌ، لَا مَحَلَّ لَهَا مِنَ الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (فَعَلِيلٌ أَتَى):</span> جَوَابُ الشَّرْطِ، لا محل لها من الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (أَتَى):</span> صِفَةٌ، محلها الرفع.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (يَعُودُ):</span> حالِيَّةٌ، مَحَلَّهَا النَّصْبُ. [حالٌ مِنَ الضَّمِيرِ الْمُسْتَتِرِ في الفعل (أتى)].</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 19: VERSE 10 ===
+(Component: TEMPLATE_C_POEM.html)
+<div class="poem-container" id="b19437">
+    <div class="poem-verses">
+        <div class="poem-line flex justify-between items-center mb-2mm">
+            <div class="hemistich w-45pct text-center font-bold">حَائِرَ الطَّرْفِ شَارِدَ الْفِكْرِ يَحْكِي</div>
+            <div class="hemistich w-45pct text-center font-bold">مُدْلِجًا فِي الظَّلَامِ ضَلَّ السَّبِيلا</div>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 20: ANALYSIS VERSE 10 ===
+(Component: TEMPLATE_C_SPLIT.html)
+<div class="split-grid" id="b19438">
+    <div class="content-block w-50pct" id="b19439">
+        <div class="block-header bg-accent p-0 text-xs">
+            <span>المفردات والشرح والبلاغة</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">المفردات:</span> مدلجا: الذي يسير في الليل. ضل: تاه وأضاع الطريق.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الشرح:</span> يُعاني هذا المُغْتَرَبُ فِي غُرْبَتِهِ مِنَ الحَيْرَةِ والضياع، فَيَبْدُو فِيهَا مُعْتَمًا يُهْتَدَى مُضْطَرِبًا، قَلِقًا، حائِرَ الطَّرْفِ، شارِدَ الْفِكْرِ كالنَّائِمِ الذي ضَلَّ الطريق في ليلة بَهِيمَةٍ مُظْلِمَةٍ حَالِكَةِ الظُّلْمَةِ لَا يُرَى بِهَا مَعْلَمٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الفكرة:</span> تصوير حَيْرَةِ الْمُغْتَرَبِ وَقَلَقِهِ وَضَيَاعِهِ.</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content-block w-50pct" id="b19440">
+        <div class="block-header p-0 text-xs">
+            <span>الإعراب</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">حائر:</span> حالٌ مَنْصُوبَةٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">الطَّرْفِ:</span> مُضَافٌ إليهِ مَجْرُورٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">شَارِدَ:</span> حالٌ مَنْصُوبَةٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">الفِكْرِ:</span> مُضَافٌ إليهِ مَجْرُورٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">يَحْكِي:</span> فِعْلٌ مُضَارِعٌ مَرْفُوعٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">مُدْلِجًا:</span> مَفْعُولٌ بِهِ مَنْصُوبٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">السَّبِيلا:</span> مَفْعُولٌ بِهِ مَنْصُوبٌ، وعلامَةُ نَصْبِهِ الفَتْحَةُ الظَّاهِرَةُ، وَالأَلِفُ، لإطلاق القافية.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (يَحْكِي):</span> حالِيَّةٌ، مَحَلَّهَا النَّصْبُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (ضَلَّ):</span> صِفَةٌ، مَحَلَّهَا النَّصْبُ.</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 21: VERSE 11 ===
+(Component: TEMPLATE_C_POEM.html)
+<div class="poem-container" id="b19441">
+    <div class="poem-verses">
+        <div class="poem-line flex justify-between items-center mb-2mm">
+            <div class="hemistich w-45pct text-center font-bold">تاهَ في عَالَمِ الْخَيَالِ فَضَاعَتْ</div>
+            <div class="hemistich w-45pct text-center font-bold">نَفْسُهُ وهي تَنْشُدُ المستحيلا</div>
+        </div>
+    </div>
+</div>
+
+=== BLOCK 22: ANALYSIS VERSE 11 ===
+(Component: TEMPLATE_C_SPLIT.html)
+<div class="split-grid" id="b19442">
+    <div class="content-block w-50pct" id="b19443">
+        <div class="block-header bg-accent p-0 text-xs">
+            <span>المفردات والشرح والبلاغة</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">المفردات:</span> تنشد: تطلب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الشرح:</span> رَاوَدَتْ نَفْسَهُ الأَحلامُ، وواكَبَتْ فِكْرَهُ الْأُمْنِيَاتُ، فَتَاهَ فِي عالم الخَيَالِ مُحَاوِلًا بُلُوغَهَا، لَكِنَّهُ أَضَاعَ عُمْرَهُ وهو يبحَثُ عَنْ غَايَاتِهِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-accent font-bold">الفكرة:</span> ضَيَاعُ عُمْرِ الْمُغْتَرَبِ دُونَ تَحْقِيقٍ غَايَاتِهِ.</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content-block w-50pct" id="b19444">
+        <div class="block-header p-0 text-xs">
+            <span>الإعراب</span>
+        </div>
+        <div class="block-body p-1mm">
+            <ul class="structured-list text-sm">
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">تاه:</span> فعل ماض، مَبْنِي على الفَتْحَةِ الظَّاهِرَةِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">الْخَيَالِ:</span> مُضَافٌ إِلَيْهِ مَجْرُورٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">فَضَاعَتْ:</span> الفَاءُ، حَرْفُ عَطْفٍ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">نَفْسُهُ:</span> فَاعِلٌ مَرْفوع، وعلامَةُ رَفْعِهِ الضَّمَّةُ الظَّاهِرَةُ، والهاء، ضميرٌ مُتَّصِلٌ مَبْنِي على الضم في محل جر، مُضَافٌ إِلَيْهِ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">وهي:</span> الواو، واو الحال. هي، ضميرُ رَفْعِ مُنْفَصِلٌ مَبْنِي على الفَتْحِ في محل رَفْعٍ، مُبْتَدَأٌ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">المستَحِيلا:</span> مَفْعُولٌ بِهِ مَنْصُوبٌ، وعلامَةُ نَصْبِهِ الفَتْحَةُ الظَّاهِرَةُ، والأَلِفُ، لإطلاق القافية.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (تاه):</span> اسْتِئْنَافِيَّةٌ، لَا مَحَلَّ لَهَا مِنَ الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (ضاعت):</span> مَعْطُوفَةٌ، لَا مَحَلَّ لها من الإعراب.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (هيَ تَنْشُدُ):</span> حالِيَّةٌ، مَحَلُّهَا النَّصْبُ.</span></li>
+                <li><span class="marker">•</span> <span><span class="text-primary font-bold">جملة (تَنْشُدُ):</span> خَبَرَيَّةٌ، مَحَلُّهَا الرَّفْعُ.</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+--- END STREAM ---"""
+with open('plans/019.004_nXXX_poem verses in detail-plan_snaep.md', 'w', encoding='utf-8') as f:
+    f.write(content)
