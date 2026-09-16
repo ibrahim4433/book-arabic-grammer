@@ -3068,34 +3068,28 @@ def run_interactive_purge_ui(state_manager):
                             raw_filename = start_match.group(1)
                             raw_start_line = int(start_match.group(2))
                             
-                            end_match = re.match(r'^(raw_[^:]+):(\d+)$', end_marker)
-                            if end_match and end_match.group(1) == raw_filename:
-                                raw_end_line = int(end_match.group(2))
-                                
-                                if raw_filename not in files_to_edit:
-                                    files_to_edit[raw_filename] = []
-                                files_to_edit[raw_filename].append((raw_start_line, raw_end_line))
-                                
-                                trigger_reached = False
-                                swept_parts = []
-                                for c in chunks:
-                                    if c["title"] == chunk["title"]:
-                                        trigger_reached = True
-                                    if trigger_reached:
-                                        swept_parts.append(c["title"])
-                                        
-                                snippet_text = re.sub(r'^\[.*?\]\s*', '', start_line_text).strip()
-                                if not snippet_text and (start_idx + 1) < len(full_raw_lines):
-                                    snippet_text = re.sub(r'^\[.*?\]\s*', '', full_raw_lines[start_idx + 1]).strip()
-                                snippet = snippet_text[:60] + "..." if len(snippet_text) > 60 else snippet_text
-                                
-                                lesson_deletions.append({
-                                    "lesson": title,
-                                    "filename": raw_filename,
-                                    "swept_parts": swept_parts,
-                                    "snippet": snippet
-                                })
-                break # delete rest of the lesson
+                            end_idx = lesson_start_idx + chunk["end_line"] - 1
+                            if end_idx < len(full_raw_lines):
+                                end_line_text = full_raw_lines[end_idx]
+                                end_match = re.match(r'^\[(raw_[^:]+):(\d+)\]', end_line_text)
+                                if end_match and end_match.group(1) == raw_filename:
+                                    raw_end_line = int(end_match.group(2))
+                                    
+                                    if raw_filename not in files_to_edit:
+                                        files_to_edit[raw_filename] = []
+                                    files_to_edit[raw_filename].append((raw_start_line, raw_end_line))
+                                    
+                                    snippet_text = re.sub(r'^\[.*?\]\s*', '', start_line_text).strip()
+                                    if not snippet_text and (start_idx + 1) < len(full_raw_lines):
+                                        snippet_text = re.sub(r'^\[.*?\]\s*', '', full_raw_lines[start_idx + 1]).strip()
+                                    snippet = snippet_text[:60] + "..." if len(snippet_text) > 60 else snippet_text
+                                    
+                                    lesson_deletions.append({
+                                        "lesson": title,
+                                        "filename": raw_filename,
+                                        "part": chunk["title"],
+                                        "snippet": snippet
+                                    })
 
     raw_dir = PROJECT_ROOT / "system-workspace/text-data/raw"
     all_merged_ranges = {}
@@ -3124,10 +3118,9 @@ def run_interactive_purge_ui(state_manager):
         
         for ld in lesson_deletions:
             if ld["filename"] == raw_filename:
-                parts_str = ", ".join(ld["swept_parts"])
                 report_lines.append(f"      [dim]• Lesson: {ld['lesson']}[/dim]")
-                report_lines.append(f"        [yellow]Start Snippet: \"{ld['snippet']}\"[/yellow]")
-                report_lines.append(f"        [red]Sweeps up parts: {parts_str}[/red]")
+                report_lines.append(f"        [red]Purging Part:[/red] {ld['part']}")
+                report_lines.append(f"        [yellow]Snippet: \"{ld['snippet']}\"[/yellow]")
 
     if not files_to_edit or total_lines_to_delete == 0:
         console.print("[yellow]No content matched the selected parts for purging.[/yellow]")
@@ -3208,11 +3201,19 @@ def run_interactive_purge_ui(state_manager):
         try:
             chunks = json.loads(map_path.read_text(encoding="utf-8"))
             new_chunks = []
+            deleted_lines_in_lesson = 0
+            
             for chunk in chunks:
-                if chunk["title"] not in selected_parts:
-                    new_chunks.append(chunk)
+                if chunk["title"] in selected_parts:
+                    # Accumulate deleted lines for shifting subsequent chunks
+                    deleted_lines_in_lesson += (chunk["end_line"] - chunk["start_line"] + 1)
                 else:
-                    break
+                    # Shift chunk based on lines deleted before it in this lesson
+                    if deleted_lines_in_lesson > 0:
+                        chunk["start_line"] -= deleted_lines_in_lesson
+                        chunk["end_line"] -= deleted_lines_in_lesson
+                    new_chunks.append(chunk)
+                    
             if len(new_chunks) != len(chunks):
                 map_path.write_text(json.dumps(new_chunks, ensure_ascii=False, indent=2), encoding="utf-8")
         except:
