@@ -487,12 +487,6 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
         return layout
 
     # Initialize Live with the initial table
-    existing_count = dummy_planner.count_existing_plans()
-    force_remake = False
-    if existing_count > 0:
-        ans = questionary.confirm(f"Found {existing_count} existing plans. Do you want to RE-MAKE them? (No = Skip)").ask()
-        force_remake = ans
-        
     range_input = questionary.text("Lessons to process (e.g. '1-10', '5', '12,15' or 'ALL'):", default="ALL").ask()
     if range_input is None: return
     
@@ -513,6 +507,7 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
                 only_lessons.append(str(int(part)))
                 
     calculated_sessions = 0
+    existing_count = 0
     if is_1_part_mode:
         map_path = PROJECT_ROOT / "system-workspace/text-data/global_semantic_map.json"
         if map_path.exists():
@@ -532,6 +527,14 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
                             continue
                             
                     calculated_sessions += 1
+                    
+                    chunk_title = chunk.get("title", "Unknown")
+                    clean_title = re.sub(r'[<>:"/\|?*]', '', chunk_title).strip()
+                    clean_title = re.sub(r'\s+', '-', clean_title)
+                    base_name = f"{ln}.{p_num}_nXXX_{clean_title}-plan"
+                    existing = list((PROJECT_ROOT / "plans").glob(f"{base_name}*.md"))
+                    if existing:
+                        existing_count += 1
             except: pass
     else:
         index_path = PROJECT_ROOT / "system-workspace/text-data/raw_to_lesson_index.json"
@@ -543,12 +546,32 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
                     ln = dummy_planner.tp.get_lesson_number(title)
                     if only_lessons and (ln not in only_lessons and str(int(ln)) not in only_lessons): continue
                     calculated_sessions += 1
+                    
+                    clean_title = re.sub(r"^\d+\s*-\s*", "", title).strip()
+                    clean_title = re.sub(r'[<>:"/\|?*]', '', clean_title)
+                    if is_1_page_mode:
+                        existing = list((PROJECT_ROOT / "plans").glob(f"page_{ln}-plan*.md"))
+                    else:
+                        existing = list((PROJECT_ROOT / "plans").glob(f"{ln}-{clean_title}-plan*.md"))
+                    if existing:
+                        existing_count += 1
             except: pass
+
+    force_remake = False
+    if existing_count > 0:
+        ans = questionary.confirm(f"Found {existing_count} existing plans in the selected range. Do you want to RE-MAKE them? (No = Skip)").ask()
+        force_remake = ans
+
+    if not force_remake:
+        calculated_sessions -= existing_count
             
     if calculated_sessions > 0:
         console.print(f"\n[bold cyan]📊 Calculated Total Jules Sessions Needed: [white]{calculated_sessions}[/white][/bold cyan]")
         if not questionary.confirm("Do you want to proceed and launch the batch?").ask():
             return
+    else:
+        console.print(f"\n[bold green]✅ All plans in this range already exist. Nothing to do![/bold green]")
+        return
             
     start_all = time.time()
     
