@@ -694,7 +694,13 @@ class JulesPageGenerator:
                 part_match = re.search(r"^\d+\.(\d+)", plan.name)
                 if part_match:
                     plan_p_num = part_match.group(1)
-                    if str(plan_p_num) not in [str(p) for p in part_nums]:
+                    safe_part_nums = []
+                    for p in part_nums:
+                        try:
+                            safe_part_nums.append(str(int(p)))
+                        except ValueError:
+                            safe_part_nums.append(str(p))
+                    if 'ALL' not in safe_part_nums and str(int(plan_p_num)) not in safe_part_nums:
                         continue
                 else:
                     continue
