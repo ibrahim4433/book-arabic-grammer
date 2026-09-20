@@ -530,7 +530,6 @@ def run_jules_planning_ui(state_manager, is_1_page_mode=False, is_1_part_mode=Fa
                     
                     chunk_title = chunk.get("title", "Unknown")
                     clean_title = re.sub(r'[<>:"/\|?*]', '', chunk_title).strip()
-                    clean_title = re.sub(r'\s+', '-', clean_title)
                     base_name = f"{ln}.{p_num}_nXXX_{clean_title}-plan"
                     existing = list((PROJECT_ROOT / "plans").glob(f"{base_name}*.md"))
                     if existing:
